@@ -9,7 +9,9 @@ const LandingPage = () => {
       <LandingIntro>
         <LoginBtn text="사장님으로 시작하기" to="/owner"></LoginBtn>
         <LoginBtn text="학생단체로 시작하기" to="/group"></LoginBtn>
+        {/* 추후 학생 버전 추가 
         <LoginBtn text="학생으로 시작하기" to="/student"></LoginBtn>
+        */}
       </LandingIntro>
     </SectionContainer>
 
