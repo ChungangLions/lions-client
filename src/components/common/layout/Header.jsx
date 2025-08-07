@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
+import SearchBar from '../filters/SearchBar'
 
 const Header = () => {
   return (
@@ -11,7 +12,8 @@ const Header = () => {
       <div>로고</div>
       <div>홈</div>
       */}
-      <Link to="mypage">마이페이지</Link>
+      <SearchBar/>
+      <Link to="/owner/mypage">마이페이지</Link>
     </HeaderContainer>
   )
 }
@@ -19,4 +21,6 @@ const Header = () => {
 export default Header
 
 const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
