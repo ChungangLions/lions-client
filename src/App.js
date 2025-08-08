@@ -6,6 +6,7 @@ import GroupHome from './pages/studentGroup/GroupHome';
 import StudentHome from './pages/student/StudentHome';
 import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerAcceptSuggest from './pages/owner/OwnerAcceptSuggest';
+import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
 
 function App() {
   return (
@@ -16,8 +17,8 @@ function App() {
       <Route path="/owner/mypage" element={<OwnerMyPage />}/>
       {/* <Route path="/owner/mypage/suggest-form" element={<OwnerMyPage />}/> */}
       <Route path="/owner/mypage/received-suggest" element={<OwnerAcceptSuggest />}/>
-      {/* <Route path="/owner/mypage/sent-suggest" element={<OwnerMyPage />}/>
-      <Route path="/owner/mypage/wishlist" element={<OwnerMyPage />}/> */}
+      <Route path="/owner/mypage/sent-suggest" element={<OwnerSendSuggest />}/>
+      {/* <Route path="/owner/mypage/wishlist" element={<OwnerMyPage />}/> */}
       <Route path="/group" element={<GroupHome />}/>
       <Route path="/student" element={<StudentHome />}/>
         
