@@ -3,9 +3,15 @@ import Header from '../../components/common/layout/Header'
 import SearchBar from '../../components/common/filters/SearchBar'
 import styled from 'styled-components'
 import CardSection from '../../components/common/cards/CardSection'
+import { useNavigate } from 'react-router-dom'
 
 const OwnerHome = () => {
   const cards = Array.from({ length: 20 }, (_, i) => i + 1); // 임의 카드 개수 지정
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate("proposal");
+  };
 
   return (
     <PageContainer>
@@ -13,7 +19,7 @@ const OwnerHome = () => {
       <ScrollSection>
         <CardListGrid> 
           {cards.map((cardId) => (
-            <CardSection key={cardId} />
+            <CardSection key={cardId} onClick = {handleCardClick} />
           ))}
         </CardListGrid>
       </ScrollSection>

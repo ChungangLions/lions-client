@@ -4,9 +4,9 @@ import ButtonGroup from './ButtonGroup'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
 
-const CardSection = ({cardId}) => {
+const CardSection = ({cardId, onClick}) => {
   return (
-      <CardWrapper>
+      <CardWrapper onClick = {onClick}>
         <CardGroup>
           <CardContent>
             <UserInfo cardId={cardId} />
