@@ -23,9 +23,18 @@ const SearchBar = () => {
 export default SearchBar
 
 const SearchSection = styled.div`
-
+width: 100%;
+position: relative;
+border-radius: 22.5px;
+background-color: #d9d9d9;
+height: 45px;
 `;
 
 const SearchInput = styled.input`
-
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
 `;

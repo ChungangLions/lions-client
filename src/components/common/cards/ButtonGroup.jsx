@@ -7,7 +7,6 @@ const ButtonGroup = () => {
   return (
     <ButtonWrapper>
         <FavoriteBtn />
-        <SuggestDealBtn />
     </ButtonWrapper>
   )
 }
@@ -15,4 +14,15 @@ const ButtonGroup = () => {
 export default ButtonGroup
 
 const ButtonWrapper = styled.div`
+width: 100%;
+position: absolute;
+margin: 0 !important;
+top: 0px;
+left: 333px;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: flex-start;
+padding: 10px;
+box-sizing: border-box;
 `;
