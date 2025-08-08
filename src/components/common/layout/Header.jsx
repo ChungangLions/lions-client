@@ -15,9 +15,9 @@ const Header = () => {
       </LeftBox>
       <SearchBar />
       <RightBox>
-        <Link to="/">
-        <NavItem>홈</NavItem>
-        </Link>
+        <LogoutContainer>
+        <NavItem>사장님</NavItem>
+        </LogoutContainer>
         <Link to="mypage">
         <NavItem>마이페이지</NavItem>
         </Link>
@@ -38,35 +38,60 @@ const Header = () => {
 export default Header
 
 const HeaderContainer = styled.div`
- width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #fff;
+width: 100%;
+position: relative;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: space-between;
+gap: 0px;
+text-align: left;
+font-size: 16px;
+color: #000;
+font-family: Pretendard;
 `;
 
 const LeftBox = styled.div`
-  display: flex;
-  align-items: center;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+gap: 20px;
 `;
 
 const RightBox = styled.nav`
-  display: flex;
-  align-items: center;
-  gap: 24px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+gap: 2px;
 `;
 
 const NavItem = styled.div`
-  width: 70px;
-  position: relative;
-  font-size: 16px;
-  font-family: Pretendard;
-  color: #000;
-  text-align: left;
-  display: inline-block;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px;
 `;
 
 const Logo = styled.div`
-  font-size: 20px;
-  font-weight: bold;
+width: 97px;
+background-color: #d9d9d9;
+height: 45px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 13px 0px;
+box-sizing: border-box;
+`;
+
+const LogoutContainer = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px;
+gap: 5px;
 `;
