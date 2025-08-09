@@ -111,7 +111,7 @@ const suggests = [
   },
 ];
 
-function OwnerSendSuggest() {
+function OwnerReceiveSuggest() {
   return (
     <PageContainer>
         <Header />
@@ -133,7 +133,7 @@ function OwnerSendSuggest() {
   );
 }
 
-export default OwnerSendSuggest;
+export default OwnerReceiveSuggest;
 
 const PageContainer = styled.div `
     margin: 30px;
