@@ -8,7 +8,9 @@ const MainLayout = () => {
   return (
     <PageContainer>
       <Header />
-      <Outlet />
+      <ContentWrapper>
+        <Outlet />
+      </ContentWrapper>
     </PageContainer>
   )
 }
@@ -16,4 +18,20 @@ const MainLayout = () => {
 export default MainLayout
 
 const PageContainer = styled.div`
+  display: flex;
+  flex-direction : column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+`;
+
+const ContentWrapper = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 15px 30px;
 `;
