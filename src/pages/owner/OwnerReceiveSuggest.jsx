@@ -139,20 +139,6 @@ const PageContainer = styled.div `
     margin: 30px;
 `;
 
-const SumContainer = styled.div `
-    display: flex;
-    border: 1px solid black;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-`;
-
-const SumBox = styled.div `
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`;
-
 const SuggestList = styled.div`
     margin-top: 15px;
     gap: 20px;
@@ -160,8 +146,4 @@ const SuggestList = styled.div`
     grid-template-columns: 1fr 1fr 1fr;
     display: felx;
     align-items: space-between;
-`;
-
-const SumInfo = styled.div `
-
 `;

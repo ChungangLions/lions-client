@@ -6,6 +6,7 @@ import Menu from '../../components/common/layout/Menu';
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox';
 
 const summaryItems = [
+    { count: 2, label: '작성 중'},
     { count: 5, label: '열람' },
     { count: 0, label: '미열람' },
     { count: 3, label: '제휴 체결' },
@@ -126,6 +127,7 @@ function OwnerSendSuggest() {
             department={suggest.department}
             title={suggest.title}
             date={suggest.date}
+            dateLabel="작성일"
             />
         ))}
         </SuggestList>
@@ -139,20 +141,6 @@ const PageContainer = styled.div `
     margin: 30px;
 `;
 
-const SumContainer = styled.div `
-    display: flex;
-    border: 1px solid black;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-`;
-
-const SumBox = styled.div `
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`;
-
 const SuggestList = styled.div`
     margin-top: 15px;
     gap: 20px;
@@ -160,8 +148,4 @@ const SuggestList = styled.div`
     grid-template-columns: 1fr 1fr 1fr;
     display: felx;
     align-items: space-between;
-`;
-
-const SumInfo = styled.div `
-
 `;

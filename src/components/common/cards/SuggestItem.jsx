@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-function SuggestItem({ profileImage, school, department, title, date }) {
+function SuggestItem({ profileImage, school, department, title, date, dateLabel = '수신일' }) {
     return (
       <SuggestWrapper>
         <SuggestInfo>
@@ -17,7 +17,7 @@ function SuggestItem({ profileImage, school, department, title, date }) {
           <SuggestBtn>열람</SuggestBtn>
         </SuggestInfo>
         <SuggestDate>
-          <DateLabel>수신일</DateLabel>
+          <DateLabel>{dateLabel}</DateLabel>
           <DateValue>{date}</DateValue>
         </SuggestDate>
       </SuggestWrapper>

@@ -22,7 +22,8 @@ const SummaryBoxWrapper = styled.div`
   align-items: center;
   gap: 0;
   margin: 35px auto;
-  max-width: 1225px;        // 중앙 딱 맞추기
+  min-width: 1225px;
+  max-width: 1290px;
   height: 137px;
   box-sizing: border-box;
   overflow: hidden;
