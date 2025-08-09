@@ -1,14 +1,13 @@
 import React from 'react'
 import styled from 'styled-components';
+import ProfileImage from './ProfileImage';
 
 const UserInfo = () => {
 
   return (
     <UserInfoWrapper>
       <UserSection>
-        <ProfileWrapper>
-          <ProfileImage />
-        </ProfileWrapper>
+        <ProfileImage />
         <NameWrapper>
           <p>중앙대학교</p> 
           <p>37대 경영학부 학생회</p>
@@ -39,13 +38,6 @@ padding: 5px 0px;
 gap: 30px;
 `;
 
-const ProfileImage = styled.div`
-  width: 107px;;
-position: relative;
-border-radius: 50%;
-background-color: #959494;
-height: 107px;
-`;
 
 const NameWrapper = styled.div`
   position: relative;
@@ -55,9 +47,3 @@ const NameWrapper = styled.div`
     margin: 0;
   }
 `;
-
-const ProfileWrapper = styled.div`
-width: 107px;
-height: 107px;
-`;
-
