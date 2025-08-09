@@ -4,6 +4,7 @@ import SearchBar from '../../components/common/filters/SearchBar'
 import styled from 'styled-components'
 import CardSection from '../../components/common/cards/CardSection'
 import { useNavigate } from 'react-router-dom'
+import MainLayout from '../../components/common/layout/MainLayout'
 
 const OwnerHome = () => {
   const cards = Array.from({ length: 20 }, (_, i) => i + 1); // 임의 카드 개수 지정
@@ -14,24 +15,17 @@ const OwnerHome = () => {
   };
 
   return (
-    <PageContainer>
-      <Header />
-      <ScrollSection>
-        <CardListGrid> 
-          {cards.map((cardId) => (
-            <CardSection key={cardId} onClick = {handleCardClick} />
-          ))}
-        </CardListGrid>
-      </ScrollSection>
-    </PageContainer>
+    <ScrollSection>
+      <CardListGrid> 
+        {cards.map((cardId) => (
+          <CardSection key={cardId} onClick = {handleCardClick} />
+        ))}
+      </CardListGrid>
+    </ScrollSection>
   )
 }
 
 export default OwnerHome
-
-const PageContainer = styled.div`
-
-`;
 
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`
