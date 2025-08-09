@@ -21,7 +21,6 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction : column;
   width: 100%;
-  justify-content: center;
   align-items: center;
   min-height: 100vh;
 `;
@@ -34,4 +33,5 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 15px 30px;
+  overflow-y: auto;
 `;

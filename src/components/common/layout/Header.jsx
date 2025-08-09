@@ -52,6 +52,11 @@ text-align: left;
 font-size: 16px;
 color: #000;
 font-family: Pretendard;
+/*스크롤 관련*/
+position: sticky;
+top:0;
+background-color: white;
+z-index: 1000;
 `;
 
 const LeftBox = styled.div`
