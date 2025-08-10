@@ -1,10 +1,24 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import SearchBar from '../filters/SearchBar'
+import useuserStore from '../../../stores/userStore'
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = () => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { userRole, isLoggedin, logout } = useuserStore();
+  const navigate = useNavigate();
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <HeaderContainer>
       <HeaderGroup>
@@ -15,9 +29,19 @@ const Header = () => {
         <SearchBar />
         </LeftBox>
         <RightBox>
-          <LogoutContainer>
-          <NavItem>사장님</NavItem>
-          </LogoutContainer>
+          <UserContainer>
+            <NavItem onClick = {toggleDropdown}>
+              {userRole || '사장님'}
+              <DropdownArrow isOpen={isDropdownOpen}>▼</DropdownArrow>
+            </NavItem>
+            {isDropdownOpen && (
+            <DropdownMenu>
+                  <DropdownItem onClick={handleLogout}>
+                    로그아웃
+                  </DropdownItem>
+              </DropdownMenu>
+              )}
+          </UserContainer>
           <StyledLink to="mypage">
           <NavItem>마이페이지</NavItem>
           </StyledLink>
@@ -85,6 +109,17 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
+
+.vectorIcon {
+  	width: 100%;
+  	position: relative;
+  	max-width: 100%;
+  	overflow: hidden;
+  	height: 6px;
+  	flex-shrink: 0;
+}
+
+
 `;
 
 const Logo = styled.div`
@@ -99,7 +134,7 @@ padding: 13px 0px;
 box-sizing: border-box;
 `;
 
-const LogoutContainer = styled.div`
+const UserContainer = styled.div`
 display: flex;
 flex-direction: row;
 align-items: center;
@@ -134,4 +169,33 @@ const DividerContainer = styled.div`
 width: 1380px;
 position: relative;
 justify-content: center;
+margin-bottom : 0px;
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  right: 90px;
+  top: 100%;
+  z-index: 10;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-width: 100px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-top: 5px;
+`;
+
+const DropdownItem = styled.div`
+  padding: 10px 10px;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
+const DropdownArrow = styled.span`
+  margin-left: 5px;
+
+  cursor: pointer;
 `;
