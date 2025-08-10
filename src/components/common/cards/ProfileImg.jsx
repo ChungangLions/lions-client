@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components';
 
-const ProfileImage = () => {
+const ProfileImg = () => {
   return (
     <ProfileWrapper>
         <ProfileSection />
@@ -9,7 +9,7 @@ const ProfileImage = () => {
   )
 }
 
-export default ProfileImage
+export default ProfileImg
 
 const ProfileSection = styled.div`
   width: 107px;;
