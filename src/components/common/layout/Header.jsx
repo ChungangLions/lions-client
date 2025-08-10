@@ -41,12 +41,10 @@ padding: 10px;
 `;
 
 const HeaderContainer = styled.div`
-width: 1380px;
 position: relative;
 display: flex;
 flex-direction: column;
 align-items: center;
-justify-content: space-between;
 gap: 15px;
 text-align: left;
 font-size: 16px;
@@ -67,6 +65,7 @@ align-items: center;
 justify-content: flex-start;
 gap: 20px;
 text-align: right;
+background-color: white;
 `;
 
 const RightBox = styled.nav`
@@ -74,7 +73,7 @@ position: relative;
 display: flex;
 flex-direction: row;
 align-items: center;
-
+background-color: white;
 gap: 2px;
 font-size: 16px;
 color: #000;
@@ -128,6 +127,7 @@ text-align: left;
 font-size: 16px;
 color: #000;
 font-family: Pretendard;
+background-color: white;
 `;
 
 const DividerContainer = styled.div`

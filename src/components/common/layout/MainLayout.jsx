@@ -23,6 +23,7 @@ const PageContainer = styled.div`
   width: 100%;
   align-items: center;
   min-height: 100vh;
+  margin: 30px;
 `;
 
 const ContentWrapper = styled.div`
@@ -33,5 +34,4 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 15px 30px;
-  overflow-y: auto;
 `;

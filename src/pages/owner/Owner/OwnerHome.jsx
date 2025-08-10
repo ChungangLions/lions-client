@@ -18,7 +18,7 @@ const OwnerHome = () => {
     <ScrollSection>
       <CardListGrid> 
         {cards.map(() => (
-          <CardSection onClick = {handleCardClick} cardType={'home'} buttonComponent ={FavoriteBtn} />
+          <CardSection onClick = {handleCardClick} cardType={'home'} ButtonComponent ={FavoriteBtn} />
         ))}
       </CardListGrid>
     </ScrollSection>

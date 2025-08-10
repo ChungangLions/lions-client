@@ -12,7 +12,7 @@ const cardDetail =  [
 ]
 
 // 페이지에 따라 카드 내용 필터링 
-const CardSection = ({cardId, onClick, cardType, buttonComponent}) => {
+const CardSection = ({cardId, onClick, cardType, ButtonComponent}) => {
 
   let cardData = [];
   if (cardType == 'home'){
@@ -30,7 +30,7 @@ const CardSection = ({cardId, onClick, cardType, buttonComponent}) => {
             <UserInfo />
             <DetailInfo cardDetail={cardData} />
             <ButtonWrapper>
-              <buttonComponent />
+              <ButtonComponent />
             </ButtonWrapper>
           </CardContent>
           </CardGroup>
