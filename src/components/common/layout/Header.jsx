@@ -80,6 +80,7 @@ top:0;
 background-color: white;
 z-index: 1000;
 margin: 15px 30px;
+width: 100%;
 `;
 
 const LeftBox = styled.div`
@@ -152,7 +153,7 @@ height: 1px;
 
 const HeaderGroup = styled.div`
 position: relative;
-width: 100%;
+width: 1380px;
 display: flex;
 flex-direction: row;
 align-items: center;
