@@ -4,7 +4,7 @@ import React from 'react'
 import usefilterStore from '../../../stores/filterStore'
 import styled from 'styled-components';
 
-const SortFilter = ({listType, sortType, btnName, btnStyle}) => {
+const DropDownFilter = ({listType, sortType, btnName, btnStyle}) => {
     const sortBy = usefilterStore((state) => state.sortBy);
 
     const handleClick = () => {
@@ -17,7 +17,7 @@ const SortFilter = ({listType, sortType, btnName, btnStyle}) => {
   )
 };
 
-export default SortFilter;
+export default DropDownFilter;
 
 const FilterButton = styled.button`
 position: relative;
@@ -34,4 +34,6 @@ text-align: left;
 font-size: 16px;
 color: #000;
 font-family: Pretendard;
+background-color: white;
+border:none;
 `;

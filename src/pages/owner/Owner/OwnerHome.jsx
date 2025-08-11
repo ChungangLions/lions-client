@@ -3,7 +3,9 @@ import styled from 'styled-components'
 import CardSection from '../../../components/common/cards/CardSection'
 import { useNavigate } from 'react-router-dom'
 import FavoriteBtn from '../../../components/common/buttons/FavoriteBtn'
-import DropdownFilter from '../../../components/common/filters/SortFilter'
+import DropDownFilter from '../../../components/common/filters/DropDownFilter'
+import SortItem from '../../../components/common/filters/SortItem'
+
 const OwnerHome = () => {
   const cards = Array.from({ length: 20 }, (_, i) => i + 1); // 임의 카드 개수 지정
   const navigate = useNavigate();
@@ -25,10 +27,8 @@ const OwnerHome = () => {
   return (
     <ScrollSection>
       <FilterSection>
-        {/* 필터 수정 필요: 찜 많은 순이 DropdownFilter이어야함 
-        <DropdownFilter listType="orglist" sortType="record" btnName="제휴이력" btnStyle={suggestRecordStyle}></DropdownFilter>
-        <LikeFilterBtn>찜 많은 순</LikeFilterBtn>
-        */}
+        <SortItem />
+        <DropDownFilter listType="orglist" sortType="likes" btnName="찜 많은 순" btnStyle={suggestRecordStyle} />
       </FilterSection>
       <CardListGrid> 
         {cards.map(() => (
@@ -67,18 +67,9 @@ gap: 15px;
   `;
 
 const FilterSection = styled.div`
-
-`;
-
-const LikeFilterBtn = styled.button`
-position: relative;
-width: 100%;
 display: flex;
 flex-direction: row;
-align-items: center;
-justify-content: flex-start;
-text-align: left;
-font-size: 16px;
-color: #000;
-font-family: Pretendard;
+gap: 23px;
+width:100%;
 `;
+

@@ -7,6 +7,7 @@ import StudentHome from './pages/student/StudentHome';
 import ProposalDetail from './pages/owner/Owner/ProposalDetail';
 import MainLayout from './components/common/layout/MainLayout';
 import OwnerReceivedProposal from './pages/owner/Owner/OwnerReceivedProposal';
+import StudentProfile from './pages/owner/Owner/StudentProfile';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="/owner" element={<OwnerHome />} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
         <Route path="owner/mypage/received-suggest" element={<OwnerReceivedProposal/>} />
-      
+        <Route path="owner/student-profile" element={<StudentProfile/>} />
 
         <Route path="/group" element={<GroupHome />}/>
         <Route path="/student" element={<StudentHome />}/>
