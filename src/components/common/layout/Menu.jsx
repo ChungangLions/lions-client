@@ -17,22 +17,27 @@ const MENU_ITEMS = [
 ];
 
 const Menu = () => {
-    const {pathname} = useLocation();
+  const { pathname } = useLocation();
 
-    return (
-        <MenuContainer>
-          {MENU_ITEMS.map(item => (
-            <MenuItem
-              key={item.to}
-              to={item.to}
-              $active={pathname === item.to}
-            >
-              {item.label}
-            </MenuItem>
-          ))}
-        </MenuContainer>
-      );
-}
+  return (
+    <MenuContainer>
+      {MENU_ITEMS.map(item => (
+        <MenuItem
+          key={item.to}
+          to={item.to}
+          $active={
+            item.to === '/owner/mypage'
+              ? pathname.startsWith('/owner/mypage')
+              : pathname === item.to
+          }
+        >
+          {item.label}
+        </MenuItem>
+      ))}
+    </MenuContainer>
+  );
+};
+
 
 export default Menu
 

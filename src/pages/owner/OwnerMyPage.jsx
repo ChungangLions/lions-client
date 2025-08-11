@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Menu from '../../components/common/layout/Menu'
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
+import { Link } from 'react-router-dom'
 
 const menus = [
   { id: 1, image: 'img1.jpg', name: '메뉴', price: 5000 },
@@ -31,7 +32,9 @@ const OwnerMyPage = () => {
             <Description> 베이커리가 다양하고 맛있는 디저트 카페 </Description>
           </DesBox>
         </TitleBox>
-        <EditButton> 수정 </EditButton>
+        <Link to="edit">
+          <EditButton> 수정 </EditButton>
+        </Link>
       </TitleContainer>
 
       {/* 중간 사진 section */}
