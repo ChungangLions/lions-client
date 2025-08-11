@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
+import FavoriteBtn from '../buttons/FavoriteBtn'
 
 const cardDetail =  [
   { label: '소속 학생 수', value: '1,000명' },
@@ -12,7 +13,7 @@ const cardDetail =  [
 ]
 
 // 페이지에 따라 카드 내용 필터링 
-const CardSection = ({cardId, onClick, cardType, ButtonComponent}) => {
+const CardSection = ({ onClick, cardType, ButtonComponent}) => {
 
   let cardData = [];
   if (cardType == 'home'){
