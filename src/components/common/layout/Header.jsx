@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import SearchBar from '../filters/SearchBar'
+import SearchBar from '../filters/SearchBar'
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = () => {
@@ -12,8 +13,8 @@ const Header = () => {
           <Logo>
             로고
           </Logo>
-        </LeftBox>
         <SearchBar />
+        </LeftBox>
         <RightBox>
           <LogoutContainer>
           <NavItem>사장님</NavItem>
@@ -33,25 +34,31 @@ const Header = () => {
 export default Header
 
 const StyledLink = styled(Link)`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px;
 `;
 
 const HeaderContainer = styled.div`
-width: 100%;
+width: 1380px;
 position: relative;
 display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: space-between;
-gap: 0px;
+gap: 15px;
 text-align: left;
 font-size: 16px;
 color: #000;
 font-family: Pretendard;
+/*스크롤 관련*/
+position: sticky;
+top:0;
+background-color: white;
+z-index: 1000;
+margin: 15px 30px;
 `;
 
 const LeftBox = styled.div`
@@ -60,14 +67,19 @@ flex-direction: row;
 align-items: center;
 justify-content: flex-start;
 gap: 20px;
+text-align: right;
 `;
 
 const RightBox = styled.nav`
+position: relative;
 display: flex;
 flex-direction: row;
 align-items: center;
-justify-content: flex-start;
+
 gap: 2px;
+font-size: 16px;
+color: #000;
+font-family: Pretendard;
 `;
 
 const NavItem = styled.div`
@@ -75,7 +87,6 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
-padding: 10px;
 `;
 
 const Logo = styled.div`
@@ -100,22 +111,20 @@ gap: 5px;
 `;
 
 const Divider = styled.div`
-width: 100%;
 position: relative;
 border-top: 1px solid #000;
 box-sizing: border-box;
 height: 1px;
-padding: 15px;
 `;
 
 const HeaderGroup = styled.div`
-width: 100%;
 position: relative;
+width: 100%;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: space-between;
-gap: 0px;
+gap: 525px;
 text-align: left;
 font-size: 16px;
 color: #000;
