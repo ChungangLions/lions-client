@@ -16,17 +16,14 @@ const OwnerHome = () => {
   // zustand store에서 사용할 것들 가져오기 
   const {
     organizations,
-    sortByLikeAsc,
-    sortByRecordAsc,
+    sortByDesc,
     filterByRecord,
-    isFiltered,
+    isFilteredByRecord,
   } = useStudentOrgStore();
 
   const handleSortChange = (e) => {
-    if (e.target.value === 'likes')
-      sortByLikeAsc();
-    else if (e.target.value === 'record')
-      sortByRecordAsc();
+    const key = e.target.value 
+    sortByDesc(key);
   }
 
   const handleFilterChange = (e) => {
@@ -37,7 +34,7 @@ const OwnerHome = () => {
     <ScrollSection>
       <SelectContainer>
         <FilterSection>
-            <FilterBtn onClick = {handleFilterChange}>{`제휴 이력 ${isFiltered ? '(ON)' : '(OFF)'}`}</FilterBtn>
+            <FilterBtn onClick = {handleFilterChange}>{`제휴 이력 ${isFilteredByRecord ? '(ON)' : '(OFF)'}`}</FilterBtn>
         </FilterSection>
         <SortSection onChange={handleSortChange}>
           <option value="likes">찜 많은 순</option>
@@ -53,6 +50,7 @@ const OwnerHome = () => {
     </ScrollSection>
   )
 }
+
 
 export default OwnerHome
 
@@ -78,6 +76,10 @@ display: flex;
 flex-direction: column;
 gap: 15px;
 align-items: flex-start;
+
+position: sticky;
+top: 0;
+height: 100vh; 
   `;
   
 const SelectContainer = styled.div`

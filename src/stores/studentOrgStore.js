@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// !! 필터 + 정렬 시 정렬 된 데이터를 안 가져오고 있어서 경우 문제 발생
 const originalOrganizations = [
             {
                 id: 1,
-                university: '중앙대학교1',
+                university: '중앙대학교7',
                 department: '37대 경영학부 학생회',
                 name: '다움',
                 student_num: '1,000명',
@@ -17,7 +18,7 @@ const originalOrganizations = [
             },
             {
                 id: 2,
-                university: '중앙대학교2',
+                university: '중앙대학교3',
                 department: '21대 공과대학 학생회',
                 name: '나',
                 student_num: '2,500명',
@@ -30,7 +31,7 @@ const originalOrganizations = [
             },
             {
                 id: 3,
-                university: '중앙대학교3',
+                university: '중앙대학교1',
                 department: '35대 소프트웨어학과 학생회',
                 name: '가',
                 student_num: '500명',
@@ -76,7 +77,7 @@ const originalOrganizations = [
                 date: { start: '2025.08', end: '2025.10' },
                 period: 3,
                 record: 10,
-                likes: 12,
+                likes: 23,
                 receivedDate: "2025.08.12",
                 writtenDate: "2025.08.12",
             },
@@ -95,7 +96,7 @@ const originalOrganizations = [
             },
             {
                 id: 8,
-                university: '중앙대학교8',
+                university: '중앙대학교2',
                 department: '40대 소프트웨어학과 학생회',
                 name: '가나다라마바',
                 student_num: '400명',
@@ -114,37 +115,41 @@ const useStudentOrgStore = create(
         originalOrganizations: originalOrganizations,
         organizations: originalOrganizations,
 
-        isFiltered: false,
+        isFilteredByRecord: false,
+        sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
 
-        // 찜 많은 순
-        sortByLikeAsc: () => {
-            set((state) => ({
-                organizations : [...state.organizations].sort((a,b) => b.likes - a.likes),
-            }));
-        },
-
-        // 제휴 이력 많은 순
-        sortByRecordAsc: () => {
-            set((state) => ({
-                organizations: [...state.organizations].sort((a,b) => b.record - a.record),
-            }));
+        // 많은 순
+        sortByDesc: (key) => {
+            const currentList = get().organizations;
+            const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
+            set({ organizations : sortedList, sortKey : key});
         },
 
         // 제휴 이력 1 이상 필터링
         filterByRecord: () => {
-            const isFiltered = get().isFiltered;
+            const isFiltered = get().isFilteredByRecord;
+            const sortKey = get().sortKey;
+
             if (isFiltered){
-                // 필터 해제
+                let newList = get().originalOrganizations;
+
+                // 필터 해제 + 정렬 설정되어있는 상태라면 
+                if(sortKey !=null){ 
+                    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+                }
+
                 set({
-                    organizations: get().originalOrganizations,
-                    isFiltered: false,
+                    organizations: newList,
+                    isFilteredByRecord: false,
                 })
             } else {
-            set((state) => ({
-                organizations: state.originalOrganizations.filter(organizations => organizations.record>=1),
-                isFiltered: true,
-            }));
-        }
+                const currentList = get().organizations;
+                const filteredList = currentList.filter(org => org.record >= 1);
+                set({
+                    organizations: filteredList,
+                    isFilteredByRecord: true,
+                });
+            }
         },
     }),
     {
