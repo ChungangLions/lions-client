@@ -114,6 +114,8 @@ const useStudentOrgStore = create(
         originalOrganizations: originalOrganizations,
         organizations: originalOrganizations,
 
+        isFiltered: false,
+
         // 찜 많은 순
         sortByLikeAsc: () => {
             set((state) => ({
@@ -130,13 +132,26 @@ const useStudentOrgStore = create(
 
         // 제휴 이력 1 이상 필터링
         filterByRecord: () => {
+            const isFiltered = get().isFiltered;
+            if (isFiltered){
+                // 필터 해제
+                set({
+                    organizations: get().originalOrganizations,
+                    isFiltered: false,
+                })
+            } else {
             set((state) => ({
                 organizations: state.originalOrganizations.filter(organizations => organizations.record>=1),
+                isFiltered: true,
             }));
+        }
         },
 
         resetFilter: () => {
-        set({ organizations: originalOrganizations });
+        set({ 
+            organizations: originalOrganizations,
+            isFiltered: false,
+        });
       },
     }),
     {

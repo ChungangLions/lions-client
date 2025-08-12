@@ -19,6 +19,8 @@ const OwnerHome = () => {
     sortByLikeAsc,
     sortByRecordAsc,
     filterByRecord,
+    resetFilter,
+    isFiltered
   } = useStudentOrgStore();
 
   const handleSortChange = (e) => {
@@ -36,7 +38,7 @@ const OwnerHome = () => {
     <ScrollSection>
       <SelectContainer>
         <FilterSection>
-            <FilterBtn onClick = {handleFilterChange}>제휴 이력</FilterBtn>
+            <FilterBtn onClick = {handleFilterChange}>{`제휴 이력 ${isFiltered ? '(ON)' : '(OFF)'}`}</FilterBtn>
         </FilterSection>
         <SortSection onChange={handleSortChange}>
           <option value="likes">찜 많은 순</option>
