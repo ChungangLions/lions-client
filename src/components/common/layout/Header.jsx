@@ -74,12 +74,14 @@ text-align: left;
 font-size: 16px;
 color: #000;
 font-family: Pretendard;
+
 /*스크롤 관련*/
+
 position: sticky;
 top:0;
 background-color: white;
 z-index: 1000;
-margin: 15px 30px;
+padding: 15px 30px;
 width: 100%;
 `;
 
@@ -91,6 +93,7 @@ justify-content: flex-start;
 gap: 20px;
 text-align: right;
 background-color: white;
+
 `;
 
 const RightBox = styled.nav`
