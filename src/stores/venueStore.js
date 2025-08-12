@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const venueStore = create(
+const useVenueStore = create(
     persist(
         (set) => ({
             stores: [
@@ -84,7 +84,11 @@ const venueStore = create(
             },
 
 
-
-        })
+        }),
+        {
+            name: 'venue-storage',
+        }
     )
-)
+);
+
+export default useVenueStore;
