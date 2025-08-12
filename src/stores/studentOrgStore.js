@@ -94,7 +94,7 @@ const originalOrganizations = [
                 writtenDate: "2025.08.12",
             },
             {
-                id: 6,
+                id: 8,
                 university: '중앙대학교8',
                 department: '40대 소프트웨어학과 학생회',
                 name: '가나다라마바',
@@ -146,13 +146,6 @@ const useStudentOrgStore = create(
             }));
         }
         },
-
-        resetFilter: () => {
-        set({ 
-            organizations: originalOrganizations,
-            isFiltered: false,
-        });
-      },
     }),
     {
         name: 'organization-storage',

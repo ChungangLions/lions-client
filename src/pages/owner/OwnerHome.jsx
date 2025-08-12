@@ -19,8 +19,7 @@ const OwnerHome = () => {
     sortByLikeAsc,
     sortByRecordAsc,
     filterByRecord,
-    resetFilter,
-    isFiltered
+    isFiltered,
   } = useStudentOrgStore();
 
   const handleSortChange = (e) => {
