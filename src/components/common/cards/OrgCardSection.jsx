@@ -2,33 +2,33 @@ import React from 'react'
 import styled from 'styled-components'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
-import FavoriteBtn from '../buttons/FavoriteBtn'
+import useStudentOrgStore from '../../../stores/studentOrgStore'
 
-const cardDetail =  [
-  { label: '소속 학생 수', value: '1,000명' },
-  { label: '희망 제휴 기간', value: '2025.08 ~ 2025.10 (3개월)' },
-  { label: '제휴 이력', value: '3회' },
-  { label: '수신일', value: '2025.08.08'},
-  { label: '작성일', value: '2025.08.08'},
-]
-
-// 페이지에 따라 카드 내용 필터링 
-const CardSection = ({ onClick, cardType, ButtonComponent}) => {
-
+const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => {
   let cardData = [];
-  if (cardType == 'home'){
-    cardData = cardDetail.slice(0, 3);
-  } else if  (cardType == 'suggest-received') {
-    cardData = cardDetail.slice(3, 4);
-  } else if (cardType == 'suggest-sent') {
-    cardData = cardDetail.slice(4, 5);
+
+
+  if (cardType === 'home') {
+    cardData = [
+      { label: '소속 학생 수', value: organization.student_num },
+      { label: '희망 제휴 기간', value: `${organization.date.start} ~ ${organization.date.end} (${organization.period}개월)` },
+      { label: '제휴 이력', value: `${organization.record}회` },
+    ];
+  } else if (cardType === 'suggest-received') {
+    cardData = [
+      { label: '수신일', value: organization.receivedDate }
+    ];
+  } else if (cardType === 'suggest-sent') {
+    cardData = [
+      { label: '작성일', value: organization.writtenDate }
+    ];
   }
 
   return (
       <CardWrapper onClick = {onClick}>
         <CardGroup>
           <CardContent>
-            <UserInfo />
+            <UserInfo organization={organization} />
             <DetailInfo cardDetail={cardData} />
             <ButtonWrapper>
               <ButtonComponent />
@@ -39,7 +39,7 @@ const CardSection = ({ onClick, cardType, ButtonComponent}) => {
   )
 }
 
-export default CardSection
+export default OrgCardSection
 
 
 const CardGroup = styled.div`

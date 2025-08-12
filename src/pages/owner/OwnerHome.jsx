@@ -1,38 +1,52 @@
 import React from 'react'
 import styled from 'styled-components'
-import CardSection from '../../components/common/cards/CardSection'
+import CardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
-import DropDownFilter from '../../components/common/filters/DropDownFilter'
-import SortItem from '../../components/common/filters/SortItem'
+import useStudentOrgStore from '../../stores/studentOrgStore'
+import FilterBtn from '../../components/common/buttons/FilterBtn'
 
 const OwnerHome = () => {
-  const cards = Array.from({ length: 20 }, (_, i) => i + 1); // 임의 카드 개수 지정
   const navigate = useNavigate();
 
   const handleCardClick = () => {
     navigate("student-profile");
   };
 
- const suggestRecordStyle = {
-    borderRadius: '5px',
-    border: '1px solid #000',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '10px',
-  };
+  // zustand store에서 사용할 것들 가져오기 
+  const {
+    organizations,
+    sortByLikeAsc,
+    sortByRecordAsc,
+    filterByRecord,
+  } = useStudentOrgStore();
+
+  const handleSortChange = (e) => {
+    if (e.target.value === 'likes')
+      sortByLikeAsc();
+    else if (e.target.value === 'record')
+      sortByRecordAsc();
+  }
+
+  const handleFilterChange = (e) => {
+      filterByRecord();
+  }
 
   return (
     <ScrollSection>
-      <FilterSection>
-        <SortItem />
-        <DropDownFilter listType="orglist" sortType="likes" btnName="찜 많은 순" btnStyle={suggestRecordStyle} />
-      </FilterSection>
+      <SelectContainer>
+        <FilterSection>
+            <FilterBtn onClick = {handleFilterChange}>제휴 이력</FilterBtn>
+        </FilterSection>
+        <SortSection onChange={handleSortChange}>
+          <option value="likes">찜 많은 순</option>
+          <option value="record">제휴 이력 많은 순</option>
+        </SortSection>
+      </SelectContainer>
       <CardListGrid> 
-        {cards.map(() => (
-          <CardSection onClick = {handleCardClick} cardType={'home'} ButtonComponent ={FavoriteBtn} />
+        {organizations.map((organization) => (
+          // 여기 detail 들어갈 거 props로 전달 필요 
+          <CardSection key={organization.id} onClick = {handleCardClick} cardType={'home'} ButtonComponent ={FavoriteBtn} organization={organization} />
         ))}
       </CardListGrid>
     </ScrollSection>
@@ -62,14 +76,35 @@ const ScrollSection = styled.div`
 display: flex;
 flex-direction: column;
 gap: 15px;
- overflow-x: auto;
-  scrollbar-width: none;
+align-items: flex-start;
   `;
+  
+const SelectContainer = styled.div`
+display: flex;
+flex-direction: row;
+gap : 23px;
+`;
 
 const FilterSection = styled.div`
 display: flex;
 flex-direction: row;
 gap: 23px;
 width:100%;
+`;
+
+const SortSection = styled.select`
+border: none;
+position: relative;
+width: 100%;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px;
+text-align: right;
+font-size: 16px;
+color: #000;
+font-family: Pretendard;
+background-color: white;
 `;
 

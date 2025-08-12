@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components';
 import SendProposalBtn from '../../components/common/buttons/SendProposalBtn';
 import OwnerInfo from '../../components/common/cards/OwnerInfo';
-import CardSection from '../../components/common/cards/CardSection';
+import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import ProposalDetailBox from '../../components/common/layout/ProposalDetailBox';
