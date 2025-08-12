@@ -2,7 +2,7 @@
 // 구현 사항: 메뉴 레이아웃 + 클릭 시 해당 디자인 변경
 // 유의 사항
 // 1. margin 반영 안 되어있음 -> 페이지에서 전체 Container margin 30px로 지정하고 사용 바람
-// 2. header에서 border 지정되어 있어서 margin-bottom만 지정함 (윗부분 border 없는 상태태)
+// 2. header에서 border 지정되어 있어서 margin-bottom만 지정함 (윗부분 border 없는 상태)
 
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -17,22 +17,27 @@ const MENU_ITEMS = [
 ];
 
 const Menu = () => {
-    const {pathname} = useLocation();
+  const { pathname } = useLocation();
 
-    return (
-        <MenuContainer>
-          {MENU_ITEMS.map(item => (
-            <MenuItem
-              key={item.to}
-              to={item.to}
-              $active={pathname === item.to}
-            >
-              {item.label}
-            </MenuItem>
-          ))}
-        </MenuContainer>
-      );
-}
+  return (
+    <MenuContainer>
+      {MENU_ITEMS.map(item => (
+        <MenuItem
+          key={item.to}
+          to={item.to}
+          $active={
+            item.to === '/owner/mypage'
+              ? pathname.startsWith('/owner/mypage')
+              : pathname === item.to
+          }
+        >
+          {item.label}
+        </MenuItem>
+      ))}
+    </MenuContainer>
+  );
+};
+
 
 export default Menu
 
@@ -41,7 +46,7 @@ const MenuContainer = styled.div`
     align-items: center;
     justify-content: start;
     gap: 50px;
-    padding: 10px 0 0 0 0;
+    padding: 10px 0 0 0;
     border-bottom: 1px solid #000000;
 `;
 

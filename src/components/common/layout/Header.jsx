@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import SearchBar from '../filters/SearchBar'
+import SearchBar from '../filters/SearchBar'
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = () => {
