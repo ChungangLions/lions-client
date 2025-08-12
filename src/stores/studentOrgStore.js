@@ -1,10 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const useStudentStore = create(
-    persist(
-        (set, get) => ({
-        organizations: [
+const originalOrganizations = [
             {
                 id: 1,
                 university: '중앙대학교1',
@@ -12,9 +9,11 @@ const useStudentStore = create(
                 name: '다움',
                 student_num: '1,000명',
                 date: { start: '2025.08', end: '2025.10' },
-                period: '3개월',
+                period: 3,
                 record: 3,
                 likes: 12,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
             },
             {
                 id: 2,
@@ -23,9 +22,11 @@ const useStudentStore = create(
                 name: '나',
                 student_num: '2,500명',
                 date: { start: '2025.08', end: '2026.03' },
-                period: '8개월',
+                period: 8,
                 record: 5,
                 likes: 51,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
             },
             {
                 id: 3,
@@ -34,9 +35,11 @@ const useStudentStore = create(
                 name: '가',
                 student_num: '500명',
                 date: { start: '2025.08', end: '2025.10' },
-                period: '3개월',
+                period: 3,
                 record: 12,
                 likes: 89,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
             },
             {
                 id: 4,
@@ -45,9 +48,11 @@ const useStudentStore = create(
                 name: '가나',
                 student_num: '500명',
                 date: { start: '2025.07', end: '2025.10' },
-                period: '4개월',
+                period: 4,
                 record: 16,
                 likes: 42,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
             },
             {
                 id: 5,
@@ -56,8 +61,11 @@ const useStudentStore = create(
                 name: '가나다',
                 student_num: '600명',
                 date: { start: '2025.08', end: '2025.09' },
-                period: '2개월',
+                period: 2,
                 record: 7,
+                likes: 32,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
             },
             {
                 id: 6,
@@ -66,30 +74,70 @@ const useStudentStore = create(
                 name: '가나다라',
                 student_num: '400명',
                 date: { start: '2025.08', end: '2025.10' },
-                period: '3개월',
+                period: 3,
                 record: 10,
+                likes: 12,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
             },
-        ],
+            {
+                id: 7,
+                university: '중앙대학교7',
+                department: '39대 소프트웨어학과 학생회',
+                name: '가나다라마',
+                student_num: '400명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 0,
+                likes: 2,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 6,
+                university: '중앙대학교8',
+                department: '40대 소프트웨어학과 학생회',
+                name: '가나다라마바',
+                student_num: '400명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 0,
+                likes: 62,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+        ];
+
+const useStudentOrgStore = create(
+    persist(
+        (set, get) => ({
+        originalOrganizations: originalOrganizations,
+        organizations: originalOrganizations,
+
         // 찜 많은 순
-        sortByLikeAsc: ()=> {
+        sortByLikeAsc: () => {
             set((state) => ({
-                organizations : [...state.organizations].sort((a,b) => a.likes - b.likes),
+                organizations : [...state.organizations].sort((a,b) => b.likes - a.likes),
             }));
         },
 
         // 제휴 이력 많은 순
         sortByRecordAsc: () => {
             set((state) => ({
-                organizations: [...state.organizations].sort((a,b) => a.record - b.record),
+                organizations: [...state.organizations].sort((a,b) => b.record - a.record),
             }));
         },
 
         // 제휴 이력 1 이상 필터링
         filterByRecord: () => {
             set((state) => ({
-                organizations: state.organizations.filter(organizations => organizations.record>=1),
+                organizations: state.originalOrganizations.filter(organizations => organizations.record>=1),
             }));
         },
+
+        resetFilter: () => {
+        set({ organizations: originalOrganizations });
+      },
     }),
     {
         name: 'organization-storage',
@@ -97,4 +145,4 @@ const useStudentStore = create(
     )
 );
 
-export default useStudentStore;
+export default useStudentOrgStore;
