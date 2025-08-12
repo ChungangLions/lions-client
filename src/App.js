@@ -1,13 +1,13 @@
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import LandingPage from './pages/landing/LandingPage';
-import OwnerHome from './pages/owner/Owner/OwnerHome';
+import OwnerHome from './pages/owner/OwnerHome';
 import GroupHome from './pages/studentGroup/GroupHome';
 import StudentHome from './pages/student/StudentHome';
-import ProposalDetail from './pages/owner/Owner/ProposalDetail';
+import ProposalDetail from './pages/owner/ProposalDetail';
 import MainLayout from './components/common/layout/MainLayout';
-import OwnerReceivedProposal from './pages/owner/Owner/OwnerReceivedProposal';
-import StudentProfile from './pages/owner/Owner/StudentProfile';
+import OwnerReceivedProposal from './pages/owner/OwnerReceivedProposal';
+import StudentProfile from './pages/owner/StudentProfile';
 
 function App() {
   return (

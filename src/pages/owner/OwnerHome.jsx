@@ -1,10 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import CardSection from '../../../components/common/cards/CardSection'
+import CardSection from '../../components/common/cards/CardSection'
 import { useNavigate } from 'react-router-dom'
-import FavoriteBtn from '../../../components/common/buttons/FavoriteBtn'
-import DropDownFilter from '../../../components/common/filters/DropDownFilter'
-import SortItem from '../../../components/common/filters/SortItem'
+import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
+import DropDownFilter from '../../components/common/filters/DropDownFilter'
+import SortItem from '../../components/common/filters/SortItem'
 
 const OwnerHome = () => {
   const cards = Array.from({ length: 20 }, (_, i) => i + 1); // 임의 카드 개수 지정

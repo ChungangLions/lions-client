@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import ProfileImg from '../../../components/common/cards/ProfileImg'
-import FavoriteBtn from '../../../components/common/buttons/FavoriteBtn'
+import ProfileImg from '../../components/common/cards/ProfileImg'
+import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
 
 const StudentProfile = () => {
   return (
