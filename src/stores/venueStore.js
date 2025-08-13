@@ -1,93 +1,93 @@
-// 가게 관리용 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import axios from 'axios';
 
 const useVenueStore = create(
     persist(
-        (set) => ({
-            stores: [
-                {
-                name: '백소정',
-                storeType: 'restaurant', 
-                dealType: 'time',
-                likes: 100,
-                recommendations: 79,
-                record: 5,
-                },
-                {
-                name: '대관령',
-                storeType: 'bar',
-                dealType: 'service',
-                likes: 50,
-                recommendations: 99,
-                record: 3,
-                },
-                {
-                name: '오후홍콩',
-                storeType: 'cafe',
-                dealType: 'review',
-                likes: 70,
-                record: 7,
-                recommendations: 29,
-                },
-                {
-                name: '가',
-                storeType: 'cafe',
-                dealType: 'sale',
-                likes: 20,
-                record: 12,
-                recommendations: 39,
-                },
-                {
-                name: '나',
-                storeType: 'cafe',
-                dealType: 'review',
-                likes: 30,
-                recommendations: 49,
-                record: 8,
-                }
-            ],
+        (set, get) => ({
+        originalStores: [],
+        stores: [],
 
-            // 찜 많은 순
-            sortByLikesAsc: () => {
-                set((state) => ({           
-                    stores : [...state.stores].sort((a,b) => a.likes - b.likes),
-                }));
-            },
+        isFilteredByStoreType: false,
+        isFilteredByDealType: false,
+        sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
 
-            // 제휴 이력 많은 순
-            sortByRecordAsc: () => {
-                set((state) => ({
-                    stores: [...state.stores].sort((a,b) => a.record- b.record),
-                }));
-            },
-
-            // 추천 많은 순
-            sortByRecommendAsc: () => {
-                set((state) => ({
-                    stores: [...state.stores].sort((a,b) => a.recommendations - b.recommendations),
-                }));
-            },
-
-            // 가게 업종 필터링
-            filterByStoreType : (type) => {
-                set((state) => ({
-                    stores : state.stores.filter(store => store.storeType === type),
-                }))
-            },
-
-            // 제휴 유형 필터링
-            filterByDealType : (type) => {
-                set((state) => ({
-                    stores : state.stores.filter(store => store.dealType === type),
-                }))
-            },
-
-
-        }),
-        {
-            name: 'venue-storage',
+        fetchStores: async () => {
+        try {
+          const res = await axios.get('/api/stores'); 
+          const data = res.data.data; 
+          set({
+            originalStores: data,
+            stores: data
+          });
+        } catch (err) {
+          console.error('Failed to fetch stores', err);
         }
+      },
+
+        // 찜/추천/제휴 이력 많은 순
+        sortByDesc: (key) => {
+            const currentList = get().stores;
+            const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
+            set({ stores : sortedList, sortKey : key});
+        },
+
+
+        filterByStoreType: () => {
+            const isFiltered = get().isFilteredByStoreType;
+            const sortKey = get().sortKey;
+
+            if (isFiltered){
+                let newList = get().originalStores;
+
+                // 필터 해제 + 정렬 설정되어있는 상태라면 
+                if(sortKey !=null){ 
+                    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+                }
+
+                set({
+                    stores: newList,
+                    isFilteredByStoreType: false,
+                })
+            } else {
+                const currentList = get().stores;
+                const filteredList = currentList.filter(org => org.record >= 1);
+                set({
+                    stores: filteredList,
+                    isFilteredByStoreType: true,
+                });
+            }
+        },
+
+        filterByDealType: () => {
+            const isFiltered = get().isFilteredByDealType;
+            const sortKey = get().sortKey;
+
+            if (isFiltered){
+                let newList = get().originalStores;
+
+                // 필터 해제 + 정렬 설정되어있는 상태라면 
+                if(sortKey !=null){ 
+                    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+                }
+
+                set({
+                    stores: newList,
+                    isFilteredByDealType: false,
+                })
+            } else {
+                const currentList = get().stores;
+                const filteredList = currentList.filter(org => org.record >= 1);
+                set({
+                    stores: filteredList,
+                    isFilteredByDealType: true,
+                });
+            }
+        },
+    }),
+    {
+        name: 'venue-storage',
+    }
     )
 );
 
