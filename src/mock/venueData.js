@@ -1,6 +1,7 @@
 let venueData = [
                 {
                 name: '백소정',
+                caption: '안주가 맛있는 감성 술집',
                 storeType: 'restaurant', 
                 dealType: 'time',
                 likes: 100,
@@ -9,6 +10,7 @@ let venueData = [
                 },
                 {
                 name: '대관령',
+                caption: '안주가 맛있는 감성 술집',
                 storeType: 'bar',
                 dealType: 'service',
                 likes: 50,
@@ -17,6 +19,7 @@ let venueData = [
                 },
                 {
                 name: '오후홍콩',
+                caption: '안주가 맛있는 감성 술집',
                 storeType: 'cafe',
                 dealType: 'review',
                 likes: 70,
@@ -25,6 +28,7 @@ let venueData = [
                 },
                 {
                 name: '가',
+                caption: '안주가 맛있는 감성 술집',
                 storeType: 'cafe',
                 dealType: 'sale',
                 likes: 20,
@@ -33,6 +37,7 @@ let venueData = [
                 },
                 {
                 name: '나',
+                caption: '안주가 맛있는 감성 술집',
                 storeType: 'cafe',
                 dealType: 'review',
                 likes: 30,
