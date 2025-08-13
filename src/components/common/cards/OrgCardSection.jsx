@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
-import useStudentOrgStore from '../../../stores/studentOrgStore'
 
 const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => {
   let cardData = [];
@@ -23,6 +22,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
       { label: '작성일', value: organization.writtenDate }
     ];
   }
+
 
   return (
       <CardWrapper onClick = {onClick}>
