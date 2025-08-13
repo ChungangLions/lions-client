@@ -7,14 +7,10 @@ import StudentHome from './pages/student/StudentHome';
 import ProposalDetail from './pages/owner/Owner/ProposalDetail';
 import MainLayout from './components/common/layout/MainLayout';
 import OwnerReceivedProposal from './pages/owner/Owner/OwnerReceivedProposal';
-import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
 import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
-import OwnerMyPage from './pages/owner/OwnerMyPage';
-import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
-import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
-import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
+import OwnerMyPage from './pages/owner/Owner/OwnerMyPage';
 
 function App() {
   return (

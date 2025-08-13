@@ -22,14 +22,13 @@ const SummaryBoxWrapper = styled.div`
   align-items: center;
   gap: 0;
   margin: 35px auto;
-  min-width: 1225px;
-  max-width: 1290px;
+  width: 1290px;
   height: 137px;
   box-sizing: border-box;
   overflow: hidden;
   border: 1px solid #959595;
+  display: flex;
 `;
-
 
 const SummaryItem = styled.div`
   flex: 1;
@@ -45,7 +44,7 @@ const SummaryItem = styled.div`
     top: 50%;
     transform: translateY(-50%);
     width: 1px;
-    height: 97px;         // 수직 라인 길이
+    height: 70%;         // 수직 라인 길이
     background: #959595;
   }
 `;

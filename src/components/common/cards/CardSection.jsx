@@ -2,35 +2,36 @@ import React from 'react'
 import styled from 'styled-components'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
+import useStudentOrgStore from '../../../store/studentOrgStore'
 
-const cardDetail =  [
-  { label: '소속 학생 수', value: '1,000명' },
-  { label: '희망 제휴 기간', value: '2025.08 ~ 2025.10 (3개월)' },
-  { label: '제휴 이력', value: '3회' },
-  { label: '수신일', value: '2025.08.08'},
-  { label: '작성일', value: '2025.08.08'},
-]
-
-// 페이지에 따라 카드 내용 필터링 
-const CardSection = ({cardId, onClick, cardType, buttonComponent}) => {
-
+const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => {
   let cardData = [];
-  if (cardType == 'home'){
-    cardData = cardDetail.slice(0, 3);
-  } else if  (cardType == 'suggest-received') {
-    cardData = cardDetail.slice(3, 4);
-  } else if (cardType == 'suggest-sent') {
-    cardData = cardDetail.slice(4, 5);
+
+
+  if (cardType === 'home') {
+    cardData = [
+      { label: '소속 학생 수', value: organization.student_num },
+      { label: '희망 제휴 기간', value: `${organization.date.start} ~ ${organization.date.end} (${organization.period}개월)` },
+      { label: '제휴 이력', value: `${organization.record}회` },
+    ];
+  } else if (cardType === 'suggest-received') {
+    cardData = [
+      { label: '수신일', value: organization.receivedDate }
+    ];
+  } else if (cardType === 'suggest-sent') {
+    cardData = [
+      { label: '작성일', value: organization.writtenDate }
+    ];
   }
 
   return (
       <CardWrapper onClick = {onClick}>
-        <CardGroup>
+        <CardGroup $isHome={cardType === 'home'}>
           <CardContent>
-            <UserInfo />
+            <UserInfo organization={organization} />
             <DetailInfo cardDetail={cardData} />
-            <ButtonWrapper>
-              <buttonComponent />
+            <ButtonWrapper $isHome={cardType === 'home'}>
+              <ButtonComponent />
             </ButtonWrapper>
           </CardContent>
           </CardGroup>
@@ -38,13 +39,13 @@ const CardSection = ({cardId, onClick, cardType, buttonComponent}) => {
   )
 }
 
-export default CardSection
+export default OrgCardSection
 
 
 const CardGroup = styled.div`
 margin: 0 !important;
 position: absolute;
-top: 19.5px;
+top: ${({ $isHome }) => ($isHome ? '19.5px' : '37.5px')};
 left: 48px;
 display: flex;
 flex-direction: row;
@@ -70,15 +71,16 @@ const CardContent = styled.div`
 align-self: stretch;
 display: flex;
 flex-direction: column;
-gap: 16px;
+align-items: space-between;
+gap: ${({ $isHome }) => ($isHome ? '16px' : '30px')};
 `;
 
 const ButtonWrapper = styled.div`
 width: 100%;
 position: absolute;
 margin: 0 !important;
-top: 0px;
-left: 333px;
+top: ${({ $isHome }) => ($isHome ? '0px' : '50%')};
+left: ${({ $isHome }) => ($isHome ? '333px' : '308px')};
 display: flex;
 flex-direction: column;
 align-items: flex-start;

@@ -1,29 +1,56 @@
 import React from 'react'
-import Header from '../../../components/common/layout/Header'
-import SearchBar from '../../../components/common/filters/SearchBar'
 import styled from 'styled-components'
 import CardSection from '../../../components/common/cards/CardSection'
 import { useNavigate } from 'react-router-dom'
 import FavoriteBtn from '../../../components/common/buttons/FavoriteBtn'
+import useStudentOrgStore from '../../../store/studentOrgStore'
+import FilterBtn from '../../../components/common/buttons/FilterBtn'
 
 const OwnerHome = () => {
-  const cards = Array.from({ length: 20 }, (_, i) => i + 1); // 임의 카드 개수 지정
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate("proposal");
+    navigate("student-profile");
   };
+
+  // zustand store에서 사용할 것들 가져오기 
+  const {
+    organizations,
+    sortByDesc,
+    filterByRecord,
+    isFilteredByRecord,
+  } = useStudentOrgStore();
+
+  const handleSortChange = (e) => {
+    const key = e.target.value 
+    sortByDesc(key);
+  }
+
+  const handleFilterChange = (e) => {
+      filterByRecord();
+  }
 
   return (
     <ScrollSection>
+      <SelectContainer>
+        <FilterSection>
+            <FilterBtn onClick = {handleFilterChange}>{`제휴 이력 ${isFilteredByRecord ? '(ON)' : '(OFF)'}`}</FilterBtn>
+        </FilterSection>
+        <SortSection onChange={handleSortChange}>
+          <option value="likes">찜 많은 순</option>
+          <option value="record">제휴 이력 많은 순</option>
+        </SortSection>
+      </SelectContainer>
       <CardListGrid> 
-        {cards.map(() => (
-          <CardSection onClick = {handleCardClick} cardType={'home'} buttonComponent ={FavoriteBtn} />
+        {organizations.map((organization) => (
+          // 여기 detail 들어갈 거 props로 전달 필요 
+          <CardSection key={organization.id} onClick = {handleCardClick} cardType={'home'} ButtonComponent ={FavoriteBtn} organization={organization} />
         ))}
       </CardListGrid>
     </ScrollSection>
   )
 }
+
 
 export default OwnerHome
 
@@ -45,7 +72,41 @@ const CardListGrid = styled.div`
 `;
 
 const ScrollSection = styled.div`
- overflow-x: auto;
-  padding: 20px;
-  scrollbar-width: none;
+display: flex;
+flex-direction: column;
+gap: 15px;
+align-items: flex-start;
+
+position: sticky;
+top: 0;
+height: 100vh; 
   `;
+  
+const SelectContainer = styled.div`
+display: flex;
+flex-direction: row;
+gap : 23px;
+`;
+
+const FilterSection = styled.div`
+display: flex;
+flex-direction: row;
+gap: 23px;
+width:100%;
+`;
+
+const SortSection = styled.select`
+border: none;
+position: relative;
+width: 100%;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px;
+text-align: right;
+font-size: 16px;
+color: #000;
+font-family: Pretendard;
+background-color: white;
+`;

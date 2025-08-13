@@ -2,7 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import SearchBar from '../filters/SearchBar'
-import SearchBar from '../filters/SearchBar'
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = () => {
@@ -19,7 +18,7 @@ const Header = () => {
           <LogoutContainer>
           <NavItem>사장님</NavItem>
           </LogoutContainer>
-          <StyledLink to="mypage">
+          <StyledLink to="/owner/mypage">
           <NavItem>마이페이지</NavItem>
           </StyledLink>
         </RightBox>

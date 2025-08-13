@@ -2,16 +2,16 @@ import React from 'react'
 import styled from 'styled-components';
 import ProfileImage from './ProfileImg';
 
-const UserInfo = () => {
+const UserInfo = ({organization}) => {
 
   return (
     <UserInfoWrapper>
       <UserSection>
         <ProfileImage />
         <NameWrapper>
-          <p>중앙대학교</p> 
-          <p>37대 경영학부 학생회</p>
-          <p>‘다움’</p>
+          <p>{organization.university}</p> 
+          <p>{organization.department}</p>
+          <p>{organization.name}</p>
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>

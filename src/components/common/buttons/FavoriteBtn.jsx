@@ -6,7 +6,8 @@ import styled from 'styled-components';
 const FavoriteBtn = ({onClick}) => {
     const [isHeartActive, setIsHeartActive] = useState(false);
 
-    const handleClick = () => {
+    const handleClick = (event) => {
+        event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
         setIsHeartActive(!isHeartActive);
         if (onClick) {
             onClick(!isHeartActive);
@@ -18,6 +19,7 @@ const FavoriteBtn = ({onClick}) => {
             { isHeartActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
         </StyledButton>
     )
+  
 }
 
 export default FavoriteBtn;
