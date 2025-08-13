@@ -1,11 +1,12 @@
 import React from 'react'
 import styled from 'styled-components';
-import SendProposalBtn from '../../../components/common/buttons/SendProposalBtn';
-import OwnerInfo from '../../../components/common/cards/OwnerInfo';
-import CardSection from '../../../components/common/cards/CardSection';
-import EditBtn from '../../../components/common/buttons/EditBtn';
-import SaveBtn from '../../../components/common/buttons/SaveBtn';
-import ProposalDetailBox from '../../../components/common/layout/ProposalDetailBox';
+import SendProposalBtn from '../../components/common/buttons/SendProposalBtn';
+import OwnerInfo from '../../components/common/cards/OwnerInfo';
+import CardSection from '../../components/common/cards/OrgCardSection';
+import EditBtn from '../../components/common/buttons/EditBtn';
+import SaveBtn from '../../components/common/buttons/SaveBtn';
+import ProposalDetailBox from '../../components/common/layout/ProposalDetailBox';
+import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 
 const ProposalDetail = () => {
   return (
@@ -37,7 +38,7 @@ const ProposalDetail = () => {
         </ProposalWrapper>
       </ProposalCard>
         <ReceiverSection>
-          <CardSection />
+          <CardSection ButtonComponent={FavoriteBtn}/>
           <ButtonWrapper>
             <EditBtn />
             <SaveBtn />
@@ -56,6 +57,7 @@ const ProposalContainer= styled.div`
   display: flex;
   flex-direction: row; 
   gap:19px;
+  align-items: flex-start;
 `;
 
 const ProposalCard = styled.div`
@@ -96,7 +98,7 @@ gap:20px;
 
 const ReceiverSection = styled.div`
 width: 100%;
-position: relative;
+position: sticky;
 display: flex;
 flex-direction: column;
 gap: 10px;
@@ -104,6 +106,7 @@ text-align: left;
 font-size: 18px;
 color: #000;
 font-family: Pretendard;
+top: 80px;
 `;
 
 const SectionWrapper = styled.div`
@@ -149,6 +152,7 @@ const ButtonWrapper = styled.div`
   display: flex;
   flex-direction : row;
   gap: 8px;
+
 `;
 
 const LineDiv = styled.div`

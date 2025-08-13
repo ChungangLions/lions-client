@@ -24,6 +24,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
     ];
   }
 
+
   return (
       <CardWrapper onClick = {onClick}>
         <CardGroup $isHome={cardType === 'home'}>
