@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import LoginBtn from '../../components/landing/LoginBtn'
+import LoginBtn from '../../components/common/buttons/LoginBtn'
 
 const LandingPage = () => {
   return (

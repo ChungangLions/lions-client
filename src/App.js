@@ -12,12 +12,14 @@ import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
 import OwnerReceivedProposal from './pages/owner/OwnerReceivedProposal';
 import StudentProfile from './pages/owner/StudentProfile';
+import Login from './pages/landing/Login';
 
 function App() {
   return (
     <BrowserRouter>
     <Routes>
       <Route path="/" element={<LandingPage />}/>
+      <Route path="/login" element={<Login />}/>
       <Route element={<MainLayout />}>
         <Route path="/owner" element={<OwnerHome />} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
