@@ -25,6 +25,7 @@ const PageContainer = styled.div`
   min-height: 100vh;
   margin: 30px;
   margin-top: 0px;
+  overflow-x: hidden;
 `;
 
 const ContentWrapper = styled.div`

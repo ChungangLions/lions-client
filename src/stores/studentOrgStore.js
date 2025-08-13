@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 
- const originalOrganizations = [
+const originalOrganizations = [
             {
                 id: 1,
                 university: '중앙대학교7',

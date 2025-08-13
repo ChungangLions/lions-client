@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import Menu from '../../../components/common/layout/Menu'
-import MenuItem from '../../../components/common/cards/MenuItem'
-import ImageSlider from '../../../components/common/cards/ImageSlider'
+import Menu from '../../components/common/layout/Menu'
+import MenuItem from '../../components/common/cards/MenuItem'
+import ImageSlider from '../../components/common/cards/ImageSlider'
 import { Link } from 'react-router-dom'
 
 const menus = [
