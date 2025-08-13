@@ -2,28 +2,123 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 
+ const originalOrganizations = [
+            {
+                id: 1,
+                university: '중앙대학교7',
+                department: '37대 경영학부 학생회',
+                name: '다움',
+                student_num: '1,000명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 3,
+                likes: 12,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 2,
+                university: '중앙대학교3',
+                department: '21대 공과대학 학생회',
+                name: '나',
+                student_num: '2,500명',
+                date: { start: '2025.08', end: '2026.03' },
+                period: 8,
+                record: 5,
+                likes: 51,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 3,
+                university: '중앙대학교1',
+                department: '35대 소프트웨어학과 학생회',
+                name: '가',
+                student_num: '500명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 12,
+                likes: 89,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 4,
+                university: '중앙대학교4',
+                department: '36대 소프트웨어학과 학생회',
+                name: '가나',
+                student_num: '500명',
+                date: { start: '2025.07', end: '2025.10' },
+                period: 4,
+                record: 16,
+                likes: 42,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 5,
+                university: '중앙대학교5',
+                department: '37대 소프트웨어학과 학생회',
+                name: '가나다',
+                student_num: '600명',
+                date: { start: '2025.08', end: '2025.09' },
+                period: 2,
+                record: 7,
+                likes: 32,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 6,
+                university: '중앙대학교6',
+                department: '38대 소프트웨어학과 학생회',
+                name: '가나다라',
+                student_num: '400명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 10,
+                likes: 23,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 7,
+                university: '중앙대학교7',
+                department: '39대 소프트웨어학과 학생회',
+                name: '가나다라마',
+                student_num: '400명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 0,
+                likes: 2,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+            {
+                id: 8,
+                university: '중앙대학교2',
+                department: '40대 소프트웨어학과 학생회',
+                name: '가나다라마바',
+                student_num: '400명',
+                date: { start: '2025.08', end: '2025.10' },
+                period: 3,
+                record: 0,
+                likes: 62,
+                receivedDate: "2025.08.12",
+                writtenDate: "2025.08.12",
+            },
+        ];
+
 const useStudentOrgStore = create(
     persist(
         (set, get) => ({
-        originalOrganizations: [],
-        organizations: [],
+        originalOrganizations: originalOrganizations,
+        organizations: originalOrganizations,
 
         isFilteredByRecord: false,
         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
 
-        fetchOrganizations: async () => {
-        try {
-          const res = await axios.get('/api/organizations'); // MSW mock API
-          const data = res.data.data; 
-          set({
-            originalOrganizations: data,
-            organizations: data
-          });
-        } catch (err) {
-          console.error('Failed to fetch organizations', err);
-        }
-      },
-
+        
         // 많은 순
         sortByDesc: (key) => {
             const currentList = get().organizations;

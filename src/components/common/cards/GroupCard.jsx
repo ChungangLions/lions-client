@@ -4,30 +4,27 @@ import FavoriteBtn from '../buttons/FavoriteBtn';
 import TypeLabel from '../labels/TypeLabel';
 
 
-function GroupCard({ imageUrl, title, subtitle, type, favorite, recommend, like, onLikeClick, best }) {
+function GroupCard({ imageUrl, onClick, ButtonComponent, store }) {
     return (
-    <CardWrapper>
+    <CardWrapper onClick={onClick}>
       <ImageWrapper>
-        <CardImage src={imageUrl || '/default.png'} alt={title} />
+        <CardImage src={imageUrl || '/default.png'} alt={store.name} />
         <TypeLabelBox>
           <TypeLabel />
         </TypeLabelBox>
         {/* 아래 onClick은 나중에 서버 연결 후 변경 필요 */}
         <HeartBtnBox>
-            <FavoriteBtn 
-                like={like}
-                onClick={onLikeClick}    
-            />
+            <ButtonComponent />
         </HeartBtnBox>
-        {best && (<BestText>Best!</BestText>)}
+        <BestText>Best!</BestText>
       </ImageWrapper>
       <CardTitleRow>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{store.name}</CardTitle>
         <ButtonNumbers>
             
         </ButtonNumbers>
       </CardTitleRow>
-      <CardSubtitle>{subtitle}</CardSubtitle>
+      <CardSubtitle>{store.caption}</CardSubtitle>
     </CardWrapper>
   );
 }

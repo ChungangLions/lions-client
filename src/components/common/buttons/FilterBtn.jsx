@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const FilterBtn = ({children, onClick}) => {
+const FilterBtn = ({children, onClick, active}) => {
   return (
-    <FilterButton onClick={onClick}>
+    <FilterButton onClick={onClick} active={active}>
         {children}
     </FilterButton>
   )
@@ -12,19 +12,12 @@ const FilterBtn = ({children, onClick}) => {
 export default FilterBtn
 
 const FilterButton = styled.button`
-position: relative;
+background-color: ${({ active }) => (active ? '#64a10f' : 'white')};
 border-radius: 5px;
-border: 1px solid #000;
-box-sizing: border-box;
-width: 100%;
+border: 1px solid #64a10f;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px;
-text-align: left;
-font-size: 16px;
-color: #000;
-font-family: Pretendard;
-background-color: white;
 `;
