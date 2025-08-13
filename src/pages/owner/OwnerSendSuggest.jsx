@@ -1,9 +1,11 @@
-import React from 'react';
-import SuggestItem from '../../components/common/cards/SuggestItem';
-import styled from 'styled-components';
-import Header from '../../components/common/layout/Header';
-import Menu from '../../components/common/layout/Menu';
-import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox';
+import React from 'react'
+import styled from 'styled-components'
+import CardSection from '../../components/common/cards/CardSection'
+import { useNavigate } from 'react-router-dom'
+import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
+import useStudentOrgStore from '../../store/studentOrgStore'
+import Menu from '../../components/common/layout/Menu'
+import ViewBtn from '../../components/common/buttons/ViewBtn'
 
 const summaryItems = [
     { count: 2, label: '작성 중'},
@@ -13,139 +15,59 @@ const summaryItems = [
     { count: 1, label: '거절' }
 ];
 
-const suggests = [
-  {
-    id: 1,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 2,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 3,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 4,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 5,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 6,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 7,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 8,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 9,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 10,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 11,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-  {
-    id: 12,
-    profileImage: '',
-    school: '중앙대학교',
-    department: '37대 경영학부 학생회',
-    title: '다움',
-    date: '2025.08.08'
-  },
-];
+const OwnerHome = () => {
+  const navigate = useNavigate();
 
-function OwnerSendSuggest() {
+  const handleCardClick = () => {
+    navigate("proposal");
+  };
+
+  // zustand store에서 사용할 것들 가져오기 
+  const {
+    organizations,
+  } = useStudentOrgStore();
+
   return (
-    <PageContainer>
-        <Header />
-        <Menu />
-        <SuggestSummaryBox items={summaryItems} />
-        <SuggestList>
-        {suggests.map(suggest => (
-            <SuggestItem
-            key={suggest.id}
-            profileImage={suggest.profileImage}
-            school={suggest.school}
-            department={suggest.department}
-            title={suggest.title}
-            date={suggest.date}
-            dateLabel="작성일"
-            />
+    <ScrollSection>
+      <Menu />
+      <SuggestSummaryBox items={summaryItems} />
+      <CardListGrid> 
+        {organizations.map((organization) => (
+          // 여기 detail 들어갈 거 props로 전달 필요 
+          <CardSection key={organization.id} onClick = {handleCardClick} cardType={'suggest-sent'} ButtonComponent ={ViewBtn} organization={organization} />
         ))}
-        </SuggestList>
-    </PageContainer>
-  );
+      </CardListGrid>
+    </ScrollSection>
+  )
 }
 
-export default OwnerSendSuggest;
 
-const PageContainer = styled.div `
-    margin: 30px;
+export default OwnerHome
+
+// 그리드 가로 3, 세로 자동
+const CardListGrid = styled.div`
+  width: 100%;
+  position: relative;
+  display: grid;
+  grid-template-rows: ;
+  grid-template-columns: repeat(3, 447px); 
+  justify-content: start;
+  align-content: start;
+  column-gap: 20px;
+  row-gap: 20px;
+  text-align: left;
+  font-size: 18px;
+  color: #000;
+  font-family: Pretendard;
 `;
 
-const SuggestList = styled.div`
-    margin-top: 15px;
-    gap: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    display: felx;
-    align-items: space-between;
+const ScrollSection = styled.div`
+display: flex;
+flex-direction: column;
+gap: 15px;
+align-items: flex-start;
+
+position: sticky;
+top: 0;
+// height: 100vh; 
 `;

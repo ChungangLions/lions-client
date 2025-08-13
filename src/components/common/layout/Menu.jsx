@@ -22,17 +22,18 @@ const Menu = () => {
   return (
     <MenuContainer>
       {MENU_ITEMS.map(item => (
-        <MenuItem
-          key={item.to}
-          to={item.to}
-          $active={
-            item.to === '/owner/mypage'
-              ? pathname.startsWith('/owner/mypage')
-              : pathname === item.to
-          }
-        >
-          {item.label}
-        </MenuItem>
+      <MenuItem
+        key={item.to}
+        to={item.to}
+        $active={
+          item.to === '/owner/mypage'
+            ? pathname === '/owner/mypage' || pathname === '/owner/mypage/edit'
+            : pathname === item.to
+        }
+      >
+        {item.label}
+      </MenuItem>
+
       ))}
     </MenuContainer>
   );
@@ -42,12 +43,13 @@ const Menu = () => {
 export default Menu
 
 const MenuContainer = styled.div`
+    width: 1380px;
     display: flex;
     align-items: center;
     justify-content: start;
     gap: 50px;
-    padding: 10px 0 0 0;
     border-bottom: 1px solid #000000;
+    margin: 0 auto;
 `;
 
 const MenuItem = styled(Link)`

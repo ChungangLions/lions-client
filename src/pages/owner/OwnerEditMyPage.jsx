@@ -1,13 +1,4 @@
-// To Do list
-// 1. 기본 데이터 넣어놓고 수정이 되는지 확인 (V)
-// 2. 시간 + - 독립적으로 작동하는지 확인 (V)
-// 3. ?? DatePicker: 요일 사이즈 늘리고 시간 사이즈 줄이기 피드백 받기 (V)
-// 4. ?? 오른쪽 리스트 고정시키긴 했는데, 지금 내 컴 기준으로 리스트가 다 안 보여서 맨 밑에 요소 확인 불가 피드백 받기 (미해결)
-// 5. 프로필 수정 페이지에 있을 때, 메뉴 '프로필' 표시돼야 함 (V)
-// 6. ?? 대학 검색의 경우, (시현이가 원하는 대로면) 아마 외부 api 가져와서 해야할 것 같은데,, 이거 백엔드가 해주는 건가?? (미해결)
-
-import React, { useRef, useState } from "react";
-import Header from "../../components/common/layout/Header";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import Menu from "../../components/common/layout/Menu";
 import { Dropdown } from "../../components/common/inputs/Dropdown";
@@ -17,7 +8,6 @@ import PhotoUploadWithInput from "../../components/common/inputs/PhotoUploadWith
 import DatePicker from "../../components/common/inputs/DatePicker";
 
 // ---- 샘플 데이터 ----
-const sampleUniversity = { data: ["중앙대학교", "숭실대학교", "서울대학교"] };
 const sampleType = { data: ["한식", "중식", "일식", "카페", "술집", "기타"] }
 const Date = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
 const Time = {
@@ -37,14 +27,14 @@ const SECTIONS = [
   { key: "openHours", label: "영업 시간", refKey: "openHours" },
   { key: "menu", label: "대표 메뉴", refKey: "menu" },
   { key: "goal", label: "제휴 목표", refKey: "goal" },
-  { key: "extra", label: "추가 서비스", refKey: "extra" },
   { key: "revenue", label: "평균 인당 매출", refKey: "revenue" },
   { key: "margin", label: "마진율", refKey: "margin" },
   { key: "busy", label: "바쁜 시간대", refKey: "busy" },
   { key: "free", label: "한산한 시간대", refKey: "free" },
+  { key: "extra", label: "추가 제공 서비스", refKey: "extra" },
 ];
 
-// 임의로 채운 !!! 예시 데이터 !!!
+// 임의로 채운 !!! 수정 전 예시 저장 데이터 !!!
 const samplePhoto = ["https://via.placeholder.com/150"];
 const sampleMenu = [
   { file: "https://via.placeholder.com/100", value1: "김치찌개", value2: "8000" },
@@ -56,11 +46,114 @@ const sampleSchedule = [
 ];
 const sampleGoalButtons = { goal1: true, goal2: true, goal3: true };
 const sampleServiceButtons = { service1: true, service2: true };
+const sampleCampus = {
+  name: '중앙대학교',
+  address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
+};
+
+
+// ---- 학교 api 연결 ----
+const apiKey = process.env.REACT_APP_CAREER_API_KEY;
+
+async function fetchCampusList(searchText) {
+  const CAMPUS_URL = "https://www.career.go.kr/cnet/openapi/getOpenApi";
+  const params = new URLSearchParams({
+    apiKey: apiKey,
+    svcType: "api",
+    svcCode: "SCHOOL",
+    contentType: "json",
+    gubun: "univ_list",
+    searchSchulNm: searchText,
+  });
+
+  const url = `${CAMPUS_URL}?${params.toString()}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (data.dataSearch && data.dataSearch.content) {
+    const items = Array.isArray(data.dataSearch.content) ? data.dataSearch.content : [data.dataSearch.content];
+    return items.map(item => ({
+      name: item.schoolName,
+      address: item.adres
+    }));
+  }
+  return [];
+}
+
+//---- 학교 검색 modal ----
+
+function CampusSearchModal({ visible, onClose, onSelect }) {
+  const [inputValue, setInputValue] = useState("");
+  const [searchResults, setSearchResults] = useState(null);
+  const [selectedIdx, setSelectedIdx] = useState(-1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // 검색 버튼 클릭 핸들러
+  const handleSearchClick = async () => {
+    setLoading(true);
+    const campuses = await fetchCampusList(inputValue.trim());
+    setSearchResults(campuses);
+    setLoading(false);
+    setSelectedIdx(-1);
+  };
+
+  return visible ? (
+  <ModalOverlay>
+    <ModalContainer>
+      <ModalHeader>대학 검색</ModalHeader>
+      <SearchRow>
+        <ModalInput
+          placeholder="예: 중앙대학교, 서울대, 연세대 등"
+          value={inputValue}
+          onChange={e => setInputValue(e.target.value)}
+          style={{ flex: 1, marginRight: 6, padding: 8, fontSize: 16 }}
+          onKeyDown={e => { if (e.key === 'Enter') handleSearchClick(); }}
+          autoFocus
+        />
+        <SearchBtnBox onClick={handleSearchClick} style={{ padding: '8px 14px' }}>검색</SearchBtnBox>
+      </SearchRow>
+      {loading && <div>검색 중...</div>}
+      {!!error && (
+        <div style={{ color: "#c00", whiteSpace: "pre-line" }}>
+          {error}
+        </div>
+      )}
+      {searchResults !== null && (
+        <div>
+          <div style={{ marginBottom: 8 }}>검색 결과 {searchResults.length}건</div>
+          <ResultList>
+            {searchResults.length === 0
+              ? <ResultItem>검색 결과가 없습니다.</ResultItem>
+              : searchResults.map((campus, idx) => (
+                  <ResultItem
+                    key={campus.name + campus.address}
+                    selected={selectedIdx === idx}
+                    onClick={() => {
+                      setSelectedIdx(idx);
+                      if (onSelect) onSelect(campus);
+                    }}
+                  >
+                    <div><b>{campus.name}</b></div>
+                    <div style={{color: "#889"}}>{campus.address}</div>
+                  </ResultItem>
+                ))
+            }
+          </ResultList>
+        </div>
+      )}
+      <ModalCloseBtn onClick={onClose}>x</ModalCloseBtn>
+    </ModalContainer>
+  </ModalOverlay>
+  ) : null;
+}
+
 
 const OwnerEditMyPage = () => {
-  // 1. 예시 데이터로 값 채우기
+
+  // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
   const [photoState, setPhotoState] = useState(samplePhoto);
-  const [campusValue, setCampusValue] = useState("중앙대학교");
+  const [campusValue, setCampusValue] = useState(sampleCampus);
   const [typeValue, setTypeValue] = useState("한식");
   const [nameValue, setNameValue] = useState("맛있는 한식당");
   const [descriptionValue, setDescriptionValue] = useState("정성이 가득한 한식집");
@@ -76,8 +169,32 @@ const OwnerEditMyPage = () => {
   const [serviceButtons, setServiceButtons] = useState(sampleServiceButtons);
 
   const [showModal, setShowModal] = useState(false);
+  const [showCampusModal, setShowCampusModal] = useState(false);
 
-  // 각 섹션별 ref
+  const [scrollY, setScrollY] = useState(0);
+
+  // ---- 우측 리스트 스크롤 구현 ----
+  useEffect(() => {       // 스크롤 위치 감지
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
+    const minTop = 70;
+    const maxTop = 245;
+    
+    if (scrollY <= 0) return maxTop;
+    if (scrollY >= 500) return minTop;
+    
+    const progress = Math.min(scrollY / 500, 1);
+    return maxTop - (progress * (maxTop - minTop));
+  };
+
+  // 각 섹션별 ref (리스트 아이템 클릭했을 때 이동값값)
   const sectionRefs = {
     photo: useRef(),
     campus: useRef(),
@@ -87,40 +204,42 @@ const OwnerEditMyPage = () => {
     openHours: useRef(),
     menu: useRef(),
     goal: useRef(),
-    extra: useRef(),
     revenue: useRef(),
     margin: useRef(),
     busy: useRef(),
     free: useRef(),
+    extra: useRef(),
   };
   const scrollToSection = (key) => {
     sectionRefs[key].current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // 2. 진행상황 체크
+  // 진행상황 체크 용도
   const isFilledText = val => typeof val === "string" && val.trim() !== "";
   const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
   const isFilledSchedule = arr => Array.isArray(arr) && arr.some(v => v.day && v.start && v.end);
   const isFilledButtons = obj => obj && Object.values(obj).some(Boolean);
+  const isFilledCampus = val =>
+    val && typeof val === "object" && typeof val.name === "string" && val.name.trim() !== "";
 
   const isSectionFilled = {
     photo: isFilledList(photoState),
-    campus: isFilledText(campusValue),
+    campus: isFilledCampus(campusValue),
     type: isFilledText(typeValue),
     name: isFilledText(nameValue),
     description: isFilledText(descriptionValue),
     openHours: isFilledSchedule(openHours),
     menu: isFilledList(menuList),
     goal: isFilledButtons(goalButtons),
-    extra: isFilledButtons(serviceButtons),
     revenue: isFilledText(revenueValue),
     margin: isFilledText(marginValue),
     busy: isFilledSchedule(busyHours),
     free: isFilledSchedule(freeHours),
+    extra: isFilledButtons(serviceButtons),
   };
   const allFilled = Object.values(isSectionFilled).every(Boolean);
 
-  // 3. 저장 로직
+  // 저장 로직
     const handleSave = () => {
         if (!allFilled) {
             alert("아직 정보를 다 채우지 않았습니다!");
@@ -148,10 +267,11 @@ const OwnerEditMyPage = () => {
     });
   };
 
+
+
   // ----------- 렌더링 -----------
   return (
     <PageContainer>
-      <Header />
       <Menu />
 
       <TitleContainer>
@@ -173,7 +293,22 @@ const OwnerEditMyPage = () => {
             <Title> 주변 캠퍼스 </Title>
             <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
           </TitleContainer>
-          <Dropdown props={sampleUniversity} value={campusValue} onChange={setCampusValue} />
+          <SearchCampusButton 
+            onClick={() => setShowCampusModal(true)}
+          > 대학 검색 </SearchCampusButton>
+          {campusValue && (
+            <ResultTitle>
+              선택한 캠퍼스: {campusValue.name}
+            </ResultTitle>
+          )}
+          <CampusSearchModal
+            visible={showCampusModal}
+            onClose={() => setShowCampusModal(false)}
+            onSelect={campus => {
+              setCampusValue(campus);
+              setShowCampusModal(false);
+            }}
+          />
 
           {/* 업종 */}
           <TitleContainer ref={sectionRefs.type}>
@@ -330,25 +465,25 @@ const OwnerEditMyPage = () => {
           </ButtonGroup>
           {serviceButtons.serviceEtc && <InputBox defaultText="기타 입력" />}
         </EditContainer>
+      </MainContainer>
 
-        {/* 우측 진행상황/저장 */}
-        <ProgressContainer>
-          <SaveButton onClick={handleSave}>
-            저장하기
-          </SaveButton>
-          <ProgressList>
-            {SECTIONS.map((item) => (
-              <ProgressItem
-                key={item.key}
-                $filled={isSectionFilled[item.key]}
-                onClick={() => scrollToSection(item.refKey)}
-              >
-                V {item.label}
-                {/* 체크 표시할 만한 기호를 못 찾음,, 벡터를 넣거나 다른 형식 필요할 듯 */}
-              </ProgressItem>
-            ))}
-          </ProgressList>
-        </ProgressContainer>
+      {/* 우측 진행상황/저장 - MainContainer 밖으로 이동 */}
+      <ProgressContainer style={{ top: getProgressContainerTop() }}>
+        <SaveButton onClick={handleSave}>
+          저장하기
+        </SaveButton>
+        <ProgressList>
+          {SECTIONS.map((item) => (
+            <ProgressItem
+              key={item.key}
+              $filled={isSectionFilled[item.key]}
+              onClick={() => scrollToSection(item.refKey)}
+            >
+              V {item.label}
+            </ProgressItem>
+          ))}
+        </ProgressList>
+      </ProgressContainer>
         {showModal && (
             <ModalOverlay>
                 <ModalBox>
@@ -367,7 +502,6 @@ const OwnerEditMyPage = () => {
                 </ModalBox>
             </ModalOverlay>
             )}
-      </MainContainer>
     </PageContainer>
   );
 };
@@ -375,7 +509,8 @@ const OwnerEditMyPage = () => {
 export default OwnerEditMyPage;
 
 const PageContainer = styled.div`
-  margin: 30px;
+  width: 1380px;
+  margin: 0 auto;
 `;
 
 const TitleContainer = styled.div`
@@ -397,7 +532,7 @@ const SubTitle = styled.div`
 
 const MainContainer = styled.div`
   display: grid;
-  grid-template-columns: 1029px 327px;
+  grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
 `;
@@ -428,7 +563,7 @@ const TextButton = styled.button`
   font-size: 16px;
   font-weight: 400;
   background-color: ${({ $active }) => ($active ? "#D9D9D9" : "white")};
-  transition: background-color 0.2s;
+  transition: background-color 0.1s;
 
   &:hover {
     background-color: ${({ $active }) => ($active ? "#c0c0c0" : "#f0f0f0")};
@@ -441,15 +576,15 @@ const ColumnLayout = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: fixed; // 아예 이 부분을 고정시켜버림
-  left: 1083px;
-  top: 207px;
+  position: fixed;
+  right: 80px;
   width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;  // ← 저장하기 버튼과 리스트 align 맞춤!
+  align-items: flex-start;
   z-index: 999;
+  transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
 `;
 
 const ProgressList = styled.ul`
@@ -542,4 +677,115 @@ const ModalBtnPrimary = styled(ModalBtn)`
     padding: 10px;
     background: #3D3D3D;
     color: #FFFFFF;
+`;
+
+const SearchCampusButton = styled.button`
+  position: relative;
+  display: inline-block;
+  width: 795px;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #D9D9D9;
+  border: 0px;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: start;
+
+  &:hover {
+    opacity: 80%;
+  }
+`;
+
+// 모달 박스
+const ModalContainer = styled.div`
+  background: #fff;
+  max-width: 540px;
+  width: 100%;
+  padding: 38px 36px 28px 36px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const ModalHeader = styled.div`
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 10px;
+`;
+
+const SearchRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+`;
+
+const ModalInput = styled.input`
+  flex: 1;
+  padding: 11px 18px;
+  font-size: 16px;
+  border: 1px solid #000;
+  background: #fff;
+  border-radius: 10px;
+`;
+
+const SearchBtnBox = styled.div`
+  display: flex;
+  align-items: center;
+  background: #D9D9D9;
+  padding: 0 17px;
+  height: 40px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  &:hover { opacity: 80%; }
+`;
+
+const ResultList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 330px;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: #888 #eee;
+`;
+
+const ResultItem = styled.div`
+  // background: ${({ selected }) => (selected ? "#fff" : "#D9D9D9")};
+  border: 1px solid #000;
+  padding: 14px 18px;
+  font-size: 17px;
+  color: #000;
+  cursor: pointer;
+  transition: background 0.15s, border 0.14s;
+  margin-right: 5px;
+  &:hover { background: #D9D9D9; border-color: #000; }
+`;
+
+// 닫기(X) 버튼
+const ModalCloseBtn = styled.button`
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #222222;
+  cursor: pointer;
+  &:hover { opacity: 80%; }
+`;
+
+const ResultTitle = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 6px;
+  margin-top: 4px;
 `;
