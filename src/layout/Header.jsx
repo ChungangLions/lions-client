@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import SearchBar from '../filters/SearchBar'
-import useuserStore from '../../../stores/userStore'
+import useUserStore from '../stores/userStore'
+import SearchBar from './SearchBar'
+
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, isLoggedin, logout } = useuserStore();
+  const { userRole, isLoggedin, logout } = useUserStore();
   const navigate = useNavigate();
 
   const toggleDropdown = () => {

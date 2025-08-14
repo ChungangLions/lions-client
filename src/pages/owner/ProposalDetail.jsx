@@ -5,7 +5,7 @@ import OwnerInfo from '../../components/common/cards/OwnerInfo';
 import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
-import ProposalDetailBox from '../../components/common/layout/ProposalDetailBox';
+import ProposalDetailBox from '../../layout/ProposalDetailBox';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 
 const ProposalDetail = () => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import Menu from '../../components/common/layout/Menu'
+import Menu from '../../layout/Menu'
 import styled from 'styled-components'
 import ProposalDetail from './ProposalDetail'
 
