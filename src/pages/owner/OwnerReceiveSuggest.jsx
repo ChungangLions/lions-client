@@ -1,10 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import CardSection from '../../components/common/cards/CardSection'
+import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
-import useStudentOrgStore from '../../store/studentOrgStore'
-import Menu from '../../components/common/layout/Menu'
+import useStudentOrgStore from '../../stores/studentOrgStore'
+import Menu from '../../layout/Menu'
 import ViewBtn from '../../components/common/buttons/ViewBtn'
 
 const summaryItems = [
@@ -33,7 +33,7 @@ const OwnerHome = () => {
       <CardListGrid> 
         {organizations.map((organization) => (
           // 여기 detail 들어갈 거 props로 전달 필요 
-          <CardSection key={organization.id} onClick = {handleCardClick} cardType={'suggest-sent'} ButtonComponent ={ViewBtn} organization={organization} />
+          <OrgCardSection key={organization.id} onClick = {handleCardClick} cardType={'suggest-sent'} ButtonComponent ={ViewBtn} organization={organization} />
         ))}
       </CardListGrid>
     </ScrollSection>

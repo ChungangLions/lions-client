@@ -5,7 +5,7 @@ import OwnerHome from './pages/owner/OwnerHome';
 import GroupHome from './pages/studentGroup/GroupHome';
 import StudentHome from './pages/student/StudentHome';
 import ProposalDetail from './pages/owner/ProposalDetail';
-import MainLayout from './components/common/layout/MainLayout';
+import MainLayout from './layout/MainLayout';
 import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
 import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';

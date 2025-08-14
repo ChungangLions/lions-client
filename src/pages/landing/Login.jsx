@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import InputBox from '../../components/common/inputs/InputBox'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../../apis/user';
+import { login } from '../../services/apis/user';
 import styled from 'styled-components';
 
 const Login = () => {
