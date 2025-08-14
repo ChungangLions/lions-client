@@ -57,6 +57,8 @@ const SliderSection = styled.div`
   position: relative;
   margin: 20px auto 35px auto;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 `;
 
 const ImageList = styled.div`
@@ -65,6 +67,7 @@ const ImageList = styled.div`
   position: relative;
   left: 0;
   top: 0;
+  width: 100%;
 `;
 
 const ImageBox = styled.div`

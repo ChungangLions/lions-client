@@ -15,4 +15,4 @@ const SuggestDealBtn = ({ onClick }) => {
   )
 }
 
-export default SuggestDealBtn
+export default SuggestDealBtn;

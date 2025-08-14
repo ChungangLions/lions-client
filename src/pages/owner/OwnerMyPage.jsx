@@ -1,9 +1,8 @@
 import React from 'react'
-import Header from '../../components/common/layout/Header'
 import styled from 'styled-components'
-import Menu from '../../components/common/layout/Menu'
-import MenuItem from '../../components/common/cards/MenuItem'
-import ImageSlider from '../../components/common/cards/ImageSlider'
+import Menu from '../../../components/common/layout/Menu'
+import MenuItem from '../../../components/common/cards/MenuItem'
+import ImageSlider from '../../../components/common/cards/ImageSlider'
 import { Link } from 'react-router-dom'
 
 const menus = [
@@ -17,10 +16,17 @@ const menus = [
   { id: 8, image: 'img2.jpg', name: '메뉴', price: 5000 },
 ];
 
+const infos = {
+  partnershipNum: 7,
+  likeNum: 46,
+  recommendNum: 97,
+  etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
+  partnershipType: ['할인형', '타임형'],
+};
+
 const OwnerMyPage = () => {
   return (
     <PageContainer>
-      <Header />
       <Menu />
 
       {/* 타이틀 + 수정 버튼 section */}
@@ -47,27 +53,28 @@ const OwnerMyPage = () => {
           <SumContainer>
             <SumBox>
               <div>제휴 이력</div>
-              <div style={{fontWeight: '600'}}>7회</div>
+              <div style={{fontWeight: '600'}}> {infos.partnershipNum} 회</div>
             </SumBox>
             <SumBox>
               <div>찜 수</div>
-              <div style={{fontWeight: '600'}}>46개</div>
+              <div style={{fontWeight: '600'}}> {infos.likeNum} 개</div>
             </SumBox>
             <SumBox>
               <div>추천 수</div>
-              <div style={{fontWeight: '600'}}>97개</div>
+              <div style={{fontWeight: '600'}}> {infos.recommendNum} 개</div>
             </SumBox>
           </SumContainer>
           <FurtherSum>
-            <div> ◻️ 정문 앞 500m </div>
-            <div> ◻️ 매주 일요일 휴무 </div>
-            <div> ◻️ 단체 이용 가능 (최대 20인) </div>
+            {infos.etc.map((info, idx) => (
+              <div key={idx}> ◻️ {info} </div>
+            ))}
           </FurtherSum>
 
           <InfoTitle> 제휴 유형 </InfoTitle>
             <TypeCardList>
-              <TypeCard> 할인형 </TypeCard>
-              <TypeCard> 타임형 </TypeCard>
+              {infos.partnershipType.map((type, idx) => (
+                <TypeCard key={idx}>{type}</TypeCard>
+              ))}
             </TypeCardList>
         </OwnerInfo>
 
@@ -77,7 +84,7 @@ const OwnerMyPage = () => {
             {menus.map(menu => (
               <MenuItem
                 key={menu.id}
-                image={menu.image} //임의로 fake box 넣어놓음, cards/menuitem에서 수정 필요요
+                image={menu.image} //임의로 fake box 넣어놓음, cards/menuitem에서 수정 필요
                 name={menu.name}
                 price={menu.price}
               />
@@ -92,15 +99,19 @@ const OwnerMyPage = () => {
 export default OwnerMyPage;
 
 const PageContainer = styled.div`
-  margin: 30px;
+  width: 1380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
 `;
 
 const TitleContainer = styled.div`
   position: relative;
-  width: 100%;
   padding: 0 20px;
   margin-top: 35px;
   margin-bottom: 25px;
+  width: 100%;
 `;
 
 const TitleBox = styled.div`
@@ -157,10 +168,10 @@ const Description = styled.div`
 // `;
 
 const ProfileContainer = styled.div`
+  width: 100%;
   display: grid;
   gap: 50px;
-  grid-template-columns: 820px 510px;
-  // grid-template-columns: 1.4fr 1fr; //원래 1.6fr인데 내 컴에서 안 맞아서 임의로 조정함
+  grid-template-columns: 1.4fr 1fr;
 `;
 
 const InfoTitle = styled.div`
@@ -222,12 +233,12 @@ const OwnerMenu = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 100%;
+  // width: 100%;
 `;
 
 const MenuList = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 7.5px;
-  width: 100%;
+  // width: 100%;
 `;

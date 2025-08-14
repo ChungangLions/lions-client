@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
+import useStudentOrgStore from '../../../store/studentOrgStore'
 
 const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => {
   let cardData = [];
@@ -26,11 +27,11 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
 
   return (
       <CardWrapper onClick = {onClick}>
-        <CardGroup>
+        <CardGroup $isHome={cardType === 'home'}>
           <CardContent>
             <UserInfo organization={organization} />
             <DetailInfo cardDetail={cardData} />
-            <ButtonWrapper>
+            <ButtonWrapper $isHome={cardType === 'home'}>
               <ButtonComponent />
             </ButtonWrapper>
           </CardContent>
@@ -45,7 +46,7 @@ export default OrgCardSection
 const CardGroup = styled.div`
 margin: 0 !important;
 position: absolute;
-top: 19.5px;
+top: ${({ $isHome }) => ($isHome ? '19.5px' : '37.5px')};
 left: 48px;
 display: flex;
 flex-direction: row;
@@ -71,15 +72,16 @@ const CardContent = styled.div`
 align-self: stretch;
 display: flex;
 flex-direction: column;
-gap: 16px;
+align-items: space-between;
+gap: ${({ $isHome }) => ($isHome ? '16px' : '30px')};
 `;
 
 const ButtonWrapper = styled.div`
 width: 100%;
 position: absolute;
 margin: 0 !important;
-top: 0px;
-left: 333px;
+top: ${({ $isHome }) => ($isHome ? '0px' : '50%')};
+left: ${({ $isHome }) => ($isHome ? '333px' : '308px')};
 display: flex;
 flex-direction: column;
 align-items: flex-start;
