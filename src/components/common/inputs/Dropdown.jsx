@@ -1,0 +1,125 @@
+import React, { useState, useEffect, useRef } from "react";
+import styled from "styled-components";
+
+export const Dropdown = (props) => {
+  // console.log(props.props.data);
+  const list = props.props.data;
+  const selectRef = useRef(null);
+  const [showOptions, setShowOptions] = useState(false);
+  const {value, onChange, width, placeholder} = props;
+  const [currentValue, setCurrentValue] = useState(value || '');
+
+  
+  const handleOnChangeSelectValue = (e) => {
+    e.stopPropagation(); // 부모 onClick 막는 용도
+    const newValue = e.target.getAttribute("value");
+    setCurrentValue(newValue);
+    if (onChange) onChange(newValue);
+    setShowOptions(false);
+  };
+
+  useEffect(() => {
+    setCurrentValue(value ?? '');
+
+    // NOTE: Dropdwon 박스 바깥쪽을 클릭시 옵션이 사라지는 기능
+    function handleClickOutside(event) {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setShowOptions(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [value, list, selectRef]);
+
+  return (
+    <SelectBox onClick={() => setShowOptions((prev) => !prev)} ref={selectRef} $width={width}>
+      <Label>
+        {currentValue ? currentValue : (placeholder ?? list[0])}
+      </Label>
+      <SelectOptions show={showOptions}>
+        {list.map((data, index) => (
+          <Option key={index} value={data} onClick={handleOnChangeSelectValue}>
+            {data}
+          </Option>
+        ))}
+      </SelectOptions>
+    </SelectBox>
+  );
+};
+
+Dropdown.defaultProps = {
+  name: "초기값",
+};
+
+const SelectBox = styled.div`
+  position: relative;
+  width: ${(props) => props.$width || "775px"};
+//   height: 39px;
+  padding: 10px;
+  gap: 10px;
+  margin-top: 10px;
+  background-color: #D9D9D9;
+//   align-self: center;
+
+  cursor: pointer;
+  &::before {
+    content: "⌵";
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    color: #777777;
+    font-size: 20px;
+    font-weight: bold;
+  }
+`;
+
+const Label = styled.label`
+  font-size: 16px;
+  font-weight: 400;
+  display: inline-block;
+`;
+
+const SelectOptions = styled.ul`
+  position: absolute;
+  left: 0;
+  min-width: 100%;
+  width: fit-content;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 999;
+  border: ${(props) => (props.show ? "1px solid #D9D9D9;" : "none")};
+  border-radius: 5px;
+  background-color: white;
+  /* 공백 없애기! */
+  padding-left: 0;
+  margin: 0;
+  display: ${(props) => (props.show ? "block" : "none")};  /* 핵심! 옵션 닫기 */
+
+  // 스크롤바 CSS
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #777777;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: #D9D9D9;
+    border-radius: 0px 3px 3px 0px;
+  }
+`;
+
+const Option = styled.li`
+  font-size: 16px;
+  font-weight: 400;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in;
+  &:hover {
+    background-color: #D9D9D9;
+  }
+  list-style: none; /* 혹시 불릿이 남는 경우 추가! */
+`;
