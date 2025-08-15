@@ -4,7 +4,7 @@ import Menu from '../../components/common/layout/Menu'
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
 import { Link } from 'react-router-dom'
-import { fetchRecommendations } from '../../api/userApi'
+import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
 const menus = [
   { id: 1, image: 'img1.jpg', name: '메뉴', price: 5000 },
