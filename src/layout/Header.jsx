@@ -8,7 +8,7 @@ import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.sv
 
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
-const Header = () => {
+const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { userRole, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
   const navigate = useNavigate();
@@ -23,6 +23,8 @@ const Header = () => {
     setLogoutStatus();
     navigate("/");
   };
+
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage`;
 
   return (
     <HeaderContainer>
@@ -51,12 +53,12 @@ const Header = () => {
               </DropdownMenu>
               )}
           </UserContainer>
-          <StyledLink to="/mypage">
+          <StyledLink to={navigateToMyPage}>
           <ProfileIcon />
           </StyledLink>
         </RightBox>
       </HeaderGroup>
-      <Divider />
+      { !hasMenu && <Divider /> }
     </HeaderContainer>
   )
 }

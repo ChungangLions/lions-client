@@ -24,20 +24,11 @@ const Login = () => {
     } else if(res.user_role === "student") {
       navigate('/student'); 
     } else {
-      navigate('/'); 
+      navigateToHome(); 
     }
   } catch (error) {
   }
 };
-
-
-  useEffect(()=> {
-    const token = localStorage.getItem('access');
-    if(token){
-      navigate('/');
-    }else{
-      navigate('/login');}
-  },[navigate])
 
   return (
     <PageContainer>

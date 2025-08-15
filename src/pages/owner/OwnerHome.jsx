@@ -21,6 +21,15 @@ const OwnerHome = () => {
     navigate("student-profile");
   };
 
+  useEffect(()=> {
+      const token = localStorage.getItem('access');
+      if(token){
+
+      }else{
+        alert('로그아웃 되었습니다.다시 로그인 해주세요');
+        navigate('/login');}
+    },[navigate])
+
 
 
   // zustand store에서 사용할 것들 가져오기 
