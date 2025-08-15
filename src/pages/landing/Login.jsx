@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from 'react'
 import InputBox from '../../components/common/inputs/InputBox'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../../services/apis/user';
 import styled from 'styled-components';
+import { login } from '../../services/apis/auth';
+import axios from 'axios';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [ email, onChangeEmail] = useState();
   const [ username, onChangeUsername] = useState();
   const [ password, onChangePassword] = useState();
 
   const navigateToHome= () => {
     navigate('/');
   }
-
   const onClick = async () => {
-    try {
-      const result = await login(username, password);
-      localStorage.setItem("access_token", result.token.access_token);
-      localStorage.setItem("refresh_token", result.token.refresh_token);
-    } catch(error) {
-      alert("잘못된 아이디 또는 비밀번호입니다. 다시 확인해주세요")
-      navigate("/login");
+  try {
+    const res = await login(email, username, password);
+    console.log("성공:", res.data);
+    if(res.user_role === "OWNER") {
+      navigate('/owner');
+    } else if(res.user_role === "student") {
+      navigate('/student'); 
+    } else {
+      navigate('/'); 
     }
+  } catch (error) {
   }
+};
+
 
   useEffect(()=> {
     const token = localStorage.getItem('token.access_token');
@@ -41,6 +47,14 @@ const Login = () => {
         <LoginSection>
           <InputContainer>
             <InputWrapper>
+            <InputWrapper>
+    <LoginInputBox
+        defaultText="이메일"
+        value={email}
+        onChange={(e) => onChangeEmail(e.target.value)}
+        width="446px"
+    />
+</InputWrapper>
               <LoginInputBox
                 defaultText="아이디"
                 value={username}
