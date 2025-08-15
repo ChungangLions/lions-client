@@ -3,7 +3,6 @@ import InputBox from '../../components/common/inputs/InputBox'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components';
 import axios from 'axios';
-import { login } from '../../services/apis/auth';
 import useUserStore from '../../stores/userStore';
 
 const Login = () => {
@@ -11,14 +10,14 @@ const Login = () => {
   const [ username, onChangeUsername] = useState();
   const [ password, onChangePassword] = useState();
 
-  const { login } = useUserStore(); 
+  const { setLoginStatus } = useUserStore(); 
 
   const navigateToHome= () => {
     navigate('/');
   }
   const onClick = async () => {
   try {
-    const res = await login(username, password);
+    const res = await setLoginStatus(username, password);
     console.log("로그인 성공:", res);
     if(res.user_role === "OWNER") {
       navigate('/owner');
