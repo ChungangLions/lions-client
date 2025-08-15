@@ -17,7 +17,7 @@ const summaryItems = [
 const OwnerHome = () => {
   const navigate = useNavigate();
 
-  const handleCardClick = () => {
+  const handleCardClick = () => { // 수정해야함!!
     navigate("proposal");
   };
 
@@ -25,6 +25,13 @@ const OwnerHome = () => {
   const {
     organizations,
   } = useStudentOrgStore();
+
+  // 나중에 api 연결 후 사용
+  // const organizations = useStudentOrgStore(state => state.organizations);
+  // const fetchOrganizations = useStudentOrgStore(state => state.fetchAndSetOrganizations);
+  // useEffect(() => {
+  //   fetchOrganizations();
+  // }, []);
 
   return (
     <ScrollSection>

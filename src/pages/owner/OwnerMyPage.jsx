@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
+import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
 const menus = [
   { id: 1, image: 'img1.jpg', name: '메뉴', price: 5000 },
@@ -16,15 +17,25 @@ const menus = [
   { id: 8, image: 'img2.jpg', name: '메뉴', price: 5000 },
 ];
 
-const infos = {
-  partnershipNum: 7,
-  likeNum: 46,
-  recommendNum: 97,
-  etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
-  partnershipType: ['할인형', '타임형'],
-};
-
 const OwnerMyPage = () => {
+  const [recommendNum, setRecommendNum] = useState(0);
+
+  useEffect(() => {
+    async function load() {
+      const data = await fetchRecommendations();
+      setRecommendNum(data.length);
+    }
+    load();
+  }, []);
+
+  const infos = {
+    partnershipNum: 7,
+    likeNum: 46,
+    recommendNum,
+    etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
+    partnershipType: ['할인형', '타임형'],
+  };
+
   return (
     <PageContainer>
       <Menu />

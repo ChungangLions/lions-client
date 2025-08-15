@@ -10,9 +10,10 @@ import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
 import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
-import OwnerReceivedProposal from './pages/owner/OwnerReceivedProposal';
 import StudentProfile from './pages/owner/StudentProfile';
 import Login from './pages/landing/Login';
+import OwnerWishlist from './pages/owner/OwnerWishlist';
+import StudentMyPage from './pages/student/StudentMyPage';
 
 function App() {
   return (
@@ -25,8 +26,10 @@ function App() {
         <Route path="/owner" element={<OwnerHome />} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
         <Route path="owner/student-profile" element={<StudentProfile/>} />
+        <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
         <Route path="/group" element={<GroupHome />}/>
         <Route path="/student" element={<StudentHome />}/>
+        <Route path="/student/mypage/:id" element={<StudentMyPage />} />
 
       </Route>
       <Route element={<MainLayout hasMenu={true}/>}>

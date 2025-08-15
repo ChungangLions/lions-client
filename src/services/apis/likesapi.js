@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 
+>>>>>>> dev
 import { getAuthAxios } from "./authAxios";
 
 const baseURL = `http://13.125.150.49:8000`;

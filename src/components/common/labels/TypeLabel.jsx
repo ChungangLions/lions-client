@@ -9,17 +9,19 @@ const storeTypes = {
 };
 
 
-function TypeLabel() {
+function TypeLabel({ storeType }) {
   const { stores } = useVenueStore();
-  const style = storeTypes[stores.storeType];
 
-  if (!style) {
-    return null; 
-  }
+  const currentType = storeType || stores.storeType;
+  const style = storeTypes[currentType];
+
+  if (!style) return null;
 
   return (
     <LabelBox>
-      <LabelText>{style.icon} {style.label}</LabelText>
+      <LabelText>
+        {style.icon} {style.label}
+      </LabelText>
     </LabelBox>
   );
 }

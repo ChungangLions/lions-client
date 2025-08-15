@@ -10,7 +10,6 @@ import styled from 'styled-components'
 
 const MENU_ITEMS = [
     { label: '프로필', to: '/owner/mypage' },
-    { label: '제안서', to: '/owner/mypage/suggest-form' },
     { label: '받은 제안', to: '/owner/mypage/received-suggest' },
     { label: '보낸 제안', to: '/owner/mypage/sent-suggest' },
     { label: '찜 목록', to: '/owner/mypage/wishlist' },
@@ -43,7 +42,7 @@ const Menu = () => {
 export default Menu
 
 const MenuContainer = styled.div`
-    width: 1380px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: start;

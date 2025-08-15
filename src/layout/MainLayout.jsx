@@ -24,6 +24,9 @@ box-sizing: border-box;
   width: 100%;
   align-items: center;
   min-height: 100vh;
+  // margin: 30px;
+  // margin-top: 0px;
+  // // overflow-x: hidden;
   padding: 15px 29px;
 `;
 
