@@ -2,15 +2,20 @@ import React, { useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
+import { togglelikes } from '../../../services/apis/likesapi';
 
-const FavoriteBtn = ({onClick}) => {
+const FavoriteBtn = ({userId, onClick}) => {
     const [isHeartActive, setIsHeartActive] = useState(false);
 
-    const handleClick = (event) => {
+ 
+    const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
         setIsHeartActive(!isHeartActive);
-        if (onClick) {
-            onClick(!isHeartActive);
+        try {
+          await togglelikes(userId);
+        } catch (error) {
+          console.error("찜 토글 실패:", error);
+          setIsHeartActive(isHeartActive);
         }
     }
 

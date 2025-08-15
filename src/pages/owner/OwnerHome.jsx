@@ -44,7 +44,7 @@ const OwnerHome = () => {
       <CardListGrid> 
         {organizations.map((organization) => (
           // 여기 detail 들어갈 거 props로 전달 필요 
-          <CardSection key={organization.id} onClick = {handleCardClick} cardType={'home'} ButtonComponent ={FavoriteBtn} organization={organization} />
+          <CardSection key={organization.id} onClick = {handleCardClick} cardType={'home'} ButtonComponent = {() => ( <FavoriteBtn/>)} organization={organization} />
         ))}
       </CardListGrid>
     </ScrollSection>
