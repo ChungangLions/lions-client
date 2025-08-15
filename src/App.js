@@ -12,6 +12,8 @@ import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
 import OwnerReceivedProposal from './pages/owner/OwnerReceivedProposal';
 import StudentProfile from './pages/owner/StudentProfile';
+import OwnerWishlist from './pages/owner/OwnerWishlist';
+import StudentMyPage from './pages/student/StudentMyPage';
 
 function App() {
   return (
@@ -23,13 +25,14 @@ function App() {
           <Route path="/owner/mypage" element={<OwnerMyPage />}/>
           <Route path="/owner/mypage/edit" element={<OwnerEditMyPage />}/>
           <Route path="/owner/mypage/received-suggest" element={<OwnerReceiveSuggest />}/>
+          <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
           <Route path="/owner/mypage/sent-suggest" element={<OwnerSendSuggest />}/>
           <Route path="/owner/proposal" element={<ProposalDetail/>} />
-          <Route path="owner/mypage/received-suggest" element={<OwnerReceivedProposal/>} />
+          <Route path="owner/mypage/received-suggest/proposal" element={<OwnerReceivedProposal/>} />
           <Route path="owner/student-profile" element={<StudentProfile/>} />
-
           <Route path="/group" element={<GroupHome />}/>
           <Route path="/student" element={<StudentHome />}/>
+          <Route path="/student/mypage" element={<StudentMyPage />}/>
         </Route>    
       </Routes>
     </BrowserRouter>

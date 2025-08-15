@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 
+ 
 const originalOrganizations = [
             {
                 id: 1,
@@ -112,8 +113,20 @@ const originalOrganizations = [
 const useStudentOrgStore = create(
     persist(
         (set, get) => ({
-        originalOrganizations: originalOrganizations,
-        organizations: originalOrganizations,
+        originalOrganizations: originalOrganizations, // api 끌어올 때 빈 배열로 만들어주기기
+        organizations: originalOrganizations, // api 끌어올 때 빈 배열로 만들어주기기
+
+        // 나중에 api 연동 시 그대로 사용
+        // fetchAndSetOrganizations: async () => {
+        //     const userList = await fetchUserList();
+        //     console.log(userList);
+        //     const orgList = userList.map(mapUserToOrg);
+        //     set({
+        //       originalOrganizations: orgList, // 실제 데이터로 overwrite
+        //       organizations: orgList,
+        //     });
+        // },
+
 
         isFilteredByRecord: false,
         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함

@@ -26,6 +26,13 @@ const OwnerHome = () => {
     organizations,
   } = useStudentOrgStore();
 
+  // 나중에 api 연결 후 사용
+  // const organizations = useStudentOrgStore(state => state.organizations);
+  // const fetchOrganizations = useStudentOrgStore(state => state.fetchAndSetOrganizations);
+  // useEffect(() => {
+  //   fetchOrganizations();
+  // }, []);
+
   return (
     <ScrollSection>
       <Menu />

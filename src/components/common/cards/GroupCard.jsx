@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import FavoriteBtn from '../buttons/FavoriteBtn';
 import TypeLabel from '../labels/TypeLabel';
+import ShowNum from '../labels/ShowNum';
 
 
 function GroupCard({ imageUrl, onClick, ButtonComponent, store }) {
@@ -10,7 +11,7 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store }) {
       <ImageWrapper>
         <CardImage src={imageUrl || '/default.png'} alt={store.name} />
         <TypeLabelBox>
-          <TypeLabel />
+          <TypeLabel storeType={store.storeType} />
         </TypeLabelBox>
         {/* 아래 onClick은 나중에 서버 연결 후 변경 필요 */}
         <HeartBtnBox>
@@ -21,7 +22,8 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store }) {
       <CardTitleRow>
         <CardTitle>{store.name}</CardTitle>
         <ButtonNumbers>
-            
+          <ShowNum element='favorite' count={store.likes} />
+          <ShowNum element='recommend' count={store.recommendations} />
         </ButtonNumbers>
       </CardTitleRow>
       <CardSubtitle>{store.caption}</CardSubtitle>
@@ -40,11 +42,11 @@ const CardWrapper = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-    display: flex;
-    width: 100%;
-    position: relative;
-    height: 247px;
-    margin-bottom: 10px;
+  display: flex;
+  width: 100%;
+  position: relative;
+  height: 247px;
+  margin-bottom: 10px;
 `;
 
 const CardImage = styled.img`
@@ -68,8 +70,8 @@ const TypeLabelBox = styled.div`
 
 const HeartBtnBox = styled.div`
   position: absolute;
-  right: 18px;
-  top: 14px;
+  right: 12px;
+  top: 12px;
 `;
 
 const BestText = styled.div`
@@ -82,11 +84,12 @@ const BestText = styled.div`
 `;
 
 const CardTitleRow = styled.div`
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px; 
+  display: flex;
+  width: 100%;
+  height: 24px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px; 
 `;
 
 const CardTitle = styled.div`
