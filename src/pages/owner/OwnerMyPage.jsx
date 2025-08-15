@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import Menu from '../../components/common/layout/Menu'
+import { Link } from 'react-router-dom'
+import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
-import { Link } from 'react-router-dom'
 import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
 const menus = [

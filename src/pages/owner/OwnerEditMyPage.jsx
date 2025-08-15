@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
-import Menu from "../../components/common/layout/Menu";
+import Menu from "../../layout/Menu";
 import { Dropdown } from "../../components/common/inputs/Dropdown";
 import InputBox from "../../components/common/inputs/InputBox";
 import PhotoUpload from "../../components/common/inputs/PhotoUpload";

@@ -4,7 +4,7 @@ import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
-import Menu from '../../components/common/layout/Menu'
+import Menu from '../../layout/Menu'
 import ViewBtn from '../../components/common/buttons/ViewBtn'
 
 const summaryItems = [

@@ -1,23 +1,51 @@
+// loginAPI로 받은 상태 저장 
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { login } from '../services/apis/auth';
 
-const useuserStore = create(
+const useUserStore = create(
     persist(
         (set) => ({
             userRole: null, // 사장님, 학생, 학생단체 중 하나 
             isLoggedIn: false,
+            accessToken : null,
+            refreshToken : null,
 
-            login: (role) => {
-                set({ userRole: role, isLoggedIn: true });
+            setLoginStatus: async (username, password) => {
+                try{
+                    const res = await login(username, password);
+                set({ 
+                    userRole: res.user_role , 
+                    isLoggedIn: true, 
+                    accessToken: res.access, 
+                    refreshToken: res.refresh 
+                });
+
+                localStorage.setItem('access', res.access);
+                localStorage.setItem('refresh', res.refresh);
+
+                return res;
+            } catch (error) {
+                console.error("로그인 실패 에러: ", error);
+            }
             },
-            logout: () => {
-                set({ userRole: null, isLoggedIn: false });
-            },
+            setLogoutStatus: () => {
+                localStorage.removeItem('access');
+                localStorage.removeItem('refresh');
                 
+                set({
+                    userRole : null,
+                    isLoggedIn: false,
+                    accessToken: null,
+                    refreshToken: null,
+                });
+            },
+             
         }),
         { name: 'user-storage',
         }
     )
 );
 
-export default useuserStore;
+export default useUserStore;
