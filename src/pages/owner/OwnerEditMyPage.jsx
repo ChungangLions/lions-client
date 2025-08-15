@@ -6,6 +6,7 @@ import InputBox from "../../components/common/inputs/InputBox";
 import PhotoUpload from "../../components/common/inputs/PhotoUpload";
 import PhotoUploadWithInput from "../../components/common/inputs/PhotoUploadWithInput";
 import DatePicker from "../../components/common/inputs/DatePicker";
+import { getOwnerProfile } from "../../services/apis/ownerAPI";
 
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["한식", "중식", "일식", "카페", "술집", "기타"] }
@@ -23,7 +24,7 @@ const SECTIONS = [
   { key: "campus", label: "주변 캠퍼스", refKey: "campus" },
   { key: "type", label: "업종", refKey: "type" },
   { key: "name", label: "상호명", refKey: "name" },
-  { key: "description", label: "한 줄 소개", refKey: "description" },
+  { key: "comment", label: "한 줄 소개", refKey: "comment" },
   { key: "openHours", label: "영업 시간", refKey: "openHours" },
   { key: "menu", label: "대표 메뉴", refKey: "menu" },
   { key: "goal", label: "제휴 목표", refKey: "goal" },
@@ -155,8 +156,8 @@ const OwnerEditMyPage = () => {
   const [photoState, setPhotoState] = useState(samplePhoto);
   const [campusValue, setCampusValue] = useState(sampleCampus);
   const [typeValue, setTypeValue] = useState("한식");
-  const [nameValue, setNameValue] = useState("맛있는 한식당");
-  const [descriptionValue, setDescriptionValue] = useState("정성이 가득한 한식집");
+  const [nameValue, setNameValue] = useState("");
+  const [commentValue, setCommentValue] = useState("정성이 가득한 한식집");
   const [menuList, setMenuList] = useState(sampleMenu);
   const [revenueValue, setRevenueValue] = useState("15000");
   const [marginValue, setMarginValue] = useState("40");
@@ -172,6 +173,23 @@ const OwnerEditMyPage = () => {
   const [showCampusModal, setShowCampusModal] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
+
+  // 사장님 프로필 조회 
+  useEffect(() => {
+    const fetchProfile = async () => { 
+      try {
+        const ownerId = 1;
+        const data = await getOwnerProfile(ownerId);
+        console.log(data);
+
+        setCommentValue(data.comment);
+        setNameValue(data.profile_name);
+      } catch (error) {
+        console.error("프로필 데이터 조회 실패:", error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   // ---- 우측 리스트 스크롤 구현 ----
   useEffect(() => {       // 스크롤 위치 감지
@@ -200,7 +218,7 @@ const OwnerEditMyPage = () => {
     campus: useRef(),
     type: useRef(),
     name: useRef(),
-    description: useRef(),
+    comment: useRef(),
     openHours: useRef(),
     menu: useRef(),
     goal: useRef(),
@@ -227,7 +245,7 @@ const OwnerEditMyPage = () => {
     campus: isFilledCampus(campusValue),
     type: isFilledText(typeValue),
     name: isFilledText(nameValue),
-    description: isFilledText(descriptionValue),
+    comment: isFilledText(commentValue),
     openHours: isFilledSchedule(openHours),
     menu: isFilledList(menuList),
     goal: isFilledButtons(goalButtons),
@@ -320,16 +338,16 @@ const OwnerEditMyPage = () => {
           {/* 상호명 */}
           <TitleContainer ref={sectionRefs.name}>
             <Title> 상호명 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle> {nameValue} </SubTitle>
           </TitleContainer>
           <InputBox defaultText="상호명 입력" value={nameValue} onChange={e => setNameValue(e.target.value)} />
 
           {/* 한 줄 소개 */}
-          <TitleContainer ref={sectionRefs.description}>
+          <TitleContainer ref={sectionRefs.comment}>
             <Title> 한 줄 소개 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle> {commentValue} </SubTitle>
           </TitleContainer>
-          <InputBox defaultText="텍스트 입력" value={descriptionValue} onChange={e => setDescriptionValue(e.target.value)} />
+          <InputBox defaultText="텍스트 입력" value={commentValue} onChange={e => setCommentValue(e.target.value)} />
 
           {/* 영업 시간 */}
           <TitleContainer ref={sectionRefs.openHours}>
