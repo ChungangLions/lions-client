@@ -2,22 +2,24 @@ import React, { useEffect, useState } from 'react'
 import InputBox from '../../components/common/inputs/InputBox'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components';
-import { login } from '../../services/apis/auth';
 import axios from 'axios';
+import { login } from '../../services/apis/auth';
+import useUserStore from '../../stores/userStore';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [ email, onChangeEmail] = useState();
   const [ username, onChangeUsername] = useState();
   const [ password, onChangePassword] = useState();
+
+  const { login } = useUserStore(); 
 
   const navigateToHome= () => {
     navigate('/');
   }
   const onClick = async () => {
   try {
-    const res = await login(email, username, password);
-    console.log("성공:", res.data);
+    const res = await login(username, password);
+    console.log("로그인 성공:", res);
     if(res.user_role === "OWNER") {
       navigate('/owner');
     } else if(res.user_role === "student") {
@@ -31,7 +33,7 @@ const Login = () => {
 
 
   useEffect(()=> {
-    const token = localStorage.getItem('token.access_token');
+    const token = localStorage.getItem('access');
     if(token){
       navigate('/');
     }else{
@@ -47,14 +49,6 @@ const Login = () => {
         <LoginSection>
           <InputContainer>
             <InputWrapper>
-            <InputWrapper>
-    <LoginInputBox
-        defaultText="이메일"
-        value={email}
-        onChange={(e) => onChangeEmail(e.target.value)}
-        width="446px"
-    />
-</InputWrapper>
               <LoginInputBox
                 defaultText="아이디"
                 value={username}
