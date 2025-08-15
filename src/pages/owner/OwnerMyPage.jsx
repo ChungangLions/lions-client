@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
-import ImageSlider from '../../components/common/cards/MenuItem'
+import ImageSlider from '../../components/common/cards/ImageSlider'
 
 const menus = [
   { id: 1, image: 'img1.jpg', name: '메뉴', price: 5000 },

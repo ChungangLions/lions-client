@@ -4,10 +4,10 @@ import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import styled from 'styled-components'
 
-const MainLayout = () => {
+const MainLayout = ({hasMenu}) => {
   return (
     <PageContainer>
-      <Header />
+      <Header hasMenu={hasMenu}/>
       <ContentWrapper>
         <Outlet />
       </ContentWrapper>

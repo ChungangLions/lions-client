@@ -20,23 +20,21 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />}/>
       <Route path="/login" element={<Login />}/>
-      <Route element={<MainLayout />}>
+
+      <Route element={<MainLayout hasMenu={false}/>}>
         <Route path="/owner" element={<OwnerHome />} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
-        <Route path="owner/mypage/received-suggest" element={<OwnerReceivedProposal/>} />
         <Route path="owner/student-profile" element={<StudentProfile/>} />
+        <Route path="/group" element={<GroupHome />}/>
+        <Route path="/student" element={<StudentHome />}/>
 
-          <Route path="/group" element={<GroupHome />}/>
-          <Route path="/student" element={<StudentHome />}/>
-        </Route>
-    
-        <Route path="/owner" element={<OwnerHome />}/>
-        <Route path="/owner/mypage" element={<OwnerMyPage />}/>
+      </Route>
+      <Route element={<MainLayout hasMenu={true}/>}>
         <Route path="/owner/mypage/edit" element={<OwnerEditMyPage />}/>
         <Route path="/owner/mypage/received-suggest" element={<OwnerReceiveSuggest />}/>
         <Route path="/owner/mypage/sent-suggest" element={<OwnerSendSuggest />}/>
-        <Route path="/group" element={<GroupHome />}/>
-        <Route path="/student" element={<StudentHome />}/>
+        <Route path="/owner/mypage" element={<OwnerMyPage />}/>
+      </Route>
       
       </Routes>
     </BrowserRouter>

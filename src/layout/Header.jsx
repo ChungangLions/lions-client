@@ -8,19 +8,23 @@ import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.sv
 
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
-const Header = () => {
+const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, isLoggedin, logout } = useUserStore();
+  const { userRole, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
   const navigate = useNavigate();
+
+  //console.log("현재 userRole:", userRole); 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
   const handleLogout = () => {
-    logout();
+    setLogoutStatus();
     navigate("/");
   };
+
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage`;
 
   return (
     <HeaderContainer>
@@ -34,8 +38,12 @@ const Header = () => {
         <RightBox>
           <UserContainer>
             <NavItem onClick = {toggleDropdown}>
-              {userRole || '사장님'}
-              <DropdownArrow isOpen={isDropdownOpen} />
+              {userRole === 'OWNER' 
+                ? '사장님' 
+                : userRole === 'student_group' 
+                  ? '학생 단체' 
+                  : '학생'}
+              <DropdownArrow />
             </NavItem>
             {isDropdownOpen && (
             <DropdownMenu>
@@ -45,12 +53,12 @@ const Header = () => {
               </DropdownMenu>
               )}
           </UserContainer>
-          <StyledLink to="mypage">
+          <StyledLink to={navigateToMyPage}>
           <ProfileIcon />
           </StyledLink>
         </RightBox>
       </HeaderGroup>
-      <Divider />
+      { !hasMenu && <Divider /> }
     </HeaderContainer>
   )
 }
