@@ -1,22 +1,49 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
-
-const studentInfo = {
-    name: '이름',
-    school: '중앙대학교',
-    profileImg: '',
-    recommend: [
-      { shopImg: '', shopName: '가게명' },
-      { shopImg: '', shopName: '가게명' },
-      { shopImg: '', shopName: '가게명' },
-      { shopImg: '', shopName: '가게명' },
-      { shopImg: '', shopName: '가게명' },
-      { shopImg: '', shopName: '가게명' },
-    ]
-}
+import { useParams } from 'react-router-dom'
+import { fetchUserList, fetchStudentList } from '../../api/userApi'
+import { mergeProfiles } from '../../api/orgMapping'
 
 const StudentMyPage = () => {
+  const { id } = useParams();
+  const [studentInfo, setStudentInfo] = useState(null);
+
+  useEffect(() => {
+    async function loadProfile() {
+      const userList = await fetchUserList();
+      const studentProfiles = await fetchStudentList();
+      const fullProfiles = mergeProfiles({ userList, studentProfiles });
+
+      const myStudent = fullProfiles.find(  // 해당 id값을 가진 student에서 찾기
+        profile => String(profile.id) === String(id)
+      );
+      if (myStudent) { // 일단 추천 목록은 실제로 데이터를 받아오거나, 더미 데이터로 대체
+        setStudentInfo({
+          name: myStudent.name,
+          school: myStudent.university_name || myStudent.school || '',
+          profileImg: myStudent.image || myStudent.profileImg || '',
+          recommend: myStudent.recommend 
+          || [
+            { shopImg: '', shopName: '가게명' },
+            { shopImg: '', shopName: '가게명' },
+            { shopImg: '', shopName: '가게명' },
+            { shopImg: '', shopName: '가게명' },
+            { shopImg: '', shopName: '가게명' },
+            { shopImg: '', shopName: '가게명' },
+          ],
+        });
+      } else {
+        setStudentInfo(null);
+      }
+    }
+    loadProfile();
+  }, [id]);
+
+  // 로딩/에러 처리
+  if (!studentInfo) {
+    return <div>로딩 중 또는 학생 정보 없음</div>;
+  }
+
   return (
     <PageContainer>
         <Contents>

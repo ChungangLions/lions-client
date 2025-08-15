@@ -32,7 +32,7 @@ function App() {
           <Route path="owner/student-profile" element={<StudentProfile/>} />
           <Route path="/group" element={<GroupHome />}/>
           <Route path="/student" element={<StudentHome />}/>
-          <Route path="/student/mypage" element={<StudentMyPage />}/>
+          <Route path="/student/mypage/:id" element={<StudentMyPage />} />
         </Route>    
       </Routes>
     </BrowserRouter>

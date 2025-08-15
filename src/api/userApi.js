@@ -15,6 +15,21 @@ export async function fetchUserList() {
     }
 }
 
+export async function fetchStudentList() {
+  try {
+    const response = await fetch(`${BASE_URL}/api/profiles/students/`);
+    console.log(response);
+    if (!response.ok) {
+      throw new Error("서버 에러: " + response.status);
+    }
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error("유저 데이터 불러오기 에러:", err);
+    return [];
+  }
+}
+
 export async function fetchRecommendations({} = {}) {
     const API_URL = `${BASE_URL}/api/accounts/accounts/recommendations?mode=received`;
     try {
