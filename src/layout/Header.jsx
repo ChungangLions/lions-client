@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
-import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.svg'
+import { ReactComponent as ProfileInactive } from '../assets/images/icons/Profile.svg'
+import { ReactComponent as ProfileActive } from '../assets/images/icons/ProfileActive.svg'
 
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { userRole, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   //console.log("현재 userRole:", userRole); 
 
@@ -26,7 +29,12 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
+  const isActive = location.pathname === `/${userRole.toLowerCase()}/mypage`;
   const navigateToMyPage = userRole ? `/${userRole.toLowerCase()}/mypage`: '/';
+
+  const ProfileIcon = ({ isActive }) => {
+  return isActive ? <ProfileActive /> : <ProfileInactive />;
+};
 
   return (
     <HeaderContainer>
@@ -56,7 +64,7 @@ const Header = ({hasMenu}) => {
               )}
           </UserContainer>
           <StyledLink to={navigateToMyPage}>
-          <ProfileIcon />
+          <ProfileIcon isActive={isActive}/>
           </StyledLink>
         </RightBox>
       </HeaderGroup>
@@ -66,6 +74,7 @@ const Header = ({hasMenu}) => {
 }
 
 export default Header
+
 
 const StyledLink = styled(Link)`
 width: 28px;
