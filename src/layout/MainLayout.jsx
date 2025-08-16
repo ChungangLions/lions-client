@@ -26,7 +26,7 @@ box-sizing: border-box;
   min-height: 100vh;
   // margin: 30px;
   // margin-top: 0px;
-  // // overflow-x: hidden;
+  overflow-x: hidden;
   padding: 15px 29px;
 `;
 
