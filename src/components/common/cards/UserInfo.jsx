@@ -29,12 +29,10 @@ justify-content: flex-start;
 `;
 
 const UserSection = styled.div`
-align-self: stretch;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: flex-start;
-padding: 5px 0px;
 gap: 30px;
 `;
 

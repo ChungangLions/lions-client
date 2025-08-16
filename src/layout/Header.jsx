@@ -84,7 +84,7 @@ justify-content: flex-start;
 gap: 15px;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1a2d06;
 font-family: Pretendard;
 
 /*스크롤 관련*/
@@ -175,15 +175,15 @@ background-color: white;
 
 const DropdownMenu = styled.div`
   position: absolute;
-  right: 90px;
-  top: 100%;
+  align-items: flex-start;
+  top: 50px;
+  right:23px;
   z-index: 10;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 5px;
   min-width: 100px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  margin-top: 5px;
 `;
 
 const DropdownItem = styled.div`
@@ -191,12 +191,12 @@ const DropdownItem = styled.div`
   text-align: center;
   cursor: pointer;
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #ccc;
+    border-radius: 5px;
   }
 `;
 
 const DropdownArrow = styled(IoIosArrowDown)`
   margin-left: 5px;
-
   cursor: pointer;
 `;

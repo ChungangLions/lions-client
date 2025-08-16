@@ -20,10 +20,10 @@ const DetailWrapper = styled.div`
 align-self: stretch;
 display: flex;
 flex-direction: column;
-align-items: center;
-justify-content: center;
+align-items: flex-start;
+justify-content: flex-start;
+gap: 5px;
 font-size: 16px;
-gap: 4px;
 `;
 
 const Row = styled.div`
