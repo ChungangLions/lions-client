@@ -6,10 +6,11 @@ import InputBox from "../../components/common/inputs/InputBox";
 import PhotoUpload from "../../components/common/inputs/PhotoUpload";
 import PhotoUploadWithInput from "../../components/common/inputs/PhotoUploadWithInput";
 import DatePicker from "../../components/common/inputs/DatePicker";
-import { getOwnerProfile } from "../../services/apis/ownerAPI";
+import { editOwnerProfile, getOwnerProfile } from "../../services/apis/ownerAPI";
+import { FaCheck } from "react-icons/fa6";
 
 // ---- 샘플 데이터 ----
-const sampleType = { data: ["한식", "중식", "일식", "카페", "술집", "기타"] }
+const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] }
 const Date = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
@@ -155,7 +156,7 @@ const OwnerEditMyPage = () => {
   // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
   const [photoState, setPhotoState] = useState(samplePhoto);
   const [campusValue, setCampusValue] = useState(sampleCampus);
-  const [typeValue, setTypeValue] = useState("한식");
+  const [typeValue, setTypeValue] = useState("");
   const [nameValue, setNameValue] = useState("");
   const [commentValue, setCommentValue] = useState("정성이 가득한 한식집");
   const [menuList, setMenuList] = useState(sampleMenu);
@@ -174,6 +175,12 @@ const OwnerEditMyPage = () => {
 
   const [scrollY, setScrollY] = useState(0);
 
+  const businessTypeMap = {
+  RESTAURANT: '일반 음식점',
+  CAFE: '카페',
+  BAR: '술집',
+  };
+  
   // 사장님 프로필 조회 
   useEffect(() => {
     const fetchProfile = async () => { 
@@ -184,12 +191,32 @@ const OwnerEditMyPage = () => {
 
         setCommentValue(data.comment);
         setNameValue(data.profile_name);
+        setTypeValue(businessTypeMap[data.business_type]);
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
       }
     };
     fetchProfile();
   }, []);
+
+  // 프로필 수정
+  const handleProfileUpdate = async () => {
+    try {
+      const ownerId = 1; 
+      const updateData = {
+        profile_name: nameValue, 
+        comment: commentValue,
+        photos: photoState,
+
+
+      };
+
+      await editOwnerProfile(ownerId, updateData);
+      alert("프로필 수정 완료!");
+    } catch (error) {
+      console.error("프로필 수정 실패:", error);
+    }
+  };
 
   // ---- 우측 리스트 스크롤 구현 ----
   useEffect(() => {       // 스크롤 위치 감지
@@ -287,6 +314,7 @@ const OwnerEditMyPage = () => {
 
 
 
+
   // ----------- 렌더링 -----------
   return (
     <PageContainer>
@@ -296,7 +324,7 @@ const OwnerEditMyPage = () => {
         <Title> 제휴 프로필 설정 </Title>
         <SubTitle> 우리 가게에 딱 맞는 제휴 조건을 찾기 위해 정보를 입력해주세요. </SubTitle>
       </TitleContainer>
-
+      <ContentSection>
       <MainContainer>
         <EditContainer>
           {/* 대표 사진 */}
@@ -309,16 +337,11 @@ const OwnerEditMyPage = () => {
           {/* 주변 캠퍼스 */}
           <TitleContainer ref={sectionRefs.campus}>
             <Title> 주변 캠퍼스 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            {campusValue && ( <SubTitle> {campusValue.name}</SubTitle>)}
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
           > 대학 검색 </SearchCampusButton>
-          {campusValue && (
-            <ResultTitle>
-              선택한 캠퍼스: {campusValue.name}
-            </ResultTitle>
-          )}
           <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
@@ -497,11 +520,15 @@ const OwnerEditMyPage = () => {
               $filled={isSectionFilled[item.key]}
               onClick={() => scrollToSection(item.refKey)}
             >
-              V {item.label}
+              <ProgressSection>
+              <FaCheck /> 
+              {item.label}
+              </ProgressSection>
             </ProgressItem>
           ))}
         </ProgressList>
       </ProgressContainer>
+      </ContentSection>
         {showModal && (
             <ModalOverlay>
                 <ModalBox>
@@ -549,8 +576,7 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 1fr;
+  background-color: #f4f4f4;
   gap: 10px;
   margin-top: 10px;
 `;
@@ -558,8 +584,8 @@ const MainContainer = styled.div`
 const EditContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 50px 117px;
-  border: 1px solid black;
+  margin: 0px 117px 25px;
+  border: 1px solid none;
   align-items: start;
 `;
 
@@ -594,15 +620,20 @@ const ColumnLayout = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: fixed;
-  right: 80px;
-  width: 327px;
+  position: sticky;
+  width: 100%;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  z-index: 999;
   transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left;
+  font-size: 20px;
+  color: #e9f4d0;
+  font-family: Pretendard;
+  box-sizing: border-box;
 `;
 
 const ProgressList = styled.ul`
@@ -613,12 +644,14 @@ const ProgressList = styled.ul`
   margin: 0;          // 기본 여백 제거!
   padding: 0;
   width: 197px;
+justify-content: flex-start;
+
 `;
 
 const ProgressItem = styled.li`
   font-size: 20px;
   cursor: pointer;
-  color: ${({ $filled }) => ($filled ? "#000000" : "#9C9C9C")};
+  color: ${({ $filled }) => ($filled ? "#64a10f" : "#898989")};
   font-weight: 400;
   transition: color 0.2s;
   margin: 0;      // 혹시 li의 마진 생길 경우
@@ -626,21 +659,30 @@ const ProgressItem = styled.li`
   list-style: none;
 `;
 
-
+const ProgressSection = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+gap: 10px;
+`;
 const SaveButton = styled.button`
-    height: 85px;
-    padding: 21px 102px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    align-self: stretch;
-    border: 0px;
-    color: black;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: normal;
-    background-color: #D9D9D9;
-    margin-bottom: 10px;
+box-sizing: border-box;
+width: 100%;
+position: relative;
+border-radius: 5px;
+background-color: #64a10f;
+height: 85px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 21px 102px;
+font-size: 20px;
+color: #e9f4d0;
+font-family: Pretendard;
+font-weight: 600;
+border: none;
 `;
 
 const ModalOverlay = styled.div`
@@ -806,4 +848,10 @@ const ResultTitle = styled.div`
   color: #000;
   margin-bottom: 6px;
   margin-top: 4px;
+`;
+
+const ContentSection = styled.div`
+display: flex;
+flex-direction: row;
+gap: 24px;
 `;
