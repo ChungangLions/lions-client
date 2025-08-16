@@ -4,8 +4,7 @@ import styled from 'styled-components';
 function MenuItem({ image, name, price }) {
   return (
     <MenuContainer>
-      <FakeMenuImage/>
-      {/* <MenuImg src={image} alt={name} /> */}
+      <MenuImg src={image} alt={name} />
       <MenuName>{name}</MenuName>
       <MenuPrice>{price}원</MenuPrice>
     </MenuContainer>
@@ -23,6 +22,13 @@ const MenuContainer = styled.div`
 `;
 
 const MenuImg = styled.img`
+width: 120px; // 원래 120px이 맞음
+  height: 120px; // 원래 120px이 맞음
+  background: #D9D9D9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 9px;
     
 `;
 

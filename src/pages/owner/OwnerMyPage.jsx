@@ -4,20 +4,39 @@ import { Link } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
+import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
-const menus = [
-  { id: 1, image: 'img1.jpg', name: '메뉴', price: 5000 },
-  { id: 2, image: 'img2.jpg', name: '메뉴', price: 5000 },
-  { id: 3, image: 'img1.jpg', name: '메뉴', price: 5000 },
-  { id: 4, image: 'img2.jpg', name: '메뉴', price: 5000 },
-  { id: 5, image: 'img1.jpg', name: '메뉴', price: 5000 },
-  { id: 6, image: 'img2.jpg', name: '메뉴', price: 5000 },
-  { id: 7, image: 'img1.jpg', name: '메뉴', price: 5000 },
-  { id: 8, image: 'img2.jpg', name: '메뉴', price: 5000 },
-];
 
 const OwnerMyPage = () => {
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => { 
+      try {
+        const ownerId = 1;
+        const data = await getOwnerProfile(ownerId);
+        console.log(data);
+        setProfileData(data);
+
+      } catch (error) {
+        console.error("프로필 데이터 조회 실패:", error);
+      }
+    };
+    fetchProfile();
+  }, []); 
+
+  const businessTypeMap = {
+  RESTAURANT: '일반 음식점',
+  CAFE: '카페',
+  BAR: '술집',
+  };
+
+  const formattedPhotos = (profileData?.photos || []).map(photo => ({
+  id: photo.id,
+  image: photo.image, 
+}));
+
   const [recommendNum, setRecommendNum] = useState(0);
 
   useEffect(() => {
@@ -43,10 +62,10 @@ const OwnerMyPage = () => {
       {/* 타이틀 + 수정 버튼 section */}
       <TitleContainer>
         <TitleBox>
-          <Title> Middle Door </Title>
+          <Title>{profileData?.profile_name || ''}</Title>
           <DesBox>
-            <Category> 카페 </Category>
-            <Description> 베이커리가 다양하고 맛있는 디저트 카페 </Description>
+            <Category> {businessTypeMap[profileData?.business_type] || '기타' }</Category>
+            <Description> {profileData?.comment} </Description>
           </DesBox>
         </TitleBox>
         <Link to="edit">
@@ -55,7 +74,8 @@ const OwnerMyPage = () => {
       </TitleContainer>
 
       {/* 중간 사진 section */}
-      <ImageSlider />
+      <ImageSlider photos={formattedPhotos|| []} />
+
 
       {/* 가게 정보 + 제휴 유형 + 대표 메뉴 section */}
       <ProfileContainer>
@@ -92,7 +112,7 @@ const OwnerMyPage = () => {
         <OwnerMenu>
           <InfoTitle> 대표 메뉴 </InfoTitle>
           <MenuList>
-            {menus.map(menu => (
+            {profileData?.menus.map(menu => (
               <MenuItem
                 key={menu.id}
                 image={menu.image} //임의로 fake box 넣어놓음, cards/menuitem에서 수정 필요
@@ -152,6 +172,7 @@ const Title = styled.div`
   font-size: 32px;
   font-weight: 600;
   margin-bottom: 8px;
+color: #64a10f;
 `;
 
 const DesBox = styled.div`
