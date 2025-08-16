@@ -8,6 +8,7 @@ const useUserStore = create(
     persist(
         (set) => ({
             userRole: null, // 사장님, 학생, 학생단체 중 하나 
+            username: null,
             isLoggedIn: false,
             accessToken : null,
             refreshToken : null,
@@ -17,6 +18,7 @@ const useUserStore = create(
                     const res = await login(username, password);
                 set({ 
                     userRole: res.user_role , 
+                    username: res.username,
                     isLoggedIn: true, 
                     accessToken: res.access, 
                     refreshToken: res.refresh 
@@ -36,6 +38,7 @@ const useUserStore = create(
                 
                 set({
                     userRole : null,
+                    username: null,
                     isLoggedIn: false,
                     accessToken: null,
                     refreshToken: null,

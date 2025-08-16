@@ -1,21 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { fetchStudentProfile } from '../../services/apis/studentProfileApi'
+import { fetchUserList } from '../../services/apis/userListApi'
 
 const StudentMyPage = () => {
-  const { id } = useParams(); // /student/mypage/:id 가정
+  const { id } = useParams();
   const [studentInfo, setStudentInfo] = useState(null);
+  const navigate = useNavigate();
+
+  const navigateToEditMyPage = `/student/mypage/${id}/edit`;
 
   useEffect(() => {
+    console.log("useEffect triggered! id:", id);
     async function loadProfile() {
+      console.log("loadProfile 함수 진입 id:", id);
       if (!id) return;
-      const data = await fetchStudentProfile(id);
-      if (data) {
+      const profileData = await fetchStudentProfile(id);
+      // const userData = await fetchUserList(profileData.user);
+
+      console.log(id);
+      console.log(profileData);
+      
+      if (profileData) {
         setStudentInfo({
-          name: data.name || '',
-          school: data.university_name || '',
-          profileImg: data.image || '',
+          name: profileData.name || '',
+          school: profileData.university_name || '',
+          profileImg: profileData.image || '',
           recommend: [
             { shopImg: '', shopName: '가게명1' },
             { shopImg: '', shopName: '가게명2' },
@@ -47,7 +58,9 @@ const StudentMyPage = () => {
                     <Name> {studentInfo.name} </Name>
                     <School> {studentInfo.school} </School>
                 </ProfileSection>
-                <EditButton> 수정하기 </EditButton>
+                <StyledLink to={navigateToEditMyPage}>
+                  <EditButton> 수정하기 </EditButton>
+                </StyledLink>
             </ProfileContainer>
             <RecommendSection>
                 <Name>추천 목록</Name>
@@ -186,3 +199,5 @@ const ShopName = styled.div`
     font-weight: 600;
     line-height: normal;
 `;
+
+const StyledLink = styled.div``;

@@ -14,6 +14,7 @@ import StudentProfile from './pages/owner/StudentProfile';
 import Login from './pages/landing/Login';
 import OwnerWishlist from './pages/owner/OwnerWishlist';
 import StudentMyPage from './pages/student/StudentMyPage';
+import StudentEditMyPage from './pages/student/StudentEditMyPage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/group" element={<GroupHome />}/>
         <Route path="/student" element={<StudentHome />}/>
         <Route path="/student/mypage/:id" element={<StudentMyPage />} />
+        <Route path="/student/mypage/:id/edit" element={<StudentEditMyPage />} />
 
       </Route>
       <Route element={<MainLayout hasMenu={true}/>}>

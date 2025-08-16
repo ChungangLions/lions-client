@@ -1,19 +1,40 @@
-import React, { useState } from 'react'
+// TO DO LIST
+// 1. 프로필에서 id 값 받아서 url props로 전달
+// 2. 전체 함수 userRole 연동하도록 바꾸기기
+
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
 import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.svg'
+import { fetchUserList } from '../services/apis/userListApi'
+import { fetchStudentProfile } from '../services/apis/studentProfileApi'
 
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
+async function getCurrentUserId(username, userRole) {
+  const userList = await fetchUserList();
+  console.log("username to find:", username);
+  console.log("userRole to find:", userRole);
+
+  const user = userList.find(
+    u => u.username === username && 
+         u.user_role?.toUpperCase() === userRole?.toUpperCase()
+  );
+  console.log("matched user:", user);
+  return user ? user.id : null;
+}
+
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
+  const { userRole, username, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
+  const [myId, setMyId] = useState(null);
   const navigate = useNavigate();
 
-  //console.log("현재 userRole:", userRole); 
+  // console.log("현재 userRole:", userRole);
+  // console.log("현재 username:", username); 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -24,7 +45,16 @@ const Header = ({hasMenu}) => {
     navigate("/");
   };
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage`;
+  useEffect(() => {
+    async function fetchId() {
+        const id = await getCurrentUserId(username, userRole);
+        const profileData = await fetchStudentProfile(id);
+        setMyId(profileData.id);
+      }
+      fetchId();
+  }, [username, userRole]);
+
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${myId}`;
 
   return (
     <HeaderContainer>
@@ -54,7 +84,7 @@ const Header = ({hasMenu}) => {
               )}
           </UserContainer>
           <StyledLink to={navigateToMyPage}>
-          <ProfileIcon />
+            <ProfileIcon />
           </StyledLink>
         </RightBox>
       </HeaderGroup>
