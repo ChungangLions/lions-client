@@ -191,7 +191,7 @@ const DropdownItem = styled.div`
   text-align: center;
   cursor: pointer;
   &:hover {
-    background-color: #ccc;
+    background-color: #e7e7e7;
     border-radius: 5px;
   }
 `;
