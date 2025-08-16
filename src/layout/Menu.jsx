@@ -43,11 +43,13 @@ export default Menu
 
 const MenuContainer = styled.div`
     width: 100%;
+    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: start;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
     gap: 50px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #BCBCBC;
     margin: 0 auto;
 `;
 
@@ -58,8 +60,8 @@ const MenuItem = styled(Link)`
     min-width: 52px;
     height: 38px;
     text-decoration: none;
-    color: ${({ $active }) => ($active ? '#000' : '#767676')};
-    border-bottom: ${({ $active }) => ($active ? '4px solid #000' : 'none')};
+    color: ${({ $active }) => ($active ? '#64A10F' : '#BCBCBC')};
+    border-bottom: ${({ $active }) => ($active ? '4px solid #64A10F' : 'none')};
     font-weight: ${({ $active }) => ($active ? 'bold' : 'normal')};
     text-align: center;
     line-height: 38px;
