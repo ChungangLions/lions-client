@@ -21,8 +21,10 @@ const Login = () => {
     console.log("로그인 성공:", res);
     if(res.user_role === "OWNER") {
       navigate('/owner');
-    } else if(res.user_role === "student") {
+    } else if(res.user_role === "STUDENT") {
       navigate('/student'); 
+    }else if(res.user_role === "STUDENTGROUP") {
+      navigate('/group');  
     } else {
       navigateToHome(); 
     }

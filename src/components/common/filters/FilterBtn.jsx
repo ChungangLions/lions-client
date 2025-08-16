@@ -20,4 +20,7 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px;
+color:  #64a10f;
+font-weight: 500;
+font-size: 16px;
 `;

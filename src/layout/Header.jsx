@@ -21,10 +21,12 @@ const Header = ({hasMenu}) => {
 
   const handleLogout = () => {
     setLogoutStatus();
+    setTimeout(() => { // 타임아웃 없으면 렌더링 충돌
     navigate("/");
-  };
+  }, 0);
+};
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage`;
+  const navigateToMyPage = userRole ? `/${userRole.toLowerCase()}/mypage`: '/';
 
   return (
     <HeaderContainer>

@@ -4,19 +4,15 @@ import CardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
 import useStudentOrgStore from '../../stores/studentOrgStore'
-import FilterBtn from '../../components/common/buttons/FilterBtn'
+import FilterBtn from '../../components/common/filters/FilterBtn'
 import { TbArrowsSort } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import useUserStore from '../../stores/userStore'
+import DropDown from '../../components/common/filters/DropDown'
 
 const OwnerHome = () => {
   const navigate = useNavigate();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  }
-
+  
   const handleCardClick = () => {
     navigate("student-profile");
   };
@@ -30,8 +26,6 @@ const OwnerHome = () => {
         navigate('/login');}
     },[navigate])
 
-
-
   // zustand store에서 사용할 것들 가져오기 
   const {
     organizations,
@@ -39,36 +33,25 @@ const OwnerHome = () => {
     filterByRecord,
   } = useStudentOrgStore();
 
-  const handleSortChange = (e) => {
-    const key = e.target.value 
-    sortByDesc(key);
-  }
-
   const handleFilterChange = (e) => {
       filterByRecord();
   }
-
   
-
   return (
-    <>
+    <PageConatainer>
       <SelectContainer>
         <SelectWrapper>
         <FilterBtn onClick = {handleFilterChange}>{`제휴 이력`}</FilterBtn>
-        <SortSection onChange={handleSortChange}>
           <OptionWrapper>
-            <TbArrowsSort />
-            <SortOption value="likes">찜 많은 순</SortOption>
-            {isDropdownOpen && (
-            <DropdownMenu>
-                  <DropdownItem value="record">
-                    제휴 이력 많은 순
-                  </DropdownItem>
-              </DropdownMenu>
-              )}
+            <TbArrowsSort size={30} strokeWidth={1} />
+            <DropDown
+              options={[
+                { value: "likes", label: "찜 많은 순" },
+                { value: "record", label: "제휴 이력 많은 순" },
+              ]}
+              onClick= {(option) => sortByDesc(option.value)}
+            />
           </OptionWrapper>
-            <IoIosArrowDown />
-        </SortSection>
         </SelectWrapper>
       </SelectContainer>
       <CardListGrid> 
@@ -77,37 +60,26 @@ const OwnerHome = () => {
           <CardSection key={organization.id} onClick = {handleCardClick} cardType={'home'} ButtonComponent = {() => ( <FavoriteBtn/>)} organization={organization} />
         ))}
       </CardListGrid>
-    </>
+    </PageConatainer>
   )
 }
 
 
 export default OwnerHome
 
-// 그리드 가로 3, 세로 자동
-const CardListGrid = styled.div`
-  width: 100%;
-  position: relative;
-  display: grid;
-  grid-template-rows: ;
-  grid-template-columns: repeat(3, 447px); 
-  justify-content: start;
-  align-content: start;
-  column-gap: 20px;
-  row-gap: 20px;
-  text-align: left;
-  font-size: 18px;
-  color: #000;
-  font-family: Pretendard;
-`;
-
-  
-const SelectContainer = styled.div`
+const PageConatainer = styled.div`
+display: flex;
+flex-direction: column;
+margin: 15px 29px;
+gap: 15px;
 width: 100%;
 position: relative;
-background-color: #fff;
-height: 1183px;
-overflow: hidden;
+justify-content: flex-start; 
+min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
+`;
+
+const SelectContainer = styled.div`
+width: 100%;
 text-align: left;
 font-size: 16px;
 color: #64a10f;
@@ -115,14 +87,33 @@ font-family: Pretendard;
 `;
 
 const SelectWrapper = styled.div`
-position: absolute;
-top: 90px;
-left: 30px;
+position: relative;
+width: 100%;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: flex-start;
 gap: 23px;
+text-align: left;
+font-size: 16px;
+color: #64a10f;
+font-family: Pretendard;
+`;
+
+// 그리드 가로 3, 세로 자동
+const CardListGrid = styled.div`
+  width: 100%;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 447px); 
+  justify-content: start;
+  align-content: start;
+  column-gap: 20px;
+  row-gap: 20px;
+  text-align: left;
+  font-size: 18px;
+  color: #1A2D06;
+  font-family: Pretendard;
 `;
 
 const SortSection = styled.select`
@@ -137,7 +128,7 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
-padding: 10px;
+gap: 5px;
 `;
 
 const SortOption = styled.div`
