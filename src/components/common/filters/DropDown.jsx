@@ -82,7 +82,7 @@ const OptionList = styled.div`
   cursor: pointer;
   font-weight: 500;
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #e9f4d0;
     border-radius: 5px;
   }
 `;
