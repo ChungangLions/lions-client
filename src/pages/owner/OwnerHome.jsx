@@ -17,6 +17,8 @@ const OwnerHome = () => {
     navigate("student-profile");
   };
 
+  const [isActive, setIsActive] = useState(false);
+
   useEffect(()=> {
       const token = localStorage.getItem('access');
       if(token){
@@ -34,6 +36,7 @@ const OwnerHome = () => {
   } = useStudentOrgStore();
 
   const handleFilterChange = (e) => {
+      setIsActive(!isActive);
       filterByRecord();
   }
   
@@ -41,7 +44,7 @@ const OwnerHome = () => {
     <PageConatainer>
       <SelectContainer>
         <SelectWrapper>
-        <FilterBtn onClick = {handleFilterChange}>{`제휴 이력`}</FilterBtn>
+        <FilterBtn onClick = {handleFilterChange} active={isActive}>{`제휴 이력`}</FilterBtn>
           <OptionWrapper>
             <TbArrowsSort size={30} strokeWidth={1} />
             <DropDown

@@ -20,7 +20,11 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px;
-color:  #64a10f;
+color: ${({ active }) => (active ? '#e9f4d0' : '#64a10f')};
 font-weight: 500;
 font-size: 16px;
+&:hover {
+    background-color: #e9f4d0;
+    color: #64a10f;
+  }
 `;
