@@ -5,14 +5,8 @@ import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
+import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
-const infos = {
-  partnershipNum: 7,
-  likeNum: 46,
-  recommendNum: 97,
-  etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
-  partnershipType: ['할인형', '타임형'],
-};
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
@@ -42,6 +36,24 @@ const OwnerMyPage = () => {
   id: photo.id,
   image: photo.image, 
 }));
+
+  const [recommendNum, setRecommendNum] = useState(0);
+
+  useEffect(() => {
+    async function load() {
+      const data = await fetchRecommendations();
+      setRecommendNum(data.length);
+    }
+    load();
+  }, []);
+
+  const infos = {
+    partnershipNum: 7,
+    likeNum: 46,
+    recommendNum,
+    etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
+    partnershipType: ['할인형', '타임형'],
+  };
 
   return (
     <PageContainer>

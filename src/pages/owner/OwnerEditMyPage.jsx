@@ -229,8 +229,8 @@ const OwnerEditMyPage = () => {
   }, []);
 
   const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = 70;
-    const maxTop = 245;
+    const minTop = 50;
+    const maxTop = 230;
     
     if (scrollY <= 0) return maxTop;
     if (scrollY >= 500) return minTop;
