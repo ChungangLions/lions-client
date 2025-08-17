@@ -26,56 +26,56 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
 
 
   return (
-      <CardWrapper onClick = {onClick}>
-        <CardGroup $isHome={cardType === 'home'}>
-          <CardContent>
-            <UserInfo organization={organization} />
-            <DetailInfo cardDetail={cardData} />
-          </CardContent>
-            <ButtonWrapper $isHome={cardType === 'home'}>
-              <ButtonComponent />
-            </ButtonWrapper>
-          </CardGroup>
-      </CardWrapper>
+      <CardGroup onClick = {onClick} $isHome={cardType === 'home'}>
+        <CardContent>
+          <UserInfo organization={organization} />
+          <DetailInfo cardDetail={cardData} />
+        </CardContent>
+        <ButtonWrapper $isHome={cardType === 'home'}>
+            <ButtonComponent 
+              width="20px" 
+              height="17px" 
+              position="relative" 
+            />
+      </ButtonWrapper>
+      </CardGroup>
   )
 }
 
 export default OrgCardSection
 
-
-const CardWrapper = styled.div`
+const CardGroup = styled.div`
   height: 241px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
   border: 1px solid #e7e7e7;
-`;
-
-
-const CardGroup = styled.div`
-position: absolute;
-display: flex;
+  border-radius: 5px;
+  width: 100%;
 flex-direction: row;
 align-items: flex-start;
-justify-content: flex-start;
+justify-content: center;
+padding: 20px 40px;
+box-sizing: border-box;
+gap: 24px;
+text-align: left;
+font-size: 18px;
+color: #1a2d06;
+font-family: Pretendard;
 `;
 
 const CardContent = styled.div`
+position: relative;
 align-self: stretch;
 display: flex;
 flex-direction: column;
 gap: ${({ $isHome }) => ($isHome ? '24px' : '30px')};
+white-space: nowrap;
 `;
 
 const ButtonWrapper = styled.div`
-width: 100%;
-position: absolute;
-top: ${({ $isHome }) => ($isHome ? '-10px' : '50%')};
-left: ${({ $isHome }) => ($isHome ? '343px' : '308px')};
+position: relative;
+top: ${({ $isHome }) => ($isHome ? '0px' : '50%')};
+left: ${({ $isHome }) => ($isHome ? '30px' : 'px')};
 display: flex;
-flex-direction: column;
-align-items: flex-start;
-justify-content: flex-start;
-padding: 10px;
+box-sizing: border-box;
 `;

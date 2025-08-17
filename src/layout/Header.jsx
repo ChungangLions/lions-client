@@ -129,6 +129,7 @@ align-items: center;
 justify-content: center;
 padding: 10px;
 gap: 5px;
+white-space: nowrap; /* 줄바꿈 방지 */
 `;
 
 const Logo = styled.div`

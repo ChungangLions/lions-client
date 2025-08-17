@@ -10,12 +10,13 @@ const FavoriteBtn = ({userId, onClick}) => {
  
     const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
-        setIsHeartActive(!isHeartActive);
+        const prevState = isHeartActive;
+        setIsHeartActive(!prevState);
         try {
           await togglelikes(userId);
         } catch (error) {
           console.error("찜 토글 실패:", error);
-          setIsHeartActive(isHeartActive);
+          setIsHeartActive(prevState);
         }
     }
 
@@ -40,6 +41,7 @@ const StyledFaHeart = styled(FilledHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
+  color: #64A10F ;
 `;
 
 const StyledFaRegHeart = styled(EmptyHeartIcon)`
@@ -53,6 +55,7 @@ const StyledFaRegHeart = styled(EmptyHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
+  color: #64A10F;
 `;
 
 const StyledButton = styled.button`
