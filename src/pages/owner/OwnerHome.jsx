@@ -11,8 +11,8 @@ import DropDown from '../../components/common/filters/DropDown'
 const OwnerHome = () => {
   const navigate = useNavigate();
   
-  const handleCardClick = () => {
-    navigate("student-profile");
+  const handleCardClick = (organization) => {
+    navigate("student-group-profile", { state: { organization } });
   };
 
   const [isActive, setIsActive] = useState(false);

@@ -2,8 +2,14 @@ import React from 'react'
 import styled from 'styled-components'
 import ProfileImg from '../../components/common/cards/ProfileImg'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
+import { useLocation } from 'react-router-dom'
 
-const StudentProfile = () => {
+const StudentGroupProfile = () => {
+  const location = useLocation();
+  const { organization } = location.state || {};
+  console.log(location.state);
+  
+
   return (
     <PageContainer>
     <ProfileSection>
@@ -11,7 +17,7 @@ const StudentProfile = () => {
           <ImageContainer />
           <ContentWrapper>
             <ContentTitle>
-              중앙대학교 37대 경영학부 학생회 다움
+              {organization?.university}
             </ContentTitle>
             <DetailSection>
               어쩌구저쩌구
@@ -35,10 +41,10 @@ const StudentProfile = () => {
   )
 }
 
-export default StudentProfile
+export default StudentGroupProfile
 
 const PageContainer = styled.div`
-gap: 92px;
+gap: 59px;
 display: flex;
 flex-direction: row;
 width: 100%;

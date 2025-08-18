@@ -26,7 +26,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
 
 
   return (
-      <CardGroup onClick = {onClick} $isHome={cardType === 'home'}>
+      <CardGroup onClick={() => onClick(organization)} $isHome={cardType === 'home'}>
         <CardContent>
           <UserInfo organization={organization} />
           <DetailInfo cardDetail={cardData} />
