@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
-import { togglelikes } from '../../../services/apis/likesAPI';
+import { togglelikes } from '../../../services/apis/likesapi';
 import useUserStore from '../../../stores/userStore';
 
 
