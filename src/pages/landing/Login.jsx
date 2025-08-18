@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import useUserStore from '../../stores/userStore';
 import useStudentStore from '../../stores/studentStore';
+import Logo from '../../assets/images/Logo.png'
 
 const Login = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Login = () => {
   return (
     <PageContainer>
       <LogoContainer>
-        로고
+        <img src={Logo} alt="로고" />
       </LogoContainer>
       <LoginContainer>
         <LoginSection>
@@ -103,7 +104,6 @@ const LogoContainer = styled.div`
 position: absolute;
 top: 213px;
 left: 147px;
-background-color: #d9d9d9;
 width: 563px;
 height: 420px;
 display: flex;
@@ -161,10 +161,10 @@ gap: 15px;
 `;
 
 const LoginBtn = styled.div`
-width: 446px;
+width: 100%;
+position: relative;
 border-radius: 35px;
-background-color: #e7e7e7;
-border: 3px solid #bcbcbc;
+border: 3px solid #64a10f;
 box-sizing: border-box;
 height: 70px;
 display: flex;
@@ -172,7 +172,16 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px;
+text-align: left;
 font-size: 20px;
-color: #bcbcbc;
-cursor: pointer;
+color: #64a10f;
+font-family: Pretendard;
+
+&:hover {
+background-color: #e9f4d0;
+}
+&:active {
+  background-color: #64a10f;
+  color: #cef685;
+  }
 `;

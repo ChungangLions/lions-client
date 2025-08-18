@@ -33,4 +33,15 @@ font-weight: 600;
 font-size: 20px;
 background-color: white;
 color: #64a10f;
+cursor: pointer;
+
+&:hover {
+background-color: #e9f4d0;
+}
+
+&:active {
+  background-color: #64a10f;
+  color: #cef685;
+  }
+  
 `;
