@@ -5,7 +5,7 @@ import GroupCard from '../../components/common/cards/GroupCard';
 import styled from 'styled-components';
 import useVenueStore from '../../stores/venueStore';
 import { useNavigate } from 'react-router-dom';
-import FilterBtn from '../../components/common/buttons/FilterBtn';
+import FilterBtn from '../../components/common/filters/FilterBtn';
 import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 
 const StudentHome = () => {

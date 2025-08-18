@@ -9,7 +9,7 @@ export const login = async ( username, password) => {
 };
 
 export const getNewRefreshToken = async () => {
-  const refreshToken = localStorage.getItem('refresh');
+  const refreshToken = localStorage.getItem('refreshToken');
   const response = await axios.post(`${baseURL}/auth/refresh/`, { refresh: refreshToken });
   return response.data;
 };

@@ -9,9 +9,9 @@ const UserInfo = ({organization}) => {
       <UserSection>
         <ProfileImage />
         <NameWrapper>
-          <p>{organization.university}</p> 
-          <p>{organization.department}</p>
-          <p>{organization.name}</p>
+          <p>{organization?.university}</p> 
+          <p>{organization?.department}</p>
+          <p>'{organization?.council_name}'</p>
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>
@@ -29,12 +29,10 @@ justify-content: flex-start;
 `;
 
 const UserSection = styled.div`
-align-self: stretch;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: flex-start;
-padding: 5px 0px;
 gap: 30px;
 `;
 

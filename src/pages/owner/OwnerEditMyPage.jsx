@@ -8,6 +8,7 @@ import PhotoUploadWithInput from "../../components/common/inputs/PhotoUploadWith
 import DatePicker from "../../components/common/inputs/DatePicker";
 import { editOwnerProfile, getOwnerProfile } from "../../services/apis/ownerAPI";
 import { FaCheck } from "react-icons/fa6";
+import useUserStore from "../../stores/userStore";
 
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] }
@@ -153,17 +154,20 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
 
 const OwnerEditMyPage = () => {
 
+  
+
+
   // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
   const [photoState, setPhotoState] = useState(samplePhoto);
   const [campusValue, setCampusValue] = useState(sampleCampus);
   const [typeValue, setTypeValue] = useState("");
   const [nameValue, setNameValue] = useState("");
-  const [commentValue, setCommentValue] = useState("정성이 가득한 한식집");
+  const [commentValue, setCommentValue] = useState("");
   const [menuList, setMenuList] = useState(sampleMenu);
-  const [revenueValue, setRevenueValue] = useState("15000");
-  const [marginValue, setMarginValue] = useState("40");
+  const [revenueValue, setRevenueValue] = useState("");
+  const [marginValue, setMarginValue] = useState("");
 
-  const [openHours, setOpenHours] = useState(sampleSchedule);
+  const [openHours, setOpenHours] = useState([]);
   const [busyHours, setBusyHours] = useState(sampleSchedule);
   const [freeHours, setFreeHours] = useState(sampleSchedule);
 
@@ -181,17 +185,32 @@ const OwnerEditMyPage = () => {
   BAR: '술집',
   };
   
+  const { userId } = useUserStore();
+
   // 사장님 프로필 조회 
   useEffect(() => {
     const fetchProfile = async () => { 
       try {
-        const ownerId = 1;
+        const ownerId = userId;
         const data = await getOwnerProfile(ownerId);
         console.log(data);
 
         setCommentValue(data.comment);
         setNameValue(data.profile_name);
         setTypeValue(businessTypeMap[data.business_type]);
+        setRevenueValue(data.average_sales);
+        setMarginValue(data.margin_rate);
+        
+        
+        // business_day 변환
+        const scheduleArray = data.business_day
+  ? Object.entries(data.business_day).map(([day, time]) => {
+      const [start, end] = day.split("-");
+      return { day: time + "요일", start, end };
+    })
+  : [];
+
+
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
       }

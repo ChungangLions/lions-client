@@ -13,6 +13,7 @@ const useUserStore = create(
             isLoggedIn: false,
             accessToken : null,
             refreshToken : null,
+            userId : null,
 
             setLoginStatus: async (username, password) => {
                 try{
@@ -23,11 +24,12 @@ const useUserStore = create(
                     id: res.id,
                     isLoggedIn: true, 
                     accessToken: res.access, 
-                    refreshToken: res.refresh 
+                    refreshToken: res.refresh,
+                    userId: res.id,
                 });
 
-                localStorage.setItem('access', res.access);
-                localStorage.setItem('refresh', res.refresh);
+                localStorage.setItem('accessToken', res.access);
+                localStorage.setItem('refreshToken', res.refresh);
 
                 return res;
             } catch (error) {
@@ -35,8 +37,8 @@ const useUserStore = create(
             }
             },
             setLogoutStatus: () => {
-                localStorage.removeItem('access');
-                localStorage.removeItem('refresh');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
                 
                 set({
                     userRole : null,

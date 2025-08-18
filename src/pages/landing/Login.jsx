@@ -8,8 +8,8 @@ import useStudentStore from '../../stores/studentStore';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [ username, onChangeUsername] = useState();
-  const [ password, onChangePassword] = useState();
+  const [ username, onChangeUsername] = useState("");
+  const [ password, onChangePassword] = useState("");
 
   const { setLoginStatus } = useUserStore(); 
 
@@ -23,8 +23,12 @@ const Login = () => {
     if(res.user_role === "OWNER") {
       navigate('/owner');
     } else if(res.user_role === "STUDENT") {
+
       await useStudentStore.getState().setProfileInfo(res.id);
+
       navigate('/student'); 
+    }else if(res.user_role === "STUDENTGROUP") {
+      navigate('/group');  
     } else {
       navigateToHome(); 
     }
@@ -61,7 +65,7 @@ const Login = () => {
             </InputWrapper>
           </InputContainer>
       </LoginSection>
-      <LoginBtn onClick={onClick}>로그인</LoginBtn>
+      <LoginBtn onClick={onclick}>로그인</LoginBtn>
       </LoginContainer>
     </PageContainer>
   )
@@ -170,4 +174,5 @@ justify-content: center;
 padding: 10px;
 font-size: 20px;
 color: #bcbcbc;
+cursor: pointer;
 `;

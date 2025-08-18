@@ -1,20 +1,22 @@
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
-import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.svg'
-import useStudentStore from '../stores/studentStore'
-
-//import { ReactComponent as Logo } from '../assets/images/logo.svg';
+import { ReactComponent as ProfileInactive } from '../assets/images/icons/Profile.svg'
+import { ReactComponent as ProfileActive } from '../assets/images/icons/ProfileActive.svg'
+import Logo from '../assets/images/Logo.png';
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { userRole, username, isLoggedin, setLogoutStatus, id: userId } = useUserStore(); // 로그인 시 받은 id가 userId!
   const { setProfileInfo } = useStudentStore();
   const { profileid: studentProfileId } = useStudentStore();
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   // console.log("현재 userRole:", userRole);
   // console.log("현재 username:", username); 
@@ -25,24 +27,33 @@ const Header = ({hasMenu}) => {
 
   const handleLogout = () => {
     setLogoutStatus();
+    setTimeout(() => { // 타임아웃 없으면 렌더링 충돌
     navigate("/");
-  };
+  }, 0);
+};
+
+  const isActive = location.pathname === `/${userRole}/mypage`;
+
+
+
+  const ProfileIcon = ({ isActive }) => {
+  return isActive ? <ProfileActive /> : <ProfileInactive />;
+};
 
   useEffect(() => {
     if (userId) setProfileInfo(userId);
   }, [userId]);
 
-  // const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
+
   const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${studentProfileId}`;
   const navigateToHome = `/${userRole.toLowerCase()}/`;
+
 
   return (
     <HeaderContainer>
       <HeaderGroup>
         <LeftBox>
-          <Logo to={navigateToHome}>
-            <StyledImg src={process.env.PUBLIC_URL + '/HuniverseLogo.png'} alt="휴니버스"/>
-          </Logo>
+          <LogoImage src={Logo} alt ="휴니버스 로고"/>
         <SearchBar />
         </LeftBox>
         <RightBox>
@@ -64,7 +75,7 @@ const Header = ({hasMenu}) => {
               )}
           </UserContainer>
           <StyledLink to={navigateToMyPage}>
-            <ProfileIcon />
+          <ProfileIcon isActive={isActive}/>
           </StyledLink>
         </RightBox>
       </HeaderGroup>
@@ -74,6 +85,13 @@ const Header = ({hasMenu}) => {
 }
 
 export default Header
+
+const LogoImage = styled.img`
+  width: 97px;
+  position: relative;
+  max-height: 100%;
+  object-fit: cover;
+`;
 
 const StyledLink = styled(Link)`
 width: 28px;
@@ -92,7 +110,7 @@ justify-content: flex-start;
 gap: 15px;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1a2d06;
 font-family: Pretendard;
 
 /*스크롤 관련*/
@@ -128,22 +146,7 @@ align-items: center;
 justify-content: center;
 padding: 10px;
 gap: 5px;
-`;
-
-const Logo = styled(Link)`
-  width: 97px;
-  height: 46px;
-  aspect-ratio: 97 / 46;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const StyledImg = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+white-space: nowrap; /* 줄바꿈 방지 */
 `;
 
 const UserContainer = styled.div`
@@ -187,15 +190,15 @@ background-color: white;
 
 const DropdownMenu = styled.div`
   position: absolute;
-  right: 90px;
-  top: 100%;
+  align-items: flex-start;
+  top: 50px;
+  right:23px;
   z-index: 10;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 5px;
   min-width: 100px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  margin-top: 5px;
 `;
 
 const DropdownItem = styled.div`
@@ -203,12 +206,12 @@ const DropdownItem = styled.div`
   text-align: center;
   cursor: pointer;
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #e7e7e7;
+    border-radius: 5px;
   }
 `;
 
 const DropdownArrow = styled(IoIosArrowDown)`
   margin-left: 5px;
-
   cursor: pointer;
 `;
