@@ -28,8 +28,8 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-  const isActive = location.pathname === `/${userRole.toLowerCase()}/mypage`;
-  const navigateToMyPage = userRole ? `/${userRole.toLowerCase()}/mypage`: '/';
+  const isActive = location.pathname === `/${userRole}/mypage`;
+  const navigateToMyPage = userRole ? `/${userRole}/mypage`: '/';
 
   const ProfileIcon = ({ isActive }) => {
   return isActive ? <ProfileActive /> : <ProfileInactive />;

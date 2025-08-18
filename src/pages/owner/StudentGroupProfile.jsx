@@ -20,7 +20,7 @@ const StudentGroupProfile = () => {
               {organization?.university}
             </ContentTitle>
             <DetailSection>
-              어쩌구저쩌구
+              {organization?.council_name}
             </DetailSection>
           </ContentWrapper>
         

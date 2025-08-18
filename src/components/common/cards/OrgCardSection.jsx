@@ -10,7 +10,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
 
   if (cardType === 'home') {
     cardData = [
-      { label: '소속 학생 수', value: organization.student_num },
+      { label: '소속 학생 수', value: organization.student_size }, // student_size로 바꿔야됨 
       { label: '희망 제휴 기간', value: `${organization.date.start} ~ ${organization.date.end} (${organization.period}개월)` },
       { label: '제휴 이력', value: `${organization.record}회` },
     ];

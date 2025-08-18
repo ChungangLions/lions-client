@@ -11,7 +11,7 @@ const UserInfo = ({organization}) => {
         <NameWrapper>
           <p>{organization.university}</p> 
           <p>{organization.department}</p>
-          <p>{organization.name}</p>
+          <p>'{organization.council_name}'</p>
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>

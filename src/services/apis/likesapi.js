@@ -8,6 +8,6 @@ export const togglelikes = async (userId) => {
     const token = localStorage.getItem("accessToken");
     const authAxios = getAuthAxios(token); 
 
-    const response = await authAxios.post(`/api/accounts/users/${userId}/like-toggle`);
+    const response = await authAxios.post(`/api/accounts/users/${userId}/like-toggle`, {});
     return response.data;
 };

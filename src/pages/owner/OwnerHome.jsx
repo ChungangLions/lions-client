@@ -7,6 +7,7 @@ import useStudentOrgStore from '../../stores/studentOrgStore'
 import FilterBtn from '../../components/common/filters/FilterBtn'
 import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown'
+import useUserStore from '../../stores/userStore'
 
 const OwnerHome = () => {
   const navigate = useNavigate();
@@ -17,17 +18,17 @@ const OwnerHome = () => {
 
   const [isActive, setIsActive] = useState(false);
 
-  useEffect(()=> {
-      const token = localStorage.getItem('access');
-      if(token){
+  const { isLoggedIn } = useUserStore();
 
-      }else{
-        alert('로그아웃 되었습니다.다시 로그인 해주세요');
-        navigate('/login');}
-    },[navigate])
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      alert('로그아웃 되었습니다. 다시 로그인 해주세요.');
+      navigate('/login');
+    }
+  }, [isLoggedIn, navigate]);
 
   // zustand store에서 사용할 것들 가져오기 
-  const {
+    const {
     organizations,
     sortByDesc,
     filterByRecord,
