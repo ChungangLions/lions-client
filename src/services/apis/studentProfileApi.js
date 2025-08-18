@@ -11,6 +11,7 @@ export async function fetchStudentProfile(userId) {
         'Content-Type': 'application/json'
       },
     });
+
     if (!listResp.ok) throw new Error("학생 프로필 목록 에러: " + listResp.status);
     const profiles = await listResp.json();
 
@@ -34,8 +35,55 @@ export async function fetchStudentProfile(userId) {
     const data = await detailResp.json();
     console.log(data);
     return data;
+
   } catch (err) {
     console.error("학생 프로필 데이터 불러오기 에러:", err);
     return null;
   }
+}
+
+export async function patchStudentProfile(profileId, formData) {
+  const response = await fetch(`${BASE_URL}/api/profiles/students/${profileId}/`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData
+  });
+  if (!response.ok) {
+    const msg = await response.text();
+    throw new Error(`PATCH Error ${response.status}: ${msg}`);
+  }
+  return await response.json();
+}
+
+export async function postStudentProfile(createData) {
+  const response = await fetch(`${BASE_URL}/api/profiles/students/`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(createData),
+  });
+  if (!response.ok) throw new Error("프로필 생성 에러: " + response.status);
+  return await response.json();
+}
+
+export async function fetchRecommendations() {
+  const res = await fetch(`${BASE_URL}/api/accounts/recommendations/`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (!res.ok) throw new Error("추천 목록 조회 에러: " + res.status);
+  return res.json();
+}
+
+export async function fetchOwnerProfiles() {
+  const res = await fetch(`${BASE_URL}/api/profiles/owners/`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (!res.ok) throw new Error("가게게 목록 조회 에러: " + res.status);
+  return res.json();
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text"}) => {
+const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px"}) => {
   return (
     <InputWrapper $width={width}>
       <TextInput
@@ -9,6 +9,7 @@ const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, ty
         placeholder={defaultText}
         $withUnit={!!unit}
         $width={width}
+        $border={border}
         value={value}
         onChange={onChange}
       />
@@ -29,8 +30,9 @@ const TextInput = styled.input`
   width: 100%;
   padding: 10px;
   margin-top: 10px;
-  background-color: #D9D9D9;
-  border: 0px;
+  background-color:#fff;
+  border: ${(props) => props.$border || "0px"};
+  border-radius: 5px;
   font-size: 16px;
   font-weight: 400;
   /* 단위 공간 확보 (글자가 input 겹치지 않도록 오른쪽 여백 추가) */
@@ -52,7 +54,7 @@ const InputUnit = styled.span`
   top: 55%;
   transform: translateY(-50%);
   font-size: 16px;
-  color: #222;
+  color: #1A2D06;
   pointer-events: none;
   z-index: 2;
   background: transparent;

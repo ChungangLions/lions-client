@@ -1,111 +1,132 @@
+// TO DO LIST
+// 1. 추천 누른 가게 api 연동 필요
+
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useNavigate, useParams } from 'react-router-dom'
-import { fetchStudentProfile } from '../../services/apis/studentProfileApi'
-import { fetchUserList } from '../../services/apis/userListApi'
+import { useParams, Link } from 'react-router-dom'
+import useStudentStore from '../../stores/studentStore'
+import { fetchRecommendations, fetchOwnerProfiles } from '../../services/apis/studentProfileApi'
 
 const StudentMyPage = () => {
-  const { id } = useParams();
-  const [studentInfo, setStudentInfo] = useState(null);
-  const navigate = useNavigate();
-
-  const navigateToEditMyPage = `/student/mypage/${id}/edit`;
+  const { id: studentProfileId } = useParams();
+  const { name, university_name, image, setProfileInfo } = useStudentStore();
+  const [recommendedStores, setRecommendedStores] = useState([]);
 
   useEffect(() => {
-    console.log("useEffect triggered! id:", id);
-    async function loadProfile() {
-      console.log("loadProfile 함수 진입 id:", id);
-      if (!id) return;
-      const profileData = await fetchStudentProfile(id);
-      // const userData = await fetchUserList(profileData.user);
-
-      console.log(id);
-      console.log(profileData);
-      
-      if (profileData) {
-        setStudentInfo({
-          name: profileData.name || '',
-          school: profileData.university_name || '',
-          profileImg: profileData.image || '',
-          recommend: [
-            { shopImg: '', shopName: '가게명1' },
-            { shopImg: '', shopName: '가게명2' },
-            { shopImg: '', shopName: '가게명3' },
-            { shopImg: '', shopName: '가게명4' },
-            { shopImg: '', shopName: '가게명5' },
-            { shopImg: '', shopName: '가게명6' },
-          ]
-        });
-      } else {
-        setStudentInfo(null);
-      }
+    if (studentProfileId) {
+      setProfileInfo(studentProfileId); // 프로필 정보 fetch해서 store에 업데이트
     }
-    loadProfile();
-  }, [id]);
+  }, [studentProfileId, setProfileInfo]);
 
-  if (!studentInfo) return <div>로딩 중 또는 학생 정보 없음</div>;
+  useEffect(() => {
+    async function fetchData() {
+      const recommendations = await fetchRecommendations();
+      const ownerProfiles = await fetchOwnerProfiles();
+      const ownerIds = recommendations
+        .filter(r => r.to_user.user_role === "OWNER")
+        .map(r => r.to_user.id);
+      const stores = ownerProfiles
+        .filter(p => ownerIds.includes(p.user))
+        .map(p => ({
+          name: p.profile_name,
+          image: p.photos?.length > 0 ? p.photos[0].image : null,
+        }));
+      setRecommendedStores(stores);
+    }
+    fetchData();
+  }, []);
+
+  const navigateToEditMyPage = `/student/mypage/${studentProfileId}/edit`;
+
+  if (!name && !university_name && !image) {
+    return <div>로딩 중 또는 학생 정보 없음</div>;
+  }
 
   return (
     <PageContainer>
-        <Contents>
-            <ProfileContainer>
-                <ProfileSection>
-                    <ProfileImg>
-                    {studentInfo.profileImg
-                        ? <img src={studentInfo.profileImg} alt="profile" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
-                        : null}
-                    </ProfileImg>
-                    <Name> {studentInfo.name} </Name>
-                    <School> {studentInfo.school} </School>
-                </ProfileSection>
-                <StyledLink to={navigateToEditMyPage}>
-                  <EditButton> 수정하기 </EditButton>
-                </StyledLink>
-            </ProfileContainer>
-            <RecommendSection>
-                <Name>추천 목록</Name>
-                <ShopList>
-                    {studentInfo.recommend.map((shop, idx) => (
-                    <ShopCard key={idx}>
-                        <ShopImg />
-                        <ShopName>{shop.shopName}</ShopName>
-                    </ShopCard>
-                    ))}
-                </ShopList>
-            </RecommendSection>
-        </Contents>
+      <Contents>
+        <ProfileContainer>
+          <ProfileSection>
+            <ProfileImg>
+              {image ? (
+                <img
+                  src={image}
+                  alt="profile"
+                  style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                />
+              ) : null}
+            </ProfileImg>
+            <Name>{name}</Name>
+            <School>{university_name}</School>
+          </ProfileSection>
+          <StyledLink to={navigateToEditMyPage}>
+            <EditButton>수정하기</EditButton>
+          </StyledLink>
+        </ProfileContainer>
+        <RecommendSection>
+          <Column />
+          <RecommendList>
+            <Name>추천 목록</Name>
+            {recommendedStores.length === 0 ? (
+              <ShopContainer>
+                <EmptyNotice>추천한 가게가 없습니다.</EmptyNotice>
+              </ShopContainer>
+            ) : (
+              <ShopList>
+                {recommendedStores.map((store, idx) => (
+                  <ShopCard key={idx}>
+                    <ShopImg src={store.image} alt={store.name} />
+                    <ShopName>{store.name}</ShopName>
+                  </ShopCard>
+                ))}
+              </ShopList>
+            )}
+            {/* <ShopList>
+              {[1,2,3,4,5,6].map(idx => (
+                <ShopCard key={idx}>
+                  <ShopImg />
+                  <ShopName>{`가게명${idx}`}</ShopName>
+                </ShopCard>
+              ))}
+            </ShopList> */}
+          </RecommendList>
+        </RecommendSection>
+      </Contents>
     </PageContainer>
-  )
-}
+  );
+};
 
 export default StudentMyPage;
 
+
 const PageContainer = styled.div`
-  width: 1380px;
+  width: 100%;
   display: flex;
-//   flex-direction: column;
   align-items: center;
   margin: 0 auto;
 `;
 
 const Contents = styled.div`
     display: flex;
-    width: 1340px;
+    width: 100%
     justify-content: space-between;
     align-items: center;
+    padding: 3% 4%;
+    gap: 4%;
 `;
 
 const ProfileContainer = styled.div`
     display: flex;
-    width: 363px;
+    flex: 1;
+    min-width: 363px;
     flex-direction: column;
     align-items: center;
     gap: 48px;
-    flex-shrink: 0;
 `;
 
 const ProfileSection = styled.div`
     display: flex;
+    width: 100%;
     flex-direction: column;
     align-items: center;
     gap: 30px;
@@ -113,12 +134,25 @@ const ProfileSection = styled.div`
 `;
 
 const RecommendSection = styled.div`
-    display: flex;
-    width: 885px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    flex-shrink: 0;
+  display: inline-flex;
+  flex: 2.5;
+  align-items: center;
+  gap: 24px;
+`;
+
+const Column = styled.div`
+  border-left: 1px solid #E7E7E7;
+  height: auto; /* or 100%, or 특정 px 값 */
+  align-self: stretch; /* 부모 flex height 꽉 차게 */
+`;
+
+const RecommendList = styled.div`
+  display: flex;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 18px 24px;
+  align-self: stretch;
+  flex-wrap: wrap;
 `;
 
 const ProfileImg = styled.div`
@@ -154,25 +188,36 @@ const School = styled.div`
 
 const EditButton = styled.button`
     display: flex;
-    width: 203px;
-    height: 40px;
-    padding: 5px;
+    width: 219px;
+    height: 45px;
+    // padding: 13px 81px;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    color: #000;
+    border-radius: 5px;
+    border: 1px solid var(--main-main600, #64A10F);
+    background: white;
+    color: var(--main-main600, #64A10F);
     font-family: Pretendard;
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    border: 1px solid #969696;
-    background: white;
+`;
+
+const ShopContainer = styled.div`
+  display: flex;
+  width: 100%;
+  min-width: 885px;
+  min-height: 340px;
+  gap: 24px;
 `;
 
 const ShopList = styled.div`
   display: grid;
   width: 100%;
+  min-width: 885px;
+  min-height: 340px;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 `;
@@ -200,4 +245,18 @@ const ShopName = styled.div`
     line-height: normal;
 `;
 
-const StyledLink = styled.div``;
+const EmptyNotice = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #222;
+  font-size: 18px;
+  font-weight: 400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
+`;
+
+const StyledLink = styled(Link)`
+  text-decoration: none;
+`;

@@ -1,21 +1,21 @@
+// TO DO LIST
+// 1. 반응형 적용시켜야 하나,,?? 그러면 progresscontainer 위치 수정 필요
+
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
-import Menu from "../../layout/Menu";
 import InputBox from "../../components/common/inputs/InputBox";
 import PhotoUpload from "../../components/common/inputs/PhotoUpload";
+import useStudentStore from "../../stores/studentStore";
+import { patchStudentProfile } from "../../services/apis/studentProfileApi";
+import { FiSearch } from "react-icons/fi";
+import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const SECTIONS = [
   { key: "photo", label: "프로필 사진", refKey: "photo" },
   { key: "name", label: "이름", refKey: "name" },
   { key: "campus", label: "학교", refKey: "campus" },
 ];
-
-// 임의로 채운 !!! 수정 전 예시 저장 데이터 !!!
-const samplePhoto = ["https://via.placeholder.com/150"];
-const sampleCampus = {
-  name: '중앙대학교',
-  address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
-};
 
 
 // ---- 학교 api 연결 ----
@@ -70,14 +70,13 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
       <ModalHeader>대학 검색</ModalHeader>
       <SearchRow>
         <ModalInput
-          placeholder="예: 중앙대학교, 서울대, 연세대 등"
+          placeholder="대학명을 입력해주세요."
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
-          style={{ flex: 1, marginRight: 6, padding: 8, fontSize: 16 }}
           onKeyDown={e => { if (e.key === 'Enter') handleSearchClick(); }}
           autoFocus
         />
-        <SearchBtnBox onClick={handleSearchClick} style={{ padding: '8px 14px' }}>검색</SearchBtnBox>
+        <SearchBtnBox onClick={handleSearchClick}>검색</SearchBtnBox>
       </SearchRow>
       {loading && <div>검색 중...</div>}
       {!!error && (
@@ -100,15 +99,15 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
                       if (onSelect) onSelect(campus);
                     }}
                   >
-                    <div><b>{campus.name}</b></div>
-                    <div style={{color: "#889"}}>{campus.address}</div>
+                    <div styled={{fontWeight: 600}}><b>{campus.name}</b></div>
+                    <div style={{fontWeight: 400}}>주소 {campus.address}</div>
                   </ResultItem>
                 ))
             }
           </ResultList>
         </div>
       )}
-      <ModalCloseBtn onClick={onClose}>x</ModalCloseBtn>
+      <ModalCloseBtn onClick={onClose}><IoClose /></ModalCloseBtn>
     </ModalContainer>
   </ModalOverlay>
   ) : null;
@@ -116,16 +115,38 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
 
 
 const StudentEditMyPage = () => {
+  const { id, profileId, name, university_name, image, setProfileInfo } = useStudentStore();
 
-  // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
-  const [photoState, setPhotoState] = useState(samplePhoto);
-  const [campusValue, setCampusValue] = useState(sampleCampus);
-  const [nameValue, setNameValue] = useState("맛있는 한식당");
+  const [photoState, setPhotoState] = useState(image ? [image] : []);
+  const [campusName, setCampusName] = useState(university_name || "");
+  const [nameValue, setNameValue] = useState(name);
 
   const [showModal, setShowModal] = useState(false);
   const [showCampusModal, setShowCampusModal] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
+  const navigate = useNavigate();
+
+    const handleSave = async () => {
+        if (!allFilled) {
+            alert("아직 정보를 다 채우지 않았습니다!");
+            return;
+        } 
+
+        const formData = new FormData();
+        formData.append('name', nameValue);
+        formData.append('university_name', campusName);
+        formData.append('image', photoState[0]);
+
+        try {
+            const updatedProfile = await patchStudentProfile(profileId, formData);
+            setProfileInfo(updatedProfile.user);
+            // setShowModal(true);
+            navigate(`/student/mypage/${updatedProfile.id}`);
+        } catch (err) {
+            alert("저장 중 오류 발생: " + err.message);
+        }
+    };
 
   // ---- 우측 리스트 스크롤 구현 ----
   useEffect(() => {       // 스크롤 위치 감지
@@ -138,8 +159,8 @@ const StudentEditMyPage = () => {
   }, []);
 
   const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = 50;
-    const maxTop = 230;
+    const minTop = -148;
+    const maxTop = 210;
     
     if (scrollY <= 0) return maxTop;
     if (scrollY >= 500) return minTop;
@@ -161,26 +182,14 @@ const StudentEditMyPage = () => {
   // 진행상황 체크 용도
   const isFilledText = val => typeof val === "string" && val.trim() !== "";
   const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
-  const isFilledSchedule = arr => Array.isArray(arr) && arr.some(v => v.day && v.start && v.end);
-  const isFilledButtons = obj => obj && Object.values(obj).some(Boolean);
-  const isFilledCampus = val =>
-    val && typeof val === "object" && typeof val.name === "string" && val.name.trim() !== "";
+  const isFilledCampus = val => typeof val === "string" && val.trim() !== "";
 
   const isSectionFilled = {
     photo: isFilledList(photoState),
     name: isFilledText(nameValue),
-    campus: isFilledCampus(campusValue),
+    campus: isFilledCampus(campusName),
   };
   const allFilled = Object.values(isSectionFilled).every(Boolean);
-
-  // 저장 로직
-    const handleSave = () => {
-        if (!allFilled) {
-            alert("아직 정보를 다 채우지 않았습니다!");
-        } else {
-            setShowModal(true);
-        }
-    };
 
   // ----------- 렌더링 -----------
   return (
@@ -197,15 +206,15 @@ const StudentEditMyPage = () => {
 
           <TitleContainer ref={sectionRefs.photo}>
             <Title> 프로필 사진 </Title>
-            <SubTitle> 학생단체 대표 사진(로고, 단체사진 등)을 자유롭게 등록해주세요. (최대 2장) </SubTitle>
+            <SubTitle> 학생단체 대표 사진(로고, 단체사진 등)을 자유롭게 등록해주세요. (최대 1장) </SubTitle>
           </TitleContainer>
-          <PhotoUpload value={photoState} onChange={setPhotoState} maxCount={2} />
+          <PhotoUpload value={photoState} onChange={setPhotoState} maxCount={1} />
 
           <TitleContainer ref={sectionRefs.name}>
             <Title> 이름 </Title>
             <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
           </TitleContainer>
-          <InputBox defaultText="상호명 입력" value={nameValue} onChange={e => setNameValue(e.target.value)} />
+          <InputBox defaultText="텍스트 입력" value={nameValue} onChange={e => setNameValue(e.target.value)} />
 
           <TitleContainer ref={sectionRefs.campus}>
             <Title> 학교 </Title>
@@ -213,20 +222,20 @@ const StudentEditMyPage = () => {
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > 대학 검색 </SearchCampusButton>
-          {campusValue && (
+          > 대학 검색 <SearchIcon /></SearchCampusButton>
+          {campusName && (
             <ResultTitle>
-              선택한 캠퍼스: {campusValue.name}
+              선택한 캠퍼스: {campusName}
             </ResultTitle>
           )}
-          <CampusSearchModal
+            <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
             onSelect={campus => {
-              setCampusValue(campus);
-              setShowCampusModal(false);
+                setCampusName(campus.name);
+                setShowCampusModal(false);
             }}
-          />
+            />
         </EditContainer>
       </MainContainer>
 
@@ -236,6 +245,7 @@ const StudentEditMyPage = () => {
           저장하기
         </SaveButton>
         <ProgressList>
+          <EditTitle style={{color: "#1A2D06"}}>기본 정보</EditTitle>
           {SECTIONS.map((item) => (
             <ProgressItem
               key={item.key}
@@ -247,7 +257,7 @@ const StudentEditMyPage = () => {
           ))}
         </ProgressList>
       </ProgressContainer>
-        {showModal && (
+        {/* {showModal && (
             <ModalOverlay>
                 <ModalBox>
                     <ModalText>
@@ -264,7 +274,7 @@ const StudentEditMyPage = () => {
                     </ModalBtnRow>
                 </ModalBox>
             </ModalOverlay>
-            )}
+            )} */}
     </PageContainer>
   );
 };
@@ -272,7 +282,7 @@ const StudentEditMyPage = () => {
 export default StudentEditMyPage;
 
 const PageContainer = styled.div`
-  width: 1380px;
+  width: 100%;
   margin: 0 auto;
 `;
 
@@ -307,6 +317,7 @@ const MainContainer = styled.div`
   grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
+  position: relative;
 `;
 
 const EditContainer = styled.div`
@@ -323,7 +334,7 @@ const EditContainer = styled.div`
 
 const ProgressContainer = styled.div`
   position: fixed;
-  right: 80px;
+  right: 45px;
   width: 327px;
   height: 587px;
   display: flex;
@@ -340,14 +351,18 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-  width: 197px;
+//   width: 197px;
+  align-self: stretch;
 `;
 
 const ProgressItem = styled.li`
-  font-size: 20px;
+    font-family: Pretendard;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
   cursor: pointer;
-  color: ${({ $filled }) => ($filled ? "#000000" : "#9C9C9C")};
-  font-weight: 400;
+  color: ${({ $filled }) => ($filled ? "#64A10F" : "#898989")};
   transition: color 0.2s;
   margin: 0;      // 혹시 li의 마진 생길 경우
   padding: 0;
@@ -356,19 +371,23 @@ const ProgressItem = styled.li`
 
 
 const SaveButton = styled.button`
+    display: flex;
+    width: 327px;
     height: 85px;
     padding: 21px 102px;
     justify-content: center;
     align-items: center;
     gap: 10px;
     align-self: stretch;
-    border: 0px;
-    color: black;
+    color: var(--main-main100, #E9F4D0);
+    font-family: Pretendard;
     font-size: 20px;
     font-weight: 600;
     line-height: normal;
-    background-color: #D9D9D9;
-    margin-bottom: 10px;
+    margin-bottom: 21px;
+    border-radius: 5px;
+    border: 0px;
+    background: var(--main-main600, #64A10F);
 `;
 
 const ModalOverlay = styled.div`
@@ -426,32 +445,55 @@ const ModalBtnPrimary = styled(ModalBtn)`
 `;
 
 const SearchCampusButton = styled.button`
+    display: flex;
+    width: 210px;
+    padding: 10px;
+    align-items: center;
+    gap: 10px;
   position: relative;
-  display: inline-block;
-  width: 795px;
-  padding: 10px;
   margin-top: 10px;
-  background-color: #D9D9D9;
-  border: 0px;
-  font-size: 16px;
-  font-weight: 400;
-  text-align: start;
+    border-radius: 5px;
+    border: 1px solid  #898989;
+    background: #FFF;
+
+    color:  #898989;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  
 
   &:hover {
     opacity: 80%;
   }
 `;
 
+const SearchIcon = styled(FiSearch)`
+  width: 24px;
+  position: absolute;
+  right: 9px;
+  top: 7px;
+  height: 24px;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 1;
+  color: #898989;
+`;
+
 // 모달 박스
 const ModalContainer = styled.div`
-  background: #fff;
-  max-width: 540px;
-  width: 100%;
-  padding: 38px 36px 28px 36px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    display: flex;
+    width: 600px;
+    height: 402px;
+    max-height: 560px;
+    padding: 50px 63px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    background: #FFF;
 `;
 
 const ModalHeader = styled.div`
@@ -462,41 +504,59 @@ const ModalHeader = styled.div`
 `;
 
 const SearchRow = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 18px;
+  // justify-content: center;
+  gap: 8px;
+  margin-bottom: 40px;
 `;
 
 const ModalInput = styled.input`
-  flex: 1;
-  padding: 11px 18px;
-  font-size: 16px;
-  border: 1px solid #000;
-  background: #fff;
-  border-radius: 10px;
+    display: flex;
+    flex: 1 1 0;
+    height: 40px;
+    padding: 0 10px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--main-main950, #1A2D06);
+    background: #fff;
+    color: var(--, #898989);
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
 `;
 
 const SearchBtnBox = styled.div`
-  display: flex;
-  align-items: center;
-  background: #D9D9D9;
-  padding: 0 17px;
-  height: 40px;
-  color: #fff;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  user-select: none;
-  &:hover { opacity: 80%; }
+    display: flex;
+    width: 105px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 5px;
+    background: var(--main-main600, #64A10F);
+    color: var(--main-main100, #E9F4D0);
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    cursor: pointer;
+    user-select: none;
+    &:hover { opacity: 80%; }
 `;
 
 const ResultList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  width: 600px; // 
+  gap: 10px;
   margin-top: 14px;
-  max-height: 330px;
+  max-height: 200px;
   overflow-y: auto;
 
   scrollbar-width: thin;
@@ -504,22 +564,38 @@ const ResultList = styled.div`
 `;
 
 const ResultItem = styled.div`
-  // background: ${({ selected }) => (selected ? "#fff" : "#D9D9D9")};
-  border: 1px solid #000;
-  padding: 14px 18px;
-  font-size: 17px;
-  color: #000;
+    display: flex;
+    height: 80px;
+    flex: 1;
+    padding: 20px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    border-radius: 5px;
+    border: 1px solid  #898989;
+
+    color: #1A2D06;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    line-height: normal;
+
+  // background: ${({ selected }) => (selected ? "#fff" : "#64A10F")};
   cursor: pointer;
   transition: background 0.15s, border 0.14s;
-  margin-right: 5px;
-  &:hover { background: #D9D9D9; border-color: #000; }
+  //  margin-right: 5px;
+  &:hover { background: #64A10F; border-color: #FFF; color:#E9F4D0; }
 `;
 
 // 닫기(X) 버튼
 const ModalCloseBtn = styled.button`
-  position: absolute;
-  top: 18px;
-  right: 22px;
+  position: relative;
+  bottom: 570px;
+  left: 740px;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
   font-size: 24px;

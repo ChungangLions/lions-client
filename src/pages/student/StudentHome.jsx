@@ -1,10 +1,4 @@
 // TO DO LIST
-// 1. 주점 스티커 구현하기 (position: absolute)
-//  ㄴ 업종별로 앞에 이모티콘 어떻게 구현할 지,,? type에서 바로 받아올 수 있나
-// 2. 하트, 따봉 개수 구현하기
-// 3. Best 여부 받아오기
-// 4. Best 텍스트 구현하기 (position: absolute)
-// 5. 우측 상단 하트 버튼 넣기
 
 import React, { useEffect, useState } from 'react'
 import GroupCard from '../../components/common/cards/GroupCard';
@@ -17,8 +11,8 @@ import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 const StudentHome = () => {
   const navigate = useNavigate();
 
-  const handleCardClick = () => {
-    navigate("store-profile");
+  const handleCardClick = (storeId) => {
+    navigate(`/student/store-profile/${storeId}/`);
   };
 
   // zustand store에서 사용할 것들 가져오기 
@@ -79,7 +73,11 @@ const StudentHome = () => {
       <GridContainer>
         {stores.map((store) => (
           // 여기 detail 들어갈 거 props로 전달 필요 
-          <GroupCard key={store.id} onClick = {handleCardClick} ButtonComponent ={RecommendBtn} store={store} />
+          <GroupCard 
+            key={store.id} 
+            onClick={() => handleCardClick(store.id)} 
+            ButtonComponent={() => <RecommendBtn userId={store.id} />} 
+            store={store} />
         ))}
       </GridContainer>
     </PageContainer>
@@ -89,6 +87,7 @@ const StudentHome = () => {
 export default StudentHome;
 
 const PageContainer = styled.div `
+  width: 100%;
   position: sticky;
   top: 0;
   height: 100vh;

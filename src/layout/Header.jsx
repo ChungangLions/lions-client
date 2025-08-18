@@ -1,7 +1,3 @@
-// TO DO LIST
-// 1. 프로필에서 id 값 받아서 url props로 전달
-// 2. 전체 함수 userRole 연동하도록 바꾸기기
-
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -9,28 +5,15 @@ import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
 import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.svg'
-import { fetchUserList } from '../services/apis/userListApi'
-import { fetchStudentProfile } from '../services/apis/studentProfileApi'
+import useStudentStore from '../stores/studentStore'
 
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
-async function getCurrentUserId(username, userRole) {
-  const userList = await fetchUserList();
-  console.log("username to find:", username);
-  console.log("userRole to find:", userRole);
-
-  const user = userList.find(
-    u => u.username === username && 
-         u.user_role?.toUpperCase() === userRole?.toUpperCase()
-  );
-  console.log("matched user:", user);
-  return user ? user.id : null;
-}
-
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, username, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
-  const [myId, setMyId] = useState(null);
+  const { userRole, username, isLoggedin, setLogoutStatus, id: userId } = useUserStore(); // 로그인 시 받은 id가 userId!
+  const { setProfileInfo } = useStudentStore();
+  const { profileid: studentProfileId } = useStudentStore();
   const navigate = useNavigate();
 
   // console.log("현재 userRole:", userRole);
@@ -46,22 +29,19 @@ const Header = ({hasMenu}) => {
   };
 
   useEffect(() => {
-    async function fetchId() {
-        const id = await getCurrentUserId(username, userRole);
-        const profileData = await fetchStudentProfile(id);
-        setMyId(profileData.id);
-      }
-      fetchId();
-  }, [username, userRole]);
+    if (userId) setProfileInfo(userId);
+  }, [userId]);
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${myId}`;
+  // const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${studentProfileId}`;
+  const navigateToHome = `/${userRole.toLowerCase()}/`;
 
   return (
     <HeaderContainer>
       <HeaderGroup>
         <LeftBox>
-          <Logo>
-            로고
+          <Logo to={navigateToHome}>
+            <StyledImg src={process.env.PUBLIC_URL + '/HuniverseLogo.png'} alt="휴니버스"/>
           </Logo>
         <SearchBar />
         </LeftBox>
@@ -150,16 +130,20 @@ padding: 10px;
 gap: 5px;
 `;
 
-const Logo = styled.div`
-width: 97px;
-background-color: #d9d9d9;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 0px;
-box-sizing: border-box;
+const Logo = styled(Link)`
+  width: 97px;
+  height: 46px;
+  aspect-ratio: 97 / 46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 `;
 
 const UserContainer = styled.div`

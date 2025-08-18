@@ -53,20 +53,19 @@ const PhotoBox = styled.div`
   max-width: 795px;       // 예시로 한 줄 크기를 제한
   min-height: 140px;      // 높이 살짝 확보(안정감)
   margin-top: 10px;
-  border-radius: 5px;
 `;
 
 const ImageContainer = styled.div`
-  position: relative;
-  display: flex;
-  width: 128px;
-  height: 128px;
-  // padding: 52px;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: #D9D9D9;
-  border-radius: 5px;
+    position: relative;
+    display: flex;
+    width: 128px;
+    height: 128px;
+    // padding: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #D9D9D9;
+    border-radius: 5px;
 `;
 const Plus = styled.span`
   font-size: 24px;

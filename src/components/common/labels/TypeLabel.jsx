@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import useVenueStore from '../../../stores/venueStore';
+import { PiDropSimple } from 'react-icons/pi';
 
 const storeTypes = {
   restaurant: { label: '일반 음식점', icon: '🍚' },
@@ -9,7 +10,7 @@ const storeTypes = {
 };
 
 
-function TypeLabel({ storeType }) {
+function TypeLabel({ storeType, background }) {
   const { stores } = useVenueStore();
 
   const currentType = storeType || stores.storeType;
@@ -18,7 +19,9 @@ function TypeLabel({ storeType }) {
   if (!style) return null;
 
   return (
-    <LabelBox>
+    <LabelBox
+      $background={background}
+    >
       <LabelText>
         {style.icon} {style.label}
       </LabelText>
@@ -30,24 +33,21 @@ export default TypeLabel;
 
 // 스타일 컴포넌트
 const LabelBox = styled.div`
-    display: flex;
-    padding: 10px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    border-radius: 5px;
-    border: 1px solid #000;
-`;
-
-const Icon = styled.span`
-  font-size: 17px;
+  display: flex;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 5px;
+  background: ${(props) => props.$background || "transparent"};
 `;
 
 const LabelText = styled.span`
-    color: #000;
-    font-family: Pretendard;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
+  color: #FFF;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 `;
