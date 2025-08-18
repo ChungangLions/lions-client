@@ -592,8 +592,8 @@ const ResultItem = styled.div`
 // 닫기(X) 버튼
 const ModalCloseBtn = styled.button`
   position: relative;
-  bottom: 570px;
-  left: 740px;
+  bottom: 440px;
+  left: 600px;
   width: 24px;
   height: 24px;
   background: none;

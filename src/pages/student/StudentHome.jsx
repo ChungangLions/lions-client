@@ -11,8 +11,8 @@ import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 const StudentHome = () => {
   const navigate = useNavigate();
 
-  const handleCardClick = (storeId) => {
-    navigate(`/student/store-profile/${storeId}/`);
+  const handleCardClick = (ownerId) => {
+    navigate(`/student/store-profile/${ownerId}/`);
   };
 
   // zustand store에서 사용할 것들 가져오기 
@@ -72,7 +72,6 @@ const StudentHome = () => {
       </SelectContainer>
       <GridContainer>
         {stores.map((store) => (
-          // 여기 detail 들어갈 거 props로 전달 필요 
           <GroupCard 
             key={store.id} 
             onClick={() => handleCardClick(store.id)} 
