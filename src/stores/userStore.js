@@ -1,23 +1,59 @@
+// loginAPI로 받은 상태 저장 
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { login } from '../services/apis/auth';
 
-const useuserStore = create(
+const useUserStore = create(
     persist(
         (set) => ({
             userRole: null, // 사장님, 학생, 학생단체 중 하나 
+            username: null,
+            id: null,
             isLoggedIn: false,
+            accessToken : null,
+            refreshToken : null,
+            userId : null,
 
-            login: (role) => {
-                set({ userRole: role, isLoggedIn: true });
+            setLoginStatus: async (username, password) => {
+                try{
+                    const res = await login(username, password);
+                set({ 
+                    userRole: res.user_role , 
+                    username: res.username,
+                    id: res.id,
+                    isLoggedIn: true, 
+                    accessToken: res.access, 
+                    refreshToken: res.refresh,
+                    userId: res.id,
+                });
+
+                localStorage.setItem('accessToken', res.access);
+                localStorage.setItem('refreshToken', res.refresh);
+
+                return res;
+            } catch (error) {
+                console.error("로그인 실패 에러: ", error);
+            }
             },
-            logout: () => {
-                set({ userRole: null, isLoggedIn: false });
-            },
+            setLogoutStatus: () => {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
                 
+                set({
+                    userRole : null,
+                    username: null,
+                    id: null,
+                    isLoggedIn: false,
+                    accessToken: null,
+                    refreshToken: null,
+                });
+            },
+             
         }),
         { name: 'user-storage',
         }
     )
 );
 
-export default useuserStore;
+export default useUserStore;

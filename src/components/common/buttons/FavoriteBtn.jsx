@@ -2,15 +2,26 @@ import React, { useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
+import { togglelikes } from '../../../services/apis/likesAPI';
+import useUserStore from '../../../stores/userStore';
 
-const FavoriteBtn = ({onClick}) => {
-    const [isHeartActive, setIsHeartActive] = useState(false);
 
-    const handleClick = (event) => {
+const FavoriteBtn = ({userId, isLiked = false}) => {
+    const [isHeartActive, setIsHeartActive] = useState(isLiked);
+
+    const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
-        setIsHeartActive(!isHeartActive);
-        if (onClick) {
-            onClick(!isHeartActive);
+        const prevState = isHeartActive;
+        try {
+          const like_result = await togglelikes(userId);
+          if (like_result.status === "liked"){
+            setIsHeartActive(true);
+          } else if (like_result.status === "unliked"){
+            setIsHeartActive(false);
+          }
+        } catch (error) {
+          console.error("찜 토글 실패:", error);
+          setIsHeartActive(prevState);
         }
     }
 
@@ -35,6 +46,7 @@ const StyledFaHeart = styled(FilledHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
+  color: #64A10F ;
 `;
 
 const StyledFaRegHeart = styled(EmptyHeartIcon)`
@@ -48,6 +60,7 @@ const StyledFaRegHeart = styled(EmptyHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
+  color: #64A10F;
 `;
 
 const StyledButton = styled.button`

@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const sampleImages = [ {}, {}, {}, {}, {}, {} ]; // 임의 6개 박스
-const BOX_COUNT = sampleImages.length;
 const VISIBLE_COUNT = 3.5;
 const BOX_WIDTH = 407;
 const BOX_GAP = 20;
 
-const sliderViewportWidth = VISIBLE_COUNT * BOX_WIDTH + (VISIBLE_COUNT - 1) * BOX_GAP;
-const totalWidth = BOX_COUNT * BOX_WIDTH + (BOX_COUNT - 1) * BOX_GAP;
-const maxStart = BOX_COUNT - VISIBLE_COUNT; // 6 - 3.5 = 2.5
+const ImageSlider = ({photos}) => {
+  const BOX_COUNT = photos.length;
 
-const ImageSlider = () => {
+  const sliderViewportWidth = VISIBLE_COUNT * BOX_WIDTH + (VISIBLE_COUNT - 1) * BOX_GAP;
+  const totalWidth = BOX_COUNT * BOX_WIDTH + (BOX_COUNT - 1) * BOX_GAP;
+  const maxStart = BOX_COUNT - VISIBLE_COUNT; // 6 - 3.5 = 2.5
+
+
   const [start, setStart] = useState(0);
 
   const handleNext = () => {
@@ -39,8 +41,8 @@ const ImageSlider = () => {
           transition: 'transform 0.5s cubic-bezier(0.57,0.21,0.56,1.17)',
         }}
       >
-        {sampleImages.map((_, idx) => (
-          <ImageBox key={idx}/>
+        {photos.map((photo) => (
+          <ImageBox key={photo.id} src={photo.image || ''}/>
         ))}
       </ImageList>
       <ArrowBtn
@@ -70,14 +72,18 @@ const ImageList = styled.div`
   width: 100%;
 `;
 
-const ImageBox = styled.div`
+const ImageBox = styled.img`
   width: 407px;
   height: 200px;
-  background: #D9D9D9;
+
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+
+  background-image: url('${props => props.imageUrl}');
+  background-size: cover;
+  background-position: center;
 `;
 
 const ArrowBtn = styled.button`

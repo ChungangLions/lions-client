@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 
- const originalOrganizations = [
+ 
+const originalOrganizations = [
             {
                 id: 1,
                 university: '중앙대학교7',
                 department: '37대 경영학부 학생회',
-                name: '다움',
-                student_num: '1,000명',
+                council_name: '다움',
+                student_size: '1,000명',
                 date: { start: '2025.08', end: '2025.10' },
                 period: 3,
                 record: 3,
@@ -20,8 +21,8 @@ import axios from 'axios';
                 id: 2,
                 university: '중앙대학교3',
                 department: '21대 공과대학 학생회',
-                name: '나',
-                student_num: '2,500명',
+                council_name: '나',
+                student_size: '2,500명',
                 date: { start: '2025.08', end: '2026.03' },
                 period: 8,
                 record: 5,
@@ -33,8 +34,8 @@ import axios from 'axios';
                 id: 3,
                 university: '중앙대학교1',
                 department: '35대 소프트웨어학과 학생회',
-                name: '가',
-                student_num: '500명',
+                council_name: '가',
+                student_size: '500명',
                 date: { start: '2025.08', end: '2025.10' },
                 period: 3,
                 record: 12,
@@ -46,8 +47,8 @@ import axios from 'axios';
                 id: 4,
                 university: '중앙대학교4',
                 department: '36대 소프트웨어학과 학생회',
-                name: '가나',
-                student_num: '500명',
+                council_name: '가나',
+                student_size: '500명',
                 date: { start: '2025.07', end: '2025.10' },
                 period: 4,
                 record: 16,
@@ -59,8 +60,8 @@ import axios from 'axios';
                 id: 5,
                 university: '중앙대학교5',
                 department: '37대 소프트웨어학과 학생회',
-                name: '가나다',
-                student_num: '600명',
+                council_name: '가나다',
+                student_size: '600명',
                 date: { start: '2025.08', end: '2025.09' },
                 period: 2,
                 record: 7,
@@ -72,8 +73,8 @@ import axios from 'axios';
                 id: 6,
                 university: '중앙대학교6',
                 department: '38대 소프트웨어학과 학생회',
-                name: '가나다라',
-                student_num: '400명',
+                council_name: '가나다라',
+                student_size: '400명',
                 date: { start: '2025.08', end: '2025.10' },
                 period: 3,
                 record: 10,
@@ -85,8 +86,8 @@ import axios from 'axios';
                 id: 7,
                 university: '중앙대학교7',
                 department: '39대 소프트웨어학과 학생회',
-                name: '가나다라마',
-                student_num: '400명',
+                council_name: '가나다라마',
+                student_size: '400명',
                 date: { start: '2025.08', end: '2025.10' },
                 period: 3,
                 record: 0,
@@ -98,8 +99,8 @@ import axios from 'axios';
                 id: 8,
                 university: '중앙대학교2',
                 department: '40대 소프트웨어학과 학생회',
-                name: '가나다라마바',
-                student_num: '400명',
+                council_council_name: '가나다라마바',
+                student_size: '400명',
                 date: { start: '2025.08', end: '2025.10' },
                 period: 3,
                 record: 0,
@@ -112,8 +113,20 @@ import axios from 'axios';
 const useStudentOrgStore = create(
     persist(
         (set, get) => ({
-        originalOrganizations: originalOrganizations,
-        organizations: originalOrganizations,
+        originalOrganizations: originalOrganizations, // api 끌어올 때 빈 배열로 만들어주기기
+        organizations: originalOrganizations, // api 끌어올 때 빈 배열로 만들어주기기
+
+        // 나중에 api 연동 시 그대로 사용
+        // fetchAndSetOrganizations: async () => {
+        //     const userList = await fetchUserList();
+        //     console.log(userList);
+        //     const orgList = userList.map(mapUserToOrg);
+        //     set({
+        //       originalOrganizations: orgList, // 실제 데이터로 overwrite
+        //       organizations: orgList,
+        //     });
+        // },
+
 
         isFilteredByRecord: false,
         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함

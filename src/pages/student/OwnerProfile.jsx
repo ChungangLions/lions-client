@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import { fetchRecommendations } from '../../services/apis/recommendsapi'
-import EditBtn from '../../components/common/buttons/EditBtn';
 
 
-const OwnerMyPage = () => {
+const OwnerProfile = () => {
+//   const [ownerId] = useParams();
   const [profileData, setProfileData] = useState(null);
 
   useEffect(() => {
@@ -69,8 +69,8 @@ const OwnerMyPage = () => {
             <Description> {profileData?.comment} </Description>
           </DesBox>
         </TitleBox>
-        <Link to="edit" style={{ textDecoration: 'none' }}>
-          <EditButton>수정하기</EditButton>
+        <Link to="edit">
+          <EditButton> 추천하기 </EditButton>
         </Link>
       </TitleContainer>
 
@@ -128,30 +128,23 @@ const OwnerMyPage = () => {
   )
 }
 
-export default OwnerMyPage;
+export default OwnerProfile;
 
 const PageContainer = styled.div`
   width: 100%;
+  //width: 1380px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content:center;
   margin: 0 auto;
 `;
 
 const TitleContainer = styled.div`
-width: 100%;
-position: relative;
-display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: space-between;
-gap: 0px;
-text-align: left;
-font-size: 32px;
-color: #64a10f;
-font-family: Pretendard;
-  padding-top : 35px;
+  position: relative;
+  padding: 0 20px;
+  margin-top: 35px;
+  margin-bottom: 25px;
+  width: 100%;
 `;
 
 const TitleBox = styled.div`
@@ -159,6 +152,29 @@ const TitleBox = styled.div`
   flex-direction: column;
   align-items: center;
   flex: 1;
+`;
+
+const EditButton = styled.button`
+  position: absolute;
+  right: 40px;
+  top: 25%;
+  transform: translateY(-50%);
+
+display: flex;
+padding: 10px;
+justify-content: center;
+align-items: center;
+gap: 10px;
+border-radius: 5px;
+border: 1px solid var(--main-main600, #64A10F);
+color: var(--main-main600, #64A10F);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+background: transparent;
+  cursor: pointer;
 `;
 
 const Title = styled.div`
@@ -266,8 +282,4 @@ const MenuList = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 7.5px;
   // width: 100%;
-`;
-
-const EditButton = styled(EditBtn)`
-max-width: 76px;
 `;

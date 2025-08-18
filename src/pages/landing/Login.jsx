@@ -1,36 +1,40 @@
 import React, { useEffect, useState } from 'react'
 import InputBox from '../../components/common/inputs/InputBox'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../../services/apis/user';
 import styled from 'styled-components';
+import axios from 'axios';
+import useUserStore from '../../stores/userStore';
+import useStudentStore from '../../stores/studentStore';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [ username, onChangeUsername] = useState();
-  const [ password, onChangePassword] = useState();
+  const [ username, onChangeUsername] = useState("");
+  const [ password, onChangePassword] = useState("");
+
+  const { setLoginStatus } = useUserStore(); 
 
   const navigateToHome= () => {
     navigate('/');
   }
-
   const onClick = async () => {
-    try {
-      const result = await login(username, password);
-      localStorage.setItem("access_token", result.token.access_token);
-      localStorage.setItem("refresh_token", result.token.refresh_token);
-    } catch(error) {
-      alert("잘못된 아이디 또는 비밀번호입니다. 다시 확인해주세요")
-      navigate("/login");
-    }
-  }
+  try {
+    const res = await setLoginStatus(username, password);
+    console.log("로그인 성공:", res);
+    if(res.user_role === "OWNER") {
+      navigate('/owner');
+    } else if(res.user_role === "STUDENT") {
 
-  useEffect(()=> {
-    const token = localStorage.getItem('token.access_token');
-    if(token){
-      navigate('/');
-    }else{
-      navigate('/login');}
-  },[navigate])
+      await useStudentStore.getState().setProfileInfo(res.id);
+
+      navigate('/student'); 
+    }else if(res.user_role === "STUDENTGROUP") {
+      navigate('/group');  
+    } else {
+      navigateToHome(); 
+    }
+  } catch (error) {
+  }
+};
 
   return (
     <PageContainer>
@@ -46,6 +50,7 @@ const Login = () => {
                 value={username}
                 onChange={(e) => onChangeUsername(e.target.value)}
                 width="446px"
+                border = "1px solid #c4c4c4"
               />
             </InputWrapper>
             <InputWrapper>
@@ -55,11 +60,12 @@ const Login = () => {
                 onChange={(e) => onChangePassword(e.target.value)}
                 width="446px"
                 type="password"
+                border = "1px solid #c4c4c4"
               />
             </InputWrapper>
           </InputContainer>
       </LoginSection>
-      <LoginBtn onClick={onClick}>로그인</LoginBtn>
+      <LoginBtn onClick={onclick}>로그인</LoginBtn>
       </LoginContainer>
     </PageContainer>
   )
@@ -168,4 +174,5 @@ justify-content: center;
 padding: 10px;
 font-size: 20px;
 color: #bcbcbc;
+cursor: pointer;
 `;

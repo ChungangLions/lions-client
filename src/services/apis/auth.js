@@ -1,13 +1,15 @@
 import axios from "axios";
 
+const baseURL = `http://13.125.150.49:8000`;
 
-export const login = async (username, password) => {
-  const response = await axios.post('/auth/login', { username, password });
+export const login = async ( username, password) => {
+  const response = await axios.post(`${baseURL}/auth/login/`, { username, password });
+  console.log(response.data);
   return response.data;
 };
 
 export const getNewRefreshToken = async () => {
-  const refreshToken = localStorage.getItem('refresh_token');
-  const response = await axios.post('/auth/refresh', { refresh: refreshToken });
+  const refreshToken = localStorage.getItem('refreshToken');
+  const response = await axios.post(`${baseURL}/auth/refresh/`, { refresh: refreshToken });
   return response.data;
 };
