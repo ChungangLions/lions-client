@@ -7,8 +7,8 @@ import useUserStore from '../../stores/userStore';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [ username, onChangeUsername] = useState();
-  const [ password, onChangePassword] = useState();
+  const [ username, onChangeUsername] = useState("");
+  const [ password, onChangePassword] = useState("");
 
   const { setLoginStatus } = useUserStore(); 
 
@@ -59,7 +59,7 @@ const Login = () => {
             </InputWrapper>
           </InputContainer>
       </LoginSection>
-      <LoginBtn onClick={onClick}>로그인</LoginBtn>
+      <LoginBtn onClick={onclick}>로그인</LoginBtn>
       </LoginContainer>
     </PageContainer>
   )
@@ -168,4 +168,5 @@ justify-content: center;
 padding: 10px;
 font-size: 20px;
 color: #bcbcbc;
+cursor: pointer;
 `;

@@ -8,6 +8,8 @@ export const togglelikes = async (userId) => {
     const token = localStorage.getItem("accessToken");
     const authAxios = getAuthAxios(token); 
 
+     if (!userId) throw new Error("userId가 필요합니다."); // 오류 확인용
+
     const response = await authAxios.post(`/api/accounts/users/${userId}/like-toggle`, {});
     return response.data;
 };

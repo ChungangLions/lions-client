@@ -9,9 +9,9 @@ const UserInfo = ({organization}) => {
       <UserSection>
         <ProfileImage />
         <NameWrapper>
-          <p>{organization.university}</p> 
-          <p>{organization.department}</p>
-          <p>'{organization.council_name}'</p>
+          <p>{organization?.university}</p> 
+          <p>{organization?.department}</p>
+          <p>'{organization?.council_name}'</p>
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>
