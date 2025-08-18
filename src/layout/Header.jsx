@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
@@ -8,6 +7,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { ReactComponent as ProfileInactive } from '../assets/images/icons/Profile.svg'
 import { ReactComponent as ProfileActive } from '../assets/images/icons/ProfileActive.svg'
 import Logo from '../assets/images/Logo.png';
+import useStudentStore from '../stores/studentStore'
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
