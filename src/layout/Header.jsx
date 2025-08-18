@@ -6,8 +6,7 @@ import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
 import { ReactComponent as ProfileInactive } from '../assets/images/icons/Profile.svg'
 import { ReactComponent as ProfileActive } from '../assets/images/icons/ProfileActive.svg'
-
-//import { ReactComponent as Logo } from '../assets/images/logo.svg';
+import Logo from '../assets/images/Logo.png';
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -40,9 +39,7 @@ const Header = ({hasMenu}) => {
     <HeaderContainer>
       <HeaderGroup>
         <LeftBox>
-          <Logo>
-            로고
-          </Logo>
+          <LogoImage src={Logo} alt ="휴니버스 로고"/>
         <SearchBar />
         </LeftBox>
         <RightBox>
@@ -75,6 +72,12 @@ const Header = ({hasMenu}) => {
 
 export default Header
 
+const LogoImage = styled.img`
+  width: 97px;
+  position: relative;
+  max-height: 100%;
+  object-fit: cover;
+`;
 
 const StyledLink = styled(Link)`
 width: 28px;
@@ -132,17 +135,7 @@ gap: 5px;
 white-space: nowrap; /* 줄바꿈 방지 */
 `;
 
-const Logo = styled.div`
-width: 97px;
-background-color: #d9d9d9;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 0px;
-box-sizing: border-box;
-`;
+
 
 const UserContainer = styled.div`
 position: relative;
