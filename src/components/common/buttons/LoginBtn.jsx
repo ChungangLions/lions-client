@@ -31,5 +31,6 @@ justify-content: center;
 padding: 10px;
 font-weight: 600;
 font-size: 20px;
+background-color: white;
 color: #64a10f;
 `;
