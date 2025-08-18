@@ -1,19 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
 import { ReactComponent as ProfileIcon } from '../assets/images/icons/Profile.svg'
+import useStudentStore from '../stores/studentStore'
 
 //import { ReactComponent as Logo } from '../assets/images/logo.svg';
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
+  const { userRole, username, isLoggedin, setLogoutStatus, id: userId } = useUserStore(); // 로그인 시 받은 id가 userId!
+  const { setProfileInfo } = useStudentStore();
+  const { profileid: studentProfileId } = useStudentStore();
   const navigate = useNavigate();
 
-  //console.log("현재 userRole:", userRole); 
+  // console.log("현재 userRole:", userRole);
+  // console.log("현재 username:", username); 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -24,14 +28,20 @@ const Header = ({hasMenu}) => {
     navigate("/");
   };
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage`;
+  useEffect(() => {
+    if (userId) setProfileInfo(userId);
+  }, [userId]);
+
+  // const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${studentProfileId}`;
+  const navigateToHome = `/${userRole.toLowerCase()}/`;
 
   return (
     <HeaderContainer>
       <HeaderGroup>
         <LeftBox>
-          <Logo>
-            로고
+          <Logo to={navigateToHome}>
+            <StyledImg src={process.env.PUBLIC_URL + '/HuniverseLogo.png'} alt="휴니버스"/>
           </Logo>
         <SearchBar />
         </LeftBox>
@@ -54,7 +64,7 @@ const Header = ({hasMenu}) => {
               )}
           </UserContainer>
           <StyledLink to={navigateToMyPage}>
-          <ProfileIcon />
+            <ProfileIcon />
           </StyledLink>
         </RightBox>
       </HeaderGroup>
@@ -120,16 +130,20 @@ padding: 10px;
 gap: 5px;
 `;
 
-const Logo = styled.div`
-width: 97px;
-background-color: #d9d9d9;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 0px;
-box-sizing: border-box;
+const Logo = styled(Link)`
+  width: 97px;
+  height: 46px;
+  aspect-ratio: 97 / 46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 `;
 
 const UserContainer = styled.div`

@@ -11,11 +11,11 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store }) {
       <ImageWrapper>
         <CardImage src={imageUrl || '/default.png'} alt={store.name} />
         <TypeLabelBox>
-          <TypeLabel storeType={store.storeType} />
+          <TypeLabel storeType={store.storeType} background='#BCBCBC'/>
         </TypeLabelBox>
         {/* 아래 onClick은 나중에 서버 연결 후 변경 필요 */}
         <HeartBtnBox>
-            <ButtonComponent />
+            {ButtonComponent && <ButtonComponent userId={store.id} />}
         </HeartBtnBox>
         <BestText>Best!</BestText>
       </ImageWrapper>
@@ -35,7 +35,8 @@ export default GroupCard;
 
 const CardWrapper = styled.div`
   display: flex;
-  width: 330px;
+  width: 100%;
+  height: auto;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
@@ -44,15 +45,16 @@ const CardWrapper = styled.div`
 const ImageWrapper = styled.div`
   display: flex;
   width: 100%;
+  height: 100%;
   position: relative;
-  height: 247px;
+  min-height: 247px;
   margin-bottom: 10px;
 `;
 
 const CardImage = styled.img`
   display: flex;
-  height: 247px;
-  width: 330px;
+  width: 100%;
+  height: 100%;
   padding: 6px 5px;
   flex-direction: column;
   align-items: flex-start;

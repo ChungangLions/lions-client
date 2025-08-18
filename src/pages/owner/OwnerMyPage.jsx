@@ -130,7 +130,8 @@ const OwnerMyPage = () => {
 export default OwnerMyPage;
 
 const PageContainer = styled.div`
-  width: 1380px;
+  width: 100%;
+  //width: 1380px;
   display: flex;
   flex-direction: column;
   align-items: center;

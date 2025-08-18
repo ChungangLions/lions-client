@@ -18,7 +18,7 @@ const MainLayout = ({hasMenu}) => {
 export default MainLayout
 
 const PageContainer = styled.div`
-box-sizing: border-box; 
+  box-sizing: border-box; 
   display: flex;
   flex-direction : column;
   width: 100%;
@@ -38,5 +38,5 @@ const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: 0px;
+  margin-top: 15px;
 `;
