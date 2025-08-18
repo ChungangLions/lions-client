@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
@@ -10,12 +11,15 @@ import Logo from '../assets/images/Logo.png';
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, isLoggedin, setLogoutStatus } = useUserStore(); // 로그인 정보 불러오기
+  const { userRole, username, isLoggedin, setLogoutStatus, id: userId } = useUserStore(); // 로그인 시 받은 id가 userId!
+  const { setProfileInfo } = useStudentStore();
+  const { profileid: studentProfileId } = useStudentStore();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  //console.log("현재 userRole:", userRole); 
+  // console.log("현재 userRole:", userRole);
+  // console.log("현재 username:", username); 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -29,11 +33,21 @@ const Header = ({hasMenu}) => {
 };
 
   const isActive = location.pathname === `/${userRole}/mypage`;
-  const navigateToMyPage = userRole ? `/${userRole}/mypage`: '/';
+
+
 
   const ProfileIcon = ({ isActive }) => {
   return isActive ? <ProfileActive /> : <ProfileInactive />;
 };
+
+  useEffect(() => {
+    if (userId) setProfileInfo(userId);
+  }, [userId]);
+
+
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${studentProfileId}`;
+  const navigateToHome = `/${userRole.toLowerCase()}/`;
+
 
   return (
     <HeaderContainer>
@@ -134,8 +148,6 @@ padding: 10px;
 gap: 5px;
 white-space: nowrap; /* 줄바꿈 방지 */
 `;
-
-
 
 const UserContainer = styled.div`
 position: relative;

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components';
 import axios from 'axios';
 import useUserStore from '../../stores/userStore';
+import useStudentStore from '../../stores/studentStore';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,6 +23,9 @@ const Login = () => {
     if(res.user_role === "OWNER") {
       navigate('/owner');
     } else if(res.user_role === "STUDENT") {
+
+      await useStudentStore.getState().setProfileInfo(res.id);
+
       navigate('/student'); 
     }else if(res.user_role === "STUDENTGROUP") {
       navigate('/group');  
@@ -46,6 +50,7 @@ const Login = () => {
                 value={username}
                 onChange={(e) => onChangeUsername(e.target.value)}
                 width="446px"
+                border = "1px solid #c4c4c4"
               />
             </InputWrapper>
             <InputWrapper>
@@ -55,6 +60,7 @@ const Login = () => {
                 onChange={(e) => onChangePassword(e.target.value)}
                 width="446px"
                 type="password"
+                border = "1px solid #c4c4c4"
               />
             </InputWrapper>
           </InputContainer>

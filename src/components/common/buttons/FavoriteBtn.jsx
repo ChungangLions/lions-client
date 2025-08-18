@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { togglelikes } from '../../../services/apis/likesAPI';
 import useUserStore from '../../../stores/userStore';
 
+
 const FavoriteBtn = ({userId, isLiked = false}) => {
     const [isHeartActive, setIsHeartActive] = useState(isLiked);
 

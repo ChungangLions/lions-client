@@ -65,6 +65,7 @@ const ImageContainer = styled.div`
     justify-content: center;
     gap: 10px;
     background-color: #D9D9D9;
+    border-radius: 5px;
 `;
 const Plus = styled.span`
   font-size: 24px;

@@ -573,7 +573,7 @@ const OwnerEditMyPage = () => {
 export default OwnerEditMyPage;
 
 const PageContainer = styled.div`
-  width: 1380px;
+  width: 100%;
   margin: 0 auto;
 `;
 
