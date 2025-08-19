@@ -4,14 +4,14 @@ import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
 import { IoIosArrowDown } from "react-icons/io";
-import { ReactComponent as ProfileInactive } from '../assets/images/icons/Profile.svg'
+import { ReactComponent as ProfileInactive } from '../assets/images/icons/ProfileInactive.svg'
 import { ReactComponent as ProfileActive } from '../assets/images/icons/ProfileActive.svg'
 import Logo from '../assets/images/Logo.png';
 import useStudentStore from '../stores/studentStore'
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, username, isLoggedin, setLogoutStatus, id: userId } = useUserStore(); // 로그인 시 받은 id가 userId!
+  const { userRole, username, isLoggedin, setLogoutStatus, userId } = useUserStore(); // 로그인 시 받은 id가 userId!
   const { setProfileInfo } = useStudentStore();
   const { profileid: studentProfileId } = useStudentStore();
 
@@ -32,7 +32,7 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-  const isActive = location.pathname === `/${userRole}/mypage`;
+  const isActive = location.pathname === `/${userRole.toLowerCase()}/mypage/`;
 
 
 
@@ -45,15 +45,17 @@ const Header = ({hasMenu}) => {
   }, [userId]);
 
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${studentProfileId}`;
-  const navigateToHome = `/${userRole.toLowerCase()}/`;
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
+  const navigateToHome = () => {
+  navigate(`/${userRole.toLowerCase()}/`);
+};
 
 
   return (
     <HeaderContainer>
       <HeaderGroup>
         <LeftBox>
-          <LogoImage src={Logo} alt ="휴니버스 로고"/>
+          <LogoImage onClick= {navigateToHome} src={Logo} alt ="휴니버스 로고"/>
         <SearchBar />
         </LeftBox>
         <RightBox>
@@ -91,6 +93,7 @@ const LogoImage = styled.img`
   position: relative;
   max-height: 100%;
   object-fit: cover;
+  cursor: pointer;
 `;
 
 const StyledLink = styled(Link)`

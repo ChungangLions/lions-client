@@ -32,21 +32,21 @@ background-color: #fff;
 height: 847px;
 overflow: hidden;
 text-align: left;
-font-size: 16px;
-color: #000;
+font-size: 20px;
+color: #64a10f;
 font-family: Pretendard;
 `;
 
 const LandingContainer = styled.div`
-position: absolute;
-top: 58px;
-left: 263px;
-width: 914px;
+width: 100%
+max-width: 914px;
 display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: flex-start;
 gap: 80px;
+padding-top: 58px;
+padding-bottom: 105px;
 `;
 
 const LoginSection = styled.div`
@@ -56,8 +56,6 @@ flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
 gap: 10px;
-font-size: 20px;
-color: #64a10f;
 `;
 
 const LogoContainer = styled.div`
@@ -66,23 +64,21 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: flex-start;
-gap: 10px;
+gap: 29px;
 `;
 
 const ImageContainer = styled.img`
-width: 100%;
+width: 696px;
 position: relative;
-max-width: 100%;
-overflow: hidden;
 max-height: 100%;
 object-fit: cover;
 `;
 
 const CaptionContainer = styled.div`
-position: relative;
-font-size: 16px;
-font-family: Pretendard;
-color: #000;
-text-align: left;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+font-weight: 600;
 `;
 

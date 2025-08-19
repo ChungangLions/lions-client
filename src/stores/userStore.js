@@ -9,7 +9,6 @@ const useUserStore = create(
         (set) => ({
             userRole: null, // 사장님, 학생, 학생단체 중 하나 
             username: null,
-            id: null,
             isLoggedIn: false,
             accessToken : null,
             refreshToken : null,
@@ -21,7 +20,6 @@ const useUserStore = create(
                 set({ 
                     userRole: res.user_role , 
                     username: res.username,
-                    id: res.id,
                     isLoggedIn: true, 
                     accessToken: res.access, 
                     refreshToken: res.refresh,
@@ -43,7 +41,7 @@ const useUserStore = create(
                 set({
                     userRole : null,
                     username: null,
-                    id: null,
+                    userId: null,
                     isLoggedIn: false,
                     accessToken: null,
                     refreshToken: null,

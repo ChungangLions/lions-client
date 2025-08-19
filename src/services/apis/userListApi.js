@@ -1,4 +1,4 @@
-const BASE_URL = 'http://13.125.150.49:8000';
+const BASE_URL = 'https://huniverse.p-e.kr';
 const token = localStorage.getItem('access_token');
 
 export async function fetchUserList() {
