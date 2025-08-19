@@ -12,7 +12,7 @@ import useUserStore from "../../stores/userStore";
 
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] }
-const Date = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
+const Day = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
     const hour = String(Math.floor(i / 2)).padStart(2, "0");
@@ -25,6 +25,7 @@ const SECTIONS = [
   { key: "photo", label: "대표 사진", refKey: "photo" },
   { key: "campus", label: "주변 캠퍼스", refKey: "campus" },
   { key: "type", label: "업종", refKey: "type" },
+  { key: "contact", label: "연락처", refKey: "contact" },
   { key: "name", label: "상호명", refKey: "name" },
   { key: "comment", label: "한 줄 소개", refKey: "comment" },
   { key: "openHours", label: "영업 시간", refKey: "openHours" },
@@ -38,17 +39,22 @@ const SECTIONS = [
 ];
 
 // 임의로 채운 !!! 수정 전 예시 저장 데이터 !!!
-const samplePhoto = ["https://via.placeholder.com/150"];
-const sampleMenu = [
-  { file: "https://via.placeholder.com/100", value1: "김치찌개", value2: "8000" },
-  { file: "https://via.placeholder.com/100", value1: "된장찌개", value2: "7500" }
+const storePhoto = [];
+const menuImage = [
+  { name: "", price: "", image: [] },
 ];
-const sampleSchedule = [
-  { day: "월요일", start: "09:00", end: "18:00" },
-  { day: "화요일", start: "09:00", end: "18:00" }
-];
-const sampleGoalButtons = { goal1: true, goal2: true, goal3: true };
-const sampleServiceButtons = { service1: true, service2: true };
+
+const GoalButtons = { 
+  new_customer: false, 
+  repeat_visit: false, 
+  clear_stock: false, 
+  peak_time_spread: false, 
+  sns_promotion: false, 
+  collect_review: false, 
+  goalEtc: false
+};
+
+const ServiceButtons = { drinks: false , side_menu: false };
 const sampleCampus = {
   name: '중앙대학교',
   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
@@ -154,30 +160,34 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
 
 const OwnerEditMyPage = () => {
 
-  
-
-
   // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
-  const [photoState, setPhotoState] = useState(samplePhoto);
+  const [photoState, setPhotoState] = useState(storePhoto);
   const [campusValue, setCampusValue] = useState(sampleCampus);
   const [typeValue, setTypeValue] = useState("");
+  const [contactValue, setContactValue] = useState("");
   const [nameValue, setNameValue] = useState("");
   const [commentValue, setCommentValue] = useState("");
-  const [menuList, setMenuList] = useState(sampleMenu);
+  const [menuList, setMenuList] = useState(menuImage);
   const [revenueValue, setRevenueValue] = useState("");
   const [marginValue, setMarginValue] = useState("");
 
   const [openHours, setOpenHours] = useState([]);
-  const [busyHours, setBusyHours] = useState(sampleSchedule);
-  const [freeHours, setFreeHours] = useState(sampleSchedule);
+  const [busyHours, setBusyHours] = useState([]);
+  const [freeHours, setFreeHours] = useState([]);
 
-  const [goalButtons, setGoalButtons] = useState(sampleGoalButtons);
-  const [serviceButtons, setServiceButtons] = useState(sampleServiceButtons);
+  const [goalButtons, setGoalButtons] = useState(GoalButtons);
+  const [serviceButtons, setServiceButtons] = useState(ServiceButtons);
+  
+  // 기타 입력 폼 저장용
+  const [otherServiceValue, setOtherServiceValue] = useState("");
+  const [otherGoalValue, setOtherGoalValue] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [showCampusModal, setShowCampusModal] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
+
+  const [profileId, setProfileId] = useState(null);
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
@@ -186,6 +196,96 @@ const OwnerEditMyPage = () => {
   };
   
   const { userId } = useUserStore();
+
+  // api data 배열로 변환
+  const parseSchedule = (schedule) => {
+    if (!schedule) return [] ;
+
+    const dayMap = {
+      월: "월요일",
+      화: "화요일",
+      수: "수요일",
+      목: "목요일",
+      금: "금요일",
+      토: "토요일",
+      일: "일요일",
+    };
+    
+    // 객체를 배열로 변환
+    return Object.entries(schedule).map(([day, time]) => {
+      if (!time) {
+        return { day: dayMap[day] || day, start: null, end: null};
+      }
+
+      const [start, end] = time.split("-");
+
+      return {
+        day: dayMap[day] || day, 
+        start: start ? start.trim() : null,
+        end: end ? end.trim() : null,
+      };
+    });
+  };
+
+  // 시간 데이터 다시 api 데이터 형식으로
+  const convertToApiFormat = (data) => {
+  const shortDayMap = {
+    월요일: "월",
+    화요일: "화",
+    수요일: "수",
+    목요일: "목",
+    금요일: "금",
+    토요일: "토",
+    일요일: "일",
+  };
+
+  return data.reduce((acc, cur) => {
+    const shortDay = shortDayMap[cur.day] || cur.day;
+    acc[shortDay] = `${cur.start}-${cur.end}`;
+    return acc;
+  }, {});
+};
+
+  // 제공 가능 서비스 유형 api 데이터 변환
+  const ServiceType = (Service, otherService) => {
+    const services = Service ? Service.split(",") : []; // 서비스에 문자열로 들어가 있는 경우 ','를 기준으로 분기
+
+  return {
+    drinks: services.includes("DRINK"),
+    side_menu: services.includes("SIDE_MENU"),
+    serviceEtc: otherService && otherService.trim().length > 0
+  };
+};
+
+  const GoalType = (Goal, otherGoal) => {
+    const goals = Goal ? Goal.split(",") : []; // 문자열로 들어가 있는 경우 ','를 기준으로 분기
+
+  return {
+    new_customer: goals.includes("new_customer"),
+    repeat_visit: goals.includes("repeat_visit"),
+    clear_stock: goals.includes("clear_stock"),
+    peak_time_spread: goals.includes("peak_time_spread"),
+    sns_promotion: goals.includes("sns_promotion"),
+    collect_review: goals.includes("collect_review"),
+    goalEtc: otherGoal && otherGoal.trim().length > 0
+  };
+};
+
+  // 사진 데이터 변환
+  const storePhotoUrls = (photos) => {
+    if ( !photos) return [];
+    return photos.map(photo => photo.image);
+    }
+
+  const parsePhotos = (photos) => {
+  return photos.map((url, index) => ({
+    id: index + 1, // id를 어쩌지 ? ... 
+    image: url,
+    order: index,
+    uploaded_at: new window.Date().toISOString(), // 지금 시각
+  }));
+};
+
 
   // 사장님 프로필 조회 
   useEffect(() => {
@@ -197,43 +297,71 @@ const OwnerEditMyPage = () => {
 
         setCommentValue(data.comment);
         setNameValue(data.profile_name);
+        setContactValue(data.contact);
         setTypeValue(businessTypeMap[data.business_type]);
         setRevenueValue(data.average_sales);
         setMarginValue(data.margin_rate);
+        setOpenHours(parseSchedule(data.business_day));
+        setBusyHours(parseSchedule(data.peak_time));
+        setFreeHours(parseSchedule(data.off_peak_time));
+        setServiceButtons(ServiceType(data.available_service, data.available_service_other));
+        setPhotoState(storePhotoUrls(data.photos));
+        setMenuList(data.menus);
         
-        
-        // business_day 변환
-        const scheduleArray = data.business_day
-  ? Object.entries(data.business_day).map(([day, time]) => {
-      const [start, end] = day.split("-");
-      return { day: time + "요일", start, end };
-    })
-  : [];
 
+        // 수정용 프로필 id
+        setProfileId(data.id);
+        console.log("메뉴",data.menus);
 
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
+        
       }
     };
     fetchProfile();
   }, []);
 
   // 프로필 수정
+  const serviceData= Object.entries(serviceButtons)
+  .filter(([key, value]) => key!== "serviceEtc" && value)  // 기타 제외 true인 값만
+  .map(([key]) => key.toUpperCase())  // 대문자로 하는 이유가 있나 ..? 
+  .join(",");
+
+  const goalData= Object.entries(goalButtons)
+  .filter(([key, value]) => key!== "goalEtc" && value)  // 기타 제외 true인 값만
+  .map(([key]) => key)  
+  .join(",");
+
   const handleProfileUpdate = async () => {
     try {
-      const ownerId = 1; 
+      
       const updateData = {
         profile_name: nameValue, 
         comment: commentValue,
-        photos: photoState,
-
+        photos: parsePhotos(photoState),
+        contact: contactValue,
+        menus: menuList,
+        campus: campusValue?.name,
+        business_day : convertToApiFormat(openHours),
+        business_type : typeValue,
+        average_sales : Number(revenueValue), // 백엔드 데이터베이스상 string이 아닌 숫자타입
+        margin_rate: marginValue,
+        peak_time : convertToApiFormat(busyHours),
+        off_peak_time : convertToApiFormat(freeHours),
+        available_service : serviceData,
+        available_service_other: serviceButtons.serviceEtc ? otherServiceValue : "",
+        partnership_goal : goalData,
+        partnership_goal_other : goalButtons.goalEtc ? otherGoalValue : "",
 
       };
-
-      await editOwnerProfile(ownerId, updateData);
+      console.log("updateData:", updateData);
+      await editOwnerProfile(profileId, updateData);
       alert("프로필 수정 완료!");
     } catch (error) {
       console.error("프로필 수정 실패:", error);
+      console.log(localStorage.getItem("accessToken"));
+      console.log(profileId);
+    
     }
   };
 
@@ -263,6 +391,7 @@ const OwnerEditMyPage = () => {
     photo: useRef(),
     campus: useRef(),
     type: useRef(),
+    contact: useRef(),
     name: useRef(),
     comment: useRef(),
     openHours: useRef(),
@@ -290,6 +419,7 @@ const OwnerEditMyPage = () => {
     photo: isFilledList(photoState),
     campus: isFilledCampus(campusValue),
     type: isFilledText(typeValue),
+    contact: isFilledText(contactValue),
     name: isFilledText(nameValue),
     comment: isFilledText(commentValue),
     openHours: isFilledSchedule(openHours),
@@ -304,12 +434,17 @@ const OwnerEditMyPage = () => {
   const allFilled = Object.values(isSectionFilled).every(Boolean);
 
   // 저장 로직
-    const handleSave = () => {
+    const handleSave = async() => {
         if (!allFilled) {
-            alert("아직 정보를 다 채우지 않았습니다!");
+          alert("아직 정보를 다 채우지 않았습니다!");
         } else {
+          try {
+            await handleProfileUpdate();
             setShowModal(true);
+        } catch (error) {
+          console.error("프로필 수정 실패 :", error);
         }
+      }
     };
 
   // 버튼 토글
@@ -330,8 +465,6 @@ const OwnerEditMyPage = () => {
       return updated;
     });
   };
-
-
 
 
   // ----------- 렌더링 -----------
@@ -356,11 +489,11 @@ const OwnerEditMyPage = () => {
           {/* 주변 캠퍼스 */}
           <TitleContainer ref={sectionRefs.campus}>
             <Title> 주변 캠퍼스 </Title>
-            {campusValue && ( <SubTitle> {campusValue.name}</SubTitle>)}
+             <SubTitle>가게 근처 캠퍼스를 검색하여 입력해 주세요.</SubTitle>
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > 대학 검색 </SearchCampusButton>
+          > {campusValue ? campusValue.name : "대학 검색"} </SearchCampusButton>
           <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
@@ -373,28 +506,34 @@ const OwnerEditMyPage = () => {
           {/* 업종 */}
           <TitleContainer ref={sectionRefs.type}>
             <Title> 업종 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle> 가게의 업종을 선택해 주세요. </SubTitle>
           </TitleContainer>
           <Dropdown props={sampleType} value={typeValue} onChange={setTypeValue} />
+
+          <TitleContainer ref={sectionRefs.contact}>
+          <Title> 연락처 </Title>
+            <SubTitle> 가게의 연락처를 입력해 주세요. 가게의 프로필에 표시돼요. </SubTitle>
+          </TitleContainer>
+          <InputBox defaultText="텍스트 입력" value={contactValue} onChange={e => setContactValue(e.target.value)} />
 
           {/* 상호명 */}
           <TitleContainer ref={sectionRefs.name}>
             <Title> 상호명 </Title>
-            <SubTitle> {nameValue} </SubTitle>
+            <SubTitle> 가게의 상호명을 입력해 주세요. </SubTitle>
           </TitleContainer>
           <InputBox defaultText="상호명 입력" value={nameValue} onChange={e => setNameValue(e.target.value)} />
 
           {/* 한 줄 소개 */}
           <TitleContainer ref={sectionRefs.comment}>
             <Title> 한 줄 소개 </Title>
-            <SubTitle> {commentValue} </SubTitle>
+            <SubTitle> 우리 가게를 잘 나타내는 한 줄 소개를 입력해 주세요. (25자 미만)</SubTitle>
           </TitleContainer>
           <InputBox defaultText="텍스트 입력" value={commentValue} onChange={e => setCommentValue(e.target.value)} />
 
           {/* 영업 시간 */}
           <TitleContainer ref={sectionRefs.openHours}>
             <Title> 영업 시간 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle> 요일별 영업 시간을 선택해 주세요. </SubTitle>
           </TitleContainer>
           {openHours.map((schedule, idx) => (
             <DatePicker
@@ -405,7 +544,7 @@ const OwnerEditMyPage = () => {
               onChange={(i, f, v) => handleDropdownChange(i, f, v, setOpenHours)}
               onAdd={() => handleAddRow(setOpenHours)}
               onRemove={(i) => handleRemoveRow(i, setOpenHours)}
-              dateData={Date}
+              dateData={Day}
               timeData={Time}
             />
           ))}
@@ -413,7 +552,7 @@ const OwnerEditMyPage = () => {
           {/* 대표 메뉴 */}
           <TitleContainer ref={sectionRefs.menu}>
             <Title> 대표 메뉴 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle>우리 가게의 대표 메뉴와 가격을 입력해 주세요. (최대 8개)</SubTitle>
             <PhotoUploadWithInput
               maxCount={50}
               inputPlaceholder1="메뉴명"
@@ -426,25 +565,33 @@ const OwnerEditMyPage = () => {
           {/* 제휴 목표 */}
           <TitleContainer ref={sectionRefs.goal}>
             <Title> 제휴 목표 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle> 
+              <p>가게가 제휴를 통해 얻고자 하는 목표를 선택해주세요.</p>
+              <p>※ 프로필 수정 시 제휴 목표를 수정하면 제휴 유형이 달라질 수 있습니다. </p>
+              <p>학생단체가 이전 제휴 유형을 기반으로 제안을 검토할 수 있으므로, 변경 시 신중히 판단해 주세요.</p>
+              </SubTitle>
           </TitleContainer>
           <ButtonGroup>
-            <TextButton $active={goalButtons.goal1} onClick={() => toggleGoalButton('goal1')}>신규 고객 유입</TextButton>
-            <TextButton $active={goalButtons.goal2} onClick={() => toggleGoalButton('goal2')}>재방문 증가</TextButton>
-            <TextButton $active={goalButtons.goal3} onClick={() => toggleGoalButton('goal3')}>재고 소진</TextButton>
-            <TextButton $active={goalButtons.goal4} onClick={() => toggleGoalButton('goal4')}>피크타임 분산</TextButton>
-            <TextButton $active={goalButtons.goal5} onClick={() => toggleGoalButton('goal5')}>SNS 홍보</TextButton>
-            <TextButton $active={goalButtons.goal6} onClick={() => toggleGoalButton('goal6')}>리뷰 확보</TextButton>
+            <TextButton $active={goalButtons.goal1} onClick={() => toggleGoalButton('new_customer')}>신규 고객 유입</TextButton>
+            <TextButton $active={goalButtons.goal2} onClick={() => toggleGoalButton('repeat_visit')}>재방문 증가</TextButton>
+            <TextButton $active={goalButtons.goal3} onClick={() => toggleGoalButton('clear_stock')}>재고 소진</TextButton>
+            <TextButton $active={goalButtons.goal4} onClick={() => toggleGoalButton('peak_time_spread')}>피크타임 분산</TextButton>
+            <TextButton $active={goalButtons.goal5} onClick={() => toggleGoalButton('sns_promotion')}>SNS 홍보</TextButton>
+            <TextButton $active={goalButtons.goal6} onClick={() => toggleGoalButton('collect_review')}>리뷰 확보</TextButton>
             <TextButton $active={goalButtons.goalEtc} onClick={() => toggleGoalButton('goalEtc')}>기타</TextButton>
           </ButtonGroup>
-          {goalButtons.goalEtc && (<InputBox defaultText="기타 입력" />)}
+          {goalButtons.goalEtc && 
+          (<InputBox 
+          defaultText="기타 입력"
+          value={otherGoalValue} 
+          onChange={e => setOtherGoalValue(e.target.value)} />)}
 
           {/* 평균 인당 매출 & 마진율 */}
           <SubColumn>
             <ColumnLayout>
               <TitleContainer ref={sectionRefs.revenue}>
                 <Title> 평균 인당 매출 </Title>
-                <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+                <SubTitle> 고객 한 명당 평균 매출액을 입력해 주세요.</SubTitle>
               </TitleContainer>
               <InputBox
                 type="number"
@@ -458,7 +605,10 @@ const OwnerEditMyPage = () => {
             <ColumnLayout>
               <TitleContainer ref={sectionRefs.margin}>
                 <Title> 마진율 </Title>
-                <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+                <SubTitle>
+                  <p>우리 가게 평균 마진율을 입력해 주세요.</p>
+                  <p>※ 마진율 (%) = (총매출 - 총원가) ÷ 총매출 × 100</p>
+                </SubTitle>
               </TitleContainer>
               <InputBox
                 type="number"
@@ -476,7 +626,7 @@ const OwnerEditMyPage = () => {
             <ColumnLayout>
               <TitleContainer ref={sectionRefs.busy}>
                 <Title> 바쁜 시간대 </Title>
-                <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+                <SubTitle> 가게가 가장 바쁜 시간대를 입력해 주세요. </SubTitle>
               </TitleContainer>
               {busyHours.map((schedule, idx) => (
                 <DatePicker
@@ -487,7 +637,7 @@ const OwnerEditMyPage = () => {
                   onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
                   onAdd={() => handleAddRow(setBusyHours)}
                   onRemove={(i) => handleRemoveRow(i, setBusyHours)}
-                  dateData={Date}
+                  dateData={Day}
                   timeData={Time}
                 />
               ))}
@@ -495,7 +645,7 @@ const OwnerEditMyPage = () => {
             <ColumnLayout>
               <TitleContainer ref={sectionRefs.free}>
                 <Title> 한산한 시간대 </Title>
-                <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+                <SubTitle> 가게가 가장 한산한 시간대를 입력해 주세요.</SubTitle>
               </TitleContainer>
               {freeHours.map((schedule, idx) => (
                 <DatePicker
@@ -506,7 +656,7 @@ const OwnerEditMyPage = () => {
                   onChange={(i, f, v) => handleDropdownChange(i, f, v, setFreeHours)}
                   onAdd={() => handleAddRow(setFreeHours)}
                   onRemove={(i) => handleRemoveRow(i, setFreeHours)}
-                  dateData={Date}
+                  dateData={Day}
                   timeData={Time}
                 />
               ))}
@@ -516,14 +666,21 @@ const OwnerEditMyPage = () => {
           {/* 추가 서비스 */}
           <TitleContainer ref={sectionRefs.extra}>
             <Title> 추가 제공 가능 서비스 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle>
+              <p>제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요. </p>
+              <p>※ 작성하신 메뉴가 반드시 제휴에서 제공되는 것은 아니며, 제휴 유형이 ‘서비스 제공형’으로 결정될 경우에만 해당 메뉴가 서비스로 제공됩니다.</p>
+            </SubTitle>
           </TitleContainer>
           <ButtonGroup>
-            <TextButton $active={serviceButtons.service1} onClick={() => toggleServiceButton('service1')}>음료수</TextButton>
-            <TextButton $active={serviceButtons.service2} onClick={() => toggleServiceButton('service2')}>사이드 메뉴</TextButton>
+            <TextButton $active={serviceButtons.drinks} onClick={() => toggleServiceButton('drinks')}>음료수</TextButton>
+            <TextButton $active={serviceButtons.side_menu} onClick={() => toggleServiceButton('side_menu')}>사이드 메뉴</TextButton>
             <TextButton $active={serviceButtons.serviceEtc} onClick={() => toggleServiceButton('serviceEtc')}>기타</TextButton>
           </ButtonGroup>
-          {serviceButtons.serviceEtc && <InputBox defaultText="기타 입력" />}
+          {serviceButtons.serviceEtc && 
+          <InputBox 
+          defaultText="기타 입력" 
+          value={otherServiceValue} 
+          onChange={e => setOtherServiceValue(e.target.value)}  />}
         </EditContainer>
       </MainContainer>
 
@@ -575,6 +732,8 @@ export default OwnerEditMyPage;
 const PageContainer = styled.div`
   width: 100%;
   margin: 0 auto;
+  color: #1A2D06;
+  position: relative;
 `;
 
 const TitleContainer = styled.div`
@@ -592,12 +751,17 @@ const Title = styled.div`
 const SubTitle = styled.div`
   font-weight: 400;
   font-size: 16px;
+  p {
+  margin: 0;
+  }
 `;
 
 const MainContainer = styled.div`
   background-color: #f4f4f4;
   gap: 10px;
   margin-top: 10px;
+  width: 100%;
+  position: relative;
 `;
 
 const EditContainer = styled.div`
@@ -684,6 +848,7 @@ flex-direction: row;
 align-items: center;
 justify-content: flex-start;
 gap: 10px;
+width: 100%;
 `;
 const SaveButton = styled.button`
 box-sizing: border-box;
