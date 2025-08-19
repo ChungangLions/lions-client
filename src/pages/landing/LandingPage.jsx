@@ -28,13 +28,16 @@ export default LandingPage
 const PageContainer = styled.div`
 width: 100%;
 position: relative;
-background-color: #fff;
-height: 847px;
 overflow: hidden;
 text-align: left;
 font-size: 20px;
 color: #64a10f;
 font-family: Pretendard;
+box-sizing: border-box;
+height: 100vh;
+display: flex;
+justify-content: center;
+top: 58px;
 `;
 
 const LandingContainer = styled.div`
@@ -47,15 +50,19 @@ justify-content: flex-start;
 gap: 80px;
 padding-top: 58px;
 padding-bottom: 105px;
+margin: 0 auto;
+align-items: center;
 `;
 
 const LoginSection = styled.div`
-width: 446px;
+width: 100%;
+max-width: 446px;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
 gap: 10px;
+align-items: center;
 `;
 
 const LogoContainer = styled.div`
@@ -68,10 +75,13 @@ gap: 29px;
 `;
 
 const ImageContainer = styled.img`
-width: 696px;
+width: 100%;
+max-width: 696px;
 position: relative;
 max-height: 100%;
+height: auto;
 object-fit: cover;
+
 `;
 
 const CaptionContainer = styled.div`

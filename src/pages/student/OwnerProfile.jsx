@@ -145,6 +145,7 @@ const TitleContainer = styled.div`
   margin-top: 35px;
   margin-bottom: 25px;
   width: 100%;
+  
 `;
 
 const TitleBox = styled.div`
