@@ -32,8 +32,7 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-  const isActive = location.pathname === `/${userRole.toLowerCase()}/mypage/`;
-
+  const isActive = location.pathname === `/${userRole?.toLowerCase() || ""}/mypage/`;
 
 
   const ProfileIcon = ({ isActive }) => {
@@ -45,11 +44,10 @@ const Header = ({hasMenu}) => {
   }, [userId]);
 
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
-  const navigateToHome = () => {
-  navigate(userRole ? `/${userRole.toLowerCase()}/` : '/');
+const navigateToMyPage = `/${userRole?.toLowerCase() || ""}/mypage/`;
+const navigateToHome = () => {
+  navigate(userRole ? `/${userRole.toLowerCase()}/` : "/");
 };
-
 
   return (
     <HeaderContainer>
