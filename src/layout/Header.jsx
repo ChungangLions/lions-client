@@ -47,7 +47,7 @@ const Header = ({hasMenu}) => {
 
   const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
   const navigateToHome = () => {
-  navigate(`/${userRole.toLowerCase()}/`);
+  navigate(userRole ? `/${userRole.toLowerCase()}/` : '/');
 };
 
 
