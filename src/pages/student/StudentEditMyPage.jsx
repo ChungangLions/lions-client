@@ -400,50 +400,6 @@ const ModalOverlay = styled.div`
   z-index: 9999;
 `;
 
-const ModalBox = styled.div`
-  width: 492px;
-  height: 213px;
-  padding: 59px 58px;
-  justify-content: center;
-  gap: 50px; // 값이 없길래 임의로 넣음
-  flex-shrink: 0;
-  background: #F8F8F8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const ModalText = styled.div`
-    color: #000;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: normal;
-`;
-
-const ModalBtnRow = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const ModalBtn = styled.button`
-    display: flex;
-    width: 90px;
-    padding: 10px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid #000;
-    cursor: pointer;
-    background: #F8F8F8;
-`;
-
-const ModalBtnPrimary = styled(ModalBtn)`
-    width: 204px;
-    padding: 10px;
-    background: #3D3D3D;
-    color: #FFFFFF;
-`;
-
 const SearchCampusButton = styled.button`
     display: flex;
     width: 210px;
