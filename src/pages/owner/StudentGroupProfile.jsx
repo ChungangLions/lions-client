@@ -49,7 +49,7 @@ const StudentGroupProfile = () => {
             <FavoriteBtn />
             찜하기
           </FavoriteBox>
-          <SuggestDealBtn />
+          <SuggestDealBtn organization={ organization} />
         </ButtonGroup>
       </ProfileSection>
       <RecordSection>
