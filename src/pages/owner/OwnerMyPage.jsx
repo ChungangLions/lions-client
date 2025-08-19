@@ -7,15 +7,17 @@ import ImageSlider from '../../components/common/cards/ImageSlider'
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import { fetchRecommendations } from '../../services/apis/recommendsapi'
 import EditBtn from '../../components/common/buttons/EditBtn';
+import useUserStore from '../../stores/userStore';
 
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
+  const {userId} = useUserStore();
 
   useEffect(() => {
     const fetchProfile = async () => { 
       try {
-        const ownerId = 1;
+        const ownerId = userId;
         const data = await getOwnerProfile(ownerId);
         console.log(data);
         setProfileData(data);
