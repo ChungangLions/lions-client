@@ -13,6 +13,7 @@ import useUserStore from '../../stores/userStore';
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore();
+  
 
   useEffect(() => {
     const fetchProfile = async () => { 
