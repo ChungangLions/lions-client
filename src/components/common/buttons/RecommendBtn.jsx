@@ -1,14 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { RiThumbUpLine as EmptyRecommend } from "react-icons/ri";
 import { RiThumbUpFill as FilledRecommend } from "react-icons/ri";
 import styled from 'styled-components';
 import { toggleRecommends } from '../../../services/apis/recommendsapi';
 
-const RecommendBtn = ({userId, onClick}) => {
-  const [isRecommendActive, setIsRecommendActive] = useState(false);
-    
+const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => {
+  const [isRecommendActive, setIsRecommendActive] = useState(defaultActive);
+
+  useEffect(() => {
+    setIsRecommendActive(defaultActive);
+  }, [defaultActive]); // prop이 바뀌면 변경됨
+
   const handleClick = async (event) => {
-    event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
+    event.stopPropagation();
     setIsRecommendActive(!isRecommendActive);
     try {
       await toggleRecommends(userId);
@@ -16,15 +20,15 @@ const RecommendBtn = ({userId, onClick}) => {
       console.error("추천 토글 실패:", error);
       setIsRecommendActive(isRecommendActive);
     }
-  }
+  };
 
-    return (
-        <StyledButton onClick={handleClick}>
-            { isRecommendActive ? <StyledRecommend /> : <StyledNotRecommend /> }
-        </StyledButton>
-    )
-  
-}
+  return (
+    <StyledButton onClick={handleClick}>
+      { isRecommendActive ? <StyledRecommend /> : <StyledNotRecommend /> }
+    </StyledButton>
+  );
+};
+
 
 export default RecommendBtn;
 

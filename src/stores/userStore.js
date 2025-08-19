@@ -29,6 +29,8 @@ const useUserStore = create(
                 localStorage.setItem('accessToken', res.access);
                 localStorage.setItem('refreshToken', res.refresh);
 
+                console.log('localStorage accessToken:', localStorage.getItem('accessToken')); // 바로 확인!
+
                 return res;
             } catch (error) {
                 console.error("로그인 실패 에러: ", error);

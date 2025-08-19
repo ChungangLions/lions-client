@@ -31,9 +31,9 @@ function App() {
         <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
         <Route path="/group" element={<GroupHome />}/>
         <Route path="/student" element={<StudentHome />}/>
-        <Route path="/student/mypage/:id" element={<StudentMyPage />} />
-        <Route path="/student/mypage/:id/edit" element={<StudentEditMyPage />} />
-        <Route path="/student/store-profile/:id" element={<OwnerProfile />} />
+        <Route path="/student/mypage/" element={<StudentMyPage />} />
+        <Route path="/student/mypage/edit" element={<StudentEditMyPage />} />
+        <Route path="/student/store-profile/" element={<OwnerProfile />} />
 
       </Route>
       <Route element={<MainLayout hasMenu={true}/>}>

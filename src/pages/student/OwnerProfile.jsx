@@ -9,7 +9,6 @@ import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
 
 const OwnerProfile = () => {
-//   const [ownerId] = useParams();
   const [profileData, setProfileData] = useState(null);
 
   useEffect(() => {

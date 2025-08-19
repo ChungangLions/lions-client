@@ -20,7 +20,7 @@ const StudentMyPage = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const recommendations = await fetchRecommendations();
+      const recommendations = await fetchRecommendations('given');
       const ownerProfiles = await fetchOwnerProfiles();
       const ownerIds = recommendations
         .filter(r => r.to_user.user_role === "OWNER")
@@ -36,7 +36,7 @@ const StudentMyPage = () => {
     fetchData();
   }, []);
 
-  const navigateToEditMyPage = `/student/mypage/${studentProfileId}/edit`;
+  const navigateToEditMyPage = `/student/mypage/edit`;
 
   if (!name && !university_name && !image) {
     return <div>로딩 중 또는 학생 정보 없음</div>;

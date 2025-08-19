@@ -4,11 +4,10 @@ import useVenueStore from '../../../stores/venueStore';
 import { PiDropSimple } from 'react-icons/pi';
 
 const storeTypes = {
-  restaurant: { label: '일반 음식점', icon: '🍚' },
-  cafe: { label: '카페 및 디저트', icon: '☕' },
-  bar: { label: '주점', icon: '🍺' },
+  RESTAURANT: { label: '일반 음식점', icon: '🍚' },
+  CAFE: { label: '카페 및 디저트', icon: '☕' },
+  BAR: { label: '주점', icon: '🍺' },
 };
-
 
 function TypeLabel({ storeType, background }) {
   const { stores } = useVenueStore();
