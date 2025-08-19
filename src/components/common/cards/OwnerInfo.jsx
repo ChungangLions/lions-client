@@ -2,8 +2,13 @@ import React from 'react'
 import styled from 'styled-components'
 import ProfileImage from './ProfileImg'
 import { FaIndustry } from 'react-icons/fa6'
+import useOwnerProfile from '../../../hooks/useOwnerProfile'
+import useUserStore from '../../../stores/userStore'
 
 const OwnerInfo = () => {
+    const { storeName, storeType, menuNames, storeImage, error } = useOwnerProfile();
+
+ 
   return (
     <InfoSection>
         <InfoWrapper>
@@ -11,10 +16,10 @@ const OwnerInfo = () => {
             <ContentWrapper>
                 <TitleSection>
                     <Title>
-                        Middle Door
+                        {storeName}
                     </Title>
                     <Industry>
-                        카페 및 디저트
+                        {storeType}
                     </Industry>
                 </TitleSection>
                 <MenuSection>
@@ -22,7 +27,7 @@ const OwnerInfo = () => {
                         대표메뉴
                     </Title>
                     <MenuItem>
-                        아메리카노, 수박주스, 바스트치즈케이크 등
+                        {menuNames}
                     </MenuItem>
                 </MenuSection>
 
