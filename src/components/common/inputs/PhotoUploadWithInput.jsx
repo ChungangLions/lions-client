@@ -42,10 +42,20 @@ const PhotoUploadWithInput = ({
   };
 
 
-  // 파일 미리보기 URL
-  const getPreviewUrl = file =>
-    typeof file === "string" ? file : URL.createObjectURL(file);
-
+  // 파일 미리보기 URL : photo가 없을 때 오류 해결 
+  const getPreviewUrl = (item) => {
+      // item이 File 또는 Blob 객체인지 확인
+      if (item instanceof File || item instanceof Blob) {
+          return URL.createObjectURL(item);
+      }
+      // File 객체가 아니면 이미 URL 문자열로 간주
+      else if (typeof item === 'string') {
+          return item;
+      }
+      // 그 외의 경우 (예: null, undefined)
+      return null;
+  };
+  
   return (
     <PhotoBox>
       {/* + 박스 */}

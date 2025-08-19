@@ -1,4 +1,3 @@
-
 import { getAuthAxios } from "./authAxios";
 
 const baseURL = `https://huniverse.p-e.kr/`;
