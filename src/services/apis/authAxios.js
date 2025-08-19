@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getNewRefreshToken } from "./auth";
 
-const baseURL = 'http://13.125.150.49:8000';
+const baseURL = 'https://huniverse.p-e.kr';
 
 export const getAuthAxios = (token) => {
   const authAxios = axios.create({
