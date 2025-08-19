@@ -32,7 +32,7 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-  const isActive = location.pathname === `/${userRole}/mypage`;
+  const isActive = location.pathname === `/${userRole.toLowerCase()}/mypage`;
 
 
 
@@ -45,15 +45,17 @@ const Header = ({hasMenu}) => {
   }, [userId]);
 
 
-  const navigateToMyPage = `/${userRole}/mypage/${studentProfileId}`;
- 
+  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
+  const navigateToHome = () => {
+  navigate(`/${userRole.toLowerCase()}/`);
+};
 
 
   return (
     <HeaderContainer>
       <HeaderGroup>
         <LeftBox>
-          <LogoImage src={Logo} alt ="휴니버스 로고"/>
+          <LogoImage onClick= {navigateToHome} src={Logo} alt ="휴니버스 로고"/>
         <SearchBar />
         </LeftBox>
         <RightBox>
@@ -91,6 +93,7 @@ const LogoImage = styled.img`
   position: relative;
   max-height: 100%;
   object-fit: cover;
+  cursor: pointer;
 `;
 
 const StyledLink = styled(Link)`
