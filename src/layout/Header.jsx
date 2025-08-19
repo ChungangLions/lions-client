@@ -11,7 +11,7 @@ import useStudentStore from '../stores/studentStore'
 
 const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { userRole, username, isLoggedin, setLogoutStatus, id: userId } = useUserStore(); // 로그인 시 받은 id가 userId!
+  const { userRole, username, isLoggedin, setLogoutStatus, userId } = useUserStore(); // 로그인 시 받은 id가 userId!
   const { setProfileInfo } = useStudentStore();
   const { profileid: studentProfileId } = useStudentStore();
 
@@ -45,8 +45,8 @@ const Header = ({hasMenu}) => {
   }, [userId]);
 
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/${studentProfileId}`;
-  const navigateToHome = `/${userRole.toLowerCase()}/`;
+  const navigateToMyPage = `/${userRole}/mypage/${studentProfileId}`;
+ 
 
 
   return (

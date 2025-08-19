@@ -11,6 +11,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [ username, onChangeUsername] = useState("");
   const [ password, onChangePassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   const { setLoginStatus } = useUserStore(); 
 
@@ -21,6 +23,8 @@ const Login = () => {
   try {
     const res = await setLoginStatus(username, password);
     console.log("로그인 성공:", res);
+    setErrorMessage(""); // 성공 시 에러메세지 안 뜸 
+
     if(res.user_role === "OWNER") {
       navigate('/owner');
     } else if(res.user_role === "STUDENT") {
@@ -66,7 +70,7 @@ const Login = () => {
             </InputWrapper>
           </InputContainer>
       </LoginSection>
-      <LoginBtn onClick={onclick}>로그인</LoginBtn>
+      <LoginBtn onClick={onClick}>로그인</LoginBtn>
       </LoginContainer>
     </PageContainer>
   )
