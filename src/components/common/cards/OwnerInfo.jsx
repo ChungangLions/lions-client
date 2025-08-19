@@ -12,7 +12,7 @@ const OwnerInfo = () => {
   return (
     <InfoSection>
         <InfoWrapper>
-            <ProfileImage />
+            <ProfileImage profileImage={storeImage}/>
             <ContentWrapper>
                 <TitleSection>
                     <Title>
@@ -27,7 +27,7 @@ const OwnerInfo = () => {
                         대표메뉴
                     </Title>
                     <MenuItem>
-                        {menuNames}
+                        {menuNames} 등
                     </MenuItem>
                 </MenuSection>
 
@@ -42,7 +42,7 @@ export default OwnerInfo
 const InfoSection =styled.div`
 
 position: relative;
-background-color: #d9d9d9;
+background-color: #eff6df;
 height: 149px;
 display: flex;
 flex-direction: column;

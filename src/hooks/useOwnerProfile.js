@@ -37,10 +37,12 @@ const useOwnerProfile = () => {
           setMenuNames([]);
         }
 
-        if (Array.isArray(profile.photos)) {
-          setStoreImage(profile.photos.map(photo => photo[0]));
+        console.log(profile.photos);
+
+        if (Array.isArray(profile.photos) && profile.photos.length > 0) {
+        setStoreImage(profile.photos[0].image); 
         } else {
-          setStoreImage([]);
+        setStoreImage(null);
         }
 
         console.log("ownerProfile", profile);

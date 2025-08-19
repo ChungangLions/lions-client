@@ -122,16 +122,16 @@ const ProposalDetail = () => {
 
               <DetailBox>
                 <Title> <div>기대 효과</div></Title>
-                  <InputText>
+                  <InputBox>
                   
-                  </InputText>
+                  </InputBox>
               </DetailBox>
 
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
-                <InputText>
+                <InputBox>
                   
-                </InputText>
+                </InputBox>
               </DetailBox>
               
 
@@ -147,7 +147,7 @@ const ProposalDetail = () => {
           <CardSection ButtonComponent={FavoriteBtn}/>
           <ButtonWrapper>
             <EditBtn />
-            <ProposalSaveBtn>저장하기</ProposalSaveBtn>
+            <SaveBtn />
           </ButtonWrapper>
           <SendProposalBtn/>
         </ReceiverSection>
@@ -158,34 +158,6 @@ const ProposalDetail = () => {
 
 export default ProposalDetail
 
-const ProposalSaveBtn = styled.button`
-width: 100%;
-position: relative;
-border-radius: 5px;
-border: 1px solid #64a10f;
-box-sizing: border-box;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 81px;
-text-align: left;
-font-size: 16px;
-color: #64a10f;
-background-color: white;
-font-family: Pretendard;
-font-weight: 600;
-
-&:hover {
-    background-color: #e9f4d0; 
-  }
-
-  &:active {
-    background-color: #64a10f; 
-    color: #e9f4d0;           
-  }
-`;
 
 const ProposalContainer= styled.div`
   display: flex;
@@ -498,10 +470,11 @@ const ContentWrapper = styled.div`
   font-size: 16px;
 `;
 
-const InputText= styled(InputBox)`
+const InputText = styled(InputBox)`
   margin: 0;
   font-family: inherit;
   font-size: inherit;
+  padding-left: 21px;
 `;
 
 const ListItem = styled.li`
