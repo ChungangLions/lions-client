@@ -11,6 +11,13 @@ import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import useUserStore from '../../stores/userStore';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
+import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
+
+// 제휴 유형 아이콘
+import { AiOutlineDollar } from "react-icons/ai"; // 할인형
+import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+
+
 
 const ProposalDetail = ({ isAI = false }) => {
   const location = useLocation();
@@ -20,13 +27,27 @@ const ProposalDetail = ({ isAI = false }) => {
   // AI 제안서인 경우 더 많은 정보를 가져옴
   const { storeName, menuNames, storeImage, error } = useOwnerProfile();
 
-  {/* item 2개 나중에 컴포넌트로 빼야됨 */}
-  const ConditionItem = ({ title, children }) => (
-    <ConditionWrapper>
-      <ConditionTitle>{title}</ConditionTitle>
-      <ConditionContent>{children}</ConditionContent>
-    </ConditionWrapper>
-  );
+  // 제휴 유형 선택 상태 관리
+  const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
+
+  // 제휴 유형 토글 함수
+  const togglePartnershipType = (type) => {
+    setSelectedPartnershipTypes(prev => {
+      if (prev.includes(type)) {
+        return prev.filter(t => t !== type);
+      } else {
+        return [...prev, type];
+      }
+    });
+  };
+
+  // 제휴 유형 데이터
+  const partnershipTypes = [
+    { type: '할인형', icon: AiOutlineDollar },
+    { type: '타임형', icon: MdOutlineAlarm },
+    { type: '리뷰형', icon: MdOutlineArticle },
+    { type: '서비스제공형', icon: MdOutlineRoomService }
+  ];
 
   const TimeItem = ({ day, children }) => (
     <TimeWrapper>
@@ -55,18 +76,21 @@ const ProposalDetail = ({ isAI = false }) => {
             <OwnerInfo/>
             {/* 제휴 유형, 제휴 조건, 기대 효과, 연락처 */}
             <DetailSection> 
-
+              {/* 제휴 유형 */}
               <DetailBox> 
                 <Title> 
                   <div>제휴 유형</div>
                 </Title> 
                 <ContentBox>  
-                  <IconBox>
-                    할인형
-                  </IconBox>
-                  <IconBox>
-                    타임형
-                  </IconBox>
+                  {partnershipTypes.map(({ type, icon: IconComponent }) => (
+                    <PartnershipTypeBox 
+                      key={type}
+                      children={type} 
+                      IconComponent={IconComponent}
+                      isSelected={selectedPartnershipTypes.includes(type)}
+                      onClick={() => togglePartnershipType(type)}
+                    />
+                  ))}
                 </ContentBox>
                 <TextBox>
                   <TypeList>
@@ -89,38 +113,30 @@ const ProposalDetail = ({ isAI = false }) => {
                   </TypeList>
                 </TextBox>
               </DetailBox>
-
+              
+              {/* 제휴 조건 */}
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
                   <ConditionGroup>
-                    <ConditionItem title="적용 대상">
-                      <p>중앙대학교 경영학부 소속 학생</p>
-                      <p>(학생증 제시 시 적용)</p>
-                    </ConditionItem>
-                    <ConditionItem title="혜택 내용">
-                      <p>아메리카노 10% 할인</p>
-                      <p>3,500원 → 3,150원</p>
-                    </ConditionItem>
+                    <ConditionItem>적용 대상</ConditionItem>
+                    <InputBox placeholder ="텍스트를 입력해주세요"/> 
+
+                    <ConditionItem>혜택 내용</ConditionItem>
                   </ConditionGroup>
                   <ConditionGroup>
-                    <ConditionItem title="적용 시간대">
-                      <TimeItem day="평일">
-                        <p>09:00 - 11:00</p>
-                        <p>19:00 - 21:00</p>
-                      </TimeItem>
-                      <TimeItem day="주말">
-                        <p>11:00 - 13:00</p>
-                      </TimeItem>
+                    <ConditionItem>
+                      적용 시간대
                     </ConditionItem>
-                    <ConditionItem title="제휴 기간">
-                      <p>2025년 9월 1일 ~ 11월 30일</p>
-                      <p>(3개월)</p>
+                    <ConditionItem>
+                      제휴 기간
                     </ConditionItem>
+
                   </ConditionGroup>
                 </ConditionsBox>
               </DetailBox>
 
+              {/* 기대효과  */}
               <DetailBox>
                 <Title> <div>기대 효과</div></Title>
                   {isAI ? (
@@ -336,7 +352,7 @@ font-family: Pretendard;
 
 // 제휴 content 부분
 const Title = styled.div`
-  display: flex;
+display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
@@ -348,12 +364,17 @@ div {
 `;
 
 const DetailBox = styled.div`
-align-self: stretch;
+width: 100%;
+position: relative;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
 gap: 10px;
+text-align: left;
+font-size: 20px;
+color: #1a2d06;
+font-family: Pretendard;
 `;
 
 const ContentBox = styled.div`
@@ -423,33 +444,34 @@ const SectionContainer = styled.div`
 
 
 const ConditionsBox = styled.div`
-  align-self: stretch;
-  border-radius: 5px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 15px 20px;
-  gap: 62px;
-  font-size: 16px;
-  color: #898989;
+align-self: stretch;
+border-radius: 5px;
+background-color: #fff;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+padding: 15px 20px;
+gap: 62px;
+font-size: 16px;
 `;
 
 const ConditionGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 39px;
+width: 289px;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: flex-start;
+gap: 39px;
 `;
 
-const ConditionWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 37px;
+const ConditionItem = styled.div`
+align-self: stretch;
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+justify-content: flex-start;
+gap: 37px;
 `;
 
 const ConditionTitle = styled.div`
