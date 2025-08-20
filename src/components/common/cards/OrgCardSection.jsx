@@ -73,9 +73,16 @@ white-space: nowrap;
 `;
 
 const ButtonWrapper = styled.div`
-position: relative;
-top: ${({ $isHome }) => ($isHome ? '0px' : '50%')};
-left: ${({ $isHome }) => ($isHome ? '30px' : 'px')};
-display: flex;
-box-sizing: border-box;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  @media (max-width: 520px) {
+    top: 10px;
+    right: 10px;
+  }
 `;
