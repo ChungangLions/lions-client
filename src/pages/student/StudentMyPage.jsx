@@ -254,10 +254,11 @@ const ShopCard = styled.div`
     gap: 5px;
 `;
 
-const ShopImg = styled.div`
+const ShopImg = styled.img`
     height: 137px;
     align-self: stretch;
-    background: #D9D9D9;
+    background: ${({ src }) =>
+      src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
 `;
 
 const ShopName = styled.div`
