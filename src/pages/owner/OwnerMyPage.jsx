@@ -8,7 +8,7 @@ import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
-import { fetchRecommendations } from '../../services/apis/recommendsapi';
+import { fetchRecommendations, toggleRecommends } from '../../services/apis/recommendsapi';
 import useUserStore from '../../stores/userStore';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 
@@ -19,8 +19,41 @@ const OwnerMyPage = () => {
   const params = useParams();
   const location = useLocation();
   const userType = location.state?.userType || "owner";
-  console.log(userType);
+  const [isRecommendActive, setIsRecommendActive] = useState(false);
 
+
+  // 학생 유저 접근 시 기능: 추천하기
+  useEffect(() => {
+    if (userType === 'student') {
+      async function fetchData() {
+        const list = await fetchRecommendations('given');
+        // 추천한 가게 id 배열 생성
+        const recommendedStoreIds = list.map(item => String(item.to_user.id));
+        const currentStoreId = params.id;
+
+        // 버튼 활성화 여부 결정
+        if (recommendedStoreIds.includes(currentStoreId)) {
+          console.log('true');
+          setIsRecommendActive(true);
+        } else {
+          console.log('false');
+          setIsRecommendActive(false);
+        }
+      }
+      fetchData();
+    }
+  }, [userType, params.id]);
+
+    const handleRecommendClick = async (event) => {
+      event.stopPropagation();
+      setIsRecommendActive(!isRecommendActive);
+      try {
+        await toggleRecommends(params.id);
+      } catch (error) {
+        console.error("추천 토글 실패:", error);
+        setIsRecommendActive(isRecommendActive);
+      }
+    };
 
   useEffect(() => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
@@ -84,9 +117,7 @@ const OwnerMyPage = () => {
         </TitleBox>
         <ButtonGroup>
           {userType === "student" ? (
-            <Link to="edit" style={{ textDecoration: 'none' }}>
-              <StyledBtn>추천하기</StyledBtn>
-            </Link>
+            <StyledBtn style={{ textDecoration: 'none' }} $active={isRecommendActive} onClick={handleRecommendClick}>추천하기</StyledBtn>
           ) : userType === "studentOrganization" ? (
             <Link to="edit" style={{ textDecoration: 'none' }}>
               <FavoriteBtn />
@@ -301,8 +332,7 @@ const StyledBtn = styled.button`
   align-items: center;
   gap: 10px;
   border-radius: 5px;
-  border: 1px solid var(--main-main600, #64A10F);
-  color: var(--main-main600, #64A10F);
+  border: 1px solid #70AF19;
   font-family: Pretendard;
   font-size: 16px;
   font-style: normal;
@@ -310,6 +340,13 @@ const StyledBtn = styled.button`
   line-height: normal;
   background: transparent;
   cursor: pointer;
+
+  background-color: ${({ $active }) => ($active ? "#70AF19" : "#FFF")};
+  color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#70AF19" : "#E9F4D0")};
+    color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
 `;
 
 const ButtonGroup = styled.div`
