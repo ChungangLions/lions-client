@@ -73,6 +73,7 @@ font-size: 18px;
 color: #1a2d06;
 font-family: Pretendard;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+cursor: pointer;
 `;
 
 const CardContent = styled.div`
