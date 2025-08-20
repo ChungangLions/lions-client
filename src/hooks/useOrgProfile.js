@@ -2,34 +2,46 @@ import { useState, useEffect } from "react";
 import useUserStore from "../stores/userStore";
 import { fetchGroupProfile } from "../services/apis/groupProfileAPI";
 
-const useGroupProfile = () => {
- const { userId } = useUserStore();
+// userId 대신 groupId를 props로 받습니다.
+const useGroupProfile = (groupProfileId) => { 
   const [groupProfile, setGroupProfile] = useState(null);
   const [profileId, setProfileId] = useState("");
   const [groupDepartment, setGroupDepartment] = useState("");
   const [groupName, setGroupName] = useState("");
   const [groupImage, setGroupImage] = useState([]);
+  const [termStart, setTermStart] = useState("");
+  const [termEnd, setTermEnd] = useState("");
+  const [partnershipStart, setPartnershipStart] = useState("");
+  const [partnershipEnd, setPartnershipEnd] = useState("");
+  const[university, setUniversityName] = useState("");
+  const [contact, setContact ] = useState("");
+  const [partnershipCount, setPartnershipCount] = useState("");
   const [error, setError] = useState(null);
 
 
   useEffect(() => {
     const fetchGroupData = async () => {
-      if (!userId) return;
+      if (!groupProfileId) return;
 
       try {
-        const profile = await fetchGroupProfile(userId);
+        const profile = await fetchGroupProfile(groupProfileId);
 
         setGroupProfile(profile);
         setGroupDepartment(profile.department);
         setGroupName(profile.council_name);
         setProfileId(profile.id);
-
-        console.log(profile.photos);
+        setTermStart(profile.term_start);
+        setTermEnd(profile.term_end);
+        setPartnershipStart(profile.partnership_start);
+        setPartnershipEnd(profile.partnership_end);
+        setPartnershipCount(profile.partnership_count);
+        setUniversityName(profile.university);
+        setContact(profile.contact);
 
         if (Array.isArray(profile.photos) && profile.photos.length > 0) {
-        setGroupImage(profile.photos[0].image); 
+          setGroupImage(profile.photos[0].image); 
         } else {
-        setGroupImage(null);
+          setGroupImage(null);
         }
 
         console.log("groupProfile", profile);
@@ -40,9 +52,9 @@ const useGroupProfile = () => {
     };
 
     fetchGroupData();
-  }, [userId]);
+  }, [groupProfileId]);
 
-  return { groupProfile, profileId, groupDepartment, groupName, groupImage, error };
+  return { groupProfile, profileId, groupDepartment, groupName, groupImage, partnershipEnd, partnershipStart, termEnd, termStart, partnershipCount, contact, university, error };
 };
 
 export default useGroupProfile;
