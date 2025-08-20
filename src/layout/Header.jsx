@@ -18,8 +18,8 @@ const Header = ({hasMenu}) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // console.log("현재 userRole:", userRole);
-  // console.log("현재 username:", username); 
+  console.log("현재 userRole:", userRole);
+  console.log("현재 username:", username); 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -32,7 +32,7 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-  const isActive = location.pathname === `/${userRole?.toLowerCase() || ""}/mypage/`;
+  const isActive = location.pathname === `/${userRole?.toLowerCase() || ""}/mypage`;
 
 
   const ProfileIcon = ({ isActive }) => {
@@ -63,7 +63,7 @@ const navigateToHome = () => {
             <NavItem onClick = {toggleDropdown}>
               {userRole === 'OWNER' 
                 ? '사장님' 
-                : userRole === 'student_group' 
+                : userRole === 'STUDENT_GROUP' 
                   ? '학생 단체' 
                   : '학생'}
               <DropdownArrow />
@@ -76,8 +76,8 @@ const navigateToHome = () => {
               </DropdownMenu>
               )}
           </UserContainer>
-          <StyledLink to={navigateToMyPage}>
-          <ProfileIcon isActive={isActive}/>
+          <StyledLink to={userRole ? `/${userRole.toLowerCase()}/mypage` : "/"} aria-label="마이페이지">
+            <ProfileIcon isActive={isActive}/>
           </StyledLink>
         </RightBox>
       </HeaderGroup>
@@ -150,6 +150,7 @@ justify-content: center;
 padding: 10px;
 gap: 5px;
 white-space: nowrap; /* 줄바꿈 방지 */
+cursor: pointer;
 `;
 
 const UserContainer = styled.div`

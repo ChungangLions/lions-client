@@ -9,3 +9,4 @@ export const getAIDraftProposal = async(recipient, contact_info) => {
     
 }
 
+
