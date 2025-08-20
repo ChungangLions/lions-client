@@ -10,6 +10,7 @@ import { patchStudentProfile } from "../../services/apis/studentProfileApi";
 import { FiSearch } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { FaCheck } from "react-icons/fa6";
 
 const SECTIONS = [
   { key: "photo", label: "프로필 사진", refKey: "photo" },
@@ -252,7 +253,7 @@ const StudentEditMyPage = () => {
               $filled={isSectionFilled[item.key]}
               onClick={() => scrollToSection(item.refKey)}
             >
-              V {item.label}
+              <FaCheck /> {item.label}
             </ProgressItem>
           ))}
         </ProgressList>

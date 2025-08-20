@@ -360,14 +360,19 @@ const TypeCard = styled.div`
 const OwnerMenu = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
   // width: 100%;
 `;
 
 const MenuList = styled.div`
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 10px;
+  align-self: stretch;
+  flex-wrap: wrap;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 7.5px;
   // width: 100%;
 `;
 
