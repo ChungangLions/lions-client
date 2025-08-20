@@ -12,12 +12,13 @@ import useUserStore from '../../stores/userStore';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 
-const ProposalDetail = () => {
+const ProposalDetail = ({ isAI = false }) => {
   const location = useLocation();
   const { organization } = location.state || {};
   console.log(location.state);
 
-  const { storeName  } = useOwnerProfile();
+  // AI 제안서인 경우 더 많은 정보를 가져옴
+  const { storeName, menuNames, storeImage, error } = useOwnerProfile();
 
   {/* item 2개 나중에 컴포넌트로 빼야됨 */}
   const ConditionItem = ({ title, children }) => (
@@ -46,7 +47,7 @@ const ProposalDetail = () => {
             <HeaderContent>
               <p>안녕하세요.</p>
               <p>귀 학생회의 적극적인 학생 복지 및 교내 활동 지원에 항상 감사드립니다.</p>
-              <p>저희 ‘{storeName}’는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
+              <p>저희 '{storeName}'는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
@@ -122,16 +123,20 @@ const ProposalDetail = () => {
 
               <DetailBox>
                 <Title> <div>기대 효과</div></Title>
-                  <InputText>
-                  
-                  </InputText>
+                  {isAI ? (
+                    <InputBox />
+                  ) : (
+                    <InputText />
+                  )}
               </DetailBox>
 
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
-                <InputText>
-                  
-                </InputText>
+                {isAI ? (
+                  <InputBox />
+                ) : (
+                  <InputText />
+                )}
               </DetailBox>
               
 
@@ -144,10 +149,18 @@ const ProposalDetail = () => {
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection>
-          <CardSection ButtonComponent={() => <FavoriteBtn organization={organization} />} />
+          <CardSection 
+            cardType={isAI ? undefined : "proposal"} 
+            organization={organization} 
+            ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
+          />
           <ButtonWrapper>
             <EditBtn />
-            <ProposalSaveBtn>저장하기</ProposalSaveBtn>
+            {isAI ? (
+              <SaveBtn />
+            ) : (
+              <ProposalSaveBtn>저장하기</ProposalSaveBtn>
+            )}
           </ButtonWrapper>
           <SendProposalBtn/>
         </ReceiverSection>
