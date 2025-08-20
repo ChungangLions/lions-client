@@ -11,6 +11,8 @@ import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import { fetchRecommendations, toggleRecommends } from '../../services/apis/recommendsapi';
 import useUserStore from '../../stores/userStore';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import { LuCalendar } from "react-icons/lu";
+import { LuPhone } from "react-icons/lu";
 
 
 const OwnerMyPage = () => {
@@ -21,40 +23,6 @@ const OwnerMyPage = () => {
   const userType = location.state?.userType || "owner";
   const [isRecommendActive, setIsRecommendActive] = useState(false);
 
-
-  // 학생 유저 접근 시 기능: 추천하기
-  useEffect(() => {
-    if (userType === 'student') {
-      async function fetchData() {
-        const list = await fetchRecommendations('given');
-        // 추천한 가게 id 배열 생성
-        const recommendedStoreIds = list.map(item => String(item.to_user.id));
-        const currentStoreId = params.id;
-
-        // 버튼 활성화 여부 결정
-        if (recommendedStoreIds.includes(currentStoreId)) {
-          console.log('true');
-          setIsRecommendActive(true);
-        } else {
-          console.log('false');
-          setIsRecommendActive(false);
-        }
-      }
-      fetchData();
-    }
-  }, [userType, params.id]);
-
-    const handleRecommendClick = async (event) => {
-      event.stopPropagation();
-      setIsRecommendActive(!isRecommendActive);
-      try {
-        await toggleRecommends(params.id);
-      } catch (error) {
-        console.error("추천 토글 실패:", error);
-        setIsRecommendActive(isRecommendActive);
-      }
-    };
-
   useEffect(() => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
 
@@ -62,7 +30,7 @@ const OwnerMyPage = () => {
       try {
         // 우선순위: 전달 받은 id (params), 그다음 userId
         const ownerId = params.id || userId;
-        console.log('fetching with ownerId:', ownerId);
+        // console.log('fetching with ownerId:', ownerId);
         const data = await getOwnerProfile(ownerId);
         console.log(data);
         setProfileData(data);
@@ -81,27 +49,103 @@ const OwnerMyPage = () => {
   };
 
   const formattedPhotos = (profileData?.photos || []).map(photo => ({
-  id: photo.id,
-  image: photo.image, 
-}));
+    id: photo.id,
+    image: photo.image, 
+  }));
 
   const [recommendNum, setRecommendNum] = useState(0);
 
   useEffect(() => {
     async function load() {
-      const data = await fetchRecommendations();
+      const data = await fetchRecommendations('received');
       setRecommendNum(data.length);
+      console.log("추천 데이터 로드", data);
     }
     load();
   }, []);
+
+  // business_hour 포맷화 함수
+  function formatBusinessDay(businessDay) {
+    if (!businessDay) return "";
+    const daysOrder = ["월", "화", "수", "목", "금", "토", "일"];
+    const times = {};
+
+    daysOrder.forEach(day => {
+      const time = businessDay[day];
+      if (!time) return;
+      if (!times[time]) times[time] = [];
+      times[time].push(day);
+    });
+
+    return Object.entries(times)
+      .map(([time, days]) => {
+        // 오름차순 요일 정렬
+        const sortedDays = daysOrder.filter(d => days.includes(d));
+        const startIdx = daysOrder.indexOf(sortedDays[0]);
+        const endIdx = daysOrder.indexOf(sortedDays[sortedDays.length - 1]);
+        const isConsecutive = sortedDays.length > 1 && (endIdx - startIdx === sortedDays.length - 1);
+
+        let daysString;
+        if (isConsecutive) {
+          daysString = `${sortedDays[startIdx]}~${sortedDays[endIdx]}\n`;
+        } else {
+          daysString = sortedDays.join(",");
+        }
+
+        const [start, end] = time.split("-");
+        return `${daysString} ${start} ~ ${end}`;
+      })
+      .join('\n');
+  }
+
+
+  const formatted = profileData?.business_day
+  ? formatBusinessDay(profileData?.business_day)
+  : ""; 
 
   const infos = {
     partnershipNum: 7,
     likeNum: 46,
     recommendNum,
-    etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
+    etc: [`영업일 및 시간 ${formatted}`, `${profileData?.contact}`],
     partnershipType: ['할인형', '타임형'],
   };
+
+  console.log("recommendedNum: ", recommendNum);
+
+
+  // 학생 유저 접근 시 기능: 추천하기
+  useEffect(() => {
+    if (userType === 'student') {
+      async function fetchData() {
+        const list = await fetchRecommendations('given');
+        // 추천한 가게 id 배열 생성
+        const recommendedStoreIds = list.map(item => String(item.to_user.id));
+        const currentStoreId = params.id;
+
+        // 버튼 활성화 여부 결정
+        if (recommendedStoreIds.includes(currentStoreId)) {
+          // console.log('true');
+          setIsRecommendActive(true);
+        } else {
+          // console.log('false');
+          setIsRecommendActive(false);
+        }
+      }
+      fetchData();
+    }
+  }, [userType, params.id]);
+
+    const handleRecommendClick = async (event) => {
+      event.stopPropagation();
+      setIsRecommendActive(!isRecommendActive);
+      try {
+        await toggleRecommends(params.id);
+      } catch (error) {
+        console.error("추천 토글 실패:", error);
+        setIsRecommendActive(isRecommendActive);
+      }
+    };
 
   return (
     <PageContainer>
@@ -154,9 +198,11 @@ const OwnerMyPage = () => {
             </SumBox>
           </SumContainer>
           <FurtherSum>
-            {infos.etc.map((info, idx) => (
+            <EtcRow> <Calendar /> {infos.etc[0]} </EtcRow>
+            <EtcRow> <Phone /> {infos.etc[1]} </EtcRow>
+            {/* {infos.etc.map((info, idx) => (
               <div key={idx}> ◻️ {info} </div>
-            ))}
+            ))} */}
           </FurtherSum>
 
           <InfoTitle> 제휴 유형 </InfoTitle>
@@ -357,3 +403,22 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: 15px;
 `
+
+const Calendar = styled(LuCalendar)`
+width: 24px;
+height: 24px;
+color: #898989;
+`;
+
+const Phone = styled(LuPhone)`
+width: 24px;
+height: 24px;
+color: #898989;
+`;
+
+const EtcRow = styled.div`
+display: flex;
+align-items: flex-start;
+gap: 10px;
+align-self: stretch;
+`;
