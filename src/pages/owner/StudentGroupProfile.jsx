@@ -1,29 +1,39 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import ProfileImg from '../../components/common/cards/ProfileImg'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import SuggestDealBtn from '../../components/common/buttons/SuggestDealBtn'
 import DealHistoryCard from '../../components/common/cards/GroupProfile/DealHistoryCard'
 import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
+import useGroupProfile from '../../hooks/useOrgProfile'
+import useUserStore from '../../stores/userStore'
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 
 const StudentGroupProfile = () => {
+  const [profileData, setProfileData] = useState(null);
+  const {userId} = useUserStore(); // 
   const location = useLocation();
   const { organization } = location.state || {};
+  const params = useParams(); // groupId 가져오기 
   console.log(location.state);
 
+
   const detailCards = [
-        { title: '임기', content:"20nn.nn.nn~20nn.nn.nn" }, 
+        { title: '임기', content: `${organization.term_start} ~ ${organization.term_end}` }, 
         { title: '인원수', content: "300명"},
-        { title: '희망 제휴 기간', content: "20nn.nn.nn~20nn.nn.nn"},
+        { title: '희망 제휴 기간', content: `${organization.partnership_start} ~ ${organization.partnership_end}`},
     ];
 
+    // api 연결 필요
     const dealHistories = [
         { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
         { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
         { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
     ];
   
+    //console.log(organization);
+    
 
   return (
     <PageContainer>
@@ -33,7 +43,8 @@ const StudentGroupProfile = () => {
             <ImageContainer /> 
             <ContentWrapper>
               <OrganizationWrapper>
-                <NoWrapItem>{organization?.university}</NoWrapItem>
+                {/*<NoWrapItem>{organization?.university}</NoWrapItem>*/}
+                <NoWrapItem>중앙대학교 서울캠퍼스</NoWrapItem>
                 <NoWrapItem> {organization?.department} </NoWrapItem>
                 <NoWrapItem> {organization?.council_name} </NoWrapItem>
               </OrganizationWrapper>
@@ -45,7 +56,7 @@ const StudentGroupProfile = () => {
             </ContentWrapper>
         </ProfileGroup>
         <ButtonGroup>
-          <FavoriteBox>
+          <FavoriteBox >
             <FavoriteBtn organization={organization} isLiked={organization?.is_liked} />
             찜하기
           </FavoriteBox>
@@ -54,16 +65,20 @@ const StudentGroupProfile = () => {
       </ProfileSection>
       <RecordSection>
         <Divider />
-        <RecordBox>
-          <Title>
-            제휴 이력
-          </Title>
-          <StoreSection>
+        <RecordList>
+            <Title>추천 목록</Title>
+            {dealHistories.length === 0 ? (
+              <RecordContainer>
+                <EmptyNotice>제휴 이력이 없습니다.</EmptyNotice>
+              </RecordContainer>
+            ) : (
+              <StoreSection>
               {dealHistories.map((deal, index) => (
                 <DealHistoryCard key={index} storeName={deal.storeName} period={deal.period} />
               ))}
-          </StoreSection>
-        </RecordBox>
+              </StoreSection>
+            )}
+          </RecordList>
       </RecordSection>
       </PageWrapper>
     </PageContainer>
@@ -147,15 +162,10 @@ font-family: Pretendard;
 
 // divider랑 제휴이력 오른쪽 박스랑 item
 const RecordSection = styled.div`
-position: relative;
-flex: 1;
-display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: flex-start;
-gap: 24px;
-text-align: left;
-font-size: 24px;
+display: inline-flex;
+  flex: 2.5;
+  align-items: center;
+  gap: 24px;
 color: #1a2d06;
 font-family: Pretendard;
 `;
@@ -167,14 +177,13 @@ font-weight: 600;
 white-space: nowrap;
 `;
 
-const StoreSection = styled.div`
-  align-self: stretch;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(203px, 1fr));
-  gap: 18px 24px;
-  justify-content: start;
-  align-content: flex-start;
-  font-size: 16px;
+const RecordContainer= styled.div`
+display: flex;
+  width: 100%;
+  min-width: 885px;
+  min-height: 340px;
+  gap: 24px;
+
 `;
 
 const ImageContainer = styled.div`
@@ -216,12 +225,22 @@ box-sizing: border-box;
 height: 431px;
 `;
 
-const RecordBox = styled.div`
+const StoreSection = styled.div`
+display: grid;
+  width: 100%;
+  min-width: 885px;
+  min-height: 340px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+`;
+
+const RecordList = styled.div`
 display: flex;
-flex-direction: column;
-align-items: flex-start;
-justify-content: flex-start;
-gap: 18px;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 18px 24px;
+  align-self: stretch;
+  flex-wrap: wrap;
 `;
 
 const FavoriteBox = styled.div`
@@ -237,4 +256,17 @@ justify-content: center;
 padding: 5px;
 gap: 10px;
 min-width: 85px;
+`;
+
+
+const EmptyNotice = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #222;
+  font-size: 18px;
+  font-weight: 400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
 `;
