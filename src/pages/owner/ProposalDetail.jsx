@@ -164,7 +164,7 @@ const ProposalDetail = ({ isAI = false }) => {
                   {isAI ? (
                     <InputBox />
                   ) : (
-                    <InputText />
+                    <InputText defaultText="텍스트를 입력해주세요."/>
                   )}
               </DetailBox>
 
@@ -173,7 +173,7 @@ const ProposalDetail = ({ isAI = false }) => {
                 {isAI ? (
                   <InputBox />
                 ) : (
-                  <InputText />
+                  <InputText defaultText="텍스트를 입력해주세요."/>
                 )}
               </DetailBox>
               
@@ -246,9 +246,7 @@ display: flex;
 flex-direction: row;
 gap: 19px;
 justify-content: space-between;
-max-width: 100%;
-padding: 31 58px;
-box-sizing: border-box;
+
 `;
 
 const ProposalSection = styled.div`
@@ -261,7 +259,7 @@ flex-direction: row;
 align-items: center;
 justify-content: flex-start;
 padding: 31px 58px;
-
+border-box: box-sizing;
 text-align: center;
 font-size: 24px;
 color: #1a2d06;
@@ -304,7 +302,7 @@ font-family: Pretendard;
 
 const ReceiverWrapper = styled.div`
 width: 447px;
-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 border-radius: 5px;
 border: 1px solid #e7e7e7;
 box-sizing: border-box;
