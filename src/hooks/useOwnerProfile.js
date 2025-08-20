@@ -4,8 +4,8 @@ import { getOwnerProfile } from "../services/apis/ownerAPI";
 
 const useOwnerProfile = () => {
  const { userId } = useUserStore();
- const ownerId = userId
   const [ownerProfile, setOwnerProfile] = useState(null);
+  const [profileId, setProfileId] = useState("");
   const [storeName, setStoreName] = useState("");
   const [storeType, setStoreType] = useState("");
   const [menuNames, setMenuNames] = useState([]);
@@ -15,13 +15,14 @@ const useOwnerProfile = () => {
 
   useEffect(() => {
     const fetchOwnerData = async () => {
-      if (!ownerId) return;
+      if (!userId) return;
 
       try {
-        const profile = await getOwnerProfile(ownerId);
+        const profile = await getOwnerProfile(userId);
 
         setOwnerProfile(profile);
         setStoreName(profile.profile_name);
+        setProfileId(profile.id);
 
         if (profile.business_type === 'RESTAURANT'){
             setStoreType("일반 음식점")
@@ -53,9 +54,9 @@ const useOwnerProfile = () => {
     };
 
     fetchOwnerData();
-  }, [ownerId]);
+  }, [userId]);
 
-  return { ownerProfile, storeName, storeType, menuNames, storeImage, error };
+  return { ownerProfile, profileId, storeName, storeType, menuNames, storeImage, error };
 };
 
 export default useOwnerProfile;
