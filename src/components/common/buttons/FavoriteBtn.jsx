@@ -7,7 +7,6 @@ import useUserStore from '../../../stores/userStore';
 import useOwnerProfile from '../../../hooks/useOwnerProfile';
 import useFavoriteStore from '../../../stores/favoriteStore';
 
-
 const FavoriteBtn = ({ organization, isLiked = false, onToggle }) => {
     const { favorites, toggleFavorite } = useFavoriteStore();
     const [isHeartActive, setIsHeartActive] = useState(
