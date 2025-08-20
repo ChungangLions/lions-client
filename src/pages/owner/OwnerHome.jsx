@@ -32,7 +32,13 @@ const OwnerHome = () => {
     organizations,
     sortByDesc,
     filterByRecord,
+    fetchAndSetOrganizations,
   } = useStudentOrgStore();
+
+  // 학생단체 목록 불러오기
+  useEffect(() => {
+    fetchAndSetOrganizations();
+  }, [fetchAndSetOrganizations]);
 
   const handleFilterChange = (e) => {
       setIsActive(!isActive);

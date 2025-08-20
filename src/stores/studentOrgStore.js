@@ -1,8 +1,57 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
+import { fetchUserList, filterStudentGroup } from '../services/apis/userListApi';
+import { fetchAllGroupProfile, mappedOrg } from '../services/apis/groupProfileAPI';
 
- 
+// 학생단체 프로필 목록 가져오기
+// const fetchAndMapOrganizations = async () => {
+//     try {
+//         const listResp = await fetch(`${BASE_URL}/api/profiles/student-groups/`, {
+//             method: 'GET',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             },
+//         });
+
+//         if (!listResp.ok) throw new Error("학생단체 프로필 목록 에러: " + listResp.status);
+//         const profiles = await listResp.json();
+
+//         // 가져온 프로필 데이터를 mappedOrgs 형식으로 변환
+//         const mappedOrgs = profiles.map(profile => {
+//             const startDate = new Date(profile.partnership_start);
+//             const endDate = new Date(profile.partnership_end);
+//             const periodMonths =
+//                 (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+//                 (endDate.getMonth() - startDate.getMonth()) + 1;
+//             return {
+//                 id: profile.id,
+//                 university: profile.university_name,
+//                 department: profile.department,
+//                 council_name: profile.council_name,
+//                 student_size: profile.student_size.toLocaleString() + '명',
+//                 date: {
+//                     start: profile.term_start.slice(0, 7).replace('-', '.'),
+//                     end: profile.term_end.slice(0, 7).replace('-', '.')
+//                 },
+//                 period: periodMonths,
+//                 record: profile.partnership_count,
+//                 likes: Math.floor(Math.random() * 20), // 더미값
+//                 term_start: profile.term_start.slice(0, 10).replace(/-/g, '.'),
+//                 term_end: profile.term_end.slice(0, 10).replace(/-/g, '.')
+//             };
+//         });
+
+//         return mappedOrgs;
+
+//     } catch (err) {
+//         console.error("학생 프로필 데이터 불러오기 에러:", err);
+//         return []; // 에러 발생 시 빈 배열 반환
+//     }
+// };
+
+{/* 
 const originalOrganizations = [
             {
                 id: 1,
@@ -109,23 +158,28 @@ const originalOrganizations = [
                 writtenDate: "2025.08.12",
             },
         ];
-
+*/}
 const useStudentOrgStore = create(
     persist(
         (set, get) => ({
-        originalOrganizations: originalOrganizations, // api 끌어올 때 빈 배열로 만들어주기기
-        organizations: originalOrganizations, // api 끌어올 때 빈 배열로 만들어주기기
+        originalOrganizations: [], // api 끌어올 때 빈 배열로 만들어주기기
+        organizations: [], // api 끌어올 때 빈 배열로 만들어주기기
 
         // 나중에 api 연동 시 그대로 사용
-        // fetchAndSetOrganizations: async () => {
-        //     const userList = await fetchUserList();
-        //     console.log(userList);
-        //     const orgList = userList.map(mapUserToOrg);
-        //     set({
-        //       originalOrganizations: orgList, // 실제 데이터로 overwrite
-        //       organizations: orgList,
-        //     });
-        // },
+        fetchAndSetOrganizations: async () => {
+            try {
+                const data = await fetchAllGroupProfile();
+                const orgList = data.map(mappedOrg);
+                
+                set ({
+                    originalOrganizations : orgList,
+                    organizations: orgList,
+                });
+            } catch (err) {
+                console.error("학생단체 데이터 불러오기 실패:", err);
+            }
+            },
+
 
 
         isFilteredByRecord: false,

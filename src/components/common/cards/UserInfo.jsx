@@ -1,17 +1,19 @@
 import React from 'react'
 import styled from 'styled-components';
 import ProfileImage from './ProfileImg';
+import sampleImage from '../../../assets/images/중앙대.svg';
 
 const UserInfo = ({organization}) => {
 
   return (
     <UserInfoWrapper>
       <UserSection>
-        <ProfileImage />
+        <ProfileImage profileImage={sampleImage} />
         <NameWrapper>
-          <p>{organization?.university}</p> 
+          {/*<p>{organization?.university}</p>*/}
+          <p>중앙대학교 서울캠퍼스</p>
+          <p>{organization?.council_name}</p> 
           <p>{organization?.department}</p>
-          <p>'{organization?.council_name}'</p>
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>
