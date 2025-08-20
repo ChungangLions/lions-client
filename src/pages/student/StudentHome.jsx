@@ -1,7 +1,7 @@
 // TO DO LIST
 // 1. store list fetch -> 홈에 정보 로드하기 (V)
 // 2. store 클릭했을 때 profile 연결하기 (더 받아와야할 데이터: likes, recommendations, records)
-// 3. profile에서 store 상세 프로필 fetch
+// 3. profile에서 store 상세 프로필 fetch (V)
 
 import React, { useEffect, useState } from 'react'
 import GroupCard from '../../components/common/cards/GroupCard';
@@ -15,8 +15,10 @@ import { fetchRecommendations } from '../../services/apis/recommendsapi';
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
   const navigate = useNavigate();
-  const handleCardClick = () => {
-    navigate(`/student/store-profile/`);
+  const handleCardClick = (id) => {
+    navigate(`/student/store-profile/${id}`, {
+      state: { userType: "student" }
+    });
   };
 
   // zustand store에서 사용할 것들 가져오기 
@@ -89,7 +91,8 @@ const StudentHome = () => {
       <GridContainer>
         {stores.map((store) => (
           <GroupCard 
-            key={store.id} 
+            key={store.id}
+            imageUrl={store.photo}
             onClick={() => handleCardClick(store.id)} 
             ButtonComponent={() => (
               <RecommendBtn 

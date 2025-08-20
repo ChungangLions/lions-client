@@ -1,24 +1,68 @@
+// TO DO List
+// 1. userType 별로 button 로직 변경 필요 (student, studentOrganization)
+
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
-import { fetchRecommendations } from '../../services/apis/recommendsapi'
-import EditBtn from '../../components/common/buttons/EditBtn';
+import { fetchRecommendations, toggleRecommends } from '../../services/apis/recommendsapi';
 import useUserStore from '../../stores/userStore';
+import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore();
-  
+  const params = useParams();
+  const location = useLocation();
+  const userType = location.state?.userType || "owner";
+  const [isRecommendActive, setIsRecommendActive] = useState(false);
+
+
+  // 학생 유저 접근 시 기능: 추천하기
+  useEffect(() => {
+    if (userType === 'student') {
+      async function fetchData() {
+        const list = await fetchRecommendations('given');
+        // 추천한 가게 id 배열 생성
+        const recommendedStoreIds = list.map(item => String(item.to_user.id));
+        const currentStoreId = params.id;
+
+        // 버튼 활성화 여부 결정
+        if (recommendedStoreIds.includes(currentStoreId)) {
+          console.log('true');
+          setIsRecommendActive(true);
+        } else {
+          console.log('false');
+          setIsRecommendActive(false);
+        }
+      }
+      fetchData();
+    }
+  }, [userType, params.id]);
+
+    const handleRecommendClick = async (event) => {
+      event.stopPropagation();
+      setIsRecommendActive(!isRecommendActive);
+      try {
+        await toggleRecommends(params.id);
+      } catch (error) {
+        console.error("추천 토글 실패:", error);
+        setIsRecommendActive(isRecommendActive);
+      }
+    };
 
   useEffect(() => {
+    if (!userId && !params.id) return; // 둘다 없을 때 무시
+
     const fetchProfile = async () => { 
       try {
-        const ownerId = userId;
+        // 우선순위: 전달 받은 id (params), 그다음 userId
+        const ownerId = params.id || userId;
+        console.log('fetching with ownerId:', ownerId);
         const data = await getOwnerProfile(ownerId);
         console.log(data);
         setProfileData(data);
@@ -28,7 +72,7 @@ const OwnerMyPage = () => {
       }
     };
     fetchProfile();
-  }, []); 
+  }, [userId, params.id]); 
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
@@ -61,8 +105,7 @@ const OwnerMyPage = () => {
 
   return (
     <PageContainer>
-      <Menu />
-
+      {userType === "owner" && <Menu />}
       {/* 타이틀 + 수정 버튼 section */}
       <TitleContainer>
         <TitleBox>
@@ -72,9 +115,20 @@ const OwnerMyPage = () => {
             <Description> {profileData?.comment} </Description>
           </DesBox>
         </TitleBox>
-        <Link to="edit" style={{ textDecoration: 'none' }}>
-          <EditButton>수정하기</EditButton>
-        </Link>
+        <ButtonGroup>
+          {userType === "student" ? (
+            <StyledBtn style={{ textDecoration: 'none' }} $active={isRecommendActive} onClick={handleRecommendClick}>추천하기</StyledBtn>
+          ) : userType === "studentOrganization" ? (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <FavoriteBtn />
+              <StyledBtn>제휴 제안하기</StyledBtn>
+            </Link>
+          ) : (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <StyledBtn>수정하기</StyledBtn>
+            </Link>
+          )}
+        </ButtonGroup>
       </TitleContainer>
 
       {/* 중간 사진 section */}
@@ -271,6 +325,35 @@ const MenuList = styled.div`
   // width: 100%;
 `;
 
-const EditButton = styled(EditBtn)`
-max-width: 76px;
+const StyledBtn = styled.button`
+  display: flex;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  border: 1px solid #70AF19;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  background: transparent;
+  cursor: pointer;
+
+  background-color: ${({ $active }) => ($active ? "#70AF19" : "#FFF")};
+  color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#70AF19" : "#E9F4D0")};
+    color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
 `;
+
+const ButtonGroup = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 15px;
+`
