@@ -6,6 +6,7 @@ const baseURL = 'https://huniverse.p-e.kr';
 export const getAuthAxios = (initialToken) => {
   const authAxios = axios.create({
     baseURL,
+    
   });
 
   // 매 요청마다 최신 토큰을 로컬스토리지에서 읽어와서 Authorization 헤더를 세팅

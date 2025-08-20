@@ -28,15 +28,14 @@ const InputWrapper = styled.div`
 
 const TextInput = styled.input`
   width: 100%;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 15px 20px;
   background-color:#fff;
   border: ${(props) => props.$border || "0px"};
   border-radius: 5px;
   font-size: 16px;
   font-weight: 400;
   /* 단위 공간 확보 (글자가 input 겹치지 않도록 오른쪽 여백 추가) */
-  padding-right: ${(props) => (props.$withUnit ? "36px" : "10px")};
+  padding-right: ${(props) => (props.$withUnit ? "36px" : "20px")};
   box-sizing: border-box;
 
   & ::placeholder {
