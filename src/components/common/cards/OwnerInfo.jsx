@@ -40,18 +40,18 @@ const OwnerInfo = () => {
 export default OwnerInfo
 
 const InfoSection =styled.div`
-
 position: relative;
 background-color: #eff6df;
 height: 149px;
 display: flex;
 flex-direction: column;
-padding: 20px 41px;
+padding: 20px 0;
 box-sizing: border-box;
 text-align: left;
 font-size: 20px;
 color: #000;
 font-family: Pretendard;
+width: 100%;
 `;
 
 const InfoWrapper = styled.div`
@@ -66,6 +66,7 @@ text-align: left;
 font-size: 20px;
 color: #000;
 font-family: Pretendard;
+padding: 0 58px;
 `;
 
 const ContentWrapper = styled.div`

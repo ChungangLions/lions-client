@@ -58,7 +58,7 @@ const ProposalDetail = ({ isAI = false }) => {
   
   return (
     <ProposalContainer>
-      <ProposalCard>
+      <ProposalSection>
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
@@ -119,19 +119,41 @@ const ProposalDetail = ({ isAI = false }) => {
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
                   <ConditionGroup>
-                    <ConditionItem>적용 대상</ConditionItem>
-                    <InputBox placeholder ="텍스트를 입력해주세요"/> 
-
-                    <ConditionItem>혜택 내용</ConditionItem>
+                    <ConditionItem>
+                      <ConditionLabel>적용 대상</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                      />
+                    </ConditionItem>
+                    <ConditionItem>
+                      <ConditionLabel>혜택 내용</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                      />
+                    </ConditionItem>
                   </ConditionGroup>
                   <ConditionGroup>
                     <ConditionItem>
-                      적용 시간대
+                      <ConditionLabel>적용 시간대</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                        color = "black"
+                      />
                     </ConditionItem>
                     <ConditionItem>
-                      제휴 기간
+                      <ConditionLabel>제휴 기간</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                      />
                     </ConditionItem>
-
                   </ConditionGroup>
                 </ConditionsBox>
               </DetailBox>
@@ -161,24 +183,26 @@ const ProposalDetail = ({ isAI = false }) => {
           </SectionWrapper>
           <Signature>'{storeName}' 드림</Signature>
         </ProposalWrapper>
-      </ProposalCard>
+      </ProposalSection>
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection>
-          <CardSection 
-            cardType={isAI ? undefined : "proposal"} 
-            organization={organization} 
-            ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
-          />
-          <ButtonWrapper>
-            <EditBtn />
-            {isAI ? (
-              <SaveBtn />
-            ) : (
-              <ProposalSaveBtn>저장하기</ProposalSaveBtn>
-            )}
-          </ButtonWrapper>
-          <SendProposalBtn/>
+          <ReceiverWrapper>
+            <CardSection 
+              cardType={isAI ? undefined : "proposal"} 
+              organization={organization} 
+              ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
+            />
+            <ButtonWrapper>
+              <EditBtn />
+              {isAI ? (
+                <SaveBtn />
+              ) : (
+                <ProposalSaveBtn>저장하기</ProposalSaveBtn>
+              )}
+            </ButtonWrapper>
+            <SendProposalBtn/>
+          </ReceiverWrapper>
         </ReceiverSection>
     </ProposalContainer>
 
@@ -217,27 +241,31 @@ font-weight: 600;
 `;
 
 const ProposalContainer= styled.div`
-  display: flex;
-  flex-direction: row; 
-  gap:19px;
-  align-items: flex-start;
+width: 100%;
+display: flex;
+flex-direction: row;
+gap: 19px;
+justify-content: space-between;
+max-width: 100%;
+padding: 31 58px;
+box-sizing: border-box;
 `;
 
-const ProposalCard = styled.div`
-  width: 100%;
-  position: relative;
-  border: 1px solid none;
-  box-sizing: border-box;
-  height: 1211px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 31px 58px;
-  text-align: center;
-  font-size: 24px;
-  color: #000;
-  font-family: Pretendard;
-  background-color: #F4F6F4;
+const ProposalSection = styled.div`
+min-width: 797px;
+position: relative;
+border-radius: 5px;
+background-color: #f4f6f4;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+padding: 31px 58px;
+
+text-align: center;
+font-size: 24px;
+color: #1a2d06;
+font-family: Pretendard;
 `;
 
 const ProposalWrapper = styled.div`
@@ -262,15 +290,29 @@ gap:20px;
 
 const ReceiverSection = styled.div`
 width: 100%;
-position: sticky;
+position: relative;
 display: flex;
 flex-direction: column;
+align-items: flex-start;
+justify-content: flex-start;
 gap: 10px;
 text-align: left;
 font-size: 18px;
-color: #000;
+color: #1a2d06;
 font-family: Pretendard;
-top: 80px;
+`;
+
+const ReceiverWrapper = styled.div`
+width: 447px;
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+border-radius: 5px;
+border: 1px solid #e7e7e7;
+box-sizing: border-box;
+height: 241px;
+display: flex;
+flex-direction: column;
+position: relative;
+gap: 10px;
 `;
 
 const SectionWrapper = styled.div`
@@ -355,11 +397,13 @@ const Title = styled.div`
 display: flex;
 flex-direction: row;
 align-items: center;
-justify-content: center;
-
+justify-content: flex-start;
+text-align: left;
+white-space: nowrap;
 div {
     position: relative;
     font-weight: 600;
+    white-space: nowrap;
   }
 `;
 
@@ -387,18 +431,10 @@ text-align: center;
 font-size: 16px;
 `;
 
-const IconBox = styled.div`
-width: 122px;
-border-radius: 4.55px;
-background-color: #fff;
-height: 122px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-padding: 10px 4.6px 10.9px;
-box-sizing: border-box;
-gap: 14.1px;
+const ConditionInputBox = styled(InputBox)`
+color: #898989;
+text-align: left;
+font-size: 16px;
 `;
 
 const TextBox = styled.div`
@@ -449,15 +485,15 @@ border-radius: 5px;
 background-color: #fff;
 display: flex;
 flex-direction: row;
-align-items: center;
-justify-content: flex-start;
+align-items: flex-start;
+justify-content: space-between;
 padding: 15px 20px;
-gap: 62px;
+gap: 40px;
 font-size: 16px;
 `;
 
 const ConditionGroup = styled.div`
-width: 289px;
+width: 50%;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
@@ -466,12 +502,25 @@ gap: 39px;
 `;
 
 const ConditionItem = styled.div`
-align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 15px;
+  width: 100%;
+`;
+
+const ConditionLabel = styled.div`
+position: relative;
 display: flex;
-flex-direction: row;
+flex-direction: column;
 align-items: flex-start;
-justify-content: flex-start;
-gap: 37px;
+justify-content: center;
+font-size: 16px;
+color: #1a2d06;
+font-family: Pretendard;
+font-weight: 600;
+white-space: nowrap;
 `;
 
 const ConditionTitle = styled.div`

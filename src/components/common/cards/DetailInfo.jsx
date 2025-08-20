@@ -24,6 +24,7 @@ align-items: flex-start;
 justify-content: flex-start;
 gap: 5px;
 font-size: 16px;
+width: 100%;
 `;
 
 const Row = styled.div`
@@ -35,12 +36,14 @@ width: 100%;
 `;
 
 const Label = styled.div`
-width: 120px;
+min-width: 120px;
+flex-shrink: 0;
 padding: 0;
 font-weight: 600;
 margin-left : 10px;
 `;
 
 const Value = styled.div`
-
+flex: 1;
+word-break: break-word;
 `;
