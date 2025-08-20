@@ -42,7 +42,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
         <ButtonWrapper $isHome={cardType === 'home'}>
             <ButtonComponent 
               organization={organization}
-              isLiked={organization.is_liked}
+              isLiked={organization?.is_liked ?? false}
               onToggle={handleToggle}
             />
         </ButtonWrapper>
