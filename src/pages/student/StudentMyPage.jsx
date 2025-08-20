@@ -40,17 +40,18 @@ const StudentMyPage = () => {
     const ownerIds = latestByUser
       .filter(r => r.to_user.user_role === "OWNER")
       .map(r => r.to_user.id);
-    // console.log(ownerIds);
+    console.log(ownerIds);
 
     // 3. 가게 프로필 필터링 및 가공
     const stores = ownerProfiles
-      .filter(p => ownerIds.includes(p.id))
+      .filter(p => ownerIds.includes(p.user))
       .map(p => ({
         name: p.profile_name,
-        image: p.photos?.length > 0 ? p.photos[0].image : null,
+        image: p.photos?.[0]?.image || null,
       }));
   
-    console.log(recommendedStores);
+    console.log(ownerProfiles);
+    console.log(stores);
     setRecommendedStores(stores);
     }
     fetchData();
