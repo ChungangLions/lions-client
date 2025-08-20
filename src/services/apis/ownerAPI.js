@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getAuthAxios } from "./authAxios";
 
+
 export const getOwnerProfile = async(userId) => {
     const token = localStorage.getItem("accessToken");
     const authAxios = getAuthAxios(token); 

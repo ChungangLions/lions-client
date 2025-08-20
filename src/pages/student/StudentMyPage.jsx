@@ -20,23 +20,39 @@ const StudentMyPage = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const recommendations = await fetchRecommendations();
+      const recommendations = await fetchRecommendations('given');
       const ownerProfiles = await fetchOwnerProfiles();
-      const ownerIds = recommendations
-        .filter(r => r.to_user.user_role === "OWNER")
-        .map(r => r.to_user.id);
-      const stores = ownerProfiles
-        .filter(p => ownerIds.includes(p.user))
-        .map(p => ({
-          name: p.profile_name,
-          image: p.photos?.length > 0 ? p.photos[0].image : null,
-        }));
-      setRecommendedStores(stores);
+
+    // 1. user별 최신 id만 남기기 (to_user.id 기준)
+    const latestByUser = Object.values(
+      recommendations.reduce((acc, curr) => {
+        const userId = curr.to_user.id;
+        if (!acc[userId] || acc[userId].id < curr.id) {
+          acc[userId] = curr;
+        }
+        return acc;
+      }, {})
+    );
+
+    // 2. 최신 추천 리스트에서 가게 id만 추출
+    const ownerIds = latestByUser
+      .filter(r => r.to_user.user_role === "OWNER")
+      .map(r => r.to_user.id);
+
+    // 3. 가게 프로필 필터링 및 가공
+    const stores = ownerProfiles
+      .filter(p => ownerIds.includes(p.id))
+      .map(p => ({
+        name: p.profile_name,
+        image: p.photos?.length > 0 ? p.photos[0].image : null,
+      }));
+  
+    setRecommendedStores(stores);
     }
     fetchData();
   }, []);
 
-  const navigateToEditMyPage = `/student/mypage/${studentProfileId}/edit`;
+  const navigateToEditMyPage = `/student/mypage/edit`;
 
   if (!name && !university_name && !image) {
     return <div>로딩 중 또는 학생 정보 없음</div>;

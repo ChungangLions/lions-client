@@ -74,7 +74,7 @@ const ImageContainer = styled.div`
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background-color: #D9D9D9;
+    background: #BCBCBC;
     border-radius: 5px;
 `;
 const Plus = styled.span`
@@ -83,11 +83,13 @@ const Plus = styled.span`
   user-select: none;
   padding: 52px;
 `;
+
 const PreviewImg = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
   background-color: white;
+  border-radius: 5px;
 `;
 
 const DeleteBtn = styled.button`

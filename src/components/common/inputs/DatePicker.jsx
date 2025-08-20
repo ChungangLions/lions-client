@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { Dropdown } from "./Dropdown";
+import { FiPlus } from "react-icons/fi";
+import { FiMinus } from "react-icons/fi";
 
 /**
  * @param {object} props
@@ -25,42 +27,42 @@ const DatePicker = ({
 }) => {
   return (
     <DropdownGroup>
-      {/* 요일 */}
-      <Dropdown
-        props={dateData}
-        width="106px"
-        onChange={(val) => onChange(idx, "day", val)}
-        value={schedule.day}
-        placeholder="요일"
-      />
+        {/* 요일 */}
+        <Dropdown
+          props={dateData}
+          width="106px"
+          onChange={(val) => onChange(idx, "day", val)}
+          value={schedule.day}
+          placeholder="요일"
+        />
 
-      {/* 시작시간 */}
-      <Dropdown
-        props={timeData}
-        width="88px"
-        onChange={(val) => onChange(idx, "start", val)}
-        value={schedule.start}
-        placeholder="00:00"
-      />
+        {/* 시작시간 */}
+        <Dropdown
+          props={timeData}
+          width="88px"
+          onChange={(val) => onChange(idx, "start", val)}
+          value={schedule.start}
+          placeholder="00:00"
+        />
 
-      <div>-</div>
+        <Text>~</Text>
 
-      {/* 종료시간 */}
-      <Dropdown
-        props={timeData}
-        width="88px"
-        onChange={(val) => onChange(idx, "end", val)}
-        value={schedule.end}
-        placeholder="00:00"
-      />
+        {/* 종료시간 */}
+        <Dropdown
+          props={timeData}
+          width="88px"
+          onChange={(val) => onChange(idx, "end", val)}
+          value={schedule.end}
+          placeholder="00:00"
+        />
 
       {/* 제거 버튼 */}
       {total > 1 && idx !== total - 1 && (
-        <TimeBtn onClick={() => onRemove(idx)}> - </TimeBtn>
+        <DeleteBtn onClick={() => onRemove(idx)} />
       )}
 
       {/* 추가 버튼 (마지막 아이템에서만 보임) */}
-      {idx === total - 1 && <TimeBtn onClick={onAdd}> + </TimeBtn>}
+      {idx === total - 1 && <AddBtn onClick={onAdd} />}
     </DropdownGroup>
   );
 };
@@ -69,20 +71,50 @@ export default DatePicker;
 
 
 const DropdownGroup = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
+display: flex;
+align-items: center;
+align-self: stretch;
+justify-content: center;
+gap: 10px;
   font-size: 16px;
   font-weight: 400;
   max-width: 351px;
+  color: #1A2D06
 `;
 
-const TimeBtn = styled.button`
-  width: 24px;
-  height: 24px;
-  border: 1px solid #D9D9D9;
-  font-size: 14px;
-  font-weight: 600;
-  background-color: white;
-  cursor: pointer;
+const Text = styled.div`
+display: flex;
+align-self: stretch;
+align-items: center;
+color: var(--main-main950, #1A2D06);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+`;
+
+const DeleteBtn = styled(FiMinus)`
+margin-top: 10px;
+width: 24px;
+height: 24px;
+stroke-width: 2;
+stroke-linecap: round;
+stroke-linejoin: round;
+margin-left: 10px;
+color: #1A2D06;
+`;
+
+const AddBtn = styled(FiPlus)`
+margin-top: 10px;
+width: 24px;
+height: 24px;
+stroke-width: 2;
+stroke-linecap: round;
+stroke-linejoin: round;
+margin-left: 10px;
+  color: ${({ $active }) => ($active ? "#365215" : "#1A2D06")};
+  &:hover {
+    color: ${({ $active }) => ($active ? "#365215" : "#70AF19")};
+  }
 `;

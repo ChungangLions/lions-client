@@ -13,7 +13,6 @@ const Header = ({hasMenu}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { userRole, username, isLoggedin, setLogoutStatus, userId } = useUserStore(); // 로그인 시 받은 id가 userId!
   const { setProfileInfo } = useStudentStore();
-  const { profileid: studentProfileId } = useStudentStore();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,12 +31,13 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
+
   const isActive = location.pathname === `/${userRole?.toLowerCase() || ""}/mypage`;
 
 
   const ProfileIcon = ({ isActive }) => {
-  return isActive ? <ProfileActive /> : <ProfileInactive />;
-};
+    return isActive ? <ProfileActive /> : <ProfileInactive />;
+  };
 
   useEffect(() => {
     if (userId) setProfileInfo(userId);

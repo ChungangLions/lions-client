@@ -39,6 +39,10 @@ const TextInput = styled.input`
   padding-right: ${(props) => (props.$withUnit ? "36px" : "10px")};
   box-sizing: border-box;
 
+  & ::placeholder {
+    color: #898989;
+  }
+
   /* ===== 숫자 입력 시 스피너(화살표) 제거 ===== */
   /* Chrome, Safari, Edge */
   &::-webkit-outer-spin-button,
@@ -49,12 +53,17 @@ const TextInput = styled.input`
 `;
 
 const InputUnit = styled.span`
+  width: 14px;
   position: absolute;
   right: 15px;
-  top: 55%;
+  top: 60%;
   transform: translateY(-50%);
+  color: var(--main-main600, #70AF19);
+  font-family: Pretendard;
   font-size: 16px;
-  color: #1A2D06;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
   pointer-events: none;
   z-index: 2;
   background: transparent;

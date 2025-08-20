@@ -38,6 +38,13 @@ const Login = () => {
       navigateToHome(); 
     }
   } catch (error) {
+    // 에러가 401일 때만 에러 메시지 표시
+    if (error instanceof TypeError) {
+      setErrorMessage("아이디 또는 비밀번호가 잘못되었습니다. 다시 확인해 주세요.");
+    } else {
+      setErrorMessage("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      console.error(error);
+    }
   }
 };
 
@@ -68,6 +75,7 @@ const Login = () => {
                 border = "1px solid #c4c4c4"
               />
             </InputWrapper>
+            {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
           </InputContainer>
       </LoginSection>
       <LoginBtn onClick={onClick}>로그인</LoginBtn>
@@ -79,48 +87,43 @@ const Login = () => {
 export default Login
 
 const PageContainer = styled.div`
-width: 100%;
-position: relative;
-background-color: #fff;
-height: 847px;
-overflow: hidden;
-text-align: left;
-font-size: 36px;
-color: #000;
-font-family: Pretendard;
+  width: 100vw;
+  height: 100vh;                      // 뷰포트 전체 높이
+  background: #FFF;
+  display: flex;
+  align-items: center;                 // 세로방향 중앙
+  justify-content: center;             // 가로방향 중앙
+  gap: 182px;
+  overflow: hidden;
+  text-align: left;
+  font-size: 36px;
+  color: #000;
+  font-family: Pretendard;
 `;
 
 const LoginContainer = styled.div`
-position: absolute;
-top: calc(50% - 132.5px);
-left: 847px;
-width: 446px;
 display: flex;
+width: 100%;
+max-width: 446px;
 flex-direction: column;
 align-items: flex-start;
-justify-content: flex-start;
 gap: 36px;
 font-size: 16px;
 color: #c4c4c4;
 `;
 
 const LogoContainer = styled.div`
-position: absolute;
-top: 213px;
-left: 147px;
-width: 563px;
-height: 420px;
 display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 118px 0px;
-box-sizing: border-box;
+width: 100%;
+max-width: 472px;
+object-fit: cover;
+aspect-ratio: 193/92;
 `;
 
 const LoginSection = styled.div`
 align-self: stretch;
 display: flex;
+width: 100%;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
@@ -188,4 +191,17 @@ background-color: #e9f4d0;
   background-color: #64a10f;
   color: #cef685;
   }
+`;
+
+const ErrorText = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  color: #F00;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 `;
