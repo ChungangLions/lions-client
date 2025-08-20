@@ -60,11 +60,13 @@ export function mappedOrg(user, idx) {
 
     return {
       id: user?.id ?? idx,
+      user: user?.user ?? null,
       university: user?.university || "알 수 없음",
       department: user?.department || "",
       council_name: user?.council_name || "",
       position: user?.position || "",
       student_size: safeToStringCount(user?.student_size),
+      is_liked: user?.is_liked ?? false,
       date: {
         start: user?.partnership_start ? user.partnership_start.slice(0, 10) : (user?.created_at?.slice(0, 7) || ""),
         end: user?.partnership_end ? user.partnership_end.slice(0, 10) : (user?.modified_at?.slice(0, 7) || ""),
