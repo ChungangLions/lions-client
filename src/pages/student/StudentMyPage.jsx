@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import useStudentStore from '../../stores/studentStore'
 import { fetchRecommendations, fetchOwnerProfiles } from '../../services/apis/studentProfileApi'
 
@@ -12,6 +12,13 @@ const StudentMyPage = () => {
   const { id: studentProfileId } = useParams();
   const { name, university_name, image, setProfileInfo } = useStudentStore();
   const [recommendedStores, setRecommendedStores] = useState([]);
+
+  const navigate = useNavigate();
+  const handleCardClick = (id) => {
+    navigate(`/student/store-profile/${id}`, {
+      state: { userType: "student" }
+    });
+  };
 
   useEffect(() => {
     if (studentProfileId) {
@@ -46,6 +53,7 @@ const StudentMyPage = () => {
     const stores = ownerProfiles
       .filter(p => ownerIds.includes(p.user))
       .map(p => ({
+        id: p.user,
         name: p.profile_name,
         image: p.photos?.[0]?.image || null,
       }));
@@ -94,22 +102,17 @@ const StudentMyPage = () => {
               </ShopContainer>
             ) : (
               <ShopList>
-                {recommendedStores.map((store, idx) => (
-                  <ShopCard key={idx}>
+                {recommendedStores.map((store) => (
+                  <ShopCard 
+                    key={store.id}
+                    onClick={() => handleCardClick(store.id)} 
+                  >
                     <ShopImg src={store.image} alt={store.name} />
                     <ShopName>{store.name}</ShopName>
                   </ShopCard>
                 ))}
               </ShopList>
             )}
-            {/* <ShopList>
-              {[1,2,3,4,5,6].map(idx => (
-                <ShopCard key={idx}>
-                  <ShopImg />
-                  <ShopName>{`가게명${idx}`}</ShopName>
-                </ShopCard>
-              ))}
-            </ShopList> */}
           </RecommendList>
         </RecommendSection>
       </Contents>
