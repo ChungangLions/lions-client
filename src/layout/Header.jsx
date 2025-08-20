@@ -31,7 +31,8 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-  const isActive = location.pathname === `/${userRole.toLowerCase()}/mypage/`;
+  const lowerUserRole = userRole ? userRole.toLowerCase() : "";
+  const isActive = location.pathname === `/${lowerUserRole}/mypage`;
   const ProfileIcon = ({ isActive }) => {
     return isActive ? <ProfileActive /> : <ProfileInactive />;
   };
@@ -41,9 +42,9 @@ const Header = ({hasMenu}) => {
   }, [userId]);
 
 
-  const navigateToMyPage = `/${userRole.toLowerCase()}/mypage/`;
+  const navigateToMyPage = `/${lowerUserRole}/mypage`;
   const navigateToHome = () => {
-    navigate(`/${userRole.toLowerCase()}/`);
+    navigate(`/${lowerUserRole}/`);
   };
 
 

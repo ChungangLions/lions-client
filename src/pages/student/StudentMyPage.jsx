@@ -1,5 +1,6 @@
 // TO DO LIST
-// 1. 추천 누른 가게 api 연동 필요
+// 1. 추천 누른 가게 프로필 연동 필요
+// 2. 추천 목록 fetch 안됨 (콘솔은 뜨는데 화면에 안 나옴)
 
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
@@ -33,11 +34,13 @@ const StudentMyPage = () => {
         return acc;
       }, {})
     );
+    // console.log(latestByUser);
 
     // 2. 최신 추천 리스트에서 가게 id만 추출
     const ownerIds = latestByUser
       .filter(r => r.to_user.user_role === "OWNER")
       .map(r => r.to_user.id);
+    // console.log(ownerIds);
 
     // 3. 가게 프로필 필터링 및 가공
     const stores = ownerProfiles
@@ -47,6 +50,7 @@ const StudentMyPage = () => {
         image: p.photos?.length > 0 ? p.photos[0].image : null,
       }));
   
+    console.log(recommendedStores);
     setRecommendedStores(stores);
     }
     fetchData();
