@@ -7,16 +7,19 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
-import { getOwnerProfile } from '../../services/apis/ownerAPI';
+import { getOwnerProfile, getOwnerLikes, getOwnerRecommends } from '../../services/apis/ownerAPI';
 import { fetchRecommendations, toggleRecommends } from '../../services/apis/recommendsapi';
 import useUserStore from '../../stores/userStore';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { LuCalendar } from "react-icons/lu";
 import { LuPhone } from "react-icons/lu";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
+  const [userLikes, setUserLikes] = useState(0);
+  const [userRecommends, setUserRecommends] = useState(0);
   const {userId} = useUserStore();
   const params = useParams();
   const location = useLocation();
@@ -35,12 +38,21 @@ const OwnerMyPage = () => {
         console.log(data);
         setProfileData(data);
 
+        const likesData = await getOwnerLikes(ownerId);
+        console.log(likesData.likes_received_count);
+        setUserLikes(likesData.likes_received_count);
+
+        const recommendsData = await getOwnerRecommends(ownerId);
+        console.log(recommendsData.recommendations_received_count);
+        setUserRecommends(recommendsData.recommendations_received_count);
+
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
       }
     };
     fetchProfile();
   }, [userId, params.id]); 
+
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
@@ -53,65 +65,54 @@ const OwnerMyPage = () => {
     image: photo.image, 
   }));
 
-  const [recommendNum, setRecommendNum] = useState(0);
 
-  useEffect(() => {
-    async function load() {
-      const data = await fetchRecommendations('received');
-      setRecommendNum(data.length);
-      console.log("추천 데이터 로드", data);
-    }
-    load();
-  }, []);
+  function BusinessDay({ business_day = {}, title = '영업일 및 시간' }) {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const DAYS = ['월','화','수','목','금','토','일'];
 
-  // business_hour 포맷화 함수
-  function formatBusinessDay(businessDay) {
-    if (!businessDay) return "";
-    const daysOrder = ["월", "화", "수", "목", "금", "토", "일"];
-    const times = {};
-
-    daysOrder.forEach(day => {
-      const time = businessDay[day];
-      if (!time) return;
-      if (!times[time]) times[time] = [];
-      times[time].push(day);
+    // 각 요일별로 한 줄씩 보여주는 구조
+    const dayRows = DAYS.map(day => {
+      const dayInfo = business_day && business_day[day];
+      return (
+        // DayItem을 각 요일마다 한 번씩 쓰도록 변경
+        <DayItem key={day}>
+          <EtcText>
+            {day} {dayInfo ? dayInfo.replace('-', ' ~ ') : '휴무'}
+          </EtcText>
+        </DayItem>
+      );
     });
 
-    return Object.entries(times)
-      .map(([time, days]) => {
-        // 오름차순 요일 정렬
-        const sortedDays = daysOrder.filter(d => days.includes(d));
-        const startIdx = daysOrder.indexOf(sortedDays[0]);
-        const endIdx = daysOrder.indexOf(sortedDays[sortedDays.length - 1]);
-        const isConsecutive = sortedDays.length > 1 && (endIdx - startIdx === sortedDays.length - 1);
-
-        let daysString;
-        if (isConsecutive) {
-          daysString = `${sortedDays[startIdx]}~${sortedDays[endIdx]}\n`;
-        } else {
-          daysString = sortedDays.join(",");
-        }
-
-        const [start, end] = time.split("-");
-        return `${daysString} ${start} ~ ${end}`;
-      })
-      .join('\n');
+    return (
+      <EtcSection>
+        <Calendar />
+        <DaySection>
+          <DayItem>
+            <EtcText>{title}</EtcText>
+            <EtcSection onClick={() => setIsOpen(prev => !prev)}>
+              {isOpen ? <ArrowDown /> : <ArrowUp />}
+            </EtcSection>
+          </DayItem>
+          {/* 각각의 요일이 세로(colum)로 나열되게 DayList에 dayRows로 바로 렌더링 */}
+          {isOpen && (
+            <DayList>
+              {dayRows}
+            </DayList>
+          )}
+        </DaySection>
+      </EtcSection>
+    );
   }
 
 
-  const formatted = profileData?.business_day
-  ? formatBusinessDay(profileData?.business_day)
-  : ""; 
-
   const infos = {
     partnershipNum: 7,
-    likeNum: 46,
-    recommendNum,
-    etc: [`영업일 및 시간 ${formatted}`, `${profileData?.contact}`],
+    userLikes,
+    userRecommends,
+    etc: [`영업일 및 시간 ${profileData?.business_day}`, `${profileData?.contact}`],
     partnershipType: ['할인형', '타임형'],
   };
 
-  console.log("recommendedNum: ", recommendNum);
 
 
   // 학생 유저 접근 시 기능: 추천하기
@@ -186,23 +187,20 @@ const OwnerMyPage = () => {
           <SumContainer>
             <SumBox>
               <div>제휴 이력</div>
-              <div style={{fontWeight: '600'}}> {infos.partnershipNum} 회</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.partnershipNum} 회</div>
             </SumBox>
             <SumBox>
               <div>찜 수</div>
-              <div style={{fontWeight: '600'}}> {infos.likeNum} 개</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.userLikes} 개</div>
             </SumBox>
             <SumBox>
               <div>추천 수</div>
-              <div style={{fontWeight: '600'}}> {infos.recommendNum} 개</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.userRecommends} 개</div>
             </SumBox>
           </SumContainer>
           <FurtherSum>
-            <EtcRow> <Calendar /> {infos.etc[0]} </EtcRow>
-            <EtcRow> <Phone /> {infos.etc[1]} </EtcRow>
-            {/* {infos.etc.map((info, idx) => (
-              <div key={idx}> ◻️ {info} </div>
-            ))} */}
+            <BusinessDay business_day={profileData?.business_day} />
+            <EtcSection> <Phone /> {infos.etc[1]} </EtcSection>
           </FurtherSum>
 
           <InfoTitle> 제휴 유형 </InfoTitle>
@@ -320,7 +318,8 @@ const SumContainer = styled.div`
   margin-bottom: 10px;
   padding: 20px;
   // gap: 150px;
-  border: 1px solid #818181;
+  border-radius: 5px;
+  border: 1px solid #898989;
 `;
 
 const SumBox = styled.div`
@@ -421,9 +420,62 @@ height: 24px;
 color: #898989;
 `;
 
-const EtcRow = styled.div`
+const ArrowDown = styled(IoIosArrowDown)`
+width: 24px;
+height: 24px;
+flex-shrink: 0;
+color: #898989;
+// stroke-width: 2px;
+// stroke: var(--, #898989);
+// padding: 6px 12px;
+`;
+
+const ArrowUp = styled(IoIosArrowUp)`
+width: 24px;
+height: 24px;
+flex-shrink: 0;
+color: #898989;
+// stroke-width: 2px;
+//stroke: var(--, #898989);
+// padding: 6px 12px;
+`;
+
+const EtcSection = styled.div`
 display: flex;
 align-items: flex-start;
 gap: 10px;
 align-self: stretch;
+`;
+
+const EtcText = styled.div`
+color: #1A2D06;
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+`;
+
+const DaySection = styled.div`
+display: flex;
+// width: 123px;
+flex-direction: column;
+align-items: flex-start;
+gap: 4px;
+`;
+
+const DayList = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 6px;
+align-self: stretch;
+`;
+
+const DayItem = styled.div`
+display: flex;
+align-items: center;
+gap: 6px;
+align-self: stretch;
+// justify-content: center;
 `;

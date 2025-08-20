@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 
 // ---- 샘플 데이터 ----
-const sampleType = { data: ["음식점", "카페", "술집"] };
+const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] };
 const Day = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
@@ -199,7 +199,7 @@ const OwnerEditMyPage = () => {
   const navigate = useNavigate();
 
   const businessTypeMap = {
-    RESTAURANT: '음식점',
+    RESTAURANT: '일반 음식점',
     CAFE: '카페',
     BAR: '술집',
   };
@@ -257,7 +257,7 @@ const OwnerEditMyPage = () => {
 
   // 제공 가능 서비스 유형 api 데이터 변환
   const ServiceType = (Service, otherService) => {
-    const services = Service ? Service.split(",") : []; // 서비스에 문자열로 들어가 있는 경우 ','를 기준으로 분기
+    const services = Array.isArray(Service) ? Service : (Service ? Service.split(",") : []);
 
     return {
       drink: services.includes("DRINK"),
@@ -265,6 +265,7 @@ const OwnerEditMyPage = () => {
       serviceEtc: otherService && otherService.trim().length > 0
     };
   };
+
 
   const GoalType = (Goal, otherGoal) => {
     const goals = Goal ? Goal.split(",") : []; // 문자열로 들어가 있는 경우 ','를 기준으로 분기
@@ -283,7 +284,7 @@ const OwnerEditMyPage = () => {
   const convertToApiBusiness = (data) => {
     const toBusinessType = {
       카페: "CAFE",
-      음식점: "RESTAURANT",
+      '일반 음식점': "RESTAURANT",
       술집: "BAR",
     };
 
@@ -297,10 +298,28 @@ const OwnerEditMyPage = () => {
     return photos.map(photo => photo.image);
     }
 
-    const parsePhotos = (photos) => photos.map((file, index) => ({
-      file: file,
-      order: index,
-    }));      
+  const parsePhotos = (photos) => {
+    const formData = new FormData();
+
+    photos.forEach((photo, idx) => {
+      formData.append("photos", photo);
+      formData.append("orders", idx);
+    });
+
+    return formData;
+  };
+
+  // const formData = new FormData();
+  // photos.forEach((p, i) => {
+  //   formData.append("photos", p.file);
+  //   formData.append("orders", p.order);
+  // });
+
+
+  // const parsePhotos = (photos) => photos.map((file, index) => ({
+  //   file: file,
+  //   order: index,
+  // }));      
 
   // 사장님 프로필 조회 
   useEffect(() => {
@@ -389,7 +408,7 @@ const OwnerEditMyPage = () => {
         campus: campusValue?.name,
         business_day : convertToApiFormat(openHours),
         business_type : convertToApiBusiness(typeValue),
-        average_sales : Number(revenueValue), // 백엔드 데이터베이스상 string이 아닌 숫자타입
+        average_sales : Number(revenueValue), // 백엔드 데이터베이스 상 string이 아닌 숫자타입
         margin_rate: marginValue,
         peak_time : convertToApiFormat(busyHours),
         off_peak_time : convertToApiFormat(freeHours),
@@ -486,7 +505,8 @@ const OwnerEditMyPage = () => {
     } else {
       try {
         await handleProfileUpdate();
-        setShowModal(true);
+        // setShowModal(true);
+        navigate('/owner/mypage');
       } catch (error) {
         console.error("프로필 수정 실패 :", error);
       }
@@ -649,7 +669,7 @@ const OwnerEditMyPage = () => {
               </TitleContainer>
               <InputBox
                 type="number"
-                defaultText="평균 인당 매출"
+                defaultText="숫자"
                 value={revenueValue}
                 onChange={e => setRevenueValue(e.target.value)}
                 unit="원"
@@ -762,7 +782,7 @@ const OwnerEditMyPage = () => {
         </ProgressList>
       </ProgressContainer>
       </ContentSection>
-        {showModal && (
+        {/* {showModal && (
             <ModalOverlay>
                 <ModalBox>
                     <ModalText>
@@ -779,7 +799,7 @@ const OwnerEditMyPage = () => {
                     </ModalBtnRow>
                 </ModalBox>
             </ModalOverlay>
-            )}
+            )} */}
     </PageContainer>
   );
 };
@@ -1128,9 +1148,10 @@ const SearchBtnBox = styled.div`
 const ResultList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  width: 600px; // 
+  gap: 10px;
   margin-top: 14px;
-  max-height: 330px;
+  max-height: 200px;
   overflow-y: auto;
 
   scrollbar-width: thin;

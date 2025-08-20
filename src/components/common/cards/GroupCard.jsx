@@ -1,32 +1,59 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FavoriteBtn from '../buttons/FavoriteBtn';
 import TypeLabel from '../labels/TypeLabel';
 import ShowNum from '../labels/ShowNum';
+import { getOwnerLikes, getOwnerRecommends } from '../../../services/apis/ownerAPI'
 
 
-function GroupCard({ imageUrl, onClick, ButtonComponent, store }) {
+function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, recommends = true }) {
+  const [userLikes, setUserLikes] = useState(0);
+  const [userRecommends, setUserRecommends] = useState(0);
+
+  useEffect(() => {
+    const fetchProfile = async () => { 
+      try {
+        const storeId = store.id;
+
+        const likesData = await getOwnerLikes(storeId);
+        console.log(likesData.likes_received_count);
+        setUserLikes(likesData.likes_received_count);
+
+        const recommendsData = await getOwnerRecommends(storeId);
+        console.log(recommendsData.recommendations_received_count);
+        setUserRecommends(recommendsData.recommendations_received_count);
+
+      } catch (error) {
+        console.error("프로필 데이터 조회 실패:", error);
+      }
+    };
+    fetchProfile();
+  }, []); 
+
     return (
     <CardWrapper onClick={onClick}>
       <ImageWrapper>
         <CardImage src={imageUrl || '/default.png'} alt={store.name} />
-        <TypeLabelBox>
-          <TypeLabel storeType={store.storeType} background='#BCBCBC'/>
-        </TypeLabelBox>
-        {/* 아래 onClick은 나중에 서버 연결 후 변경 필요 */}
         <HeartBtnBox>
             {ButtonComponent && <ButtonComponent userId={store.id} />}
         </HeartBtnBox>
-        <BestText>Best!</BestText>
       </ImageWrapper>
-      <CardTitleRow>
-        <CardTitle>{store.name}</CardTitle>
-        <ButtonNumbers>
-          <ShowNum element='favorite' count={store.likes} />
-          <ShowNum element='recommend' count={store.recommendations} />
-        </ButtonNumbers>
-      </CardTitleRow>
-      <CardSubtitle>{store.caption}</CardSubtitle>
+      <DetailSection>
+        <CardTitleRow>
+          <Row>
+            <CardTitle>{store.name}</CardTitle>
+            <BestText>best</BestText>
+          </Row>
+          <CardSubtitle>{store.caption}</CardSubtitle>
+        </CardTitleRow>
+        <TypeWrapper>
+          <TypeLabel storeType={store.storeType} background='#E9F4D0'/>
+        </TypeWrapper>
+      </DetailSection>
+      <ButtonNumbers>
+        {likes && <ShowNum element='favorite' count={userLikes} />}
+        {recommends && <ShowNum element='recommend' count={userRecommends} />}
+      </ButtonNumbers>
     </CardWrapper>
   );
 }
@@ -45,17 +72,19 @@ const CardWrapper = styled.div`
 const ImageWrapper = styled.div`
   display: flex;
   width: 100%;
-  height: 100%;
+  // height: 100%;
+  aspect-ratio: 10/7.5;
   position: relative;
   min-height: 247px;
   margin-bottom: 10px;
+  border-radius: 5px;
+  // border: 1px solid black
 `;
 
 const CardImage = styled.img`
   display: flex;
   width: 100%;
   height: 100%;
-  padding: 6px 5px;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
@@ -63,12 +92,7 @@ const CardImage = styled.img`
   object-fit: cover;
   background: ${({ src }) =>
     src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
-`;
-
-const TypeLabelBox = styled.div`
-  position: absolute;
-  left: 14px;
-  top: 14px;
+  border-radius: 5px;
 `;
 
 const HeartBtnBox = styled.div`
@@ -78,21 +102,29 @@ const HeartBtnBox = styled.div`
 `;
 
 const BestText = styled.div`
-  position: absolute;
-  left: 14px;
-  top: 60px;
-  color: #000;
-  font-weight: 400;
-  font-size: 16px;
+display: flex;
+padding: 0 5px;
+justify-content: center;
+align-items: center;
+gap: 10px;
+border-radius: 30px;
+border: 1px solid #70AF19;
+color: #70AF19;
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+margin-top: 5px;
 `;
 
 const CardTitleRow = styled.div`
   display: flex;
+  flex-direction: column; 
   width: 100%;
-  height: 24px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px; 
+  align-items: flex-start;
+  justify-content: start;
+  margin-right: 5px;
 `;
 
 const CardTitle = styled.div`
@@ -115,4 +147,25 @@ const CardSubtitle = styled.div`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+`;
+
+const Row = styled.div`
+display: flex;
+gap: 7px;
+justify-content: start;
+align-items: flex-start;
+`;
+
+const DetailSection = styled.div`
+display: flex;
+width: 100%;
+align-items: start;
+justify-content: space-between;
+align-self: stretch;
+`;
+
+const TypeWrapper = styled.div`
+// min-width: 50px;
+// width: 150px;
+// max-width: 200px;
 `;

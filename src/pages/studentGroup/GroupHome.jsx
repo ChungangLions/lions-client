@@ -5,16 +5,23 @@ import useVenueStore from '../../stores/venueStore';
 import { useNavigate } from 'react-router-dom';
 import FilterBtn from '../../components/common/filters/FilterBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import { TbArrowsSort } from "react-icons/tb";
+import DropDown from '../../components/common/filters/DropDown';
+import { fetchLikes } from '../../services/apis/likesapi';
 
 const GroupHome = () => {
+  const [likeStores, setLikeStores] = useState([]);
   const navigate = useNavigate();
 
-  const handleCardClick = () => {
-    navigate("store-profile");
+  const handleCardClick = (id) => {
+    navigate(`/group/store-profile/${id}`, {
+      state: { userType: "studentOrganization" }
+    });
   };
 
   // zustand store에서 사용할 것들 가져오기 
   const {
+    fetchStores,
     stores,
     sortByDesc,
     filterByStoreType,
@@ -22,6 +29,17 @@ const GroupHome = () => {
     activeStoreType,
     activeDealType,
   } = useVenueStore();
+
+  useEffect(() => {
+    fetchStores();
+    const fetchUserLikes = async () => {
+      const list = await fetchLikes('given');
+      setLikeStores(list.map(item => item.to_user.id));
+      console.log("추천한 가게 리스트:", list);
+      console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
+    };
+    fetchUserLikes();
+  }, []);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -62,16 +80,36 @@ const GroupHome = () => {
           </FilterBtn>
           </FilterWrapper>
         </FilterSection>
-        <SortSection onChange={handleSortChange}>
+        <OptionWrapper>
+            <TbArrowsSort size={30} strokeWidth={1} />
+            <DropDown
+              options={[
+                { value: "likes", label: "찜 많은 순" },
+                { value: "record", label: "제휴 이력 많은 순" },
+                { value: "recommendations", label: "추천 많은 순" },
+              ]}
+              onClick= {(option) => sortByDesc(option.value)}
+            />
+          </OptionWrapper>
+        {/* <SortSection onChange={handleSortChange}>
           <option value="likes">찜 많은 순</option>
           <option value="record">제휴 이력 많은 순</option>
           <option value="recommendations">추천 많은 순</option>
-        </SortSection>
+        </SortSection> */}
       </SelectContainer>
       <GridContainer>
         {stores.map((store) => (
-          // 여기 detail 들어갈 거 props로 전달 필요 
-          <GroupCard key={store.id} onClick = {handleCardClick} ButtonComponent ={FavoriteBtn} store={store} />
+          <GroupCard 
+            key={store.id}
+            imageUrl={store.photo}
+            onClick={() => handleCardClick(store.id)}
+            // ButtonComponent={() => (
+            //   <FavoriteBtn 
+            //     userId={store.id} 
+            //     isRecommendActive={likeStores.includes(store.id)} // 추가!
+            //   />
+            // )}
+            store={store} />
         ))}
       </GridContainer>
     </PageContainer>
@@ -81,6 +119,7 @@ const GroupHome = () => {
 export default GroupHome;
 
 const PageContainer = styled.div `
+  width: 100%;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -146,3 +185,10 @@ gap: 10px;
 color: #64a10f;
 `;
 
+const OptionWrapper = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+gap: 5px;
+`;

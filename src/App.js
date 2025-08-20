@@ -32,6 +32,8 @@ function App() {
         <Route path="owner/student-group-profile" element={<StudentGroupProfile/>} />
         <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
         <Route path="/group" element={<GroupHome />}/>
+        <Route path="/group/store-profile/:id" element={<OwnerMyPage />} />
+        
         <Route path="/student" element={<StudentHome />}/>
         <Route path="/student/mypage" element={<StudentMyPage />} />
         <Route path="/student/mypage/edit" element={<StudentEditMyPage />} />

@@ -33,13 +33,8 @@ const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => 
 export default RecommendBtn;
 
 const StyledRecommend = styled(FilledRecommend)`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0%;
-  right: 0%;
-  bottom: 0%;
-  left: 0%;
+  height: 17px;
+  width: 17px;
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
@@ -47,13 +42,8 @@ const StyledRecommend = styled(FilledRecommend)`
 `;
 
 const StyledNotRecommend = styled(EmptyRecommend)`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0%;
-  right: 0%;
-  bottom: 0%;
-  left: 0%;
+  height: 17px;
+  width: 17px;
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
@@ -61,9 +51,16 @@ const StyledNotRecommend = styled(EmptyRecommend)`
 `;
 
 const StyledButton = styled.button`
-  width: 20px;
   position: relative;
-  height: 17px;
   border: none;
-  background: transparent;
+
+  border-radius: 18.5px;
+  background: #FFF;
+  display: flex;
+  width: 37px;
+  height: 37px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 `;

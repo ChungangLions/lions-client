@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import { fetchUserList, filterStudentGroup } from '../services/apis/userListApi';
-import { fetchAllGroupProfile, mappedOrg } from '../services/apis/groupProfileAPI';
+import { fetchAllGroupProfile, fetchGroupProfile, mappedOrg } from '../services/apis/groupProfileAPI';
 
 // 학생단체 프로필 목록 가져오기
 // const fetchAndMapOrganizations = async () => {

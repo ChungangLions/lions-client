@@ -16,3 +16,16 @@ export const togglelikes = async (targetId) => {
         throw error; // 상위 컴포넌트에 에러 전달
     }
 };
+
+export async function fetchLikes(mode='received') {
+  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+  const API_URL = `/api/accounts/likes?mode=${mode}`;
+  try {
+    const response = await authAxios.get(API_URL);
+    const data = response.data;
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('[추천 API] fetchLikes 에러', err);
+    return [];
+  }
+}

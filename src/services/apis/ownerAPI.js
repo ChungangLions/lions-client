@@ -49,3 +49,21 @@ export const editOwnerProfile = async(id, data) => {
     return response.data
     
 }
+
+export const getOwnerLikes = async(id) => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token); 
+
+    const response = await authAxios.get(`/api/accounts/users/${id}/likes-received-count`);
+    console.log(response.data);
+    return response.data;
+}
+
+export const getOwnerRecommends = async(id) => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token); 
+
+    const response = await authAxios.get(`/api/accounts/users/${id}/recommendations-received-count`);
+    console.log(response.data);
+    return response.data;
+}

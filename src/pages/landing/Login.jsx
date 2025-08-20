@@ -6,6 +6,7 @@ import axios from 'axios';
 import useUserStore from '../../stores/userStore';
 import useStudentStore from '../../stores/studentStore';
 import Logo from '../../assets/images/Logo.png'
+import useStudentOrgStore from '../../stores/studentOrgStore';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,11 +29,9 @@ const Login = () => {
     if(res.user_role === "OWNER") {
       navigate('/owner');
     } else if(res.user_role === "STUDENT") {
-
       await useStudentStore.getState().setProfileInfo(res.id);
-
       navigate('/student'); 
-    }else if(res.user_role === "STUDENTGROUP") {
+    }else if(res.user_role === "STUDENT_GROUP") {
       navigate('/group');  
     } else {
       navigateToHome(); 
