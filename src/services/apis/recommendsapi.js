@@ -1,33 +1,21 @@
-const BASE_URL = 'https://huniverse.p-e.kr';
-const token = localStorage.getItem('access');
+import { getAuthAxios } from "./authAxios";
 
-export async function fetchRecommendations({} = {}) {
-    const API_URL = `${BASE_URL}/api/accounts/accounts/recommendations?mode=received`;
-    try {
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.error('[추천 API] fetchRecommendations 에러', err);
-      return [];
-    }
+export async function fetchRecommendations(mode='received') {
+  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+  const API_URL = `/api/accounts/recommendations?mode=${mode}`;
+  try {
+    const response = await authAxios.get(API_URL);
+    const data = response.data;
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('[추천 API] fetchRecommendations 에러', err);
+    return [];
+  }
 }
 
 export async function toggleRecommends(userId) {
-  console.log('userId:', userId); // 추가 확인
-  const response = await fetch(`${BASE_URL}/api/accounts/users/${userId}/recommend-toggle/`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({})
-  });
-  
-  if (!response.ok) {
-    throw new Error(`API 오류: ${response.status}`);
-  }
-  
-  const result = await response.json();
-  return result;
+  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+  if (!userId) throw new Error('userId가 필요합니다.');
+  const response = await authAxios.post(`/api/accounts/users/${userId}/recommend-toggle/`);
+  return response.data;
 }

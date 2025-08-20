@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import { IoIosArrowDown } from "react-icons/io";
 
 export const Dropdown = (props) => {
   // console.log(props.props.data);
@@ -37,7 +38,7 @@ export const Dropdown = (props) => {
   return (
     <SelectBox onClick={() => setShowOptions((prev) => !prev)} ref={selectRef} $width={width}>
       <Label>
-        {currentValue ? currentValue : (placeholder ?? list[0])}
+        {currentValue ? currentValue : (placeholder ?? list[0])} <DropdownArrow />
       </Label>
       <SelectOptions show={showOptions}>
         {list.map((data, index) => (
@@ -61,25 +62,29 @@ const SelectBox = styled.div`
   padding: 10px;
   gap: 10px;
   margin-top: 10px;
-  background-color: #D9D9D9;
+  background-color: #FFF;
+  border-radius: 5px;
 //   align-self: center;
 
   cursor: pointer;
-  &::before {
-    content: "⌵";
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    color: #777777;
-    font-size: 20px;
-    font-weight: bold;
-  }
+  // &::before {
+  //   content: "⌵";
+  //   position: absolute;
+  //   top: 4px;
+  //   right: 8px;
+  //   color: #64A10F;
+  //   font-size: 20px;
+  //   font-weight: 800;
+  // }
 `;
 
 const Label = styled.label`
   font-size: 16px;
   font-weight: 400;
-  display: inline-block;
+  display: flex;
+  color: #1A2D06;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const SelectOptions = styled.ul`
@@ -122,4 +127,11 @@ const Option = styled.li`
     background-color: #D9D9D9;
   }
   list-style: none; /* 혹시 불릿이 남는 경우 추가! */
+`;
+
+const DropdownArrow = styled(IoIosArrowDown)`
+  margin-left: 5px;
+  cursor: pointer;
+  color: #64A10F;
+  
 `;

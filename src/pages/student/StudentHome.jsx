@@ -1,4 +1,7 @@
 // TO DO LIST
+// 1. store list fetch -> 홈에 정보 로드하기 (V)
+// 2. store 클릭했을 때 profile 연결하기 (더 받아와야할 데이터: likes, recommendations, records)
+// 3. profile에서 store 상세 프로필 fetch
 
 import React, { useEffect, useState } from 'react'
 import GroupCard from '../../components/common/cards/GroupCard';
@@ -7,16 +10,18 @@ import useVenueStore from '../../stores/venueStore';
 import { useNavigate } from 'react-router-dom';
 import FilterBtn from '../../components/common/filters/FilterBtn';
 import RecommendBtn from '../../components/common/buttons/RecommendBtn';
+import { fetchRecommendations } from '../../services/apis/recommendsapi';
 
 const StudentHome = () => {
+  const [recommendedStores, setRecommendedStores] = useState([]);
   const navigate = useNavigate();
-
-  const handleCardClick = (ownerId) => {
-    navigate(`/student/store-profile/${ownerId}/`);
+  const handleCardClick = () => {
+    navigate(`/student/store-profile/`);
   };
 
   // zustand store에서 사용할 것들 가져오기 
   const {
+    fetchStores,
     stores,
     sortByDesc,
     filterByStoreType,
@@ -24,6 +29,17 @@ const StudentHome = () => {
     activeStoreType,
     activeDealType,
   } = useVenueStore();
+
+  useEffect(() => {
+    fetchStores();
+    const fetchUserRecommendations = async () => {
+      const list = await fetchRecommendations('given');
+      setRecommendedStores(list.map(item => item.to_user.id));
+      console.log("추천한 가게 리스트:", list);
+      console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
+    };
+    fetchUserRecommendations();
+  }, []);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -45,20 +61,20 @@ const StudentHome = () => {
           <TypeWrapper>업종</TypeWrapper>
           <FilterWrapper>
           <FilterBtn
-          onClick={() => filterByStoreType('restaurant')}
-          active={activeStoreType === 'restaurant'}
+          onClick={() => filterByStoreType('RESTAURANT')}
+          active={activeStoreType === 'RESTAURANT'}
           >
           🍚 일반 음식점
           </FilterBtn>
           <FilterBtn
-          onClick={() => filterByStoreType('bar')}
-          active={activeStoreType === 'bar'}
+          onClick={() => filterByStoreType('BAR')}
+          active={activeStoreType === 'BAR'}
           >
           🍺 주점
           </FilterBtn>
           <FilterBtn
-          onClick={() => filterByStoreType('cafe')}
-          active={activeStoreType === 'cafe'}
+          onClick={() => filterByStoreType('CAFE')}
+          active={activeStoreType === 'CAFE'}
           >
           ☕️ 카페 및 디저트
           </FilterBtn>
@@ -75,7 +91,12 @@ const StudentHome = () => {
           <GroupCard 
             key={store.id} 
             onClick={() => handleCardClick(store.id)} 
-            ButtonComponent={() => <RecommendBtn userId={store.id} />} 
+            ButtonComponent={() => (
+              <RecommendBtn 
+                userId={store.id} 
+                isRecommendActive={recommendedStores.includes(store.id)} // 추가!
+              />
+            )}
             store={store} />
         ))}
       </GridContainer>

@@ -25,8 +25,6 @@ const useStudentStore = create(
                     image: res.image,
                 });
 
-                // localStorage.setItem('access', res.access);
-                // localStorage.setItem('refresh', res.refresh);
                 return res;
 
             } catch (error) {

@@ -1,11 +1,3 @@
-// TO DO LIST
-// 1. 주점 스티커 구현하기 (position: absolute)
-//  ㄴ 업종별로 앞에 이모티콘 어떻게 구현할 지,,? type에서 바로 받아올 수 있나
-// 2. 하트, 따봉 개수 구현하기
-// 3. Best 여부 받아오기
-// 4. Best 텍스트 구현하기 (position: absolute)
-// 5. 우측 상단 하트 버튼 넣기
-
 import React, { useEffect, useState } from 'react'
 import GroupCard from '../../components/common/cards/GroupCard';
 import styled from 'styled-components';
@@ -51,20 +43,20 @@ const GroupHome = () => {
           <TypeWrapper>업종</TypeWrapper>
           <FilterWrapper>
           <FilterBtn
-          onClick={() => filterByStoreType('restaurant')}
-          active={activeStoreType === 'restaurant'}
+          onClick={() => filterByStoreType('RESTAURANT')}
+          active={activeStoreType === 'RESTAURANT'}
           >
           🍚 일반 음식점
           </FilterBtn>
           <FilterBtn
-          onClick={() => filterByStoreType('bar')}
-          active={activeStoreType === 'bar'}
+          onClick={() => filterByStoreType('BAR')}
+          active={activeStoreType === 'BAR'}
           >
           🍺 주점
           </FilterBtn>
           <FilterBtn
-          onClick={() => filterByStoreType('cafe')}
-          active={activeStoreType === 'cafe'}
+          onClick={() => filterByStoreType('CAFE')}
+          active={activeStoreType === 'CAFE'}
           >
           ☕️ 카페 및 디저트
           </FilterBtn>

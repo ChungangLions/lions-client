@@ -37,7 +37,6 @@ box-sizing: border-box;
 height: 100vh;
 display: flex;
 justify-content: center;
-top: 58px;
 `;
 
 const LandingContainer = styled.div`
@@ -48,8 +47,9 @@ flex-direction: column;
 align-items: center;
 justify-content: flex-start;
 gap: 80px;
-padding-top: 58px;
-padding-bottom: 105px;
+padding: 58px 263px 172px 263px;
+// padding-top: 58px;
+// padding-bottom: 105px;
 margin: 0 auto;
 align-items: center;
 `;
@@ -76,12 +76,12 @@ gap: 29px;
 
 const ImageContainer = styled.img`
 width: 100%;
-max-width: 696px;
+max-width: 556px;
+aspect-ratio: 278/133;
 position: relative;
 max-height: 100%;
 height: auto;
 object-fit: cover;
-
 `;
 
 const CaptionContainer = styled.div`
