@@ -25,6 +25,14 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
   }
 
 
+  const { updateOrganizationLikeState } = useStudentOrgStore();
+
+  const handleToggle = (nextLiked) => {
+    if (organization.user) {
+      updateOrganizationLikeState(organization.user, nextLiked);
+    }
+  };
+
   return (
       <CardGroup onClick={() => onClick(organization)} $isHome={cardType === 'home'}>
         <CardContent>
@@ -35,9 +43,12 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
             <ButtonComponent 
               width="20px" 
               height="17px" 
-              position="relative" 
+              position="relative"
+              targetUserId={organization.user}
+              isLiked={organization.is_liked}
+              onToggle={handleToggle}
             />
-      </ButtonWrapper>
+        </ButtonWrapper>
       </CardGroup>
   )
 }
@@ -61,6 +72,7 @@ text-align: left;
 font-size: 18px;
 color: #1a2d06;
 font-family: Pretendard;
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
 
 const CardContent = styled.div`
