@@ -32,7 +32,13 @@ const OwnerHome = () => {
     organizations,
     sortByDesc,
     filterByRecord,
+    fetchAndSetOrganizations,
   } = useStudentOrgStore();
+
+  // 학생단체 목록 불러오기
+  useEffect(() => {
+    fetchAndSetOrganizations();
+  }, [fetchAndSetOrganizations]);
 
   const handleFilterChange = (e) => {
       setIsActive(!isActive);
@@ -58,8 +64,13 @@ const OwnerHome = () => {
       </SelectContainer>
       <CardListGrid> 
         {organizations.map((organization) => (
-          // 여기 detail 들어갈 거 props로 전달 필요 
-          <OrgCardSection key={organization.id} onClick = {handleCardClick} cardType={'home'} ButtonComponent = {() => ( <FavoriteBtn/>)} organization={organization} />
+          <OrgCardSection
+            key={organization.id}
+            onClick={handleCardClick}
+            cardType={'home'}
+            ButtonComponent={FavoriteBtn}
+            organization={organization}
+          />
         ))}
       </CardListGrid>
     </PageConatainer>

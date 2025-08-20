@@ -4,11 +4,25 @@ import ProfileImg from '../../components/common/cards/ProfileImg'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
 import { useLocation } from 'react-router-dom'
 import SuggestDealBtn from '../../components/common/buttons/SuggestDealBtn'
+import DealHistoryCard from '../../components/common/cards/GroupProfile/DealHistoryCard'
+import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
 
 const StudentGroupProfile = () => {
   const location = useLocation();
   const { organization } = location.state || {};
   console.log(location.state);
+
+  const detailCards = [
+        { title: '임기', content:"20nn.nn.nn~20nn.nn.nn" }, 
+        { title: '인원수', content: "300명"},
+        { title: '희망 제휴 기간', content: "20nn.nn.nn~20nn.nn.nn"},
+    ];
+
+    const dealHistories = [
+        { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
+        { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
+        { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
+    ];
   
 
   return (
@@ -24,6 +38,9 @@ const StudentGroupProfile = () => {
                 <NoWrapItem> {organization?.council_name} </NoWrapItem>
               </OrganizationWrapper>
               <DetailSection>
+                {detailCards.map((card, index) => (
+                  <DetailCard key={index} title={card.title} content={card.content} />
+                ))}
               </DetailSection>
             </ContentWrapper>
         </ProfileGroup>
@@ -32,7 +49,7 @@ const StudentGroupProfile = () => {
             <FavoriteBtn />
             찜하기
           </FavoriteBox>
-          <SuggestDealBtn />
+          <SuggestDealBtn organization={ organization} />
         </ButtonGroup>
       </ProfileSection>
       <RecordSection>
@@ -42,7 +59,9 @@ const StudentGroupProfile = () => {
             제휴 이력
           </Title>
           <StoreSection>
-
+              {dealHistories.map((deal, index) => (
+                <DealHistoryCard key={index} storeName={deal.storeName} period={deal.period} />
+              ))}
           </StoreSection>
         </RecordBox>
       </RecordSection>
@@ -58,7 +77,7 @@ const OrganizationWrapper = styled.div`
   flex-wrap: wrap;   
   font-weight: 600;  
   align-items: center;
-  jusitfy-content: center;
+  justify-content: center;
   text-align: center;
   width: 100%; 
 `;
@@ -72,32 +91,37 @@ text-align: center;
 `;
 
 const PageContainer = styled.div`
-width:100%;
+width: 100%;
 position: relative;
-display: block;
+display: flex;
 `;
 
 const PageWrapper = styled.div`
-gap: 59px;
-display: flex;
-flex-direction: row;
-position: relative;
-padding: 49px 59.5px 195px;
+  gap: 59px;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  padding: 49px 59.5px 195px;
+  max-width: 1200px; 
+  width: 100%;
+  box-sizing: border-box;
 `;
 
+// 버튼 포함 왼쪽 그룹
 const ProfileSection = styled.div`
-position: relative;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 40px;
-text-align: center;
-font-size: 24px;
-color: #1a2d06;
-font-family: Pretendard;
-width:550px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  text-align: center;
+  font-size: 24px;
+  color: #1a2d06;
+  font-family: Pretendard;
+  max-width: 500px;
 `;
 
+// 버튼 제외 왼쪽 그룹
 const ProfileGroup = styled.div`
 align-self: stretch;
 display: flex;
@@ -121,9 +145,10 @@ color: #898989;
 font-family: Pretendard;
 `;
 
+// divider랑 제휴이력 오른쪽 박스랑 item
 const RecordSection = styled.div`
 position: relative;
-width: 100%;
+flex: 1;
 display: flex;
 flex-direction: row;
 align-items: flex-start;
@@ -143,15 +168,13 @@ white-space: nowrap;
 `;
 
 const StoreSection = styled.div`
-align-self: stretch;
-display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: flex-start;
-flex-wrap: wrap;
-align-content: flex-start;
-gap: 18px 24px;
-font-size: 16px;
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(203px, 1fr));
+  gap: 18px 24px;
+  justify-content: start;
+  align-content: flex-start;
+  font-size: 16px;
 `;
 
 const ImageContainer = styled.div`
@@ -162,25 +185,24 @@ height: 210px;
 border-radius: 50%;
 `;
 
+// title + detail
 const ContentWrapper = styled.div`
-align-self: stretch;
+width: 100%;
+position: relative;
 display: flex;
-flex-direction: row;
+flex-direction: column;
 align-items: center;
 justify-content: center;
-width: 100%;
-text-align: center
-`;
-
-const ContentTitle = styled.div`
-position: relative;
-font-weight: 600;
+gap: 10px;
+text-align: center;
+font-size: 24px;
+color: #1a2d06;
+font-family: Pretendard;
 `;
 
 const DetailSection = styled.div`
 display: flex;
 flex-direction: column;
-
 gap: 7px;
 text-align: left;
 font-size: 16px;

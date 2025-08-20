@@ -21,6 +21,7 @@ const OwnerMyPage = () => {
   const userType = location.state?.userType || "owner";
   console.log(userType);
 
+
   useEffect(() => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
 

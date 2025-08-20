@@ -14,7 +14,9 @@ export default SendProposalBtn
 const Sendbutton = styled.button`
 width: 100%;
 position: relative;
-background-color: #d9d9d9;
+border-radius: 5px;
+background-color: #64a10f;
+border: none;
 height: 45px;
 display: flex;
 flex-direction: row;
@@ -24,7 +26,15 @@ padding: 12px 195px;
 box-sizing: border-box;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #e9f4d0;
 font-family: Pretendard;
-border: none;
+font-weight: 600;
+
+&: hover {
+    background-color: #4c7b10;
+  }
+
+  &: active {
+    background-color: #3f6113;
+  }
 `;

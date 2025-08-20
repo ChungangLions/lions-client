@@ -3,15 +3,41 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Modal from './Modal';
 import { IoIosClose } from "react-icons/io";
+import { getAIDraftProposal } from '../../../services/apis/proposalAPI';
+import useUserStore from '../../../stores/userStore';
+import { getOwnerProfile } from '../../../services/apis/ownerAPI';
 
-const SuggestDealBtn = ({ onClick }) => {
+const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const goToSuggestPage = () => {
+  const {ownerId} = useUserStore();
+
+    const goToAIProposalPage = async () => {
     setIsModalOpen(false);
-    navigate('/owner/proposal');
+
+    try {
+        const ownerProfile = await getOwnerProfile(ownerId);
+
+        const recipient = ownerProfile.user; // userId 가져오기
+        const contactInfo = ownerProfile.contact; 
+        
+        const responseData = await getAIDraftProposal(recipient, contactInfo);
+        
+        console.log("AI 제안서 데이터:", responseData);
+        
+        // AI 제안서 데이터를 갖고 다음 페이지로 이동하기 
+        navigate('/owner/ai-proposal', { state: { proposalData: responseData, state: { organization } } });
+        
+    } catch (error) {
+        console.error("제안서를 가져오는 데 실패했습니다:", error);
+    }
   };
+
+  const goToProposalPage = async() => {
+    setIsModalOpen(false);
+    navigate('/owner/proposal', { state: { organization } });
+  }
 
   return (
     <>
@@ -27,16 +53,16 @@ const SuggestDealBtn = ({ onClick }) => {
               <p>AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?</p>
             </ModalTitle>
             <ButtonGroup>
-              <OptionButton>
+              <OptionButton onClick={goToProposalPage}>
                 <p>아니오</p>
                 <p>(직접 작성하기)</p>
               </OptionButton>
-              <OptionButton primary onClick={goToSuggestPage}>
+              <OptionButton primary onClick={goToAIProposalPage}>
                 예
               </OptionButton>
             </ButtonGroup>
           </TextWrapper>
-          <CloseIcon alt="닫기" onClick={() => setIsModalOpen(false)} />
+          <CloseIcon color = "#1A2D06" alt="닫기" onClick={() => setIsModalOpen(false)} />
         </ModalContentWrapper>
       </Modal>
     </>
