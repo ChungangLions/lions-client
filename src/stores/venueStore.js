@@ -85,13 +85,15 @@ const useVenueStore = create(
                 likes: item.likes || null,
                 recommendations: item.recommendations || null,
                 record: item.record || null,
-                photo: item.photos[0].image || null,
+                // photo: item.photos[0].image || null,
+                photo: item.photos?.[0]?.image || null
               }));
           set({
             originalStores: converted,
             stores: converted,
           });
 
+          console.log(converted);
           return converted;
 
         } catch (err) {

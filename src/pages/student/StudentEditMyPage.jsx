@@ -142,7 +142,7 @@ const StudentEditMyPage = () => {
             const updatedProfile = await patchStudentProfile(profileId, formData);
             setProfileInfo(updatedProfile.user);
             // setShowModal(true);
-            navigate(`/student/mypage/`);
+            navigate(`/student/mypage`);
         } catch (err) {
             alert("저장 중 오류 발생: " + err.message);
         }

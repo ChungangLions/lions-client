@@ -31,9 +31,7 @@ const Header = ({hasMenu}) => {
   }, 0);
 };
 
-
   const isActive = location.pathname === `/${userRole?.toLowerCase() || ""}/mypage`;
-
 
   const ProfileIcon = ({ isActive }) => {
     return isActive ? <ProfileActive /> : <ProfileInactive />;
@@ -42,6 +40,7 @@ const Header = ({hasMenu}) => {
   useEffect(() => {
     if (userId) setProfileInfo(userId);
   }, [userId]);
+
 
 
 const navigateToMyPage = () => {

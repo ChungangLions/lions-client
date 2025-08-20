@@ -1,24 +1,35 @@
+// TO DO List
+// 1. userType 별로 button 로직 변경 필요 (student, studentOrganization)
+
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
-import { fetchRecommendations } from '../../services/apis/recommendsapi'
-import EditBtn from '../../components/common/buttons/EditBtn';
+import { fetchRecommendations } from '../../services/apis/recommendsapi';
 import useUserStore from '../../stores/userStore';
+import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore();
-  
+  const params = useParams();
+  const location = useLocation();
+  const userType = location.state?.userType || "owner";
+  console.log(userType);
+
 
   useEffect(() => {
+    if (!userId && !params.id) return; // 둘다 없을 때 무시
+
     const fetchProfile = async () => { 
       try {
-        const ownerId = userId;
+        // 우선순위: 전달 받은 id (params), 그다음 userId
+        const ownerId = params.id || userId;
+        console.log('fetching with ownerId:', ownerId);
         const data = await getOwnerProfile(ownerId);
         console.log(data);
         setProfileData(data);
@@ -28,7 +39,7 @@ const OwnerMyPage = () => {
       }
     };
     fetchProfile();
-  }, []); 
+  }, [userId, params.id]); 
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
@@ -61,8 +72,7 @@ const OwnerMyPage = () => {
 
   return (
     <PageContainer>
-      <Menu />
-
+      {userType === "owner" && <Menu />}
       {/* 타이틀 + 수정 버튼 section */}
       <TitleContainer>
         <TitleBox>
@@ -72,9 +82,22 @@ const OwnerMyPage = () => {
             <Description> {profileData?.comment} </Description>
           </DesBox>
         </TitleBox>
-        <Link to="edit" style={{ textDecoration: 'none' }}>
-          <EditButton>수정하기</EditButton>
-        </Link>
+        <ButtonGroup>
+          {userType === "student" ? (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <StyledBtn>추천하기</StyledBtn>
+            </Link>
+          ) : userType === "studentOrganization" ? (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <FavoriteBtn />
+              <StyledBtn>제휴 제안하기</StyledBtn>
+            </Link>
+          ) : (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <StyledBtn>수정하기</StyledBtn>
+            </Link>
+          )}
+        </ButtonGroup>
       </TitleContainer>
 
       {/* 중간 사진 section */}
@@ -271,6 +294,29 @@ const MenuList = styled.div`
   // width: 100%;
 `;
 
-const EditButton = styled(EditBtn)`
-max-width: 76px;
+const StyledBtn = styled.button`
+  display: flex;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--main-main600, #64A10F);
+  color: var(--main-main600, #64A10F);
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  background: transparent;
+  cursor: pointer;
 `;
+
+const ButtonGroup = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 15px;
+`
