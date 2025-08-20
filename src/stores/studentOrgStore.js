@@ -165,11 +165,13 @@ const useStudentOrgStore = create(
         originalOrganizations: [], // api 끌어올 때 빈 배열로 만들어주기기
         organizations: [], // api 끌어올 때 빈 배열로 만들어주기기
 
-        // 나중에 api 연동 시 그대로 사용
+        // 학생 전체 데이터 불러오기 : orgList
         fetchAndSetOrganizations: async () => {
             try {
                 const data = await fetchAllGroupProfile();
                 const orgList = data.map(mappedOrg);
+                // profileId 저장
+
                 
                 set ({
                     originalOrganizations : orgList,
@@ -179,6 +181,19 @@ const useStudentOrgStore = create(
                 console.error("학생단체 데이터 불러오기 실패:", err);
             }
             },
+
+
+        // 특정 user(학생단체 유저)의 좋아요 상태 업데이트
+        updateOrganizationLikeState: (userId, isLiked) => {
+            set((state) => ({
+                organizations: state.organizations.map((org) =>
+                    org.user === userId ? { ...org, is_liked: isLiked } : org
+                ),
+                originalOrganizations: state.originalOrganizations.map((org) =>
+                    org.user === userId ? { ...org, is_liked: isLiked } : org
+                ),
+            }));
+        },
 
 
 
