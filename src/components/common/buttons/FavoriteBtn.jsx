@@ -10,39 +10,55 @@ import useFavoriteStore from '../../../stores/favoriteStore';
 
 const FavoriteBtn = ({ organization, isLiked = false, onToggle }) => {
     const { favorites, toggleFavorite } = useFavoriteStore();
-    const [isHeartActive, setIsHeartActive] = useState(
-      favorites[organization.id] ?? isLiked
-    );
+    const [isHeartActive, setIsHeartActive] = useState(isLiked);
 
     useEffect(() => {
-    // 현재 찜 상태 반영
-    if (favorites[organization.id] !== undefined) {
-      setIsHeartActive(favorites[organization.id]);
-    }
-  }, [favorites, organization.id]);
+        setIsHeartActive(isLiked);
+    }, [isLiked]);
+
+    // favoriteStore이랑 동기화
+    useEffect(() => {
+        if (favorites[organization.id] !== undefined) {
+            setIsHeartActive(favorites[organization.id]);
+        }
+    }, [favorites, organization.id]);
 
     const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
         const prevState = isHeartActive;
+        
+        const newState = !isHeartActive;
+        setIsHeartActive(newState);
+        toggleFavorite(organization.id, newState);
+        
         try {
-          const like_result = await togglelikes(organization.user); // oraganization.id면 안되는 이유? 모르겠음
-          if (like_result.status === "liked"){
-            setIsHeartActive(true);
-            toggleFavorite(organization.id, true);
-          } else if (like_result.status === "unliked"){
-            setIsHeartActive(false);
-            toggleFavorite(organization.id, false);
-          }
+            const like_result = await togglelikes(organization.user);
+            console.log("찜 토글 결과:", like_result); // 응답 status : liked, unliked
+            
+            if (like_result.status === "liked" && !newState) {
+                setIsHeartActive(true);
+                toggleFavorite(organization.id, true);
+                onToggle && onToggle(true);
+            } else if (like_result.status === "unliked" && newState) {
+                // API는 unliked인데 로컬은 true로 설정했으면 다시 false로
+                setIsHeartActive(false);
+                toggleFavorite(organization.id, false);
+                onToggle && onToggle(false);
+            } else {
+                // API 응답과 로컬 상태가 일치하면 onToggle 호출
+                onToggle && onToggle(newState);
+            }
         } catch (error) {
-          console.error("찜 토글 실패:", error);
-          setIsHeartActive(prevState);
+            console.error("찜 토글 실패:", error);
+            // 에러 시 이전 토글 해제
+            setIsHeartActive(prevState);
+            toggleFavorite(organization.id, prevState);
         }
     }
 
     return (
         <StyledButton onClick={handleClick}>
-            { isHeartActive ? <StyledFaHeart /> : <StyledFaRegHeart />
- }
+            { isHeartActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
         </StyledButton>
     )
   
