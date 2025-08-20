@@ -61,9 +61,12 @@ const StyledFaHeart = styled(FilledHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
-  color: #64A10F ;
+  color: #64A10F;
   cursor: pointer;
-
+  &:hover {
+    fill: #E9F4D0;    
+    stroke: #64A10F; 
+  }
 `;
 
 const StyledFaRegHeart = styled(EmptyHeartIcon)`
@@ -77,8 +80,12 @@ const StyledFaRegHeart = styled(EmptyHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
-  color: #64A10F;
+  color: #898989;
+  
   cursor: pointer;
+  &:hover {
+  stroke: #898989; 
+    fill: #E9F4D0;    
 `;
 
 const StyledButton = styled.button`
