@@ -55,7 +55,7 @@ const OwnerMyPage = () => {
     partnershipNum: 7,
     likeNum: 46,
     recommendNum,
-    etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
+    etc: [`영업일 및 시간`, `연락처 ${profileData?.contact}`],
     partnershipType: ['할인형', '타임형'],
   };
 
