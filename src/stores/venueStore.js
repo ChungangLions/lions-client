@@ -1,3 +1,5 @@
+// setSearchStoreQuery 수정 필요: 에러 해결
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
@@ -85,13 +87,15 @@ const useVenueStore = create(
                 likes: item.likes || null,
                 recommendations: item.recommendations || null,
                 record: item.record || null,
-                photo: item.photos[0].image || null,
+                // photo: item.photos[0].image || null,
+                photo: item.photos?.[0]?.image || null
               }));
           set({
             originalStores: converted,
             stores: converted,
           });
 
+          console.log(converted);
           return converted;
 
         } catch (err) {
@@ -196,6 +200,30 @@ const useVenueStore = create(
                 });
             }
         },
+        
+        // 검색 기능 추가 (수정 필요 계속 에러남)
+        // setSearchStoreQuery: (query) => {
+        //     const sortKey = get().sortKey;
+        //     const searchList = get().originalStores;
+        //     const raw = (query || "").trim().toLowerCase();
+        //     const tokens = raw.split(/[\s/]+/).filter(Boolean); // 공백 또는 슬래시로 분리
+
+        //     let next = searchList;
+        //     if (tokens.length > 0) {
+        //         next = searchList.filter((store) => {
+        //             const hay = `${store.name || ""} ${store.caption || ""} ${store.storeType || ""}`
+        //                 .toLowerCase();
+        //             // 모든 토큰이 포함되면 통과 (AND 매칭)
+        //             return tokens.every((t) => hay.includes(t));
+        //         });
+        //     }
+
+        //     if (sortKey) {
+        //         next = [...next].sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+        //     }
+
+        //     set({ stores: next, searchQuery: query });
+        // },
 
     }),
     {
