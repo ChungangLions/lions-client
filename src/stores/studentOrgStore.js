@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import { fetchUserList, filterStudentGroup } from '../services/apis/userListApi';
 import { fetchAllGroupProfile, mappedOrg } from '../services/apis/groupProfileAPI';
+import { fetchUserLikes } from '../services/apis/likesapi';
 
 // 학생단체 프로필 목록 가져오기
 // const fetchAndMapOrganizations = async () => {
@@ -170,18 +171,46 @@ const useStudentOrgStore = create(
             try {
                 const data = await fetchAllGroupProfile();
                 const orgList = data.map(mappedOrg);
-                // profileId 저장
-
                 
-                set ({
-                    originalOrganizations : orgList,
-                    organizations: orgList,
-                });
+                // 찜 상태도 함께 가져와서 병합
+                try {
+                    const likedData = await fetchUserLikes();
+                    console.log("찜 데이터:", likedData);
+                    
+                    // likedData에서 status === 'liked' 인 항목들의 타겟 userid 저장
+                    if (Array.isArray(likedData)) {
+                        const likedUserIds = likedData
+                            .filter(item => String(item?.status || '').toLowerCase() === 'liked')
+                            .map(item => item?.target?.id ?? item?.target_user ?? item?.targetUser)
+                            .filter(Boolean);
+                        console.log("찜한 target user IDs:", likedUserIds);
+
+                        const updatedOrgList = orgList.map(org => ({
+                            ...org,
+                            is_liked: likedUserIds.includes(org.user),
+                        }));
+
+                        set({
+                            originalOrganizations: updatedOrgList,
+                            organizations: updatedOrgList,
+                        });
+                    } else {
+                        set({
+                            originalOrganizations: orgList,
+                            organizations: orgList,
+                        });
+                    }
+                } catch (likeError) {
+                    console.error("찜 상태 불러오기 실패:", likeError);
+                    set({
+                        originalOrganizations: orgList,
+                        organizations: orgList,
+                    });
+                }
             } catch (err) {
                 console.error("학생단체 데이터 불러오기 실패:", err);
             }
-            },
-
+        },
 
         // 특정 user(학생단체 유저)의 좋아요 상태 업데이트
         updateOrganizationLikeState: (userId, isLiked) => {
@@ -194,8 +223,6 @@ const useStudentOrgStore = create(
                 ),
             }));
         },
-
-
 
         isFilteredByRecord: false,
         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
