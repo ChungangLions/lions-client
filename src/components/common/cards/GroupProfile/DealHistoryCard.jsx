@@ -1,11 +1,26 @@
 // DealHistoryCard.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 const DealHistoryCard = ({ storeName, period }) => {
+//      const { id: groupProfileId } = useParams();
+//     const navigate = useNavigate();
+//   const handleCardClick = (id) => {
+//     navigate(`/store-profile/`, { // 경로 수정 필요
+//       state: { userType: "student" }
+//     });
+//   };
+
+//   useEffect(() => {
+//     if (groupProfileId) {
+//       setProfileInfo(groupProfileId); // 프로필 정보 fetch해서 store에 업데이트
+//     }
+//   }, [groupProfileId, setProfileInfo]);
+
     return (
-        <HistoryWrapper>
-            <BoxContainer>
+        //<HistoryWrapper key={store.id} onClick={() => handleCardClick(store.id)} >
+        <HistoryWrapper >
             <StoreImage />
             <TextContainer>
                 <NameWrapper>
@@ -15,7 +30,6 @@ const DealHistoryCard = ({ storeName, period }) => {
                     <PeriodText>{period}</PeriodText>
                 </PeriodContainer>
             </TextContainer>
-            </BoxContainer>
         </HistoryWrapper>
     );
 };
@@ -48,10 +62,10 @@ gap: 5px;
 `;
 
 const StoreImage = styled.div`
-align-self: stretch;
-position: relative;
-background-color: #d9d9d9;
-height: 137px;
+    height: 137px;
+    align-self: stretch;
+    background: ${({ src }) =>
+      src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
 `;
 
 const TextContainer = styled.div`
@@ -63,12 +77,12 @@ gap: 2px;
 `;
 
 const NameWrapper = styled.div`
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-font-weight: 600;
-position: relative;
+color: #000;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
 `;
 
 const PeriodContainer = styled.div`
