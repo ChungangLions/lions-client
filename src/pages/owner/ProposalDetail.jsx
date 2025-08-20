@@ -30,6 +30,9 @@ const ProposalDetail = ({ isAI = false }) => {
   // 제휴 유형 선택 상태 관리
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
 
+  // 수정 모드 상태 관리
+  const [isEditMode, setIsEditMode] = useState(false);
+
   // 제휴 유형 토글 함수
   const togglePartnershipType = (type) => {
     setSelectedPartnershipTypes(prev => {
@@ -39,6 +42,11 @@ const ProposalDetail = ({ isAI = false }) => {
         return [...prev, type];
       }
     });
+  };
+
+  // 수정 모드 토글 함수
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
   };
 
   // 제휴 유형 데이터
@@ -194,14 +202,21 @@ const ProposalDetail = ({ isAI = false }) => {
               ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn />
+              <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
               {isAI ? (
-                <SaveBtn />
+                // AI일 때: 수정 모드에 따라 다른 버튼 표시
+                isEditMode ? (
+                  <SaveBtn />
+                ) : (
+                  <SendProposalBtn/>
+                )
               ) : (
+                // 직접 작성할 때: 항상 저장 버튼 표시
                 <ProposalSaveBtn>저장하기</ProposalSaveBtn>
               )}
             </ButtonWrapper>
-            <SendProposalBtn/>
+            {/* AI일 때 수정 모드에서만, 직접 작성할 때는 항상 전송 버튼 표시 */}
+            {((isAI && isEditMode) || !isAI) && <SendProposalBtn/>}
           </ReceiverWrapper>
         </ReceiverSection>
     </ProposalContainer>
@@ -246,20 +261,23 @@ display: flex;
 flex-direction: row;
 gap: 19px;
 justify-content: space-between;
-
+max-width: 100%;
+padding: 0 20px;
+box-sizing: border-box;
+min-height: 100vh;
 `;
 
 const ProposalSection = styled.div`
+flex: 64;
 min-width: 797px;
 position: relative;
 border-radius: 5px;
 background-color: #f4f6f4;
 display: flex;
-flex-direction: row;
+flex-direction: column;
 align-items: center;
 justify-content: flex-start;
 padding: 31px 58px;
-border-box: box-sizing;
 text-align: center;
 font-size: 24px;
 color: #1a2d06;
@@ -267,7 +285,8 @@ font-family: Pretendard;
 `;
 
 const ProposalWrapper = styled.div`
-  width: 797px;
+  width: 100%;
+  max-width: 797px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -287,8 +306,11 @@ gap:20px;
 `;
 
 const ReceiverSection = styled.div`
-width: 100%;
-position: relative;
+flex: 36;
+min-width: 448px;
+max-width: 500px;
+position: sticky;
+top: 80px;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
@@ -298,10 +320,11 @@ text-align: left;
 font-size: 18px;
 color: #1a2d06;
 font-family: Pretendard;
+height: fit-content;
 `;
 
 const ReceiverWrapper = styled.div`
-width: 447px;
+width: 100%;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 border-radius: 5px;
 border: 1px solid #e7e7e7;
