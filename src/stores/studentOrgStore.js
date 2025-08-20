@@ -199,6 +199,7 @@ const useStudentOrgStore = create(
 
         isFilteredByRecord: false,
         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
+        searchQuery: "",
 
         
         // 많은 순
@@ -233,6 +234,30 @@ const useStudentOrgStore = create(
                     isFilteredByRecord: true,
                 });
             }
+        },
+
+        // 검색 기능 추가
+        setSearchQuery: (query) => {
+            const sortKey = get().sortKey;
+            const searchList = get().originalOrganizations;
+            const raw = (query || "").trim().toLowerCase();
+            const tokens = raw.split(/[\s/]+/).filter(Boolean); // 공백 또는 슬래시로 분리
+
+            let next = searchList;
+            if (tokens.length > 0) {
+                next = searchList.filter((org) => {
+                    const hay = `${org.university || "중앙대학교" || ""} ${org.department || ""} ${org.council_name || ""}`
+                        .toLowerCase();
+                    // 모든 토큰이 포함되면 통과 (AND 매칭)
+                    return tokens.every((t) => hay.includes(t));
+                });
+            }
+
+            if (sortKey) {
+                next = [...next].sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+            }
+
+            set({ organizations: next, searchQuery: query });
         },
     }),
     {

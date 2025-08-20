@@ -1,13 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components';
 import { FiSearch } from "react-icons/fi";
+import useStudentOrgStore from '../stores/studentOrgStore';
 
 const SearchBar = () => {
     const [search, setSearch] = useState("");
+    const { setSearchQuery } = useStudentOrgStore();
 
     const onChange = (e) => {
         setSearch(e.target.value); // 입력값 변경 시 상태 업데이트
     }
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setSearchQuery(search);
+        }, 200);
+        return () => clearTimeout(handler);
+    }, [search, setSearchQuery]); // 지연 방지, 한 번에 검색되게  
 
   return (
     <SearchSection>
