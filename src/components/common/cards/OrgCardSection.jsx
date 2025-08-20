@@ -41,10 +41,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
         </CardContent>
         <ButtonWrapper $isHome={cardType === 'home'}>
             <ButtonComponent 
-              width="20px" 
-              height="17px" 
-              position="relative"
-              targetUserId={organization.user}
+              organization={organization}
               isLiked={organization.is_liked}
               onToggle={handleToggle}
             />

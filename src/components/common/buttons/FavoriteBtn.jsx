@@ -1,26 +1,37 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
 import { togglelikes } from '../../../services/apis/likesapi';
 import useUserStore from '../../../stores/userStore';
 import useOwnerProfile from '../../../hooks/useOwnerProfile';
+import useFavoriteStore from '../../../stores/favoriteStore';
 
 
 const FavoriteBtn = ({ organization, isLiked = false, onToggle }) => {
-    const [isHeartActive, setIsHeartActive] = useState(isLiked);
+    const { favorites, toggleFavorite } = useFavoriteStore();
+    const [isHeartActive, setIsHeartActive] = useState(
+      favorites[organization.id] ?? isLiked
+    );
+
+    useEffect(() => {
+    // 현재 찜 상태 반영
+    if (favorites[organization.id] !== undefined) {
+      setIsHeartActive(favorites[organization.id]);
+    }
+  }, [favorites, organization.id]);
 
     const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
         const prevState = isHeartActive;
         try {
-          const like_result = await togglelikes(organization.id);
+          const like_result = await togglelikes(organization.user); // oraganization.id면 안되는 이유? 모르겠음
           if (like_result.status === "liked"){
             setIsHeartActive(true);
-            onToggle && onToggle(true);
+            toggleFavorite(organization.id, true);
           } else if (like_result.status === "unliked"){
             setIsHeartActive(false);
-            onToggle && onToggle(false);
+            toggleFavorite(organization.id, false);
           }
         } catch (error) {
           console.error("찜 토글 실패:", error);
