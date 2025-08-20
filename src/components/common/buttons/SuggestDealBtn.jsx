@@ -11,10 +11,8 @@ const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 로그인 한 유저가 사장님이라면 정보 그냥 가져오면 됨 
-  const {userId} = useUserStore();
-
-  // 로그인한 유저가 학생 단체라면 . . . 가게 사장님 profile id를 가져와야됨 
+  // 로그인 한 유저 정보 가져오기
+  const {userId, userRole} = useUserStore();
 
   // '예'를 누르는 순간 ai 제안서 생성 
     const handleProposal = async () => {
@@ -23,11 +21,11 @@ const SuggestDealBtn = ({organization}) => {
       console.log("사장님 정보 잘 불러와지낭 ~ " ,userId);
       console.log("사장님 정보 잘 불러와지낭 ~ " , ownerProfile);
       const recipient = userId;
-      const contact_info = ownerProfile.contact;
+      const contact_info = String(ownerProfile.contact);
       console.log("사장님 정보 잘 불러와지낭 ~ " ,contact_info);
 
       // AI 제안서 생성하기 
-      const responseData = await getAIDraftProposal(recipient, contact_info);
+      const responseData = await getAIDraftProposal(recipient);
       console.log("제안서 내용", responseData);
 
     } catch (error) {
