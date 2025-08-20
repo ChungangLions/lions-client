@@ -46,7 +46,7 @@ const StudentGroupProfile = () => {
         </ProfileGroup>
         <ButtonGroup>
           <FavoriteBox>
-            <FavoriteBtn />
+            <FavoriteBtn organization={organization} isLiked={organization?.is_liked} />
             찜하기
           </FavoriteBox>
           <SuggestDealBtn organization={ organization} />
