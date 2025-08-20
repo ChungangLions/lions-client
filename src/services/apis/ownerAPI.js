@@ -18,6 +18,7 @@ export const getOwnerProfile = async(userId) => {
         // 1. 전체 학생 프로필 목록 조회
         const listResp = await authAxios.get(`/api/profiles/owners/`);
         const profiles = listResp.data;
+        console.log(profiles);
     
         // 2. 해당 userId의 프로필 리스트 필터
         const userProfiles = profiles.filter(profile => profile.user === userId);

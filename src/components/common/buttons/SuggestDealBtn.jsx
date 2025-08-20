@@ -11,29 +11,33 @@ const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const {ownerId} = useUserStore();
+  // 로그인 한 유저가 사장님이라면 정보 그냥 가져오면 됨 
+  const {userId} = useUserStore();
 
-    const goToAIProposalPage = async () => {
-    setIsModalOpen(false);
+  // 로그인한 유저가 학생 단체라면 . . . 가게 사장님 profile id를 가져와야됨 
 
+  // '예'를 누르는 순간 ai 제안서 생성 
+    const handleProposal = async () => {
     try {
-        const ownerProfile = await getOwnerProfile(ownerId);
+      const ownerProfile = await getOwnerProfile(userId);
+      console.log("사장님 정보 잘 불러와지낭 ~ " ,userId);
+      console.log("사장님 정보 잘 불러와지낭 ~ " , ownerProfile);
+      const recipient = userId;
+      const contact_info = ownerProfile.contact;
+      console.log("사장님 정보 잘 불러와지낭 ~ " ,contact_info);
 
-        const recipient = ownerProfile.user; // userId 가져오기
-        const contactInfo = ownerProfile.contact; 
-        
-        const responseData = await getAIDraftProposal(recipient, contactInfo);
-        
-        console.log("AI 제안서 데이터:", responseData);
-        
-        // AI 제안서 데이터를 갖고 다음 페이지로 이동하기 
-        navigate('/owner/ai-proposal', { state: { proposalData: responseData, state: { organization } } });
-        
+      // AI 제안서 생성하기 
+      const responseData = await getAIDraftProposal(recipient, contact_info);
+      console.log("제안서 내용", responseData);
+
     } catch (error) {
-        console.error("제안서를 가져오는 데 실패했습니다:", error);
+      console.error("제안서를 생성하는데 실패했습니다.", error);
     }
-  };
-
+    setIsModalOpen(false);
+    //navigate('/owner/proposal', { state: { organization } });
+  }
+  
+  
   const goToProposalPage = async() => {
     setIsModalOpen(false);
     navigate('/owner/proposal', { state: { organization } });
@@ -57,7 +61,7 @@ const SuggestDealBtn = ({organization}) => {
                 <p>아니오</p>
                 <p>(직접 작성하기)</p>
               </OptionButton>
-              <OptionButton primary onClick={goToAIProposalPage}>
+              <OptionButton primary onClick={handleProposal}>
                 예
               </OptionButton>
             </ButtonGroup>
@@ -89,6 +93,7 @@ const SuggestButton = styled.button`
   font-family: Pretendard;
   border: none;
   font-weight: 600;
+  cursor: pointer;
 
   &: hover {
     background-color: #4c7b10;

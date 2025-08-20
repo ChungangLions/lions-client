@@ -17,7 +17,7 @@ const ProposalDetail = () => {
   const { organization } = location.state || {};
   console.log(location.state);
 
-  const { storeName, menuNames, storeImage, error } = useOwnerProfile();
+  const { storeName  } = useOwnerProfile();
 
   {/* item 2개 나중에 컴포넌트로 빼야됨 */}
   const ConditionItem = ({ title, children }) => (
@@ -144,7 +144,7 @@ const ProposalDetail = () => {
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection>
-          <CardSection ButtonComponent={FavoriteBtn}/>
+          <CardSection ButtonComponent={() => <FavoriteBtn organization={organization} />} />
           <ButtonWrapper>
             <EditBtn />
             <ProposalSaveBtn>저장하기</ProposalSaveBtn>
