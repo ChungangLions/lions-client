@@ -43,7 +43,6 @@ export default Menu
 
 const MenuContainer = styled.div`
     width: 100%;
-    position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
@@ -51,6 +50,7 @@ const MenuContainer = styled.div`
     gap: 50px;
     border-bottom: 1px solid #BCBCBC;
     margin: 0 auto;
+    
 `;
 
 const MenuItem = styled(Link)`
@@ -66,7 +66,6 @@ const MenuItem = styled(Link)`
     text-align: center;
     line-height: 38px;
     cursor: pointer;
-
     margin-bottom: -1px;  // 클릭했을 때 아래 선 겹치도록 추가 설정해놓은 부분임 
     z-index: 1;           
     position: relative;

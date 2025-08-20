@@ -1,14 +1,6 @@
 import axios from "axios";
 import { getAuthAxios } from "./authAxios";
 
-export const getOwnerList = async() => {
-    const token = localStorage.getItem("accessToken");
-    const authAxios = getAuthAxios(token); 
-
-    const response = await authAxios.get(`/api/profiles/owners/`);
-    console.log(response.data);
-    return response.data;
-}
 
 export const getOwnerProfile = async(userId) => {
     const token = localStorage.getItem("accessToken");

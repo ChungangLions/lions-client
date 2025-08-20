@@ -12,18 +12,23 @@ const ViewBtn = ({onClick}) => {
 export default ViewBtn
 
 const Viewbutton = styled.button`
+position: relative;
+border-radius: 20px;
+border: 1px solid #70af19;
+box-sizing: border-box;
+width: 100%;
 display: flex;
-padding: 10px;
-justify-content: center;
+flex-direction: row;
 align-items: center;
-gap: 10px;
-border: 1px solid #000;
-background: transparent;
-
-color: #000;
-font-family: Pretendard;
+justify-content: flex-end;
+padding: 10px;
+text-align: left;
 font-size: 16px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
+color: #70af19;
+font-family: Pretendard;
+background-color: white;
+&: hover {
+background-color:  #e9f4d0;
+}
+cursor: pointer;
 `;
