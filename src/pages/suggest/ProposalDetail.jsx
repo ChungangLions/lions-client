@@ -76,11 +76,14 @@ const ProposalDetail = ({ isAI = false }) => {
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
       partnership_period: partnershipConditions.partnershipPeriod,
-      expected_effects: expectedEffects,
       contact_info: contactInfo,
       title: '제안서',
       contents: '제휴 내용',
     };
+
+    if (isAI) {
+      updateData.expected_effects = expectedEffects;
+    }
 
     try {
       const response = await editProposal(organization?.id , updateData);
@@ -108,7 +111,7 @@ const ProposalDetail = ({ isAI = false }) => {
         return;
       }
 
-      if (!expectedEffects.trim()) {
+      if (isAI && !expectedEffects.trim()) {
         alert('기대 효과를 입력해주세요.');
         return;
       }
@@ -125,9 +128,12 @@ const ProposalDetail = ({ isAI = false }) => {
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        expected_effects: expectedEffects, // 기대 효과
         contact_info: contact || "", // 연락처
       };
+
+      if (isAI) {
+        createData.expected_effects = expectedEffects;
+      }
 
       console.log('제안서 데이터:', createData);
       
@@ -164,12 +170,15 @@ const ProposalDetail = ({ isAI = false }) => {
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        expected_effects: expectedEffects, // 기대 효과
         contact_info: contactInfo || "010", // 연락처
         title: "제안서",
         contents: "제휴 내용",
       };
  
+      if (isAI) {
+        createData.expected_effects = expectedEffects;
+      }
+
       console.log('제안서 데이터:', createData);
 
     try {
@@ -335,26 +344,19 @@ const ProposalDetail = ({ isAI = false }) => {
                 </ConditionsBox>
               </DetailBox>
 
-              {/* 기대효과  */}
-              <DetailBox>
-                <Title> <div>기대 효과</div></Title>
-                  {isAI ? (
-                    <InputBox 
-                      defaultText="텍스트를 입력해주세요."
-                      width="100%"
-                      border="1px solid #E9E9E9"
-                      value={expectedEffects}
-                      onChange={(e) => setExpectedEffects(e.target.value)}
-                    />
-                  ) : (
-                    <InputBox 
-                      defaultText="텍스트를 입력해주세요."
-                      width="100%"
-                      value={expectedEffects}
-                      onChange={(e) => setExpectedEffects(e.target.value)}
-                    />
-                  )}
-              </DetailBox>
+              {/* 기대효과: AI 모드에서만 표시 */}
+              {isAI && (
+                <DetailBox>
+                  <Title> <div>기대 효과</div></Title>
+                  <InputBox 
+                    defaultText="텍스트를 입력해주세요."
+                    width="100%"
+                    border="1px solid #E9E9E9"
+                    value={expectedEffects}
+                    onChange={(e) => setExpectedEffects(e.target.value)}
+                  />
+                </DetailBox>
+              )}
 
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
