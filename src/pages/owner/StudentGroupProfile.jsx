@@ -19,6 +19,7 @@ const StudentGroupProfile = () => {
 
    
   const groupId = organization?.id || userId
+  console.log(organization.id);
 
   console.log("로그인 유저",userId);
 

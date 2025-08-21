@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import useUserStore from "../stores/userStore";
 import { fetchGroupProfile } from "../services/apis/groupProfileAPI";
 
-// userId 대신 groupId를 props로 받습니다.
+// userId 대신 groupId를 props로 
 const useGroupProfile = (groupProfileId) => { 
   const [groupProfile, setGroupProfile] = useState(null);
   const [profileId, setProfileId] = useState("");

@@ -16,6 +16,7 @@ import StudentGroupProfile from './pages/owner/StudentGroupProfile';
 import StudentEditMyPage from './pages/student/StudentEditMyPage';
 import OwnerProfile from './pages/student/OwnerProfile';
 import ProposalDetail from './pages/suggest/ProposalDetail';
+import AIProposalDetail from './pages/suggest/AIProposalDetail';
 
 function App() {
   return (
@@ -26,8 +27,10 @@ function App() {
 
       <Route element={<MainLayout hasMenu={false}/>}>
         <Route path="/owner" element={<OwnerHome />} />
+        <Route path="/owner/ai-proposal" element={<AIProposalDetail/>} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
         <Route path="owner/student-group-profile/:id" element={<StudentGroupProfile/>} />
+        <Route path="owner/student-group-profile" element={<StudentGroupProfile/>} />
         <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
 
         <Route path="/student_group" element={<GroupHome />}/>
