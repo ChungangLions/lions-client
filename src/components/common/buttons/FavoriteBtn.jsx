@@ -8,7 +8,8 @@ import useOwnerProfile from '../../../hooks/useOwnerProfile';
 import useFavoriteStore from '../../../stores/favoriteStore';
 
 
-const FavoriteBtn = ({ organization, isLiked = false, onToggle } ) => {
+const FavoriteBtn = ({ organization, isLiked = false, onToggle }) => {
+
     const { favorites, toggleFavorite } = useFavoriteStore();
 
 
@@ -84,7 +85,7 @@ const StyledFaRegHeart = styled(EmptyHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
-  color: #898989;
+  color: #70AF19;
   
   cursor: pointer;
   &:hover {

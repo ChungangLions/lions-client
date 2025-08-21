@@ -109,7 +109,7 @@ display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-gap: 15px;
+// gap: 15px;
 text-align: left;
 font-size: 16px;
 color: #1a2d06;
@@ -189,6 +189,7 @@ align-items: center;
 justify-content: space-between;
 gap: 0px;
 background-color: white;
+margin-bottom: 15px;
 `;
 
 const DropdownMenu = styled.div`

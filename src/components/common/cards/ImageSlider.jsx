@@ -72,19 +72,30 @@ const ImageList = styled.div`
   width: 100%;
 `;
 
+const ImageWrapper = styled.div`
+  // width: 407px;
+  // height: 200px;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
+  // box-sizing: border-box;
+  // border-radius: 5px;
+`;
+
 const ImageBox = styled.img`
   width: 407px;
   height: 200px;
-
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-
+  border-radius: 5px;
   background-image: url('${props => props.imageUrl}');
   background-size: cover;
   background-position: center;
 `;
+
+
 
 const ArrowBtn = styled.button`
   position: absolute;

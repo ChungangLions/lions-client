@@ -22,6 +22,7 @@ export const togglelikes = async (targetId) => {
     }
 };
 
+
 // 현재 사용자가 찜한 항목들 가져오기
 export const fetchUserLikes = async () => {
     const token = localStorage.getItem("accessToken");
@@ -39,3 +40,17 @@ export const fetchUserLikes = async () => {
         return [];
     }
 };
+
+export async function fetchLikes(mode='received') {
+  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+  const API_URL = `/api/accounts/likes?mode=${mode}`;
+  try {
+    const response = await authAxios.get(API_URL);
+    const data = response.data;
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('[추천 API] fetchLikes 에러', err);
+    return [];
+  }
+}
+

@@ -19,6 +19,7 @@ function TypeLabel({ storeType, background }) {
 
   return (
     <LabelBox
+      $storeType={storeType}
       $background={background}
     >
       <LabelText>
@@ -40,10 +41,22 @@ const LabelBox = styled.div`
   align-self: stretch;
   border-radius: 5px;
   background: ${(props) => props.$background || "transparent"};
+  width: ${(props) => {
+    switch(props.$storeType) {
+      case 'RESTAURANT':
+        return '110px';
+      case 'CAFE':
+        return '120px';
+      case 'BAR':
+        return '70px';
+      default:
+        return 'auto';
+    }
+  }};  
 `;
 
 const LabelText = styled.span`
-  color: #FFF;
+  color: #3F6113;
   font-family: Pretendard;
   font-size: 16px;
   font-style: normal;

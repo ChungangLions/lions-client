@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import FilterBtn from '../../components/common/filters/FilterBtn';
 import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 import { fetchRecommendations } from '../../services/apis/recommendsapi';
+import { TbArrowsSort } from "react-icons/tb";
+import DropDown from '../../components/common/filters/DropDown';
 
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
@@ -82,18 +84,30 @@ const StudentHome = () => {
           </FilterBtn>
           </FilterWrapper>
         </FilterSection>
-        <SortSection onChange={handleSortChange}>
+        <OptionWrapper>
+            <TbArrowsSort size={30} strokeWidth={1} />
+            <DropDown
+              options={[
+                { value: "likes", label: "찜 많은 순" },
+                { value: "record", label: "제휴 이력 많은 순" },
+                { value: "recommendations", label: "추천 많은 순" },
+              ]}
+              onClick= {(option) => sortByDesc(option.value)}
+            />
+          </OptionWrapper>
+        {/* <SortSection onChange={handleSortChange}>
           <option value="likes">찜 많은 순</option>
           <option value="record">제휴 이력 많은 순</option>
           <option value="recommendations">추천 많은 순</option>
-        </SortSection>
+        </SortSection> */}
       </SelectContainer>
       <GridContainer>
         {stores.map((store) => (
           <GroupCard 
             key={store.id}
             imageUrl={store.photo}
-            onClick={() => handleCardClick(store.id)} 
+            onClick={() => handleCardClick(store.id)}
+            likes={false}
             ButtonComponent={() => (
               <RecommendBtn 
                 userId={store.id} 
@@ -174,4 +188,12 @@ align-items: center;
 justify-content: flex-start;
 gap: 10px;
 color: #64a10f;
+`;
+
+const OptionWrapper = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+gap: 5px;
 `;

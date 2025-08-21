@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 
 // ---- 샘플 데이터 ----
-const sampleType = { data: ["음식점", "카페", "술집"] };
+const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] };
 const Day = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
@@ -53,16 +53,16 @@ const menuImage = [
 ];
 
 const initialGoalButtons = { 
-  new_customer: false, 
-  repeat_visit: false, 
+  new_customers: false, 
+  revisit: false, 
   clear_stock: false, 
-  peak_time_spread: false, 
-  sns_promotion: false, 
-  collect_review: false, 
-  goalEtc: false
+  spread_peak: false, 
+  sns_marketing: false, 
+  collect_reviews: false, 
+  other: false
 };
 
-const ServiceButtons = { drinks: false , side_menu: false };
+const ServiceButtons = { drink: false , side_menu: false };
 const sampleCampus = {
   name: '중앙대학교',
   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
@@ -199,7 +199,7 @@ const OwnerEditMyPage = () => {
   const navigate = useNavigate();
 
   const businessTypeMap = {
-    RESTAURANT: '음식점',
+    RESTAURANT: '일반 음식점',
     CAFE: '카페',
     BAR: '술집',
   };
@@ -257,33 +257,34 @@ const OwnerEditMyPage = () => {
 
   // 제공 가능 서비스 유형 api 데이터 변환
   const ServiceType = (Service, otherService) => {
-    const services = Service ? Service.split(",") : []; // 서비스에 문자열로 들어가 있는 경우 ','를 기준으로 분기
+    const services = Array.isArray(Service) ? Service : (Service ? Service.split(",") : []);
 
     return {
-      drinks: services.includes("DRINK"),
+      drink: services.includes("DRINK"),
       side_menu: services.includes("SIDE_MENU"),
       serviceEtc: otherService && otherService.trim().length > 0
     };
   };
 
+
   const GoalType = (Goal, otherGoal) => {
     const goals = Goal ? Goal.split(",") : []; // 문자열로 들어가 있는 경우 ','를 기준으로 분기
 
     return {
-      new_customer: goals.includes("NEW_CUSTOMER"),
-      repeat_visit: goals.includes("REVISIT"),
+      new_customers: goals.includes("new_customers"),
+      revisit: goals.includes("REVISIT"),
       clear_stock: goals.includes("CLEAR_STOCK"),
-      peak_time_spread: goals.includes("SPREAD_PEAK"),
-      sns_promotion: goals.includes("SNS_MARKETING"),
-      collect_review: goals.includes("COLLECT_REVIEWS"),
-      goalEtc: otherGoal && otherGoal.trim().length > 0
+      spread_peak: goals.includes("SPREAD_PEAK"),
+      sns_marketing: goals.includes("SNS_MARKETING"),
+      collect_reviews: goals.includes("collect_reviewsS"),
+      other: otherGoal && otherGoal.trim().length > 0
     };
   };
 
   const convertToApiBusiness = (data) => {
     const toBusinessType = {
       카페: "CAFE",
-      음식점: "RESTAURANT",
+      '일반 음식점': "RESTAURANT",
       술집: "BAR",
     };
 
@@ -297,10 +298,28 @@ const OwnerEditMyPage = () => {
     return photos.map(photo => photo.image);
     }
 
-    const parsePhotos = (photos) => photos.map((file, index) => ({
-      file: file,
-      order: index,
-    }));      
+  const parsePhotos = (photos) => {
+    const formData = new FormData();
+
+    photos.forEach((photo, idx) => {
+      formData.append("photos", photo);
+      formData.append("orders", idx);
+    });
+
+    return formData;
+  };
+
+  // const formData = new FormData();
+  // photos.forEach((p, i) => {
+  //   formData.append("photos", p.file);
+  //   formData.append("orders", p.order);
+  // });
+
+
+  // const parsePhotos = (photos) => photos.map((file, index) => ({
+  //   file: file,
+  //   order: index,
+  // }));      
 
   // 사장님 프로필 조회 
   useEffect(() => {
@@ -346,13 +365,11 @@ const OwnerEditMyPage = () => {
   // 프로필 수정
   const serviceData= Object.entries(serviceButtons)
   .filter(([key, value]) => key!== "serviceEtc" && value)  // 기타 제외 true인 값만
-  .map(([key]) => key.toUpperCase())  // 대문자로 하는 이유가 있나 ..? 
-  .join(",");
+  .map(([key]) => key.toUpperCase());
 
   const goalData= Object.entries(goalButtons)
-  .filter(([key, value]) => key!== "goalEtc" && value)  // 기타 제외 true인 값만
-  .map(([key]) => key)  
-  .join(",");
+  .filter(([key, value]) => key!== "other" && value)  // 기타 제외 true인 값만
+  .map(([key]) => key.toUpperCase());
 
   // const goalDataObj = GoalType(
   //   Object.entries(goalButtons)
@@ -363,21 +380,21 @@ const OwnerEditMyPage = () => {
   // );
 
   // const partnership_goal = Object.entries(goalDataObj)
-  // .filter(([k,v]) => v && k !== "goalEtc")
+  // .filter(([k,v]) => v && k !== "other")
   // .map(([k]) => {
   //   switch (k) {
-  //     case 'new_customer': return "NEW_CUSTOMER";
-  //     case 'repeat_visit': return "REVISIT";
+  //     case 'new_customers': return "new_customers";
+  //     case 'revisit': return "REVISIT";
   //     case 'clear_stock': return "CLEAR_STOCK";
-  //     case 'peak_time_spread': return "SPREAD";
-  //     case 'sns_promotion': return "SNS";
-  //     case 'collect_review': return "REVIEW";
-  //     case 'goalEtc': return "OTHER";
+  //     case 'spread_peak': return "SPREAD";
+  //     case 'sns_marketing': return "SNS";
+  //     case 'collect_reviews': return "REVIEW";
+  //     case 'other': return "OTHER";
   //     default: return k.toUpperCase();
   //   }
   // }).join(",");
 
-  // const partnership_goal_other = goalDataObj.goalEtc ? otherGoalValue : "";
+  // const partnership_goal_other = goalDataObj.other ? otherGoalValue : "";
 
   const handleProfileUpdate = async () => {
     try {
@@ -391,14 +408,14 @@ const OwnerEditMyPage = () => {
         campus: campusValue?.name,
         business_day : convertToApiFormat(openHours),
         business_type : convertToApiBusiness(typeValue),
-        average_sales : Number(revenueValue), // 백엔드 데이터베이스상 string이 아닌 숫자타입
+        average_sales : Number(revenueValue), // 백엔드 데이터베이스 상 string이 아닌 숫자타입
         margin_rate: marginValue,
         peak_time : convertToApiFormat(busyHours),
         off_peak_time : convertToApiFormat(freeHours),
         available_service : serviceData,
         available_service_other: serviceButtons.serviceEtc ? otherServiceValue : "",
-        partnership_goal : 'OTHER', //goalData.toUpperCase(), // 이렇게 해도 안됨..?!
-        partnership_goal_other : goalButtons.goalEtc ? otherGoalValue : "",
+        partnership_goal : goalData,
+        partnership_goal_other : goalButtons.other ? otherGoalValue : "",
 
       };
       console.log("updateData:", updateData);
@@ -488,7 +505,8 @@ const OwnerEditMyPage = () => {
     } else {
       try {
         await handleProfileUpdate();
-        setShowModal(true);
+        // setShowModal(true);
+        navigate('/owner/mypage');
       } catch (error) {
         console.error("프로필 수정 실패 :", error);
       }
@@ -628,15 +646,15 @@ const OwnerEditMyPage = () => {
               </SubTitle>
           </TitleContainer>
           <ButtonGroup>
-            <TextButton $active={goalButtons.new_customer} onClick={() => toggleGoalButton('new_customer')}>신규 고객 유입</TextButton>
-            <TextButton $active={goalButtons.repeat_visit} onClick={() => toggleGoalButton('repeat_visit')}>재방문 증가</TextButton>
+            <TextButton $active={goalButtons.new_customers} onClick={() => toggleGoalButton('new_customers')}>신규 고객 유입</TextButton>
+            <TextButton $active={goalButtons.revisit} onClick={() => toggleGoalButton('revisit')}>재방문 증가</TextButton>
             <TextButton $active={goalButtons.clear_stock} onClick={() => toggleGoalButton('clear_stock')}>재고 소진</TextButton>
-            <TextButton $active={goalButtons.peak_time_spread} onClick={() => toggleGoalButton('peak_time_spread')}>피크타임 분산</TextButton>
-            <TextButton $active={goalButtons.sns_promotion} onClick={() => toggleGoalButton('sns_promotion')}>SNS 홍보</TextButton>
-            <TextButton $active={goalButtons.collect_review} onClick={() => toggleGoalButton('collect_review')}>리뷰 확보</TextButton>
-            <TextButton $active={goalButtons.goalEtc} onClick={() => toggleGoalButton('goalEtc')}>기타</TextButton>
+            <TextButton $active={goalButtons.spread_peak} onClick={() => toggleGoalButton('spread_peak')}>피크타임 분산</TextButton>
+            <TextButton $active={goalButtons.sns_marketing} onClick={() => toggleGoalButton('sns_marketing')}>SNS 홍보</TextButton>
+            <TextButton $active={goalButtons.collect_reviews} onClick={() => toggleGoalButton('collect_reviews')}>리뷰 확보</TextButton>
+            <TextButton $active={goalButtons.other} onClick={() => toggleGoalButton('other')}>기타</TextButton>
           </ButtonGroup>
-          {goalButtons.goalEtc && 
+          {goalButtons.other && 
           (<InputBox 
           defaultText="기타 입력"
           value={otherGoalValue} 
@@ -651,7 +669,7 @@ const OwnerEditMyPage = () => {
               </TitleContainer>
               <InputBox
                 type="number"
-                defaultText="평균 인당 매출"
+                defaultText="숫자"
                 value={revenueValue}
                 onChange={e => setRevenueValue(e.target.value)}
                 unit="원"
@@ -728,7 +746,7 @@ const OwnerEditMyPage = () => {
             </SubTitle>
           </TitleContainer>
           <ButtonGroup>
-            <TextButton $active={serviceButtons.drinks} onClick={() => toggleServiceButton('drinks')}>음료수</TextButton>
+            <TextButton $active={serviceButtons.drink} onClick={() => toggleServiceButton('drink')}>음료수</TextButton>
             <TextButton $active={serviceButtons.side_menu} onClick={() => toggleServiceButton('side_menu')}>사이드 메뉴</TextButton>
             <TextButton $active={serviceButtons.serviceEtc} onClick={() => toggleServiceButton('serviceEtc')}>기타</TextButton>
           </ButtonGroup>
@@ -764,7 +782,7 @@ const OwnerEditMyPage = () => {
         </ProgressList>
       </ProgressContainer>
       </ContentSection>
-        {showModal && (
+        {/* {showModal && (
             <ModalOverlay>
                 <ModalBox>
                     <ModalText>
@@ -781,7 +799,7 @@ const OwnerEditMyPage = () => {
                     </ModalBtnRow>
                 </ModalBox>
             </ModalOverlay>
-            )}
+            )} */}
     </PageContainer>
   );
 };
@@ -1130,9 +1148,10 @@ const SearchBtnBox = styled.div`
 const ResultList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  width: 600px; // 
+  gap: 10px;
   margin-top: 14px;
-  max-height: 330px;
+  max-height: 200px;
   overflow-y: auto;
 
   scrollbar-width: thin;

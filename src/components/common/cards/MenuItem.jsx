@@ -22,14 +22,16 @@ const MenuContainer = styled.div`
 `;
 
 const MenuImg = styled.img`
-width: 120px; // 원래 120px이 맞음
-  height: 120px; // 원래 120px이 맞음
+  width: 100%;
+  aspect-ratio: 1/1;
+  // width: 120px; // 원래 120px이 맞음
+  // height: 120px; // 원래 120px이 맞음
 
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 9px;
-    
+  border-radius: 5px;
 `;
 
 const FakeMenuImage = styled.div`

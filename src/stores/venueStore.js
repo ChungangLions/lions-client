@@ -52,6 +52,7 @@ const originalStores = [
                 record: 8,
                 }
             ];
+            
 const useVenueStore = create(
     persist(
         (set, get) => ({

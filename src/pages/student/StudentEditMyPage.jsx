@@ -10,6 +10,7 @@ import { patchStudentProfile } from "../../services/apis/studentProfileApi";
 import { FiSearch } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { FaCheck } from "react-icons/fa6";
 
 const SECTIONS = [
   { key: "photo", label: "프로필 사진", refKey: "photo" },
@@ -216,26 +217,22 @@ const StudentEditMyPage = () => {
           </TitleContainer>
           <InputBox defaultText="텍스트 입력" value={nameValue} onChange={e => setNameValue(e.target.value)} />
 
+          {/* 주변 캠퍼스 */}
           <TitleContainer ref={sectionRefs.campus}>
-            <Title> 학교 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <Title> 주변 캠퍼스 </Title>
+             <SubTitle>가게 근처 캠퍼스를 검색하여 입력해 주세요.</SubTitle>
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > 대학 검색 <SearchIcon /></SearchCampusButton>
-          {campusName && (
-            <ResultTitle>
-              선택한 캠퍼스: {campusName}
-            </ResultTitle>
-          )}
-            <CampusSearchModal
+          > {campusName ? campusName : "대학 검색"} <SearchIcon /></SearchCampusButton>
+          <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
             onSelect={campus => {
-                setCampusName(campus.name);
-                setShowCampusModal(false);
+              setCampusName(campus.name);
+              setShowCampusModal(false);
             }}
-            />
+          />
         </EditContainer>
       </MainContainer>
 
@@ -252,7 +249,7 @@ const StudentEditMyPage = () => {
               $filled={isSectionFilled[item.key]}
               onClick={() => scrollToSection(item.refKey)}
             >
-              V {item.label}
+              <FaCheck /> {item.label}
             </ProgressItem>
           ))}
         </ProgressList>

@@ -3,7 +3,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import styled from "styled-components";
 
 const DropDown = ({ options, onClick}) => {
-  const [selected, setSelected] = useState("정렬");
+  const [selected, setSelected] = useState("기본 순");
   const [open, setOpen] = useState(false);
 
   const handleSelect = (option) => {
