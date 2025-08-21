@@ -43,8 +43,8 @@ const OwnerSendSuggest = () => {
         };
         
         (response.results || response || []).forEach(proposal => {
-          console.log('제안서 상태:', proposal.status, proposal); // 디버깅용 로그
-          switch(proposal.status) {
+          console.log('제안서 상태:', proposal.current_status, proposal); 
+          switch(proposal.current_status) {
             case 'UNREAD':
               stats.unread++;
               break;
@@ -60,14 +60,10 @@ const OwnerSendSuggest = () => {
             case 'DRAFT':
               stats.writing++;
               break;
-            default:
-              // 알 수 없는 상태는 미열람으로 처리
-              console.log('알 수 없는 상태:', proposal.status);
-              stats.unread++;
           }
         });
         
-        console.log('계산된 통계:', stats); // 디버깅용 로그
+        console.log('계산된 통계:', stats); // 총 개수 계산
         setSummaryStats(stats);
       } catch (error) {
         console.error('보낸 제안서 조회 실패:', error);
@@ -91,16 +87,13 @@ const OwnerSendSuggest = () => {
   // 제안서 데이터를 organization 형태로 변환
   const proposalOrganizations = sentProposals.map(proposal => ({
     id: proposal.id,
-    name: proposal.recipient?.name || proposal.recipient || '알 수 없음',
-    description: proposal.title || '제목 없음',
-    status: proposal.status,
+    name: proposal.recipient?.name || proposal.recipient ,
+    description: proposal.title ,
+    status: proposal.current_status,
     created_at: proposal.created_at,
-    // OrgCardSection에서 사용하는 필드들 추가
-    writtenDate: proposal.created_at ? new Date(proposal.created_at).toLocaleDateString('ko-KR') : '날짜 없음',
-    // UserInfo 컴포넌트에서 사용하는 필드들 추가
-    council_name: proposal.recipient?.council_name || proposal.recipient?.name || '조직명 없음',
-    department: proposal.recipient?.department || '부서명 없음',
-    // 기타 필요한 필드들 추가
+    writtenDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
+    council_name: proposal.recipient?.council_name || proposal.recipient?.name ,
+    department: proposal.recipient?.department,
     ...proposal
   }));
 
