@@ -103,7 +103,7 @@ const OwnerHome = () => {
             ButtonComponent={() => (
               <FavoriteBtn 
                 userId={organization.id} 
-                isRecommendActive={likeStores.includes(organization.id)} // 추가!
+                isLikeActive={likeStores.includes(organization.id)} // 추가!
               />
             )}
             organization={organization}
