@@ -6,6 +6,7 @@ import { toggleLikes} from '../../../services/apis/likesapi';
 
 
 const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick }) => {
+  console.log(defaultActive);
 
     const [isLikeActive, setIsLikeActive] = useState(defaultActive);
 

@@ -34,11 +34,15 @@ const GroupHome = () => {
     const fetchUserLikes = async () => {
       const list = await fetchLikes('given');
       setLikeStores(list.map(item => item.target.id));
-      console.log("좋아요한 가게 리스트:", list);
+      // console.log("좋아요한 가게 리스트:", list);
       console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
     };
     fetchUserLikes();
   }, []);
+
+  useEffect(() => {
+    console.log("likeStores 내 데이터 출력:", likeStores);
+  }, [likeStores]);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -135,7 +139,7 @@ const GroupHome = () => {
             ButtonComponent={() => (
               <FavoriteBtn 
                 userId={store.id} 
-                isRecommendActive={likeStores.includes(store.id)} // 추가!
+                isLikeActive={likeStores.includes(store.id)} // 추가!
               />
             )}
             store={store} />
