@@ -11,21 +11,51 @@ import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import useUserStore from '../../stores/userStore';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
+import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 
-const ProposalDetail = () => {
+// 제휴 유형 아이콘
+import { AiOutlineDollar } from "react-icons/ai"; // 할인형
+import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+
+
+
+const ProposalDetail = ({ isAI = false }) => {
   const location = useLocation();
   const { organization } = location.state || {};
   console.log(location.state);
 
+  // AI 제안서인 경우 더 많은 정보를 가져옴
   const { storeName, menuNames, storeImage, error } = useOwnerProfile();
 
-  {/* item 2개 나중에 컴포넌트로 빼야됨 */}
-  const ConditionItem = ({ title, children }) => (
-    <ConditionWrapper>
-      <ConditionTitle>{title}</ConditionTitle>
-      <ConditionContent>{children}</ConditionContent>
-    </ConditionWrapper>
-  );
+  // 제휴 유형 선택 상태 관리
+  const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
+
+  // 수정 모드 상태 관리
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  // 제휴 유형 토글 함수
+  const togglePartnershipType = (type) => {
+    setSelectedPartnershipTypes(prev => {
+      if (prev.includes(type)) {
+        return prev.filter(t => t !== type);
+      } else {
+        return [...prev, type];
+      }
+    });
+  };
+
+  // 수정 모드 토글 함수
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+  };
+
+  // 제휴 유형 데이터
+  const partnershipTypes = [
+    { type: '할인형', icon: AiOutlineDollar },
+    { type: '타임형', icon: MdOutlineAlarm },
+    { type: '리뷰형', icon: MdOutlineArticle },
+    { type: '서비스제공형', icon: MdOutlineRoomService }
+  ];
 
   const TimeItem = ({ day, children }) => (
     <TimeWrapper>
@@ -36,7 +66,7 @@ const ProposalDetail = () => {
   
   return (
     <ProposalContainer>
-      <ProposalCard>
+      <ProposalSection>
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
@@ -46,7 +76,7 @@ const ProposalDetail = () => {
             <HeaderContent>
               <p>안녕하세요.</p>
               <p>귀 학생회의 적극적인 학생 복지 및 교내 활동 지원에 항상 감사드립니다.</p>
-              <p>저희 ‘{storeName}’는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
+              <p>저희 '{storeName}'는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
@@ -54,18 +84,21 @@ const ProposalDetail = () => {
             <OwnerInfo/>
             {/* 제휴 유형, 제휴 조건, 기대 효과, 연락처 */}
             <DetailSection> 
-
+              {/* 제휴 유형 */}
               <DetailBox> 
                 <Title> 
                   <div>제휴 유형</div>
                 </Title> 
                 <ContentBox>  
-                  <IconBox>
-                    할인형
-                  </IconBox>
-                  <IconBox>
-                    타임형
-                  </IconBox>
+                  {partnershipTypes.map(({ type, icon: IconComponent }) => (
+                    <PartnershipTypeBox 
+                      key={type}
+                      children={type} 
+                      IconComponent={IconComponent}
+                      isSelected={selectedPartnershipTypes.includes(type)}
+                      onClick={() => togglePartnershipType(type)}
+                    />
+                  ))}
                 </ContentBox>
                 <TextBox>
                   <TypeList>
@@ -88,50 +121,68 @@ const ProposalDetail = () => {
                   </TypeList>
                 </TextBox>
               </DetailBox>
-
+              
+              {/* 제휴 조건 */}
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
                   <ConditionGroup>
-                    <ConditionItem title="적용 대상">
-                      <p>중앙대학교 경영학부 소속 학생</p>
-                      <p>(학생증 제시 시 적용)</p>
+                    <ConditionItem>
+                      <ConditionLabel>적용 대상</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                      />
                     </ConditionItem>
-                    <ConditionItem title="혜택 내용">
-                      <p>아메리카노 10% 할인</p>
-                      <p>3,500원 → 3,150원</p>
+                    <ConditionItem>
+                      <ConditionLabel>혜택 내용</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                      />
                     </ConditionItem>
                   </ConditionGroup>
                   <ConditionGroup>
-                    <ConditionItem title="적용 시간대">
-                      <TimeItem day="평일">
-                        <p>09:00 - 11:00</p>
-                        <p>19:00 - 21:00</p>
-                      </TimeItem>
-                      <TimeItem day="주말">
-                        <p>11:00 - 13:00</p>
-                      </TimeItem>
+                    <ConditionItem>
+                      <ConditionLabel>적용 시간대</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                        color = "black"
+                      />
                     </ConditionItem>
-                    <ConditionItem title="제휴 기간">
-                      <p>2025년 9월 1일 ~ 11월 30일</p>
-                      <p>(3개월)</p>
+                    <ConditionItem>
+                      <ConditionLabel>제휴 기간</ConditionLabel>
+                      <ConditionInputBox 
+                        defaultText="텍스트를 입력해주세요." 
+                        width="100%"
+                        border="1px solid white"
+                      />
                     </ConditionItem>
                   </ConditionGroup>
                 </ConditionsBox>
               </DetailBox>
 
+              {/* 기대효과  */}
               <DetailBox>
                 <Title> <div>기대 효과</div></Title>
-                  <InputText>
-                  
-                  </InputText>
+                  {isAI ? (
+                    <InputBox />
+                  ) : (
+                    <InputText defaultText="텍스트를 입력해주세요."/>
+                  )}
               </DetailBox>
 
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
-                <InputText>
-                  
-                </InputText>
+                {isAI ? (
+                  <InputBox />
+                ) : (
+                  <InputText defaultText="텍스트를 입력해주세요."/>
+                )}
               </DetailBox>
               
 
@@ -140,16 +191,33 @@ const ProposalDetail = () => {
           </SectionWrapper>
           <Signature>'{storeName}' 드림</Signature>
         </ProposalWrapper>
-      </ProposalCard>
+      </ProposalSection>
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection>
-          <CardSection ButtonComponent={FavoriteBtn}/>
-          <ButtonWrapper>
-            <EditBtn />
-            <ProposalSaveBtn>저장하기</ProposalSaveBtn>
-          </ButtonWrapper>
-          <SendProposalBtn/>
+          <ReceiverWrapper>
+            <CardSection 
+              cardType={isAI ? undefined : "proposal"} 
+              organization={organization} 
+              ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
+            />
+            <ButtonWrapper>
+              <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
+              {isAI ? (
+                // AI일 때: 수정 모드에 따라 다른 버튼 표시
+                isEditMode ? (
+                  <SaveBtn />
+                ) : (
+                  <SendProposalBtn/>
+                )
+              ) : (
+                // 직접 작성할 때: 항상 저장 버튼 표시
+                <ProposalSaveBtn>저장하기</ProposalSaveBtn>
+              )}
+            </ButtonWrapper>
+            {/* AI일 때 수정 모드에서만, 직접 작성할 때는 항상 전송 버튼 표시 */}
+            {((isAI && isEditMode) || !isAI) && <SendProposalBtn/>}
+          </ReceiverWrapper>
         </ReceiverSection>
     </ProposalContainer>
 
@@ -188,31 +256,37 @@ font-weight: 600;
 `;
 
 const ProposalContainer= styled.div`
-  display: flex;
-  flex-direction: row; 
-  gap:19px;
-  align-items: flex-start;
+width: 100%;
+display: flex;
+flex-direction: row;
+gap: 19px;
+justify-content: space-between;
+max-width: 100%;
+padding: 0 20px;
+box-sizing: border-box;
+min-height: 100vh;
 `;
 
-const ProposalCard = styled.div`
-  width: 100%;
-  position: relative;
-  border: 1px solid none;
-  box-sizing: border-box;
-  height: 1211px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 31px 58px;
-  text-align: center;
-  font-size: 24px;
-  color: #000;
-  font-family: Pretendard;
-  background-color: #F4F6F4;
+const ProposalSection = styled.div`
+flex: 64;
+min-width: 797px;
+position: relative;
+border-radius: 5px;
+background-color: #f4f6f4;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-start;
+padding: 31px 58px;
+text-align: center;
+font-size: 24px;
+color: #1a2d06;
+font-family: Pretendard;
 `;
 
 const ProposalWrapper = styled.div`
-  width: 797px;
+  width: 100%;
+  max-width: 797px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -232,16 +306,34 @@ gap:20px;
 `;
 
 const ReceiverSection = styled.div`
-width: 100%;
+flex: 36;
+min-width: 448px;
+max-width: 500px;
 position: sticky;
+top: 80px;
 display: flex;
 flex-direction: column;
+align-items: flex-start;
+justify-content: flex-start;
 gap: 10px;
 text-align: left;
 font-size: 18px;
-color: #000;
+color: #1a2d06;
 font-family: Pretendard;
-top: 80px;
+height: fit-content;
+`;
+
+const ReceiverWrapper = styled.div`
+width: 100%;
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+border-radius: 5px;
+border: 1px solid #e7e7e7;
+box-sizing: border-box;
+height: 241px;
+display: flex;
+flex-direction: column;
+position: relative;
+gap: 10px;
 `;
 
 const SectionWrapper = styled.div`
@@ -323,24 +415,31 @@ font-family: Pretendard;
 
 // 제휴 content 부분
 const Title = styled.div`
-  display: flex;
+display: flex;
 flex-direction: row;
 align-items: center;
-justify-content: center;
-
+justify-content: flex-start;
+text-align: left;
+white-space: nowrap;
 div {
     position: relative;
     font-weight: 600;
+    white-space: nowrap;
   }
 `;
 
 const DetailBox = styled.div`
-align-self: stretch;
+width: 100%;
+position: relative;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
 gap: 10px;
+text-align: left;
+font-size: 20px;
+color: #1a2d06;
+font-family: Pretendard;
 `;
 
 const ContentBox = styled.div`
@@ -353,18 +452,10 @@ text-align: center;
 font-size: 16px;
 `;
 
-const IconBox = styled.div`
-width: 122px;
-border-radius: 4.55px;
-background-color: #fff;
-height: 122px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-padding: 10px 4.6px 10.9px;
-box-sizing: border-box;
-gap: 14.1px;
+const ConditionInputBox = styled(InputBox)`
+color: #898989;
+text-align: left;
+font-size: 16px;
 `;
 
 const TextBox = styled.div`
@@ -410,33 +501,47 @@ const SectionContainer = styled.div`
 
 
 const ConditionsBox = styled.div`
-  align-self: stretch;
-  border-radius: 5px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 15px 20px;
-  gap: 62px;
-  font-size: 16px;
-  color: #898989;
+align-self: stretch;
+border-radius: 5px;
+background-color: #fff;
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+justify-content: space-between;
+padding: 15px 20px;
+gap: 40px;
+font-size: 16px;
 `;
 
 const ConditionGroup = styled.div`
+width: 50%;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: flex-start;
+gap: 39px;
+`;
+
+const ConditionItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 39px;
+  gap: 15px;
+  width: 100%;
 `;
 
-const ConditionWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 37px;
+const ConditionLabel = styled.div`
+position: relative;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: center;
+font-size: 16px;
+color: #1a2d06;
+font-family: Pretendard;
+font-weight: 600;
+white-space: nowrap;
 `;
 
 const ConditionTitle = styled.div`

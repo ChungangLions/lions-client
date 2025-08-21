@@ -107,9 +107,11 @@ const OwnerMyPage = () => {
 
   const infos = {
     partnershipNum: 7,
+
     userLikes,
     userRecommends,
     etc: [`영업일 및 시간 ${profileData?.business_day}`, `${profileData?.contact}`],
+
     partnershipType: ['할인형', '타임형'],
   };
 

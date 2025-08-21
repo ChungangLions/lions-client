@@ -8,10 +8,10 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
   let cardData = [];
 
 
-  if (cardType === 'home') {
+  if (cardType === 'home' || cardType === 'proposal') {
     cardData = [
       { label: '소속 학생 수', value: organization.student_size }, // student_size로 바꿔야됨 
-      { label: '희망 제휴 기간', value: `${organization.date.start} ~ ${organization.date.end} (${organization.period}개월)` },
+      { label: '희망 제휴 기간', value: `${organization.partnership_start} ~ ${organization.partnership_end} (${organization.period}개월)` },
       { label: '제휴 이력', value: `${organization.record}회` },
     ];
   } else if (cardType === 'suggest-received') {
@@ -42,7 +42,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
         <ButtonWrapper $isHome={cardType === 'home'}>
             <ButtonComponent 
               organization={organization}
-              isLiked={organization.is_liked}
+              isLiked={organization?.is_liked ?? false}
               onToggle={handleToggle}
             />
         </ButtonWrapper>
@@ -69,7 +69,7 @@ text-align: left;
 font-size: 18px;
 color: #1a2d06;
 font-family: Pretendard;
-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 cursor: pointer;
 `;
 

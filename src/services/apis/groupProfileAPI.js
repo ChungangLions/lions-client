@@ -58,19 +58,27 @@ export function mappedOrg(user, idx) {
         (endDate.getMonth() - startDate.getMonth()) + 1
       : null;
 
+
+    // user 필드가 객체로 오면 id만 추출
+    const userId = typeof user?.user === 'object' && user?.user !== null
+      ? user.user.id
+      : user?.user ?? idx;
+
+
     return {
       id: user?.id ?? idx,
-      user: user?.user ?? null,
-      university: user?.university || "알 수 없음",
+      user: userId,
+      university_name: user?.university || "알 수 없음",
       department: user?.department || "",
       council_name: user?.council_name || "",
       position: user?.position || "",
       student_size: safeToStringCount(user?.student_size),
-      is_liked: user?.is_liked ?? false,
-      date: {
-        start: user?.partnership_start ? user.partnership_start.slice(0, 10) : (user?.created_at?.slice(0, 7) || ""),
-        end: user?.partnership_end ? user.partnership_end.slice(0, 10) : (user?.modified_at?.slice(0, 7) || ""),
-      },
+      is_liked: user?.is_liked ?? false, // 찜 저장용
+      partnership_start: user?.partnership_start ? user.partnership_start.slice(0, 10) : (user?.created_at?.slice(0, 7) || ""),
+      partnership_end: user?.partnership_end ? user.partnership_end.slice(0, 10) : (user?.modified_at?.slice(0, 7) || ""),
       period,
+      term_start : user?.term_start,
+      term_end : user?.term_end,
+      photos: user?.photos?.map(photo => photo.image) // url 배열
     };
 }
