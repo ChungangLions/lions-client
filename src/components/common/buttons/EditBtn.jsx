@@ -22,8 +22,8 @@ const EditButton = styled.button`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 13px 81px;
-  text-align: left;
+  padding: 0 12px;
+  text-align: center;
   font-size: 16px;
   color: #64a10f;
   font-family: Pretendard;

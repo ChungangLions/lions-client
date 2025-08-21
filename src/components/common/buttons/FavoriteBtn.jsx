@@ -2,52 +2,33 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
-import { togglelikes } from '../../../services/apis/likesapi';
-import useUserStore from '../../../stores/userStore';
-import useOwnerProfile from '../../../hooks/useOwnerProfile';
-import useFavoriteStore from '../../../stores/favoriteStore';
+import { toggleLikes} from '../../../services/apis/likesapi';
 
 
-const FavoriteBtn = ({ organization, isLiked = false, onToggle }) => {
+const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick }) => {
 
-    const { favorites, toggleFavorite } = useFavoriteStore();
+    const [isLikeActive, setIsLikeActive] = useState(defaultActive);
+
+    useEffect(() => {
+    setIsLikeActive(defaultActive);
+  }, [defaultActive]); // prop이 바뀌면 변경됨
 
 
-    const isHeartActive = favorites[organization.id] || false;
- 
     const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
-        const prevState = isHeartActive;
-        
-        const newState = !isHeartActive;
-        onToggle && onToggle(newState);
-
-        toggleFavorite(organization.id, newState);
+        setIsLikeActive(!isLikeActive);
         
         try {
-            const targetUserId = organization?.user;
-            console.log('찜 토글 target userId:', targetUserId, 'org:', organization);
-            if (!targetUserId) throw new Error('학생단체 user id가 비어있습니다.');
-
-            const like_result = await togglelikes(targetUserId);
-            console.log("찜 토글 결과:", like_result); // 응답 status : liked, unliked
-            
-            if ((String(like_result.status).toLowerCase() === "liked" && !newState) || (String(like_result.status).toLowerCase() === "unliked" && newState))
-                 {
-                toggleFavorite(organization.id, false);
-                onToggle && onToggle(false);
-            } else {
-                onToggle && onToggle(newState);
-            }
+          await toggleLikes(userId);
         } catch (error) {
-            console.error("찜 토글 실패:", error);
-            toggleFavorite(organization.id, prevState);
+          console.error("토글 실패:", error);
+          setIsLikeActive(isLikeActive);
         }
-    };
+      };
 
     return (
         <StyledButton onClick={handleClick}>
-            { isHeartActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
+            { isLikeActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
         </StyledButton>
     )
 

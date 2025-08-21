@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px"}) => {
+const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px", readOnly=false, disabled=false, onClick }) => {
   return (
     <InputWrapper $width={width}>
       <TextInput
@@ -12,6 +12,9 @@ const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, ty
         $border={border}
         value={value}
         onChange={onChange}
+        readOnly={readOnly}
+        disabled={disabled}
+        onClick={onClick}
       />
       {unit && <InputUnit>{unit}</InputUnit>}
     </InputWrapper>

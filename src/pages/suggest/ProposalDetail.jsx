@@ -1,3 +1,5 @@
+// 이거 하나에 다하려니까 함수 너무 길어져서 나중에 리팩토링 해야댐 ㅠ 
+
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import SendProposalBtn from '../../components/common/buttons/SendProposalBtn';
@@ -17,10 +19,10 @@ import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-i
 import createProposal, { editProposal } from '../../services/apis/proposalAPI';
 
 
-
-const ProposalDetail = ({ isAI = false }) => {
+const ProposalDetail = () => {
   const location = useLocation();
-  const { organization } = location.state || {};
+  const { organization, proposalData, isAI: isAIFromState } = location.state || {};
+  const isAI = typeof isAIFromState === 'boolean' ? isAIFromState : Boolean(proposalData); // proposalData 있으면 ai 돌렸다는거니까 isAI = true
   console.log(location.state);
 
   const { storeName, contactInfo } = useOwnerProfile();
@@ -28,6 +30,24 @@ const ProposalDetail = ({ isAI = false }) => {
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
+  
+  // proposalData로부터 초기 선택 상태 동기화 (라벨/영문 코드 모두 대응)
+  useEffect(() => {
+    const normalizePartnershipTypes = (types) => {
+      const reverseMap = {
+        DISCOUNT: '할인형',
+        TIME: '타임형',
+        REVIEW: '리뷰형',
+        SERVICE: '서비스제공형',
+      };
+      if (!Array.isArray(types)) return [];
+      return types.map((t) => reverseMap[t] || t).filter(Boolean);
+    };
+
+    if (proposalData?.partnership_type?.length) {
+      setSelectedPartnershipTypes(normalizePartnershipTypes(proposalData.partnership_type));
+    }
+  }, [proposalData]);
   
   // 제휴 조건 입력 
   const [partnershipConditions, setPartnershipConditions] = useState({
@@ -38,9 +58,36 @@ const ProposalDetail = ({ isAI = false }) => {
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
-  const [contact, setContact] = useState(contactInfo);
+  const [contact, setContact] = useState('');
 
-  // 수정 누르면 저장 하기 뜨게 
+  // proposalData 가져오기
+  useEffect(() => {
+    if (!proposalData) return;
+
+    const formattedTimeWindows = Array.isArray(proposalData.time_windows)
+      ? proposalData.time_windows
+          .map(
+            (time) =>
+              `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+          )
+          .join(" / ")
+      : '';
+
+    setPartnershipConditions({
+      applyTarget: proposalData.apply_target || '',
+      benefitDescription: proposalData.benefit_description || '',
+      timeWindows: formattedTimeWindows,
+      partnershipPeriod:
+        proposalData.period_start && proposalData.period_end
+          ? `${proposalData.period_start} ~ ${proposalData.period_end}`
+          : '',
+    });
+
+    if (isAI) setExpectedEffects(proposalData.expected_effects || '');
+    if (contactInfo) setContact(contactInfo);
+  }, [proposalData, isAI]);
+
+  // 
   const [isEditMode, setIsEditMode] = useState(false);
 
   // 제휴 유형 토글 
@@ -77,7 +124,7 @@ const ProposalDetail = ({ isAI = false }) => {
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
       partnership_period: partnershipConditions.partnershipPeriod,
-      contact_info: contactInfo,
+      contact_info: contact,
       title: '제안서',
       contents: '제휴 내용',
     };
@@ -118,7 +165,7 @@ const ProposalDetail = ({ isAI = false }) => {
       }
 
       const createData = {
-        recipient: organization.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: organization?.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
@@ -160,13 +207,13 @@ const ProposalDetail = ({ isAI = false }) => {
   const handleSave = async () => {
 
     const createData = {
-        recipient: organization.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: organization?.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        contact_info: contactInfo || "010", // 연락처
+        contact_info: contactInfo, // 연락처
         title: "제안서",
         contents: "제휴 내용",
       };
@@ -183,6 +230,7 @@ const ProposalDetail = ({ isAI = false }) => {
       console.error('제안서 전송 오류:', error);
     }
   };
+
 
   // 제휴 유형 데이터
   const partnershipTypes = [
@@ -237,7 +285,7 @@ const ProposalDetail = ({ isAI = false }) => {
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
-            <p>{organization.university} {organization.department} {organization.council_name}</p>
+            <p>{organization?.university || ''} {organization?.department || ''} {organization?.council_name || ''}</p>
             <p>제휴 요청 제안서</p>
             </HeaderTitle>
             <HeaderContent>
@@ -360,14 +408,14 @@ const ProposalDetail = ({ isAI = false }) => {
                   <InputBox 
                     defaultText="텍스트를 입력해주세요."
                     width="100%"
-                    value={contact}
+                    value={contactInfo}
                     onChange={(e) => setContact(e.target.value)}
                   />
                 ) : (
                   <InputBox 
                     defaultText="텍스트를 입력해주세요."
                     width="100%"
-                    value={contact}
+                    value={contactInfo}
                     onChange={(e) => setContact(e.target.value)}
                   />
                 )}
@@ -387,24 +435,13 @@ const ProposalDetail = ({ isAI = false }) => {
             <CardSection 
               cardType={isAI ? undefined : "proposal"} 
               organization={organization} 
-              ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
+              ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={() => {toggleEditMode(); handleEdit();}} isEditMode={isEditMode} />
-              {isAI ? (
-                // AI일 때: 수정 누르냐에 따라 다른 버튼 표시
-                isEditMode ? (
-                  <SaveBtn onClick={handleSave} />
-                ) : (
-                  <SendProposalBtn onClick={handleSend}/>
-                )
-              ) : (
-                // 직접 작성할 때: 항상 저장 버튼 표시
-                <ProposalSaveBtn onClick={handleSave}>저장하기</ProposalSaveBtn>
-              )}
+              <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+              <SaveBtn onClick={handleSave} />
+              <SendProposalBtn onClick={handleSend}/>
             </ButtonWrapper>
-            {/* AI일 때 수정에서만, 직접 작성할 때는 항상 전송 버튼 표시 */}
-            {((isAI && isEditMode) || !isAI) && <SendProposalBtn onClick={handleSend}/>}
           </ReceiverWrapper>
         </ReceiverSection>
     </ProposalContainer>
@@ -413,35 +450,6 @@ const ProposalDetail = ({ isAI = false }) => {
 }
 
 export default ProposalDetail
-
-const ProposalSaveBtn = styled.button`
-width: 100%;
-position: relative;
-border-radius: 5px;
-border: 1px solid #64a10f;
-box-sizing: border-box;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 81px;
-text-align: left;
-font-size: 16px;
-color: #64a10f;
-background-color: white;
-font-family: Pretendard;
-font-weight: 600;
-
-&:hover {
-    background-color: #e9f4d0; 
-  }
-
-  &:active {
-    background-color: #64a10f; 
-    color: #e9f4d0;           
-  }
-`;
 
 const ProposalContainer= styled.div`
 width: 100%;
@@ -518,7 +526,7 @@ box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 border-radius: 5px;
 border: 1px solid #e7e7e7;
 box-sizing: border-box;
-height: 241px;
+height: auto;
 display: flex;
 flex-direction: column;
 position: relative;
@@ -565,10 +573,15 @@ p {
 `;
 
 const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction : row;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
+  width: 100%;
+  margin-top: 4px;
 
+  & > *:nth-child(3) {
+    grid-column: 1 / -1;
+  }
 `;
 
 const LineDiv = styled.div`

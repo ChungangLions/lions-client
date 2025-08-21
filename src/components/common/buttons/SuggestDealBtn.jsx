@@ -12,13 +12,11 @@ const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 로그인 한 유저 정보 가져오기
-  const {userId, userRole} = useUserStore();
-
+ 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingVariant, setLoadingVariant] = useState('form');
 
-  // '예'를 누르면 바로 ai 제안서 생성 
+  // '예'를 누르면 바로 ai 제안서 생성  : 사장 -> 학생회
   const handleProposal = async () => {
     setLoadingVariant('ai');
     setIsLoading(true);
@@ -27,11 +25,11 @@ const SuggestDealBtn = ({organization}) => {
       const recipient = organization.user;
       const contact_info = String(organization.contact || '');
 
-      const responseData = await getAIDraftProposal(recipient, contact_info);
-      console.log("제안서 내용", responseData);
+      const proposalData = await getAIDraftProposal(recipient, contact_info);
+      console.log("제안서 내용", proposalData);
 
       // AI 제안서 페이지로 이동 
-      navigate('/owner/proposal', { state: { organization, isAI: true } });
+      navigate('/owner/proposal', { state: { organization, isAI: true, proposalData } });
     } catch (error) {
       console.error("제안서를 생성하는데 실패했습니다.", error);
     } finally {

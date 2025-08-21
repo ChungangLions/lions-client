@@ -27,7 +27,7 @@ function App() {
       <Route element={<MainLayout hasMenu={false}/>}>
         <Route path="/owner" element={<OwnerHome />} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
-        <Route path="owner/student-group-profile" element={<StudentGroupProfile/>} />
+        <Route path="owner/student-group-profile/:id" element={<StudentGroupProfile/>} />
         <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
         <Route path="/group" element={<GroupHome />}/>
         <Route path="/group/store-profile/:id" element={<OwnerMyPage />} />

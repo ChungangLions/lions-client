@@ -4,7 +4,7 @@ import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
 import useStudentOrgStore from '../../../stores/studentOrgStore'
 
-const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => {
+const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, userId}) => {
   let cardData = [];
 
 
@@ -44,6 +44,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
               organization={organization}
               isLiked={organization?.is_liked ?? false}
               onToggle={handleToggle}
+              userId={organization.id} 
             />
         </ButtonWrapper>
       </CardGroup>
