@@ -4,7 +4,6 @@ import LandingPage from './pages/landing/LandingPage';
 import OwnerHome from './pages/owner/OwnerHome';
 import GroupHome from './pages/studentGroup/GroupHome';
 import StudentHome from './pages/student/StudentHome';
-import ProposalDetail from './pages/owner/ProposalDetail';
 import MainLayout from './layout/MainLayout';
 import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
@@ -16,6 +15,7 @@ import StudentMyPage from './pages/student/StudentMyPage';
 import StudentGroupProfile from './pages/owner/StudentGroupProfile';
 import StudentEditMyPage from './pages/student/StudentEditMyPage';
 import OwnerProfile from './pages/student/OwnerProfile';
+import ProposalDetail from './pages/suggest/ProposalDetail';
 
 function App() {
   return (
