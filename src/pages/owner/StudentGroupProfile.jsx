@@ -9,12 +9,14 @@ import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
+import { fetchLikes } from '../../services/apis/likesapi'
 
 const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore(); // 
   const location = useLocation();
   const userType = location.state?.userType || "student_group";
+  const [isLikeActive, setIsLikeActive] = useState(false);
   const { organization } = location.state || {};
   console.log(location.state);
 
@@ -40,6 +42,26 @@ const StudentGroupProfile = () => {
     ];
   
     //console.log(organization);
+
+  useEffect(() => {
+    async function fetchData() {
+      const list = await fetchLikes('given');
+      // 추천한 가게 id 배열 생성
+      const likedStoreIds = list.map(item => String(item.target.id));
+
+      // 버튼 활성화 여부 결정
+      if (likedStoreIds.includes(groupId)) {
+        // console.log('true');
+        setIsLikeActive(true);
+      } else {
+        // console.log('false');
+        setIsLikeActive(false);
+      }
+
+      console.log("그룹 id:", groupId, "active 여부:", isLikeActive);
+    }
+    fetchData();
+  }, [groupId]);
     
 
   return (
@@ -65,7 +87,7 @@ const StudentGroupProfile = () => {
           {userType === "owner" ? (
             <ButtonGroup>
               <FavoriteBox >
-                <FavoriteBtn organization={organization} isLiked={organization?.is_liked} />
+                <FavoriteBtn userId={groupId} isLikeActive={isLikeActive} />
                 찜하기
               </FavoriteBox>
               <SuggestDealBtn organization={ organization} />

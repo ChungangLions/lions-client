@@ -14,6 +14,7 @@ import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { LuCalendar } from "react-icons/lu";
 import { LuPhone } from "react-icons/lu";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { fetchLikes } from '../../services/apis/likesapi';
 
 
 const OwnerMyPage = () => {
@@ -25,6 +26,7 @@ const OwnerMyPage = () => {
   const location = useLocation();
   const userType = location.state?.userType || "owner";
   const [isRecommendActive, setIsRecommendActive] = useState(false);
+  const [isLikeActive, setIsLikeActive] = useState(false);
 
   useEffect(() => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
@@ -137,6 +139,24 @@ const OwnerMyPage = () => {
       }
       fetchData();
     }
+    if (userType === 'studentOrganization') {
+      async function fetchData() {
+        const list = await fetchLikes('given');
+        // 추천한 가게 id 배열 생성
+        const likedStoreIds = list.map(item => String(item.target.id));
+        const currentStoreId = params.id;
+
+        // 버튼 활성화 여부 결정
+        if (likedStoreIds.includes(currentStoreId)) {
+          // console.log('true');
+          setIsLikeActive(true);
+        } else {
+          // console.log('false');
+          setIsLikeActive(false);
+        }
+      }
+      fetchData();
+    }
   }, [userType, params.id]);
 
     const handleRecommendClick = async (event) => {
@@ -167,7 +187,10 @@ const OwnerMyPage = () => {
             <StyledBtn style={{ textDecoration: 'none' }} $active={isRecommendActive} onClick={handleRecommendClick}>추천하기</StyledBtn>
           ) : userType === "studentOrganization" ? (
             <>
-              <FavoriteBtn />
+              <FavoriteBtn
+                userId={params.id} 
+                isLikeActive={isLikeActive} // 추가!
+              />
               <StyledBtn>제휴 제안하기</StyledBtn>
             </>
           ) : (
