@@ -16,6 +16,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+import { createProposal } from '../../services/apis/proposalAPI';
 
 
 
@@ -24,15 +25,26 @@ const ProposalDetail = ({ isAI = false }) => {
   const { organization } = location.state || {};
   console.log(location.state);
 
-  const { storeName } = useOwnerProfile();
+  const { storeName, contactInfo } = useOwnerProfile();
 
-  // 제휴 유형 선택 상태 관리
+  // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
+  
+  // 제휴 조건 입력 
+  const [partnershipConditions, setPartnershipConditions] = useState({
+    applyTarget: null,
+    benefitDescription: '',
+    timeWindows: '',
+    partnershipPeriod: ''
+  });
 
-  // 수정 모드 상태 관리
+  const [expectedEffects, setExpectedEffects] = useState('');
+  const [contact, setContact] = useState(contactInfo);
+
+  // 수정 누르면 저장 하기 뜨게 
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // 제휴 유형 토글 함수
+  // 제휴 유형 토글 
   const togglePartnershipType = (type) => {
     setSelectedPartnershipTypes(prev => {
       if (prev.includes(type)) {
@@ -46,6 +58,100 @@ const ProposalDetail = ({ isAI = false }) => {
   // 수정 모드 토글 함수
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
+  };
+
+  // 제휴 조건 입력 
+  const handleConditionChange = (field, value) => {
+    setPartnershipConditions(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
+  const handleSend = async () => {
+    try {
+      // **저장하기는 필드 검증 필요 없음 
+      if (selectedPartnershipTypes.length === 0) {
+        alert('제휴 유형을 선택해주세요.');
+        return;
+      }
+
+      if (!partnershipConditions.applyTarget || 
+          !partnershipConditions.benefitDescription || 
+          !partnershipConditions.timeWindows || 
+          !partnershipConditions.partnershipPeriod) {
+        alert('제휴 조건을 모두 입력해주세요.');
+        return;
+      }
+
+      if (!expectedEffects.trim()) {
+        alert('기대 효과를 입력해주세요.');
+        return;
+      }
+
+      if (!contact.trim()) {
+        alert('연락처를 입력해주세요.');
+        return;
+      }
+
+      const createData = {
+        recipient: organization.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        apply_target: partnershipConditions.applyTarget, // 적용 대상
+        time_windows: partnershipConditions.timeWindows, // 적용 시간대
+        benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
+        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        expected_effects: expectedEffects, // 기대 효과
+        contact_info: contact || "", // 연락처
+      };
+
+      console.log('제안서 데이터:', createData);
+      
+      const response = await createProposal(createData);
+      
+    } catch (error) {
+      console.error('제안서 생성 오류:', error);
+    }
+  };
+
+
+  const mapPartnership = (partnershipType) => {
+    if (selectedPartnershipTypes === '할인형') {
+      partnershipType = 'DISCOUNT';   
+    } else if (selectedPartnershipTypes === '타임형'){
+      partnershipType = 'TIME';
+    } else if (selectedPartnershipTypes === '리뷰형'){
+      partnershipType = 'REVIEW';
+    } else if (selectedPartnershipTypes === '서비스제공형'){
+      partnershipType = 'SERVICE';
+    }
+  }
+
+
+  // 저장하기는 일부 필드 비워져있어도 가능 
+  const handleSave = async () => {
+
+    const createData = {
+        recipient: organization.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        apply_target: partnershipConditions.applyTarget, // 적용 대상
+        time_windows: partnershipConditions.timeWindows, // 적용 시간대
+        benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
+        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        expected_effects: expectedEffects, // 기대 효과
+        contact_info: contactInfo || "010", // 연락처
+        title: "제안서",
+        contents: "제휴 내용",
+      };
+ 
+      console.log('제안서 데이터:', createData);
+
+    try {
+      const response = await createProposal(createData);
+    } catch (error) {
+      console.error('제안서 전송 오류:', error);
+    }
   };
 
   // 제휴 유형 데이터
@@ -73,8 +179,8 @@ const ProposalDetail = ({ isAI = false }) => {
     const midTop = 300; // 중간 위치
     const maxTop = 600; // 최종 위치
     
-    const stage1Threshold = 200; // 1단계 임계값
-    const stage2Threshold = 600; // 2단계 임계값
+    const stage1Threshold = 200; // 임계값1
+    const stage2Threshold = 600; // 임계값2
 
     // 시작 위치에서 중간 위치로
     if (scrollY <= stage1Threshold) {
@@ -94,13 +200,6 @@ const ProposalDetail = ({ isAI = false }) => {
     return maxTop ;
   };
 
-
-  const TimeItem = ({ day, children }) => (
-    <TimeWrapper>
-      <TimeTitle>{day}</TimeTitle>
-      <TimeContent>{children}</TimeContent>
-    </TimeWrapper>
-);
   
   return (
     <ProposalContainer>
@@ -167,37 +266,44 @@ const ProposalDetail = ({ isAI = false }) => {
                   <ConditionGroup>
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
-                      <ConditionInputBox 
-                        defaultText="텍스트를 입력해주세요." 
+                      <InputBox 
+                        defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
                         width="100%"
-                        border="1px solid white"
+                        border="1px solid #E5E5E5"
+                        value={partnershipConditions.applyTarget}
+                        onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
                       />
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>혜택 내용</ConditionLabel>
-                      <ConditionInputBox 
-                        defaultText="텍스트를 입력해주세요." 
+                      <InputBox 
+                        defaultText="(예시) 아메리카노 10% 할인" 
                         width="100%"
-                        border="1px solid white"
+                        border="1px solid #E5E5E5"
+                        value={partnershipConditions.benefitDescription}
+                        onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
                       />
                     </ConditionItem>
                   </ConditionGroup>
                   <ConditionGroup>
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
-                      <ConditionInputBox 
-                        defaultText="텍스트를 입력해주세요." 
+                      <InputBox 
+                        defaultText="(예시) 평일 13:00 - 15:00" 
                         width="100%"
-                        border="1px solid white"
-                        color = "black"
+                        border="1px solid #E5E5E5"
+                        value={partnershipConditions.timeWindows}
+                        onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
                       />
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
-                      <ConditionInputBox 
-                        defaultText="텍스트를 입력해주세요." 
+                      <InputBox 
+                        defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
                         width="100%"
-                        border="1px solid white"
+                        border="1px solid #E5E5E5"
+                        value={partnershipConditions.partnershipPeriod}
+                        onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -208,18 +314,34 @@ const ProposalDetail = ({ isAI = false }) => {
               <DetailBox>
                 <Title> <div>기대 효과</div></Title>
                   {isAI ? (
-                    <InputBox />
+                    <InputBox 
+                      placeholder="텍스트를 입력해주세요."
+                      value={expectedEffects}
+                      onChange={(e) => setExpectedEffects(e.target.value)}
+                    />
                   ) : (
-                    <InputText defaultText="텍스트를 입력해주세요."/>
+                    <InputBox 
+                      placeholder="텍스트를 입력해주세요."
+                      value={expectedEffects}
+                      onChange={(e) => setExpectedEffects(e.target.value)}
+                    />
                   )}
               </DetailBox>
 
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
                 {isAI ? (
-                  <InputBox />
+                  <InputBox 
+                    placeholder="텍스트를 입력해주세요."
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
+                  />
                 ) : (
-                  <InputText defaultText="텍스트를 입력해주세요."/>
+                  <InputBox 
+                    placeholder="텍스트를 입력해주세요."
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
+                  />
                 )}
               </DetailBox>
               
@@ -244,17 +366,17 @@ const ProposalDetail = ({ isAI = false }) => {
               {isAI ? (
                 // AI일 때: 수정 모드에 따라 다른 버튼 표시
                 isEditMode ? (
-                  <SaveBtn />
+                  <SaveBtn onClick={handleSave} />
                 ) : (
-                  <SendProposalBtn/>
+                  <SendProposalBtn onClick={handleSend}/>
                 )
               ) : (
                 // 직접 작성할 때: 항상 저장 버튼 표시
-                <ProposalSaveBtn>저장하기</ProposalSaveBtn>
+                <ProposalSaveBtn onClick={handleSave}>저장하기</ProposalSaveBtn>
               )}
             </ButtonWrapper>
             {/* AI일 때 수정 모드에서만, 직접 작성할 때는 항상 전송 버튼 표시 */}
-            {((isAI && isEditMode) || !isAI) && <SendProposalBtn/>}
+            {((isAI && isEditMode) || !isAI) && <SendProposalBtn onClick={handleSend}/>}
           </ReceiverWrapper>
         </ReceiverSection>
     </ProposalContainer>
