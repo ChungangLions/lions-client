@@ -7,8 +7,6 @@ import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { useLocation } from 'react-router-dom';
-import { getOwnerProfile } from '../../services/apis/ownerAPI';
-import useUserStore from '../../stores/userStore';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -16,7 +14,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import { createProposal } from '../../services/apis/proposalAPI';
+import { createProposal, editProposal } from '../../services/apis/proposalAPI';
 
 
 
@@ -32,7 +30,7 @@ const ProposalDetail = ({ isAI = false }) => {
   
   // 제휴 조건 입력 
   const [partnershipConditions, setPartnershipConditions] = useState({
-    applyTarget: null,
+    applyTarget: '',
     benefitDescription: '',
     timeWindows: '',
     partnershipPeriod: ''
@@ -66,6 +64,31 @@ const ProposalDetail = ({ isAI = false }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // 수정하기
+  const handleEdit = async () => {
+    
+    const updateData = {
+      recipient: organization?.id,
+      partnership_type: mapPartnership(selectedPartnershipTypes),
+      apply_target: partnershipConditions.applyTarget,
+      time_windows: partnershipConditions.timeWindows,
+      benefit_description: partnershipConditions.benefitDescription,
+      partnership_period: partnershipConditions.partnershipPeriod,
+      expected_effects: expectedEffects,
+      contact_info: contactInfo,
+      title: '제안서',
+      contents: '제휴 내용',
+    };
+
+    try {
+      const response = await editProposal(organization?.id , updateData);
+      console.log('제안서 수정 완료:', response);
+      setIsEditMode(false);
+    } catch (error) {
+      console.error('제안서 수정 실패:', error);
+    }
   };
 
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
@@ -116,17 +139,19 @@ const ProposalDetail = ({ isAI = false }) => {
   };
 
 
-  const mapPartnership = (partnershipType) => {
-    if (selectedPartnershipTypes === '할인형') {
-      partnershipType = 'DISCOUNT';   
-    } else if (selectedPartnershipTypes === '타임형'){
-      partnershipType = 'TIME';
-    } else if (selectedPartnershipTypes === '리뷰형'){
-      partnershipType = 'REVIEW';
-    } else if (selectedPartnershipTypes === '서비스제공형'){
-      partnershipType = 'SERVICE';
+  const mapPartnership = (selected) => {
+    const typeMap = {
+      '할인형': 'DISCOUNT',
+      '타임형': 'TIME',
+      '리뷰형': 'REVIEW',
+      '서비스제공형': 'SERVICE',
+    };
+
+    if (Array.isArray(selected)) {
+      return selected.map((label) => typeMap[label]).filter(Boolean);
     }
-  }
+    return typeMap[selected] || null;
+  };
 
 
   // 저장하기는 일부 필드 비워져있어도 가능 
@@ -269,7 +294,7 @@ const ProposalDetail = ({ isAI = false }) => {
                       <InputBox 
                         defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
                         width="100%"
-                        border="1px solid #E5E5E5"
+                        border="1px solid #E9E9E9"
                         value={partnershipConditions.applyTarget}
                         onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
                       />
@@ -279,7 +304,7 @@ const ProposalDetail = ({ isAI = false }) => {
                       <InputBox 
                         defaultText="(예시) 아메리카노 10% 할인" 
                         width="100%"
-                        border="1px solid #E5E5E5"
+                        border="1px solid #E9E9E9"
                         value={partnershipConditions.benefitDescription}
                         onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
                       />
@@ -291,7 +316,7 @@ const ProposalDetail = ({ isAI = false }) => {
                       <InputBox 
                         defaultText="(예시) 평일 13:00 - 15:00" 
                         width="100%"
-                        border="1px solid #E5E5E5"
+                        border="1px solid #E9E9E9"
                         value={partnershipConditions.timeWindows}
                         onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
                       />
@@ -301,7 +326,7 @@ const ProposalDetail = ({ isAI = false }) => {
                       <InputBox 
                         defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
                         width="100%"
-                        border="1px solid #E5E5E5"
+                        border="1px solid #E9E9E9"
                         value={partnershipConditions.partnershipPeriod}
                         onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
                       />
@@ -315,13 +340,16 @@ const ProposalDetail = ({ isAI = false }) => {
                 <Title> <div>기대 효과</div></Title>
                   {isAI ? (
                     <InputBox 
-                      placeholder="텍스트를 입력해주세요."
+                      defaultText="텍스트를 입력해주세요."
+                      width="100%"
+                      border="1px solid #E9E9E9"
                       value={expectedEffects}
                       onChange={(e) => setExpectedEffects(e.target.value)}
                     />
                   ) : (
                     <InputBox 
-                      placeholder="텍스트를 입력해주세요."
+                      defaultText="텍스트를 입력해주세요."
+                      width="100%"
                       value={expectedEffects}
                       onChange={(e) => setExpectedEffects(e.target.value)}
                     />
@@ -332,13 +360,15 @@ const ProposalDetail = ({ isAI = false }) => {
                 <Title> <div>연락처</div> </Title>
                 {isAI ? (
                   <InputBox 
-                    placeholder="텍스트를 입력해주세요."
+                    defaultText="텍스트를 입력해주세요."
+                    width="100%"
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                   />
                 ) : (
                   <InputBox 
-                    placeholder="텍스트를 입력해주세요."
+                    defaultText="텍스트를 입력해주세요."
+                    width="100%"
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                   />
@@ -362,9 +392,9 @@ const ProposalDetail = ({ isAI = false }) => {
               ButtonComponent={isAI ? () => <FavoriteBtn /> : () => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
+              <EditBtn onClick={() => {toggleEditMode(); handleEdit();}} isEditMode={isEditMode} />
               {isAI ? (
-                // AI일 때: 수정 모드에 따라 다른 버튼 표시
+                // AI일 때: 수정 누르냐에 따라 다른 버튼 표시
                 isEditMode ? (
                   <SaveBtn onClick={handleSave} />
                 ) : (
@@ -375,7 +405,7 @@ const ProposalDetail = ({ isAI = false }) => {
                 <ProposalSaveBtn onClick={handleSave}>저장하기</ProposalSaveBtn>
               )}
             </ButtonWrapper>
-            {/* AI일 때 수정 모드에서만, 직접 작성할 때는 항상 전송 버튼 표시 */}
+            {/* AI일 때 수정에서만, 직접 작성할 때는 항상 전송 버튼 표시 */}
             {((isAI && isEditMode) || !isAI) && <SendProposalBtn onClick={handleSend}/>}
           </ReceiverWrapper>
         </ReceiverSection>

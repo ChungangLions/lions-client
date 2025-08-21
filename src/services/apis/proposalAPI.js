@@ -26,3 +26,10 @@ export async function createProposal(createData) {
   return res.data;
 }
 
+// 제안서 부분 수정
+export const editProposal = async (id, data) => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token);
+    const response = await authAxios.patch(`/api/proposals/${id}/`, data);
+    return response.data;
+};
