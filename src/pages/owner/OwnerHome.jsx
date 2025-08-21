@@ -8,17 +8,18 @@ import FilterBtn from '../../components/common/filters/FilterBtn'
 import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown'
 import useUserStore from '../../stores/userStore'
+import { fetchLikes } from '../../services/apis/likesapi'
 
 const OwnerHome = () => {
   const navigate = useNavigate();
   
-  const handleCardClick = (organization) => {
-    navigate("student-group-profile", { state: { organization } });
+  const handleCardClick = (organization, id) => {
+    navigate(`/owner/student-group-profile/${id}`, { state: { userType: "owner", organization } });
   };
 
   const [isActive, setIsActive] = useState(false);
 
-  const { isLoggedIn } = useUserStore();
+  const { isLoggedIn, userId } = useUserStore();
 
   useEffect(() => {
     if (isLoggedIn === false) {
@@ -44,6 +45,25 @@ const OwnerHome = () => {
       setIsActive(!isActive);
       filterByRecord();
   }
+
+  // 찜 기능 
+  const [likes, setLikes] = useState([]);
+
+
+  useEffect(() => {
+    fetchAndSetOrganizations();
+    const fetchUserLikes = async () => {
+      const list = await fetchLikes('given');
+      console.log("찜 리스트 원본:", list);
+  console.log("첫 번째 요소:", list[0]);
+
+      setLikes(list.map(item => item.target.id));
+      console.log("찜 리스트:", list);
+      console.log("찜한 단체 ID배열:", list.map(item => item.target.id));
+    };
+    fetchUserLikes();
+  }, []);
+
   
   return (
     <PageConatainer>
@@ -70,6 +90,7 @@ const OwnerHome = () => {
             cardType={'home'}
             ButtonComponent={FavoriteBtn}
             organization={organization}
+            userId={userId}
           />
         ))}
       </CardListGrid>

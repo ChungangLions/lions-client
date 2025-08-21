@@ -1,22 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components';
 import { FiSearch } from "react-icons/fi";
+import { useLocation } from 'react-router-dom';
 import useStudentOrgStore from '../stores/studentOrgStore';
+import useVenueStore from '../stores/venueStore';
 
 const SearchBar = () => {
     const [search, setSearch] = useState("");
-    const { setSearchQuery } = useStudentOrgStore();
+    const location = useLocation(); // 경로 바뀌면 검색 필드 초기화
+    const { setOrgSearchQuery } = useStudentOrgStore();
+    const { setStoreSearchQuery } = useVenueStore();
 
     const onChange = (e) => {
-        setSearch(e.target.value); // 입력값 변경 시 상태 업데이트
+        setSearch(e.target.value);
     }
 
+    const handleSearch = () => {
+        const query = search?.trim() ?? "";
+        setOrgSearchQuery(query);
+        setStoreSearchQuery(query);
+    }
+
+    // 검색어 초기화
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setSearchQuery(search);
-        }, 200);
-        return () => clearTimeout(handler);
-    }, [search, setSearchQuery]); // 지연 방지, 한 번에 검색되게  
+        setSearch("");
+        setOrgSearchQuery("");
+        setStoreSearchQuery("");
+    }, [location.pathname, setOrgSearchQuery, setStoreSearchQuery]);
 
   return (
     <SearchSection>
@@ -24,9 +34,26 @@ const SearchBar = () => {
         type = "text" 
         value= {search}
         onChange = {onChange}
+        onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        }}
         placeholder = "검색하기"
         />
-        <SearchIcon />
+        <SearchIcon 
+            onClick={handleSearch}
+            role="button"
+            aria-label="검색"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSearch();
+                }
+            }}
+        />
     </SearchSection>
   )
 }
