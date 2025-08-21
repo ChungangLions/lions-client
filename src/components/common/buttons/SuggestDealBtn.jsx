@@ -23,9 +23,9 @@ const SuggestDealBtn = ({organization}) => {
     setLoadingVariant('ai');
     setIsLoading(true);
     try {
-      const ownerProfile = await getOwnerProfile(userId);
-      const recipient = userId;
-      const contact_info = String(ownerProfile.contact || '');
+      
+      const recipient = organization.user;
+      const contact_info = String(organization.contact || '');
 
       const responseData = await getAIDraftProposal(recipient, contact_info);
       console.log("제안서 내용", responseData);
