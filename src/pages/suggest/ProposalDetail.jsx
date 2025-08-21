@@ -14,7 +14,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import { createProposal, editProposal } from '../../services/apis/proposalAPI';
+import createProposal, { editProposal } from '../../services/apis/proposalAPI';
 
 
 
@@ -24,6 +24,7 @@ const ProposalDetail = ({ isAI = false }) => {
   console.log(location.state);
 
   const { storeName, contactInfo } = useOwnerProfile();
+  console.log(contactInfo);
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -111,11 +112,6 @@ const ProposalDetail = ({ isAI = false }) => {
         return;
       }
 
-      if (isAI && !expectedEffects.trim()) {
-        alert('기대 효과를 입력해주세요.');
-        return;
-      }
-
       if (!contact.trim()) {
         alert('연락처를 입력해주세요.');
         return;
@@ -128,7 +124,7 @@ const ProposalDetail = ({ isAI = false }) => {
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        contact_info: contact || "", // 연락처
+        contact_info: contact || contactInfo, // 연락처
       };
 
       if (isAI) {
