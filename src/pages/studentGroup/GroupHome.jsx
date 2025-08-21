@@ -12,9 +12,8 @@ import { fetchLikes } from '../../services/apis/likesapi';
 const GroupHome = () => {
   const [likeStores, setLikeStores] = useState([]);
   const navigate = useNavigate();
-
   const handleCardClick = (id) => {
-    navigate(`/group/store-profile/${id}`, {
+    navigate(`/student_group/store-profile/${id}`, {
       state: { userType: "studentOrganization" }
     });
   };
@@ -34,9 +33,9 @@ const GroupHome = () => {
     fetchStores();
     const fetchUserLikes = async () => {
       const list = await fetchLikes('given');
-      setLikeStores(list.map(item => item.to_user.id));
-      console.log("추천한 가게 리스트:", list);
-      console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
+      setLikeStores(list.map(item => item.target.id));
+      console.log("좋아요한 가게 리스트:", list);
+      console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
     };
     fetchUserLikes();
   }, []);
@@ -60,27 +59,57 @@ const GroupHome = () => {
         <FilterSection>
           <TypeWrapper>업종</TypeWrapper>
           <FilterWrapper>
-          <FilterBtn
-          onClick={() => filterByStoreType('RESTAURANT')}
-          active={activeStoreType === 'RESTAURANT'}
-          >
-          🍚 일반 음식점
-          </FilterBtn>
-          <FilterBtn
-          onClick={() => filterByStoreType('BAR')}
-          active={activeStoreType === 'BAR'}
-          >
-          🍺 주점
-          </FilterBtn>
-          <FilterBtn
-          onClick={() => filterByStoreType('CAFE')}
-          active={activeStoreType === 'CAFE'}
-          >
-          ☕️ 카페 및 디저트
-          </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('RESTAURANT')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('RESTAURANT')}
+            >
+            🍚 일반 음식점
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('BAR')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('BAR')}
+            >
+            🍺 주점
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            ☕️ 카페 및 디저트
+            </FilterBtn>
+          </FilterWrapper>
+        </FilterSection>
+        <FilterSection>
+          <TypeWrapper>제휴 유형</TypeWrapper>
+          <FilterWrapper>
+            <FilterBtn
+            onClick={() => filterByStoreType('RESTAURANT')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            타임형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('BAR')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            서비스 제공형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            리뷰형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            할인형
+            </FilterBtn>
           </FilterWrapper>
         </FilterSection>
         <OptionWrapper>
+          <TypeWrapper>정렬</TypeWrapper>
             <TbArrowsSort size={30} strokeWidth={1} />
             <DropDown
               options={[
@@ -103,12 +132,12 @@ const GroupHome = () => {
             key={store.id}
             imageUrl={store.photo}
             onClick={() => handleCardClick(store.id)}
-            // ButtonComponent={() => (
-            //   <FavoriteBtn 
-            //     userId={store.id} 
-            //     isRecommendActive={likeStores.includes(store.id)} // 추가!
-            //   />
-            // )}
+            ButtonComponent={() => (
+              <FavoriteBtn 
+                userId={store.id} 
+                isRecommendActive={likeStores.includes(store.id)} // 추가!
+              />
+            )}
             store={store} />
         ))}
       </GridContainer>
@@ -170,7 +199,6 @@ background-color: white;
 
 const TypeWrapper = styled.div`
 display: flex;
-flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px 0px;

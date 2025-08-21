@@ -113,50 +113,84 @@ const useVenueStore = create(
         },
 
 
-        filterByStoreType: (type) => {
-            const currentActiveType = get().activeStoreType; // 현재 필터 상태 : 'restaurant', 'cafe', 'bar'
-            const isFiltered = get().isFilteredByStoreType; // 현재 필터가 켜져 있는 상태인지 확인 
-            const sortKey = get().sortKey; // 현재 정렬 상태 가져오기 
-            
-            // 필터가 켜져 있는지 확인 
-            if (isFiltered){
-                if (currentActiveType === type){
-                    // 같은 타입이면 필터 해제 
-                    let newList = get().originalStores; // 필터 해제니까 기존 배열 가져오기
-                    if(sortKey != null){
-                        // 정렬이 설정되어 있는 상태면 정렬 적용
-                        newList = [...newList].sort((a,b)=> b[sortKey] - a[sortKey]);
-                    }
-                    set({
-                        stores: newList,
-                        isFilteredByStoreType: false,
-                        activeStoreType: null, // 필터 해제 상태 
-                    });
-                } else {
-                    // 다른 타입이면 필터 교체
-                    let newList = get().originalStores.filter(store => store.storeType === type); // 다른 필터 적용
-                    if (sortKey != null) { // 정렬이 있다면 정렬 적용
-                        newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-                    }
-                    set({
-                        stores: newList,
-                        isFilteredByStoreType: true,
-                        activeStoreType: type, // 새 필터 타입으로 교체하기
-                    });
+filterByStoreType: (type) => {
+  // 문자열 -> 배열 변환 방어
+  const rawStoreType = get().activeStoreType;
+  // 만약 문자열이면 반드시 배열로 변환, 아니면 그대로 사용
+  const currentActiveTypes = Array.isArray(rawStoreType)
+    ? rawStoreType
+    : (rawStoreType ? [rawStoreType] : []);
+
+  // 알파벳 문자 분해를 막기 위해 type도 항상 문자열로만 추가
+  let newActiveTypes;
+  if (currentActiveTypes.includes(type)) {
+    newActiveTypes = currentActiveTypes.filter(t => t !== type);
+  } else {
+    newActiveTypes = [...currentActiveTypes, type];
+  }
+
+  // 선택된 타입 없으면 전체 리스트
+  let newList;
+  if (newActiveTypes.length === 0) {
+    newList = get().originalStores;
+  } else {
+    newList = get().originalStores.filter(store =>
+      newActiveTypes.includes(store.storeType)
+    );
+  }
+  const sortKey = get().sortKey;
+  if (sortKey) {
+    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+  }
+
+  set({
+    stores: newList,
+    isFilteredByStoreType: newActiveTypes.length > 0,
+    activeStoreType: newActiveTypes // 항상 배열, string 절대 안됨!
+  });
+  console.log(newActiveTypes);
+},
+
+
+            // // 필터가 켜져 있는지 확인 
+            // if (isFiltered){
+            //     if (currentActiveType === type){
+            //         // 같은 타입이면 필터 해제 
+            //         let newList = get().originalStores; // 필터 해제니까 기존 배열 가져오기
+            //         if(sortKey != null){
+            //             // 정렬이 설정되어 있는 상태면 정렬 적용
+            //             newList = [...newList].sort((a,b)=> b[sortKey] - a[sortKey]);
+            //         }
+            //         set({
+            //             stores: newList,
+            //             isFilteredByStoreType: false,
+            //             activeStoreType: null, // 필터 해제 상태 
+            //         });
+            //     } else {
+            //         // 다른 타입이면 필터 교체
+            //         let newList = get().originalStores.filter(store => store.storeType === type); // 다른 필터 적용
+            //         if (sortKey != null) { // 정렬이 있다면 정렬 적용
+            //             newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+            //         }
+            //         set({
+            //             stores: newList,
+            //             isFilteredByStoreType: true,
+            //             activeStoreType: type, // 새 필터 타입으로 교체하기
+            //         });
                     
-                }       
-            } else { // 필터 적용 X 상태면 필터 적용하기 
-                let newList = get().originalStores.filter(store => store.storeType === type); // 다른 필터 적용
-                if (sortKey != null) {
-                    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-                }
-                set({
-                    stores: newList,
-                    isFilteredByStoreType: true,
-                    activeStoreType: type,
-                });
-            }
-        },
+            //     }       
+            // } else { // 필터 적용 X 상태면 필터 적용하기 
+            //     let newList = get().originalStores.filter(store => store.storeType === type); // 다른 필터 적용
+            //     if (sortKey != null) {
+            //         newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+            //     }
+            //     set({
+            //         stores: newList,
+            //         isFilteredByStoreType: true,
+            //         activeStoreType: type,
+            //     });
+            // }
+        // },
 
         filterByDealType: (type) => {
             const currentActiveType = get().activeDealType; // 현재 필터 상태 : 'restaurant', 'cafe', 'bar'

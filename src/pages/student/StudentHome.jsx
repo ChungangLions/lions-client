@@ -66,24 +66,53 @@ const StudentHome = () => {
           <FilterWrapper>
           <FilterBtn
           onClick={() => filterByStoreType('RESTAURANT')}
-          active={activeStoreType === 'RESTAURANT'}
+          active={Array.isArray(activeStoreType) && activeStoreType.includes('RESTAURANT')}
           >
           🍚 일반 음식점
           </FilterBtn>
           <FilterBtn
           onClick={() => filterByStoreType('BAR')}
-          active={activeStoreType === 'BAR'}
+          active={Array.isArray(activeStoreType) && activeStoreType.includes('BAR')}
           >
           🍺 주점
           </FilterBtn>
           <FilterBtn
           onClick={() => filterByStoreType('CAFE')}
-          active={activeStoreType === 'CAFE'}
+          active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
           >
           ☕️ 카페 및 디저트
           </FilterBtn>
           </FilterWrapper>
         </FilterSection>
+    {/* <FilterSection>
+          <TypeWrapper>제휴 유형</TypeWrapper>
+          <FilterWrapper>
+            <FilterBtn
+            onClick={() => filterByStoreType('RESTAURANT')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            타임형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('BAR')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            서비스 제공형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            리뷰형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            할인형
+            </FilterBtn>
+          </FilterWrapper>
+        </FilterSection> */}
         <OptionWrapper>
             <TbArrowsSort size={30} strokeWidth={1} />
             <DropDown
