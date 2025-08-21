@@ -15,14 +15,20 @@ const StudentGroupProfile = () => {
   const {userId} = useUserStore(); // 
   const location = useLocation();
   const { organization } = location.state || {};
-  const params = useParams(); // groupId 가져오기 
   console.log(location.state);
+
+   
+  const groupId = organization?.id || userId
+
+  console.log("로그인 유저",userId);
+
+  const { studentSize, groupDepartment, groupName, groupImage, partnershipEnd, partnershipStart, termEnd, termStart, partnershipCount, contact, university} = useGroupProfile(groupId);
 
 
   const detailCards = [
-        { title: '임기', content: `${organization.term_start} ~ ${organization.term_end}` }, 
-        { title: '인원수', content: "300명"},
-        { title: '희망 제휴 기간', content: `${organization.partnership_start} ~ ${organization.partnership_end}`},
+        { title: '임기', content: `${termStart} ~ ${termEnd}` }, 
+        { title: '인원수', content: `${studentSize}명`},
+        { title: '희망 제휴 기간', content: `${partnershipStart} ~ ${partnershipEnd}`},
     ];
 
     // api 연결 필요
@@ -44,9 +50,9 @@ const StudentGroupProfile = () => {
             <ContentWrapper>
               <OrganizationWrapper>
                 {/*<NoWrapItem>{organization?.university}</NoWrapItem>*/}
-                <NoWrapItem>중앙대학교 서울캠퍼스</NoWrapItem>
-                <NoWrapItem> {organization?.department} </NoWrapItem>
-                <NoWrapItem> {organization?.council_name} </NoWrapItem>
+                <NoWrapItem>{university}</NoWrapItem>
+                <NoWrapItem> {groupName} </NoWrapItem>
+                <NoWrapItem> {groupDepartment} </NoWrapItem>
               </OrganizationWrapper>
               <DetailSection>
                 {detailCards.map((card, index) => (

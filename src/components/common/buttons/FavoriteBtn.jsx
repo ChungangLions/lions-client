@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
