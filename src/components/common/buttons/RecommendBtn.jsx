@@ -54,13 +54,13 @@ const StyledButton = styled.button`
   position: relative;
   border: none;
 
-  border-radius: 18.5px;
-  background: #FFF;
-  display: flex;
-  width: 37px;
-  height: 37px;
-  padding: 10px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+  // border-radius: 18.5px;
+  // background: #FFF;
+  // display: flex;
+  // width: 37px;
+  // height: 37px;
+  // padding: 10px;
+  // justify-content: center;
+  // align-items: center;
+  // gap: 10px;
 `;

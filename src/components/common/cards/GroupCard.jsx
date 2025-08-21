@@ -99,6 +99,17 @@ const HeartBtnBox = styled.div`
   position: absolute;
   right: 12px;
   top: 12px;
+
+  display: flex;
+  // width: 37px;
+  // height: 37px;
+  padding: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 18.5px;
+  background: #FFF;
 `;
 
 const BestText = styled.div`

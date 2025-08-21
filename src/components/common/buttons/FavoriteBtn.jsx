@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
@@ -26,13 +26,14 @@ const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick }) => {
         }
       };
 
+
     return (
         <StyledButton onClick={handleClick}>
             { isLikeActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
         </StyledButton>
     )
-
-};
+  
+}
 
 export default FavoriteBtn;
 
@@ -47,12 +48,7 @@ const StyledFaHeart = styled(FilledHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
-  color: #64A10F;
-  cursor: pointer;
-  &:hover {
-    fill: #E9F4D0;    
-    stroke: #64A10F; 
-  }
+  color: #64A10F ;
 `;
 
 const StyledFaRegHeart = styled(EmptyHeartIcon)`
@@ -66,12 +62,7 @@ const StyledFaRegHeart = styled(EmptyHeartIcon)`
   max-width: 100%;
   overflow: hidden;
   max-height: 100%;
-  color: #70AF19;
-  
-  cursor: pointer;
-  &:hover {
-  stroke: #898989; 
-    fill: #E9F4D0;    
+  color: #64A10F;
 `;
 
 const StyledButton = styled.button`
