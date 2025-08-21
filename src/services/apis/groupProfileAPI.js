@@ -31,7 +31,7 @@ export async function fetchGroupProfile(userId) {
     const latestProfile = userProfiles.reduce((a, b) => (a.id > b.id ? a : b));
 
     // 4. 최신 프로필 상세 정보 fetch (선택: 이미 목록에 모든 값 있으면 생략 가능)
-    const detailResp = await authAxios.get(`/api/profiles/students/${latestProfile.id}`);
+    const detailResp = await authAxios.get(`/api/profiles/student-groups/${latestProfile.id}`);
    
     return detailResp.data;
 

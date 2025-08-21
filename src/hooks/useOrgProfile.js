@@ -16,6 +16,7 @@ const useGroupProfile = (groupProfileId) => {
   const[university, setUniversityName] = useState("");
   const [contact, setContact ] = useState("");
   const [partnershipCount, setPartnershipCount] = useState("");
+  const [studentSize, setStudentSize] = useState("");
   const [error, setError] = useState(null);
 
 
@@ -35,8 +36,9 @@ const useGroupProfile = (groupProfileId) => {
         setPartnershipStart(profile.partnership_start);
         setPartnershipEnd(profile.partnership_end);
         setPartnershipCount(profile.partnership_count);
-        setUniversityName(profile.university);
+        setUniversityName(profile.university_name);
         setContact(profile.contact);
+        setStudentSize(profile.student_size);
 
         if (Array.isArray(profile.photos) && profile.photos.length > 0) {
           setGroupImage(profile.photos[0].image); 
@@ -54,7 +56,7 @@ const useGroupProfile = (groupProfileId) => {
     fetchGroupData();
   }, [groupProfileId]);
 
-  return { groupProfile, profileId, groupDepartment, groupName, groupImage, partnershipEnd, partnershipStart, termEnd, termStart, partnershipCount, contact, university, error };
+  return { studentSize, groupProfile, profileId, groupDepartment, groupName, groupImage, partnershipEnd, partnershipStart, termEnd, termStart, partnershipCount, contact, university, error };
 };
 
 export default useGroupProfile;
