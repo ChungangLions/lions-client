@@ -166,10 +166,10 @@ const OwnerMyPage = () => {
           {userType === "student" ? (
             <StyledBtn style={{ textDecoration: 'none' }} $active={isRecommendActive} onClick={handleRecommendClick}>추천하기</StyledBtn>
           ) : userType === "studentOrganization" ? (
-            <Link to="edit" style={{ textDecoration: 'none' }}>
+            <>
               <FavoriteBtn />
               <StyledBtn>제휴 제안하기</StyledBtn>
-            </Link>
+            </>
           ) : (
             <Link to="edit" style={{ textDecoration: 'none' }}>
               <StyledBtn>수정하기</StyledBtn>
@@ -408,6 +408,7 @@ const ButtonGroup = styled.div`
   transform: translateY(-50%);
   display: flex;
   gap: 15px;
+  align-items: center;
 `
 
 const Calendar = styled(LuCalendar)`
