@@ -1,13 +1,13 @@
 import React from 'react'
 import styled from "styled-components";
 
-const PartnershipTypeBox = ({children, IconComponent, isSelected = false, onClick}) => {
+const PartnershipTypeBox = ({children, IconComponent, isSelected = false, onClick, disabled = false}) => {
   return (
-    <IconBox onClick={onClick} isSelected={isSelected}>
-        <Text isSelected={isSelected}>
+    <IconBox onClick={disabled ? undefined : onClick} isSelected={isSelected} disabled={disabled}>
+        <Text isSelected={isSelected} disabled={disabled}>
           {children}
         </Text>
-        <Icon isSelected={isSelected}>
+        <Icon isSelected={isSelected} disabled={disabled}>
           <IconComponent size={68}/>
         </Icon>
     </IconBox>
@@ -33,15 +33,20 @@ font-family: Pretendard;
 gap: 14.1px;
 text-align: center;
 background-color: ${props => props.isSelected ? '#64a10f' : 'transparent'};
-cursor: pointer;
+cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
 transition: all 0.2s ease;
+opacity: ${props => props.disabled ? 0.6 : 1};
 
 &:hover {
-background-color: #e9f4d0;
-border: 0.5px solid ${props => props.isSelected ? '#64a10f' : '#898989'};
-color:#898989;
+  background-color: ${props => props.disabled ? 'transparent' : '#e9f4d0'};
+  border: 0.5px solid ${props => props.isSelected ? '#64a10f' : '#898989'};
+  color: ${props => props.disabled ? '#898989' : '#898989'};
 }
 
+&:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 `;
 
 const Icon = styled.div`
@@ -49,10 +54,12 @@ width: 68px;
 position: relative;
 max-height: 100%;
 color: inherit;
+opacity: ${props => props.disabled ? 0.6 : 1};
 `;
 
 const Text = styled.div`
 position: relative;
 font-size: 16px;
 font-weight: 600;
+opacity: ${props => props.disabled ? 0.6 : 1};
 `;

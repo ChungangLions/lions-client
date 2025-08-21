@@ -7,6 +7,24 @@ import useStudentOrgStore from '../../../stores/studentOrgStore'
 const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, userId}) => {
   let cardData = [];
 
+  // 제안서 상태를 한글로 변환하는 함수
+  const getStatusLabel = (status) => {
+    switch(status) {
+      case 'UNREAD':
+        return '미열람';
+      case 'READ':
+        return '열람';
+      case 'PARTNERSHIP':
+        return '제휴 체결';
+      case 'REJECTED':
+        return '거절';
+      case 'DRAFT':
+        return '작성 중';
+      default:
+        return status || '알 수 없음';
+    }
+  };
+
 
   if (cardType === 'home' || cardType === 'proposal') {
     cardData = [
@@ -20,7 +38,8 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
     ];
   } else if (cardType === 'suggest-sent') {
     cardData = [
-      { label: '작성일', value: organization.writtenDate }
+      { label: '작성일', value: organization.writtenDate },
+      { label: '상태', value: getStatusLabel(organization.status) }
     ];
   }
 
