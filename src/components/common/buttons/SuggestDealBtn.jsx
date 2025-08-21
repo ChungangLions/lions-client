@@ -6,6 +6,7 @@ import { IoIosClose } from "react-icons/io";
 import { getAIDraftProposal } from '../../../services/apis/proposalAPI';
 import useUserStore from '../../../stores/userStore';
 import { getOwnerProfile } from '../../../services/apis/ownerAPI';
+import Loading from '../../../layout/Loading';
 
 const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
@@ -14,31 +15,42 @@ const SuggestDealBtn = ({organization}) => {
   // 로그인 한 유저 정보 가져오기
   const {userId, userRole} = useUserStore();
 
-  // '예'를 누르는 순간 ai 제안서 생성 
-    const handleProposal = async () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingVariant, setLoadingVariant] = useState('form');
+
+  // '예'를 누르면 바로 ai 제안서 생성 
+  const handleProposal = async () => {
+    setLoadingVariant('ai');
+    setIsLoading(true);
     try {
       const ownerProfile = await getOwnerProfile(userId);
-      console.log("사장님 정보 잘 불러와지낭 ~ " ,userId);
-      console.log("사장님 정보 잘 불러와지낭 ~ " , ownerProfile);
       const recipient = userId;
-      const contact_info = String(ownerProfile.contact);
-      console.log("사장님 정보 잘 불러와지낭 ~ " ,contact_info);
+      const contact_info = String(ownerProfile.contact || '');
 
-      // AI 제안서 생성하기 
-      const responseData = await getAIDraftProposal(recipient);
+      const responseData = await getAIDraftProposal(recipient, contact_info);
       console.log("제안서 내용", responseData);
 
+      // AI 제안서 페이지로 이동 
+      navigate('/owner/proposal', { state: { organization, isAI: true } });
     } catch (error) {
       console.error("제안서를 생성하는데 실패했습니다.", error);
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
-    //navigate('/owner/proposal', { state: { organization } });
   }
   
   
   const goToProposalPage = async() => {
-    setIsModalOpen(false);
-    navigate('/owner/proposal', { state: { organization } });
+    setLoadingVariant('form');
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      navigate('/owner/proposal', { state: { organization, isAI: false } });
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
+    }
   }
 
   return (
@@ -67,6 +79,13 @@ const SuggestDealBtn = ({organization}) => {
           <CloseIcon color = "#1A2D06" alt="닫기" onClick={() => setIsModalOpen(false)} />
         </ModalContentWrapper>
       </Modal>
+
+      {isLoading && (
+        <Loading
+          situation={loadingVariant === 'ai' ? 'ai' : 'form'}
+          fullscreen
+        />
+      )}
     </>
   );
 };
