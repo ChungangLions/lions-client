@@ -128,7 +128,7 @@ const AIProposalDetail = () => {
   const handleEdit = async () => {
     
     const updateData = {
-      recipient: organization?.id,
+      recipient: organization?.user,
       partnership_type: mapPartnership(selectedPartnershipTypes),
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
@@ -178,7 +178,7 @@ const AIProposalDetail = () => {
       }
 
       const createData = {
-        recipient: organization?.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
@@ -194,6 +194,7 @@ const AIProposalDetail = () => {
       console.log('제안서 데이터:', createData);
       
       const response = await createProposal(createData);
+      alert('제안서를 성공적으로 전송했습니다.');
       
     } catch (error) {
       console.error('제안서 생성 오류:', error);
@@ -220,7 +221,7 @@ const AIProposalDetail = () => {
   const handleSave = async () => {
 
     const createData = {
-        recipient: organization?.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
@@ -437,7 +438,7 @@ const AIProposalDetail = () => {
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
           <ReceiverWrapper>
             <CardSection 
-              cardType={isAI ? undefined : "proposal"} 
+              cardType={"proposal"} 
               organization={organization} 
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />

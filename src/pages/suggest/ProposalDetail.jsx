@@ -22,7 +22,7 @@ import useUserStore from '../../stores/userStore';
 
 const ProposalDetail = () => {
   const location = useLocation();
-  const { organization } = location.state || {};
+  const { organization, proposal } = location.state || {};
   console.log(location.state);
 
   const { storeName, contactInfo } = useOwnerProfile();
@@ -45,8 +45,40 @@ const ProposalDetail = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const [proposalId, setProposalId] = useState(null);
+  const [proposalId, setProposalId] = useState(proposal?.id || null);
 
+  // 제안서 데이터가 있으면 초기값 설정
+  useEffect(() => {
+    if (proposal) {
+      setProposalId(proposal.id);
+      // 제안서 데이터로 초기값 설정
+      if (proposal.partnership_type) {
+        // partnership_type을 배열로 변환하여 설정
+        const types = proposal.partnership_type.split(',').map(type => type.trim());
+        setSelectedPartnershipTypes(types);
+      }
+      if (proposal.apply_target) {
+        setPartnershipConditions(prev => ({ ...prev, applyTarget: proposal.apply_target }));
+      }
+      if (proposal.benefit_description) {
+        setPartnershipConditions(prev => ({ ...prev, benefitDescription: proposal.benefit_description }));
+      }
+      if (proposal.time_windows) {
+        setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
+      }
+      if (proposal.partnership_period) {
+        setPartnershipConditions(prev => ({ ...prev, partnershipPeriod: proposal.partnership_period }));
+      }
+      if (proposal.contact_info) {
+        setContact(proposal.contact_info);
+      }
+      
+      // 제안서가 이미 전송된 상태라면 수정 모드 비활성화
+      if (proposal.status && proposal.status !== 'DRAFT') {
+        setIsEditMode(false);
+      }
+    }
+  }, [proposal]);
 
   // 제휴 유형 토글 
   const togglePartnershipType = (type) => {
@@ -263,7 +295,8 @@ const ProposalDetail = () => {
                       children={type} 
                       IconComponent={IconComponent}
                       isSelected={selectedPartnershipTypes.includes(type)}
-                      onClick={() => togglePartnershipType(type)}
+                      onClick={() => !proposal || proposal.status === 'DRAFT' ? togglePartnershipType(type) : null}
+                      disabled={proposal && proposal.status !== 'DRAFT'}
                     />
                   ))}
                 </ContentBox>
@@ -302,6 +335,7 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.applyTarget}
                         onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -312,6 +346,7 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.benefitDescription}
                         onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -324,6 +359,7 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.timeWindows}
                         onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -334,6 +370,7 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.partnershipPeriod}
                         onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
+                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -349,6 +386,7 @@ const ProposalDetail = () => {
                   width="100%"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
+                  readOnly={proposal && proposal.status !== 'DRAFT'}
                 />
               </DetailBox>
               
@@ -369,9 +407,21 @@ const ProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
-              <SaveBtn onClick={handleSave} />
-              <SendProposalBtn onClick={handleSend}/>
+              {/* 제안서가 초안 상태일 때만 수정/저장/전송 버튼 표시 */}
+              {(!proposal || proposal.status === 'DRAFT') ? (
+                <>
+                  <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+                  <SaveBtn onClick={handleSave} />
+                  <SendProposalBtn onClick={handleSend}/>
+                </>
+              ) : (
+                <div style={{ color: '#666', fontSize: '14px', textAlign: 'center', padding: '10px' }}>
+                  {proposal.status === 'UNREAD' && '수신자가 아직 읽지 않았습니다'}
+                  {proposal.status === 'READ' && '수신자가 읽었습니다'}
+                  {proposal.status === 'PARTNERSHIP' && '제휴가 체결되었습니다'}
+                  {proposal.status === 'REJECTED' && '제안이 거절되었습니다'}
+                </div>
+              )}
             </ButtonWrapper>
           </ReceiverWrapper>
         </ReceiverSection>
