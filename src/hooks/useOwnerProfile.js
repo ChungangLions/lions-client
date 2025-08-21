@@ -10,6 +10,7 @@ const useOwnerProfile = () => {
   const [storeType, setStoreType] = useState("");
   const [menuNames, setMenuNames] = useState([]);
   const [storeImage, setStoreImage] = useState([]);
+  const [contactInfo, setContactInfo] = useState("");
   const [error, setError] = useState(null);
 
 
@@ -23,6 +24,7 @@ const useOwnerProfile = () => {
         setOwnerProfile(profile);
         setStoreName(profile.profile_name);
         setProfileId(profile.id);
+        setContactInfo(profile.contact);
 
         if (profile.business_type === 'RESTAURANT'){
             setStoreType("일반 음식점")
@@ -56,7 +58,7 @@ const useOwnerProfile = () => {
     fetchOwnerData();
   }, [userId]);
 
-  return { ownerProfile, profileId, storeName, storeType, menuNames, storeImage, error };
+  return { ownerProfile, profileId, storeName, storeType, menuNames, storeImage, contactInfo, error };
 };
 
 export default useOwnerProfile;
