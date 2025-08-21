@@ -24,8 +24,7 @@ const ProposalDetail = ({ isAI = false }) => {
   const { organization } = location.state || {};
   console.log(location.state);
 
-  // AI 제안서인 경우 더 많은 정보를 가져옴
-  const { storeName, menuNames, storeImage, error } = useOwnerProfile();
+  const { storeName } = useOwnerProfile();
 
   // 제휴 유형 선택 상태 관리
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -56,6 +55,45 @@ const ProposalDetail = ({ isAI = false }) => {
     { type: '리뷰형', icon: MdOutlineArticle },
     { type: '서비스제공형', icon: MdOutlineRoomService }
   ];
+
+  const [scrollY, setScrollY] = useState(0);
+
+  // ---- 우측 리스트 스크롤 구현 ----
+  useEffect(() => {       // 스크롤 위치 감지
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getProposalContainerTop = () => {       
+    const minTop = 0;  // 시작 위치
+    const midTop = 300; // 중간 위치
+    const maxTop = 600; // 최종 위치
+    
+    const stage1Threshold = 200; // 1단계 임계값
+    const stage2Threshold = 600; // 2단계 임계값
+
+    // 시작 위치에서 중간 위치로
+    if (scrollY <= stage1Threshold) {
+      const progress = scrollY / stage1Threshold;
+      const easedProgress = Math.pow(progress, 0.5); 
+      return minTop + (easedProgress * (midTop - minTop));
+    }
+    
+    // 중간 위치에서 최종 위치로 
+    if (scrollY <= stage2Threshold) {
+      const progress = (scrollY - stage1Threshold) / (stage2Threshold - stage1Threshold);
+      const easedProgress = 1 - Math.pow(1 - progress, 2); 
+      return midTop + (easedProgress * (maxTop - midTop));
+    }
+ 
+    // 최대 위치 도달
+    return maxTop ;
+  };
+
 
   const TimeItem = ({ day, children }) => (
     <TimeWrapper>
@@ -194,7 +232,7 @@ const ProposalDetail = ({ isAI = false }) => {
       </ProposalSection>
 
       {/* 오른쪽 섹션 */}
-        <ReceiverSection>
+        <ReceiverSection style={{ top: getProposalContainerTop() }}>
           <ReceiverWrapper>
             <CardSection 
               cardType={isAI ? undefined : "proposal"} 
@@ -321,6 +359,7 @@ font-size: 18px;
 color: #1a2d06;
 font-family: Pretendard;
 height: fit-content;
+transition: top 0.3s ease-out;
 `;
 
 const ReceiverWrapper = styled.div`
