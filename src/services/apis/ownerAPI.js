@@ -10,7 +10,7 @@ export const getOwnerList = async() => {
     return response.data;
 }
 
-export const getOwnerProfile = async(userId) => {
+export const getOwnerProfile = async(ownerId) => {
     const token = localStorage.getItem("accessToken");
     const authAxios = getAuthAxios(token); 
     
@@ -18,10 +18,13 @@ export const getOwnerProfile = async(userId) => {
         // 1. 전체 학생 프로필 목록 조회
         const listResp = await authAxios.get(`/api/profiles/owners/`);
         const profiles = listResp.data;
-        console.log(profiles);
+
+        console.log("프로필 리스트: ", profiles);
+
     
         // 2. 해당 userId의 프로필 리스트 필터
-        const userProfiles = profiles.filter(profile => profile.user === userId);
+        const userProfiles = profiles.filter(profile => profile.user === Number(ownerId));
+        console.log("프로필 리스트 필터링: ", userProfiles);
     
         if (userProfiles.length === 0) return null;
     
@@ -30,10 +33,12 @@ export const getOwnerProfile = async(userId) => {
     
         // 4. 최신 프로필 상세 정보 fetch (선택: 이미 목록에 모든 값 있으면 생략 가능)
         const detailResp = await authAxios.get(`/api/profiles/owners/${latestProfile.id}`);
+        console.log(detailResp.data);
+
         return detailResp.data;
     
       } catch (err) {
-        console.error("학생 프로필 데이터 불러오기 에러:", err);
+        console.error("사장님 프로필 데이터 불러오기 에러:", err);
         return null;
       }
 }

@@ -61,7 +61,8 @@ const CardImage = styled.img`
   gap: 10px;
   align-self: stretch;
   object-fit: cover;
-  background: #D9D9D9;
+  background: ${({ src }) =>
+    src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
 `;
 
 const TypeLabelBox = styled.div`

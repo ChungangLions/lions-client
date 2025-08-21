@@ -89,6 +89,7 @@ const useVenueStore = create(
                 record: item.record || null,
                 // photo: item.photos[0].image || null,
                 photo: item.photos?.[0]?.image || null
+
               }));
           set({
             originalStores: converted,
