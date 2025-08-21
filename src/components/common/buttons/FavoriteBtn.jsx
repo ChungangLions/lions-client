@@ -10,9 +10,8 @@ const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick }) => {
     const [isLikeActive, setIsLikeActive] = useState(defaultActive);
 
     useEffect(() => {
-    setIsLikeActive(defaultActive);
-  }, [defaultActive]); // prop이 바뀌면 변경됨
-
+      setIsLikeActive(defaultActive);
+    }, [defaultActive]); // prop이 바뀌면 변경됨
 
     const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨

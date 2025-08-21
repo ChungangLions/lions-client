@@ -16,6 +16,7 @@ import StudentGroupProfile from './pages/owner/StudentGroupProfile';
 import StudentEditMyPage from './pages/student/StudentEditMyPage';
 import OwnerProfile from './pages/student/OwnerProfile';
 import ProposalDetail from './pages/suggest/ProposalDetail';
+import GroupEditMyPage from './pages/studentGroup/GroupEditMyPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/student_group" element={<GroupHome />}/>
         <Route path="/student_group/store-profile/:id" element={<OwnerMyPage />} />
         <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
+        <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
         
         <Route path="/student" element={<StudentHome />}/>
         <Route path="/student/mypage" element={<StudentMyPage />} />
