@@ -15,6 +15,7 @@ import { FaCheck } from "react-icons/fa6";
 import useUserStore from "../../stores/userStore";
 import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
+import { IoIosClose } from "react-icons/io";
 
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] };
@@ -117,59 +118,59 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
   };
 
   return visible ? (
-  <ModalOverlay>
-    <ModalContainer>
-      <ModalHeader>대학 검색</ModalHeader>
-      <SearchRow>
-        <ModalInput
-          placeholder="대학 검색"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          style={{ flex: 1, marginRight: 6, padding: 8, fontSize: 16 }}
-          onKeyDown={e => { if (e.key === 'Enter') handleSearchClick(); }}
-          autoFocus
-        />
-        <SearchBtnBox onClick={handleSearchClick} style={{ padding: '8px 14px' }}>검색</SearchBtnBox>
-      </SearchRow>
-      {loading && <div>검색 중...</div>}
-      {!!error && (
-        <div style={{ color: "#c00", whiteSpace: "pre-line" }}>
-          {error}
-        </div>
-      )}
-      {searchResults !== null && (
-        <div>
-          <div style={{ marginBottom: 8 }}>검색 결과 {searchResults.length}건</div>
-          <ResultList>
-            {searchResults.length === 0
-              ? <ResultItem>검색 결과가 없습니다.</ResultItem>
-              : searchResults.map((campus, idx) => (
-                  <ResultItem
-                    key={campus.name + campus.address}
-                    selected={selectedIdx === idx}
-                    onClick={() => {
-                      setSelectedIdx(idx);
-                      if (onSelect) onSelect(campus);
-                    }}
-                  >
-                    <div><b>{campus.name}</b></div>
-                    <div style={{color: "#889"}}>{campus.address}</div>
-                  </ResultItem>
-                ))
-            }
-          </ResultList>
-        </div>
-      )}
-      <ModalCloseBtn onClick={onClose}>x</ModalCloseBtn>
-    </ModalContainer>
-  </ModalOverlay>
-  ) : null;
-}
+    <ModalOverlay>
+      <ModalContainer>
+        <CloseRow>
+          <ModalCloseBtn onClick={onClose} />
+        </CloseRow>
+        <ModalHeader>대학 검색</ModalHeader>
+        <SearchRow>
+          <ModalInput
+            placeholder="대학 검색"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            style={{ flex: 1, marginRight: 6, padding: 8, fontSize: 16 }}
+            onKeyDown={e => { if (e.key === 'Enter') handleSearchClick(); }}
+            autoFocus
+          />
+          <SearchBtnBox onClick={handleSearchClick} style={{ padding: '8px 14px' }}>검색</SearchBtnBox>
+        </SearchRow>
+        {loading && <div>검색 중...</div>}
+        {!!error && (
+          <div style={{ color: "#c00", whiteSpace: "pre-line" }}>
+            {error}
+          </div>
+        )}
+        {searchResults !== null && (
+          <div>
+            <div style={{ marginBottom: 8 }}>검색 결과 {searchResults.length}건</div>
+            <ResultList>
+              {searchResults.length === 0
+                ? <ResultItem>검색 결과가 없습니다.</ResultItem>
+                : searchResults.map((campus, idx) => (
+                    <ResultItem
+                      key={campus.name + campus.address}
+                      selected={selectedIdx === idx}
+                      onClick={() => {
+                        setSelectedIdx(idx);
+                        if (onSelect) onSelect(campus);
+                      }}
+                    >
+                      <div><b>{campus.name}</b></div>
+                      <div style={{color: "#889"}}>{campus.address}</div>
+                    </ResultItem>
+                  ))
+              }
+            </ResultList>
+          </div>
+        )}
+      </ModalContainer>
+    </ModalOverlay>
+    ) : null;
+  }
 
 
 const OwnerEditMyPage = () => {
-
-  // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
   const [photoState, setPhotoState] = useState(storePhoto);
   const [campusValue, setCampusValue] = useState(sampleCampus);
   const [typeValue, setTypeValue] = useState("");
@@ -323,16 +324,8 @@ const OwnerEditMyPage = () => {
         setFreeHours(parseSchedule(data.off_peak_time));
         setPhotoState(storePhotoUrls(data.photos));
         setMenuList(parsedMenus);
-                 // 서버에서 받은 개별 boolean 필드들 확인
-         console.log("서버에서 받은 service_drink:", data.service_drink);
-         console.log("서버에서 받은 service_side_menu:", data.service_side_menu);
+        // 서버에서 받은 개별 boolean 필드들 확인
          console.log("서버에서 받은 service_other:", data.service_other);
-         console.log("서버에서 받은 goal_new_customers:", data.goal_new_customers);
-         console.log("서버에서 받은 goal_revisit:", data.goal_revisit);
-         console.log("서버에서 받은 goal_clear_stock:", data.goal_clear_stock);
-         console.log("서버에서 받은 goal_spread_peak:", data.goal_spread_peak);
-         console.log("서버에서 받은 goal_sns_marketing:", data.goal_sns_marketing);
-         console.log("서버에서 받은 goal_collect_reviews:", data.goal_collect_reviews);
          console.log("서버에서 받은 goal_other:", data.goal_other);
          
          // 개별 boolean 필드들로 직접 설정
@@ -351,8 +344,8 @@ const OwnerEditMyPage = () => {
            goal_collect_reviews: Boolean(data.goal_collect_reviews),
            goal_other: Boolean(data.goal_other)
          });
-                 setOtherServiceValue(data.service_other_details || '');
-         setOtherGoalValue(data.goal_other_details || '');
+         setOtherServiceValue(data.service_other_detail || '');
+         setOtherGoalValue(data.goal_other_detail || '');
         
 
         // 수정용 프로필 id
@@ -402,7 +395,7 @@ const OwnerEditMyPage = () => {
         formData.append('service_drink', serviceButtons.service_drink);
         formData.append('service_side_menu', serviceButtons.service_side_menu);
         formData.append('service_other', serviceButtons.service_other);
-        formData.append('service_other_details', serviceButtons.service_other ? otherServiceValue : '');
+        formData.append('service_other_detail', serviceButtons.service_other ? otherServiceValue : '');
         
         // 새로운 boolean 형식으로 목표 데이터 전송
         formData.append('goal_new_customers', goalButtons.goal_new_customers);
@@ -412,7 +405,7 @@ const OwnerEditMyPage = () => {
         formData.append('goal_sns_marketing', goalButtons.goal_sns_marketing);
         formData.append('goal_collect_reviews', goalButtons.goal_collect_reviews);
         formData.append('goal_other', goalButtons.goal_other);
-        formData.append('goal_other_details', goalButtons.goal_other ? otherGoalValue : '');
+        formData.append('goal_other_detail', goalButtons.goal_other ? otherGoalValue : '');
       
       console.log("FormData 내용:");
       for (let [key, value] of formData.entries()) {
@@ -817,6 +810,7 @@ const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
+  margin-bottom: 10px;
 `;
 
 const Title = styled.div`
@@ -1016,31 +1010,6 @@ const ModalOverlay = styled.div`
   z-index: 9999;
 `;
 
-const ModalBox = styled.div`
-  width: 492px;
-  height: 213px;
-  padding: 59px 58px;
-  justify-content: center;
-  gap: 50px; // 값이 없길래 임의로 넣음
-  flex-shrink: 0;
-  background: #F8F8F8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const ModalText = styled.div`
-    color: #000;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: normal;
-`;
-
-const ModalBtnRow = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
 const ModalBtn = styled.button`
     display: flex;
     width: 90px;
@@ -1051,13 +1020,6 @@ const ModalBtn = styled.button`
     border: 1px solid #000;
     cursor: pointer;
     background: #F8F8F8;
-`;
-
-const ModalBtnPrimary = styled(ModalBtn)`
-    width: 204px;
-    padding: 10px;
-    background: #3D3D3D;
-    color: #FFFFFF;
 `;
 
 const SearchCampusButton = styled.button`
@@ -1103,7 +1065,7 @@ const ModalContainer = styled.div`
     width: 600px;
     height: 402px;
     max-height: 560px;
-    padding: 50px 63px;
+    padding: 20px 63px 100px 63px;
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
@@ -1206,26 +1168,25 @@ const ResultItem = styled.div`
 `;
 
 // 닫기(X) 버튼
-const ModalCloseBtn = styled.button`
-  position: relative;
-  bottom: 440px;
-  left: 600px;
-  width: 24px;
-  height: 24px;
+const CloseRow = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  // align-items: end;
+  align-self: stretch;
+  margin-top: 10px;
+`;
+
+const ModalCloseBtn = styled(IoIosClose)`
+  width: 30px;
+  height: 30px;
   background: none;
   border: none;
   font-size: 24px;
   color: #222222;
   cursor: pointer;
+  storke-width: 2;
   &:hover { opacity: 80%; }
-`;
-
-const ResultTitle = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 6px;
-  margin-top: 4px;
 `;
 
 const ContentSection = styled.div`

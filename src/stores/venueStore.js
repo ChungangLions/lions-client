@@ -86,13 +86,14 @@ const useVenueStore = create(
                            const likes = await getOwnerLikes(item.user);
                            const recommendations = await getOwnerRecommends(item.user);
                            const partnershipType = await getOwnerPartnershipType(item.user);
+                           console.log("partnershipType: ", partnershipType);
                            
                            // latestUserMap에 likes와 recommendations 데이터 추가
                            latestUserMap[item.user] = {
                                ...latestUserMap[item.user],
                                likes: likes.likes_received_count || 0,
                                recommendations: recommendations.recommendations_received_count || 0,
-                               partnershipType: partnershipType.partnership_type || null,
+                               partnershipType: partnershipType[0].partnership_type || null,
                            };
                        } catch (error) {
                            console.error(`Failed to fetch likes/recommendations for user ${item.user}:`, error);
@@ -101,7 +102,7 @@ const useVenueStore = create(
                                ...latestUserMap[item.user],
                                likes: 0,
                                recommendations: 0,
-                               partnershipType: null,
+                               partnershipType: [],
                            };
                        }
                    })

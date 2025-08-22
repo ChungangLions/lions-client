@@ -94,7 +94,7 @@ const OwnerMyPage = () => {
           <DayItem>
             <EtcText>{title}</EtcText>
             <EtcSection onClick={() => setIsOpen(prev => !prev)}>
-              {isOpen ? <ArrowDown /> : <ArrowUp />}
+              {isOpen ? <ArrowUp /> : <ArrowDown />}
             </EtcSection>
           </DayItem>
           {/* 각각의 요일이 세로(colum)로 나열되게 DayList에 dayRows로 바로 렌더링 */}
