@@ -109,7 +109,7 @@ const OwnerSendSuggest = () => {
     return (
       <ScrollSection>
         <Menu />
-        <div>로딩 중...</div>
+        <Loading>로딩 중...</Loading>
       </ScrollSection>
     );
   }
@@ -171,6 +171,18 @@ width: 100%;
 position: relative;
 justify-content: flex-start; 
 min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
+`;
+
+const Loading = styled.div`
+width: 100%;
+text-align: center;
+color: #70AF19;
+font-weight: 600;
+font-size: 16px;
+justify-content: center;
+align-content: center;
+padding : 100px;
+ 
 `;
 
 const EmptyMessage = styled.div`

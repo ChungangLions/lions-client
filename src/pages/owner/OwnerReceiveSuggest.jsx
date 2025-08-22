@@ -107,7 +107,7 @@ const OwnerReceiveSuggest = () => {
     return (
       <ScrollSection>
         <Menu />
-        <div>로딩 중...</div>
+        <Loading>로딩 중...</Loading>
       </ScrollSection>
     );
   }
@@ -160,7 +160,6 @@ const CardListGrid = styled.div`
 const ScrollSection = styled.div`
 display: flex;
 flex-direction: column;
-gap: 15px;
 align-items: flex-start;
 width: 100%;
 position: relative;
@@ -177,4 +176,17 @@ color: #C9C9C9;
     justify-content: center;
   align-content: center;
   margin-top: 30px;
+`;
+
+
+const Loading = styled.div`
+width: 100%;
+text-align: center;
+color: #70AF19;
+font-weight: 600;
+font-size: 16px;
+justify-content: center;
+align-content: center;
+padding : 100px;
+ 
 `;
