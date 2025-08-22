@@ -31,6 +31,8 @@ const ProposalDetail = () => {
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
   
+  // 제안서 id 저장
+  const [id, setId] = useState('');
 
   // 제휴 조건 입력 
   const [partnershipConditions, setPartnershipConditions] = useState({
@@ -104,6 +106,8 @@ const ProposalDetail = () => {
     }));
   };
 
+  
+
   // 수정하기
   const handleEdit = async () => {
     
@@ -121,11 +125,11 @@ const ProposalDetail = () => {
 
 
     try {
-      const response = await editProposal(proposalId , updateData);
+      const response = await editProposal( id , updateData);
       console.log('제안서 수정 완료:', response);
       setIsEditMode(false);
     } catch (error) {
-      console.error('제안서 ID:', proposalId);
+      console.error('제안서 ID:', id);
       console.error('제안서 수정 실패:', error);
     }
   };
@@ -153,7 +157,7 @@ const ProposalDetail = () => {
       }
 
       const createData = {
-        recipient: organization?.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
@@ -167,6 +171,8 @@ const ProposalDetail = () => {
       
       const response = await createProposal(createData);
       alert('제안서가 전송되었습니다.');
+      console.log("제안서아이디", response.id);
+      setId(response.id);
       
     } catch (error) {
       console.error('제안서 생성 오류:', error);
@@ -407,21 +413,11 @@ const ProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              {/* 제안서가 초안 상태일 때만 수정/저장/전송 버튼 표시 */}
-              {(!proposal || proposal.status === 'DRAFT') ? (
-                <>
+
                   <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
                   <SaveBtn onClick={handleSave} />
                   <SendProposalBtn onClick={handleSend}/>
-                </>
-              ) : (
-                <div style={{ color: '#666', fontSize: '14px', textAlign: 'center', padding: '10px' }}>
-                  {proposal.status === 'UNREAD' && '수신자가 아직 읽지 않았습니다'}
-                  {proposal.status === 'READ' && '수신자가 읽었습니다'}
-                  {proposal.status === 'PARTNERSHIP' && '제휴가 체결되었습니다'}
-                  {proposal.status === 'REJECTED' && '제안이 거절되었습니다'}
-                </div>
-              )}
+           
             </ButtonWrapper>
           </ReceiverWrapper>
         </ReceiverSection>
