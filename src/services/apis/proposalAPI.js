@@ -75,9 +75,9 @@ export const fetchProposal = async (params = {}) => {
   }
 };
 
-// 제안서 상태 변경 (승낙 / 거절 누를 시)
-export default async function editProposalStatus(id, statusData) { // 여기서 Id는 제안서 id
-  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
-  const res = await authAxios.post(`/api/proposals/${id}/status/`, statusData);
-  return res.data;
-}
+// // 제안서 상태 변경 (승낙 / 거절 누를 시)
+// export default async function editProposalStatus(id, statusData) { // 여기서 Id는 제안서 id
+//   const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+//   const res = await authAxios.post(`/api/proposals/${id}/status/`, statusData);
+//   return res.data;
+// }

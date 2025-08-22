@@ -10,7 +10,7 @@ const LandingPage = () => {
       <LogoContainer>
         <ImageContainer src={Logo} alt="휴니버스 로고" />
       <CaptionContainer>
-        휴니버스와 함께 대학과 상권이 연결된 캠퍼스를 만들어봐요!
+        휴:니버스와 함께 대학과 상권이 연결된 캠퍼스를 만들어봐요!
       </CaptionContainer>
       </LogoContainer>
       <LoginSection>
