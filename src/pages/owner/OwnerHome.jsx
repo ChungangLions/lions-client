@@ -13,9 +13,14 @@ import { fetchLikes } from '../../services/apis/likesapi'
 const OwnerHome = () => {
   const navigate = useNavigate();
   
+
   const handleCardClick = (organization) => {
     navigate(`/owner/student-group-profile`, { state: { userType: "owner", organization } });
-  };
+
+//   const handleCardClick = (organization, id) => {
+//     navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+
+//   };
 
   const [isActive, setIsActive] = useState(false);
 
@@ -46,23 +51,25 @@ const OwnerHome = () => {
       filterByRecord();
   }
 
-  // // 찜 기능 
-  // const [likes, setLikes] = useState([]);
+
+  // 찜 기능 
+  const [likes, setLikes] = useState([]);
+  const [likeStores, setLikeStores] = useState([]);
 
 
-  // useEffect(() => {
-  //   fetchAndSetOrganizations();
-  //   const fetchUserLikes = async () => {
-  //     const list = await fetchLikes('given');
-  //     console.log("찜 리스트 원본:", list);
-  // console.log("첫 번째 요소:", list[0]);
 
-  //     setLikes(list.map(item => item.target.id));
-  //     console.log("찜 리스트:", list);
-  //     console.log("찜한 단체 ID배열:", list.map(item => item.target.id));
-  //   };
-  //   fetchUserLikes();
-  // }, []);
+ 
+    useEffect(() => {
+      fetchAndSetOrganizations();
+      const fetchUserLikes = async () => {
+        const list = await fetchLikes('given');
+        setLikeStores(list.map(item => item.target.id));
+        console.log("좋아요한 가게 리스트:", list);
+        console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+      };
+      fetchUserLikes();
+    }, []);
+
 
   
   return (
@@ -88,7 +95,12 @@ const OwnerHome = () => {
             key={organization.id}
             onClick={handleCardClick}
             cardType={'home'}
-            ButtonComponent={FavoriteBtn}
+            ButtonComponent={() => (
+              <FavoriteBtn 
+                userId={organization.id} 
+                isLikeActive={likeStores.includes(organization.id)} // 추가!
+              />
+            )}
             organization={organization}
             userId={userId}
           />

@@ -82,3 +82,12 @@ export function mappedOrg(user, idx) {
       photos: user?.photos?.map(photo => photo.image) // url 배열
     };
 }
+
+export const editGroupProfile = async(id, data) => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token); 
+
+    const response = await authAxios.patch(`/api/profiles/student-groups/${id}/`, data);
+    return response.data
+    
+}

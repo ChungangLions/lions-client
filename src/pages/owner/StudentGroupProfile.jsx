@@ -2,24 +2,27 @@ import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import ProfileImg from '../../components/common/cards/ProfileImg'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
-import { useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import SuggestDealBtn from '../../components/common/buttons/SuggestDealBtn'
 import DealHistoryCard from '../../components/common/cards/GroupProfile/DealHistoryCard'
 import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
+import { fetchLikes } from '../../services/apis/likesapi'
 
 const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore(); // 
   const location = useLocation();
+  const userType = location.state?.userType || "student_group";
+  const [isLikeActive, setIsLikeActive] = useState(false);
   const { organization } = location.state || {};
   console.log(location.state);
 
-   
-  const groupId = organization?.id || userId
-  console.log(organization.id);
+
+  const groupId = organization?.user || userId
+
 
   console.log("로그인 유저",userId);
 
@@ -40,6 +43,26 @@ const StudentGroupProfile = () => {
     ];
   
     //console.log(organization);
+
+  useEffect(() => {
+    async function fetchData() {
+      const list = await fetchLikes('given');
+      // 추천한 가게 id 배열 생성
+      const likedStoreIds = list.map(item => String(item.target.id));
+
+      // 버튼 활성화 여부 결정
+      if (likedStoreIds.includes(groupId)) {
+        // console.log('true');
+        setIsLikeActive(true);
+      } else {
+        // console.log('false');
+        setIsLikeActive(false);
+      }
+
+      console.log("그룹 id:", groupId, "active 여부:", isLikeActive);
+    }
+    fetchData();
+  }, [groupId]);
     
 
   return (
@@ -62,13 +85,19 @@ const StudentGroupProfile = () => {
               </DetailSection>
             </ContentWrapper>
         </ProfileGroup>
-        <ButtonGroup>
-          <FavoriteBox >
-            <FavoriteBtn organization={organization} isLiked={organization?.is_liked} />
-            찜하기
-          </FavoriteBox>
-          <SuggestDealBtn organization={ organization} />
-        </ButtonGroup>
+          {userType === "owner" ? (
+            <ButtonGroup>
+              <FavoriteBox >
+                <FavoriteBtn userId={groupId} isLikeActive={isLikeActive} />
+                찜하기
+              </FavoriteBox>
+              <SuggestDealBtn organization={ organization} />
+            </ButtonGroup>
+          ) : (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <StyledBtn>수정하기</StyledBtn>
+            </Link>
+          )}
       </ProfileSection>
       <RecordSection>
         <Divider />
@@ -276,4 +305,31 @@ const EmptyNotice = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 140px;
+`;
+
+const StyledBtn = styled.button`
+display: flex;
+width: 100%;
+max=width: 219px;
+padding: 13px 81px;
+justify-content: center;
+align-items: center;
+gap: 10px;
+
+  border-radius: 5px;
+  border: 1px solid #70AF19;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  background: transparent;
+  cursor: pointer;
+
+  background-color: ${({ $active }) => ($active ? "#70AF19" : "#FFF")};
+  color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#70AF19" : "#E9F4D0")};
+    color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
 `;

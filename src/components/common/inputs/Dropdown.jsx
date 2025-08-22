@@ -4,7 +4,7 @@ import { IoIosArrowDown } from "react-icons/io";
 
 export const Dropdown = (props) => {
   // console.log(props.props.data);
-  const list = props.props.data;
+  const list = props.props?.data ?? [];
   const selectRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
   const {value, onChange, width, placeholder} = props;
