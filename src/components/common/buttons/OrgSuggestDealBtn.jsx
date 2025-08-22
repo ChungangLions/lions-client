@@ -3,57 +3,38 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Modal from './Modal';
 import { IoIosClose } from "react-icons/io";
-import { getAIDraftProposal, fetchProposal } from '../../../services/apis/proposalAPI';
+import { getAIDraftProposal, getAutoAIDraftProposal } from '../../../services/apis/proposalAPI';
 import useUserStore from '../../../stores/userStore';
 import { getOwnerProfile } from '../../../services/apis/ownerAPI';
 import Loading from '../../../layout/Loading';
 
-const SuggestDealBtn = ({organization}) => {
+// 여기서 profileData는 가게 프로필 데이터임 !! 
+const OrgSuggestDealBtn = ({profileData}) => {
+  console.log("넘어온 데이터",profileData);
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
  
   const [isLoading, setIsLoading] = useState(false);
   const [loadingVariant, setLoadingVariant] = useState('form');
+  
 
-  // '예'를 누르면 바로 ai 제안서 생성  : 사장 -> 학생회
+  // '예'를 누르면 바로 ai 제안서 생성  : 학생회 -> 사장
   const handleProposal = async () => {
-
+    setLoadingVariant('ai');
+    setIsLoading(true);
     try {
       
-      const recipient = organization.user;
-      const contact_info = String(organization.contact || '');
+      const recipient = profileData.user; // 사장님 유저 아이디 .. 프로필 아이디면 -> profileData.id
+      const contact_info = "";
       
       console.log({ recipient, contact_info });
 
-      // 기존 제안서 조회
-      let existingDraft = null;
-      try {
-        const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
-        const proposals = list.results || list || [];
-        existingDraft = proposals.find(p => {
-          const r = p.recipient || {};
-          // recipient가 객체일 때 id로 매칭, 아니면 값 자체 비교
-          return (r.id != null ? r.id === recipient : r === recipient);
-        }) || null;
-      } catch (e) {
-        console.warn('기존 제안서 조회 실패:', e);
-      }
-
-      if (existingDraft) {
-        console.log('기존 작성중 제안서 발견:', existingDraft);
-        navigate('/owner/ai-proposal', { state: { organization, isAI: Boolean(existingDraft.expected_effects), proposalData: existingDraft } });
-        return;
-      }
-
-      // 2) 없으면 AI로 생성 후 이동
-      // 로딩이 기존 제안서 있을 땐 X, 없을 때 로딩화면 뜸 
-      setLoadingVariant('ai');
-      setIsLoading(true);
-      const proposalData = await getAIDraftProposal(recipient, contact_info);
+      const proposalData = await getAutoAIDraftProposal(recipient, contact_info);
       console.log("제안서 내용", proposalData);
 
-      navigate('/owner/ai-proposal', { state: { organization, isAI: true, proposalData } });
+      // AI 제안서 페이지로 이동 
+
+      navigate('/student-group/ai-proposal', { state: { isAI: true, proposalData } });
     } catch (error) {
       console.error("제안서를 생성하는데 실패했습니다.", error);
       setIsModalOpen(false);
@@ -68,7 +49,7 @@ const SuggestDealBtn = ({organization}) => {
     setIsLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
-      navigate('/owner/proposal', { state: { organization, isAI: false } });
+      navigate('/student-group/proposal', { state: { profileData, isAI: false } });
     } finally {
       setIsLoading(false);
       setIsModalOpen(false);
@@ -86,7 +67,7 @@ const SuggestDealBtn = ({organization}) => {
         <ModalContentWrapper>
           <TextWrapper>
             <ModalTitle>
-              <p>우리 가게에 딱 맞는 제휴 조건, AI가 분석 완료!</p>
+              <p>이 가게에 딱 맞는 제휴 조건, AI가 분석 완료!</p>
               <p>AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?</p>
             </ModalTitle>
             <ButtonGroup>
@@ -113,13 +94,13 @@ const SuggestDealBtn = ({organization}) => {
   );
 };
 
-export default SuggestDealBtn;
+export default OrgSuggestDealBtn;
 
 const SuggestButton = styled.button`
   width: 100%;
   position: relative;
   border-radius: 5px;
-  background-color: #64a10f;
+  background-color:  #e9f4d;
   height: 40px;
   display: flex;
   flex-direction: row;
@@ -129,18 +110,20 @@ const SuggestButton = styled.button`
   box-sizing: border-box;
   text-align: left;
   font-size: 16px;
-  color: #e9f4d0;
+  border: 1px solid #70af19;
+  background-color: white;
+  color: #64a10f;
   font-family: Pretendard;
-  border: none;
   font-weight: 600;
   cursor: pointer;
 
   &: hover {
-    background-color: #4c7b10;
+    background-color: #e9f4d0;
   }
 
   &: active {
-    background-color: #3f6113;
+    background-color: #64a10f;
+    color:#e9f4d0
   }
 `;
 

@@ -20,9 +20,10 @@ import createProposal, { editProposal } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 
 
-const ProposalDetail = () => {
+const AIProposalDetail = () => {
   const location = useLocation();
-  const { organization, proposal } = location.state || {};
+  const { organization, proposalData, isAI: isAIFromState } = location.state || {};
+  const isAI = typeof isAIFromState === 'boolean' ? isAIFromState : Boolean(proposalData); // proposalData 있으면 ai 돌렸다는거니까 isAI = true
   console.log(location.state);
 
   const { storeName, contactInfo } = useOwnerProfile();
@@ -31,7 +32,24 @@ const ProposalDetail = () => {
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
   
+  // proposalData로부터 초기 선택 상태 동기화 (라벨/영문 코드 모두 대응)
+  useEffect(() => {
+    const normalizePartnershipTypes = (types) => {
+      const reverseMap = {
+        DISCOUNT: '할인형',
+        TIME: '타임형',
+        REVIEW: '리뷰형',
+        SERVICE: '서비스제공형',
+      };
+      if (!Array.isArray(types)) return [];
+      return types.map((t) => reverseMap[t] || t).filter(Boolean);
+    };
 
+    if (proposalData?.partnership_type?.length) {
+      setSelectedPartnershipTypes(normalizePartnershipTypes(proposalData.partnership_type));
+    }
+  }, [proposalData]);
+  
   // 제휴 조건 입력 
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
@@ -43,42 +61,42 @@ const ProposalDetail = () => {
   const [expectedEffects, setExpectedEffects] = useState('');
   const [contact, setContact] = useState('');
 
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  const [proposalId, setProposalId] = useState(proposal?.id || null);
-
-  // 제안서 데이터가 있으면 초기값 설정
+  // proposalData 가져오기
   useEffect(() => {
-    if (proposal) {
-      setProposalId(proposal.id);
-      // 제안서 데이터로 초기값 설정
-      if (proposal.partnership_type) {
-        // partnership_type을 배열로 변환하여 설정
-        const types = proposal.partnership_type.split(',').map(type => type.trim());
-        setSelectedPartnershipTypes(types);
-      }
-      if (proposal.apply_target) {
-        setPartnershipConditions(prev => ({ ...prev, applyTarget: proposal.apply_target }));
-      }
-      if (proposal.benefit_description) {
-        setPartnershipConditions(prev => ({ ...prev, benefitDescription: proposal.benefit_description }));
-      }
-      if (proposal.time_windows) {
-        setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
-      }
-      if (proposal.partnership_period) {
-        setPartnershipConditions(prev => ({ ...prev, partnershipPeriod: proposal.partnership_period }));
-      }
-      if (proposal.contact_info) {
-        setContact(proposal.contact_info);
-      }
-      
-      // 제안서가 이미 전송된 상태라면 수정 모드 비활성화
-      if (proposal.status && proposal.status !== 'DRAFT') {
-        setIsEditMode(false);
-      }
+    if (!proposalData) return;
+
+    const formattedTimeWindows = Array.isArray(proposalData.time_windows)
+      ? proposalData.time_windows
+          .map(
+            (time) =>
+              `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+          )
+          .join(" / ")
+      : '';
+
+    setPartnershipConditions({
+      applyTarget: proposalData.apply_target || '',
+      benefitDescription: proposalData.benefit_description || '',
+      timeWindows: formattedTimeWindows,
+      partnershipPeriod:
+        proposalData.period_start && proposalData.period_end
+          ? `${proposalData.period_start} ~ ${proposalData.period_end}`
+          : '',
+    });
+
+    if (isAI) setExpectedEffects(proposalData.expected_effects || '');
+    if (contactInfo) setContact(contactInfo);
+  }, [proposalData, isAI]);
+
+  // 연락처 초기화: 프로필 정보가 늦게 도착해도 반영
+  useEffect(() => {
+    if (contactInfo && !contact) {
+      setContact(contactInfo);
     }
-  }, [proposal]);
+  }, [contactInfo]);
+
+  // 
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // 제휴 유형 토글 
   const togglePartnershipType = (type) => {
@@ -105,6 +123,8 @@ const ProposalDetail = () => {
   };
 
   // 수정하기
+  const {userId} = useUserStore();
+
   const handleEdit = async () => {
     
     const updateData = {
@@ -114,18 +134,23 @@ const ProposalDetail = () => {
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
       partnership_period: partnershipConditions.partnershipPeriod,
-      contact_info: contact,
+      contact_info: contact || proposalData.contact_info,
       title: '제안서',
       contents: '제휴 내용',
     };
 
+    if (isAI) {
+      updateData.expected_effects = expectedEffects;
+    }
+
+    const id = proposalData.id != null ? proposalData.id : userId;
 
     try {
-      const response = await editProposal(proposalId , updateData);
+      const response = await editProposal( id , updateData);
       console.log('제안서 수정 완료:', response);
       setIsEditMode(false);
     } catch (error) {
-      console.error('제안서 ID:', proposalId);
+      console.error('제안서 ID:', proposalData.id);
       console.error('제안서 수정 실패:', error);
     }
   };
@@ -162,11 +187,14 @@ const ProposalDetail = () => {
         contact_info: contact || contactInfo, // 연락처
       };
 
+      if (isAI) {
+        createData.expected_effects = expectedEffects;
+      }
 
       console.log('제안서 데이터:', createData);
       
       const response = await createProposal(createData);
-      alert('제안서가 전송되었습니다.');
+      alert('제안서를 성공적으로 전송했습니다.');
       
     } catch (error) {
       console.error('제안서 생성 오류:', error);
@@ -203,13 +231,15 @@ const ProposalDetail = () => {
         title: "제안서",
         contents: "제휴 내용",
       };
-
+ 
+      if (isAI) {
+        createData.expected_effects = expectedEffects;
+      }
 
       console.log('제안서 데이터:', createData);
 
     try {
       const response = await createProposal(createData);
-      setProposalId(response.id);
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -295,8 +325,7 @@ const ProposalDetail = () => {
                       children={type} 
                       IconComponent={IconComponent}
                       isSelected={selectedPartnershipTypes.includes(type)}
-                      onClick={() => !proposal || proposal.status === 'DRAFT' ? togglePartnershipType(type) : null}
-                      disabled={proposal && proposal.status !== 'DRAFT'}
+                      onClick={() => togglePartnershipType(type)}
                     />
                   ))}
                 </ContentBox>
@@ -335,7 +364,6 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.applyTarget}
                         onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -346,7 +374,6 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.benefitDescription}
                         onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -359,7 +386,6 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.timeWindows}
                         onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -370,14 +396,25 @@ const ProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.partnershipPeriod}
                         onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
                       />
                     </ConditionItem>
                   </ConditionGroup>
                 </ConditionsBox>
               </DetailBox>
 
-      
+              {/* 기대효과: AI 모드에서만 표시 */}
+              {isAI && (
+                <DetailBox>
+                  <Title> <div>기대 효과</div></Title>
+                  <InputBox 
+                    defaultText="텍스트를 입력해주세요."
+                    width="100%"
+                    border="1px solid #E9E9E9"
+                    value={expectedEffects}
+                    onChange={(e) => setExpectedEffects(e.target.value)}
+                  />
+                </DetailBox>
+              )}
 
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
@@ -386,7 +423,6 @@ const ProposalDetail = () => {
                   width="100%"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  readOnly={proposal && proposal.status !== 'DRAFT'}
                 />
               </DetailBox>
               
@@ -407,7 +443,9 @@ const ProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              
+              <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+              <SaveBtn onClick={handleSave} />
+              <SendProposalBtn onClick={handleSend}/>
             </ButtonWrapper>
           </ReceiverWrapper>
         </ReceiverSection>
@@ -416,7 +454,7 @@ const ProposalDetail = () => {
   )
 }
 
-export default ProposalDetail
+export default AIProposalDetail
 
 const ProposalContainer= styled.div`
 width: 100%;

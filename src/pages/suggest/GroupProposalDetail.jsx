@@ -18,15 +18,47 @@ import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
 import createProposal, { editProposal } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
+import GroupCard from '../../components/common/cards/GroupCard';
+import { fetchLikes } from '../../services/apis/likesapi';
 
-
-const ProposalDetail = () => {
+// profileData : 사장님, groupProfile: 학생단체 
+const GroupProposalDetail = () => {
   const location = useLocation();
-  const { organization, proposal } = location.state || {};
-  console.log(location.state);
+  const { profileData, proposal } = location.state || {};
+  console.log("넘어온 데이터 확인", profileData);
 
-  const { storeName, contactInfo } = useOwnerProfile();
-  console.log(contactInfo);
+  const {userId } = useUserStore();
+
+  console.log(userId);
+
+  //const { storeName, contactInfo } = useOwnerProfile();
+
+  // 현재 로그인된 사용자 정보 불러오기
+  const [ groupProfile, setGroupProfile] = useState(null);
+
+  useEffect(() => {
+    console.log("UseEffect 실행됨, userId:", userId); // 뭐지? 안 뜸 
+    
+    const getProfile = async() => {
+      try {
+        const groupProfile = await fetchGroupProfile(userId);
+        setGroupProfile(groupProfile);
+        console.log("학생단체 데이터", groupProfile);
+      } catch(error) {
+        console.error("학생 단체 프로필 조회 실패:", error);
+      }
+    };
+    
+    if (userId) {
+      getProfile();
+    }
+  }, [userId]);
+
+  
+
+
+ 
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -74,9 +106,9 @@ const ProposalDetail = () => {
       }
       
       // 제안서가 이미 전송된 상태라면 수정 모드 비활성화
-      if (proposal.status && proposal.status !== 'DRAFT') {
-        setIsEditMode(false);
-      }
+    //   if (proposal.status && proposal.status !== '') {
+    //     setIsEditMode(false);
+    //   }
     }
   }, [proposal]);
 
@@ -108,7 +140,7 @@ const ProposalDetail = () => {
   const handleEdit = async () => {
     
     const updateData = {
-      recipient: organization?.user,
+      recipient: profileData?.user,
       partnership_type: mapPartnership(selectedPartnershipTypes),
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
@@ -147,19 +179,19 @@ const ProposalDetail = () => {
         return;
       }
 
-      if (!((contact || contactInfo || '').trim())) {
+      if (!((contact  || '').trim())) {
         alert('연락처를 입력해주세요.');
         return;
       }
 
       const createData = {
-        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        contact_info: contact || contactInfo, // 연락처
+        contact_info: contact || "", // 연락처
       };
 
 
@@ -193,13 +225,13 @@ const ProposalDetail = () => {
   const handleSave = async () => {
 
     const createData = {
-        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        contact_info: contact || contactInfo, // 연락처
+        contact_info: contact || '', // 연락처
         title: "제안서",
         contents: "제휴 내용",
       };
@@ -262,6 +294,25 @@ const ProposalDetail = () => {
     return maxTop ;
   };
 
+//   // 카드 내 찜 부분 (GroupHome에서 가져옴)
+//     const [likeStores, setLikeStores] = useState([]);
+
+//     useEffect(() => {
+//         //fetchStores();
+//         const fetchUserLikes = async () => {
+//           const list = await fetchLikes('given');
+//           setLikeStores(list.map(item => item.target.id));
+//           // console.log("좋아요한 가게 리스트:", list);
+//           console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+//         };
+//         fetchUserLikes();
+//       }, []);
+    
+//       useEffect(() => {
+//         console.log("likeStores 내 데이터 출력:", likeStores);
+//       }, [likeStores]);
+    
+console.log(groupProfile);
   
   return (
     <ProposalContainer>
@@ -269,18 +320,20 @@ const ProposalDetail = () => {
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
-            <p>{organization?.university || ''} {organization?.department || ''} {organization?.council_name || ''}</p>
+            {/*<p>{groupProfile?.university_name || ''} {groupProfile?.council_name || ''} {groupProfile?.department || ''}</p>*/}
+            <p>{profileData.profile_name}</p>
             <p>제휴 요청 제안서</p>
             </HeaderTitle>
             <HeaderContent>
               <p>안녕하세요.</p>
-              <p>귀 학생회의 적극적인 학생 복지 및 교내 활동 지원에 항상 감사드립니다.</p>
-              <p>저희 '{storeName}'는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
+              <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
+              <p>'{profileData.profile_name}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에, 가게에도 학생 고객층 확대라는 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
           <SectionWrapper>
-            <OwnerInfo/>
+            <OwnerInfo profileData = {profileData}/>
+
             {/* 제휴 유형, 제휴 조건, 기대 효과, 연락처 */}
             <DetailSection> 
               {/* 제휴 유형 */}
@@ -394,29 +447,20 @@ const ProposalDetail = () => {
               
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{storeName}' 드림</Signature>
+          <Signature>{groupProfile?.university_name || ''} {groupProfile?.council_name || ''} '{groupProfile?.department || ''}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
-          <ReceiverWrapper>
-            <CardSection 
-              cardType={"proposal"} 
-              organization={organization} 
-              ButtonComponent={() => <FavoriteBtn organization={organization} />} 
-            />
-            <ButtonWrapper>
-              
-            </ButtonWrapper>
-          </ReceiverWrapper>
+            
         </ReceiverSection>
     </ProposalContainer>
 
   )
 }
 
-export default ProposalDetail
+export default GroupProposalDetail
 
 const ProposalContainer= styled.div`
 width: 100%;
@@ -455,6 +499,7 @@ const ProposalWrapper = styled.div`
   align-items: flex-start;
   justify-content: center;
   gap: 34px;
+  
 `;
 
 const ProposalHeader = styled.div`
