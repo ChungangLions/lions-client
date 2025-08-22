@@ -182,21 +182,6 @@ const useStudentOrgStore = create(
             }
             },
 
-
-        // 특정 user(학생단체 유저)의 좋아요 상태 업데이트
-        updateOrganizationLikeState: (userId, isLiked) => {
-            set((state) => ({
-                organizations: state.organizations.map((org) =>
-                    org.user === userId ? { ...org, is_liked: isLiked } : org
-                ),
-                originalOrganizations: state.originalOrganizations.map((org) =>
-                    org.user === userId ? { ...org, is_liked: isLiked } : org
-                ),
-            }));
-        },
-
-
-
         isFilteredByRecord: false,
         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
         searchQuery: "",

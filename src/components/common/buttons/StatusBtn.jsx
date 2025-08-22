@@ -1,17 +1,17 @@
 import React from 'react'
 import styled from 'styled-components';
 
-const ViewBtn = ({onClick}) => {
+const StatusBtn = ({onClick, children}) => {
   return (
-    <Viewbutton onClick={onClick}>
-      열람
-    </Viewbutton>
+    <Statusbutton onClick={onClick}>
+      {children}
+    </Statusbutton>
   )
 }
 
-export default ViewBtn
+export default StatusBtn
 
-const Viewbutton = styled.button`
+const Statusbutton = styled.button`
 position: relative;
 border-radius: 20px;
 border: 1px solid #70af19;
@@ -27,8 +27,7 @@ font-size: 16px;
 color: #70af19;
 font-family: Pretendard;
 background-color: white;
-&: hover {
-background-color:  #e9f4d0;
-}
-cursor: pointer;
+
+/* 카드 내 위치 조정 */
+margin-top: 10px;
 `;

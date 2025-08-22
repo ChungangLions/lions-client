@@ -24,17 +24,20 @@ const SuggestDealBtn = ({organization}) => {
       
       const recipient = organization.user;
       const contact_info = String(organization.contact || '');
+      
+      console.log({ recipient, contact_info });
 
       const proposalData = await getAIDraftProposal(recipient, contact_info);
       console.log("제안서 내용", proposalData);
 
       // AI 제안서 페이지로 이동 
-      navigate('/owner/proposal', { state: { organization, isAI: true, proposalData } });
+
+      navigate('/owner/ai-proposal', { state: { organization, isAI: true, proposalData } });
     } catch (error) {
       console.error("제안서를 생성하는데 실패했습니다.", error);
+      setIsModalOpen(false);
     } finally {
       setIsLoading(false);
-      setIsModalOpen(false);
     }
   }
   
@@ -50,6 +53,7 @@ const SuggestDealBtn = ({organization}) => {
       setIsModalOpen(false);
     }
   }
+
 
   return (
     <>

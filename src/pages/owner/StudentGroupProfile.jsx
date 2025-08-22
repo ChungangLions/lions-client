@@ -20,8 +20,9 @@ const StudentGroupProfile = () => {
   const { organization } = location.state || {};
   console.log(location.state);
 
-   
+
   const groupId = organization?.user || userId
+
 
   console.log("로그인 유저",userId);
 
