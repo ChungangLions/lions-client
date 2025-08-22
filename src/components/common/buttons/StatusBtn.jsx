@@ -29,5 +29,5 @@ font-family: Pretendard;
 background-color: white;
 
 /* 카드 내 위치 조정 */
-margin-top: -10px;
+margin-top: 10px;
 `;

@@ -112,6 +112,10 @@ const OwnerReceiveSuggest = () => {
     );
   }
 
+   const handleProposalClick = () => {
+    // 클릭 시 제안서로 이동 구현해야됨 
+  }
+
   return (
     <ScrollSection>
       <Menu />
@@ -122,7 +126,7 @@ const OwnerReceiveSuggest = () => {
           {proposalOrganizations.map((organization) => (
             <OrgCardSection 
               key={organization.id} 
-              onClick={() => handleCardClick(organization)} 
+              onClick={() => handleProposalClick(organization)} 
               cardType={'suggest-received'} 
               ButtonComponent= { () => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
               organization={organization} 
