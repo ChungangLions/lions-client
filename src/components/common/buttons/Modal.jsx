@@ -1,18 +1,21 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <Overlay onClick={onClose}>
-        <ModalContainer>
-            <ModalWrapper onClick={e => e.stopPropagation()}>
-                {children}
-            </ModalWrapper>
+      <ModalContainer>
+        <ModalWrapper onClick={e => e.stopPropagation()}>
+          {children}
+        </ModalWrapper>
       </ModalContainer>
     </Overlay>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default Modal;
