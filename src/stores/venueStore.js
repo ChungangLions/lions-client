@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
-import { getOwnerList } from '../services/apis/ownerAPI';
+import { getOwnerList, getOwnerLikes, getOwnerRecommends } from '../services/apis/ownerAPI';
 
 const originalStores = [
                 {
@@ -79,31 +79,55 @@ const useVenueStore = create(
             const latestData = Object.values(latestUserMap);
             console.log("사장님 리스트 데이터", latestData);
 
-            const converted = latestData.map(item => ({
-                id: item.user,
-                name: item.profile_name,
-                caption: item.comment,
-                storeType: (item.business_type || '').toString().toUpperCase(),
-                dealType: item.deal_type || null,
-                likes: item.likes || null,
-                recommendations: item.recommendations || null,
-                record: item.record || null,
-                // photo: item.photos[0].image || null,
-                photo: item.photos?.[0]?.image || null
+            // 각 매장별로 likes와 recommendations를 개별적으로 가져오기
+            const converted = await Promise.all(
+                latestData.map(async (item) => {
+                    try {
+                        // 각 매장의 likes와 recommendations를 개별적으로 가져오기
+                        const likes = await getOwnerLikes(item.user);
+                        const recommendations = await getOwnerRecommends(item.user);
+                        
+                        return {
+                            id: item.user,
+                            name: item.profile_name,
+                            caption: item.comment,
+                            storeType: (item.business_type || '').toString().toUpperCase(),
+                            dealType: item.deal_type || null,
+                            likes: likes.likes_received_count || 0,
+                            recommendations: recommendations.recommendations_received_count || 0,
+                            record: item.record || null,
+                            photo: item.photos?.[0]?.image || null
+                        };
+                    } catch (error) {
+                        console.error(`Failed to fetch data for user ${item.user}:`, error);
+                        // 에러가 발생해도 기본 데이터는 반환
+                        return {
+                            id: item.user,
+                            name: item.profile_name,
+                            caption: item.comment,
+                            storeType: (item.business_type || '').toString().toUpperCase(),
+                            dealType: item.deal_type || null,
+                            likes: 0,
+                            recommendations: 0,
+                            record: item.record || null,
+                            photo: item.photos?.[0]?.image || null
+                        };
+                    }
+                })
+            );
 
-              }));
-          set({
-            originalStores: converted,
-            stores: converted,
-          });
+            set({
+                originalStores: converted,
+                stores: converted,
+            });
 
-          console.log(converted);
-          return converted;
+            console.log(converted);
+            return converted;
 
         } catch (err) {
-          console.error('Failed to fetch stores', err);
+            console.error('Failed to fetch stores', err);
         }
-      },
+    },
 
         // 찜/추천/제휴 이력 많은 순
         sortByDesc: (key) => {

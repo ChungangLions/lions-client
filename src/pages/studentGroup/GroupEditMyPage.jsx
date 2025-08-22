@@ -21,10 +21,12 @@ const SECTIONS = [
   { key: "period", label: "제휴 기간", refKey: "period" },
 ];
 
-const sampleCampus = {
-  name: '중앙대학교',
-  address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
-};
+const sampleCampus = '중앙대학교';
+
+// const sampleCampus = {
+//   name: '중앙대학교',
+//   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
+// };
 
 // ---- 학교 api 연결 ----
 const apiKey = process.env.REACT_APP_CAREER_API_KEY;
@@ -251,20 +253,31 @@ const GroupEditMyPage = () => {
   const handleProfileUpdate = async () => {
     try {
       
-      const updateData = {
-        photos: parsePhotos(photoState),
-        university_name: campusValue.name,
-        department: councilName,
-        council_name: department,
-        position: position,
-        student_size: students,
-        term_start: makeDateString(term.startYear, term.startMonth),
-        term_end: makeDateString(term.endYear, term.endMonth),
-        partnership_start: makeDateString(period.startYear, period.startMonth, period.startDay),
-        partnership_end: makeDateString(period.endYear, period.endMonth, period.endDay),
-      };
-      console.log("updateData:", updateData);
-      await editGroupProfile(profileId, updateData);
+      const formData = new FormData();
+      
+      // 사진 데이터 추가
+      photoState.forEach((photo, index) => {
+        formData.append('photos', photo);
+        formData.append('orders', index);
+      });
+      
+      // 텍스트 데이터 추가
+      formData.append('university_name', campusValue);
+      formData.append('department', councilName);
+      formData.append('council_name', department);
+      formData.append('position', position);
+      formData.append('student_size', students);
+      formData.append('term_start', makeDateString(term.startYear, term.startMonth));
+      formData.append('term_end', makeDateString(term.endYear, term.endMonth));
+      formData.append('partnership_start', makeDateString(period.startYear, period.startMonth, period.startDay));
+      formData.append('partnership_end', makeDateString(period.endYear, period.endMonth, period.endDay));
+      
+      console.log("FormData 내용:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      
+      await editGroupProfile(profileId, formData);
       alert("프로필 수정 완료!");
 
     } catch (error) {
@@ -315,9 +328,7 @@ const GroupEditMyPage = () => {
   // 진행상황 체크 용도
   const isFilledText = val => typeof val === "string" && val.trim() !== "";
   const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
-  const isFilledCampus = val =>
-    val && typeof val === "object" && typeof val.name === "string" && val.name.trim() !== "";
-  const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
+  const isFilledCampus = val => typeof val === "string" && val.trim() !== "";  const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
   const isFilledTerm = (term) =>
     !!term.startYear && !!term.startMonth &&
     !!term.endYear && !!term.endMonth;
@@ -380,12 +391,12 @@ const GroupEditMyPage = () => {
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > {campusValue ? campusValue.name : "대학 검색"} <SearchIcon /></SearchCampusButton>
+          > {campusValue ? campusValue : "대학 검색"} <SearchIcon /></SearchCampusButton>
           <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
             onSelect={campus => {
-              setCampusValue(campus);
+              setCampusValue(campus.name);
               setShowCampusModal(false);
             }}
           />
