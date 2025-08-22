@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
-import ViewBtn from '../../components/common/buttons/ViewBtn'
 import { fetchProposal } from '../../services/apis/proposalAPI'
+import StatusBtn from '../../components/common/buttons/StatusBtn'
 
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
@@ -114,25 +114,34 @@ const OwnerSendSuggest = () => {
     );
   }
 
+    const STATUS_MAP = {
+    UNREAD: "미열람",
+    READ: "열람",
+    PARTNERSHIP: "제휴체결",
+    REJECTED: "거절"
+  };
+
+
   return (
     <ScrollSection>
       <Menu />
       <SuggestSummaryBox items={summaryItems} />
-      <CardListGrid> 
+      
         {proposalOrganizations.length > 0 ? (
-          proposalOrganizations.map((organization) => (
+          <CardListGrid> 
+          {proposalOrganizations.map((organization) => (
             <OrgCardSection 
               key={organization.id} 
               onClick={() => handleCardClick(organization)} 
               cardType={'suggest-sent'} 
-              ButtonComponent={ViewBtn} 
+              ButtonComponent= {() => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
               organization={organization} 
             />
-          ))
+          ))}
+          </CardListGrid>
         ) : (
           <EmptyMessage>보낸 제안서가 없습니다.</EmptyMessage>
         )}
-      </CardListGrid>
     </ScrollSection>
   )
 }
@@ -144,33 +153,33 @@ const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: ;
-  grid-template-columns: repeat(3, 447px); 
+  grid-template-columns: repeat(auto-fit, minmax(447px, 1fr));
   justify-content: start;
   align-content: start;
   column-gap: 20px;
   row-gap: 20px;
   text-align: left;
   font-size: 18px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 
 const ScrollSection = styled.div`
 display: flex;
 flex-direction: column;
-gap: 15px;
-align-items: flex-start;
-
-position: sticky;
-top: 0;
-// height: 100vh; 
+width: 100%;
+position: relative;
+justify-content: flex-start; 
+min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
 `;
 
 const EmptyMessage = styled.div`
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 40px;
-  color: #666;
+width: 100%;
+text-align: center;
+  color: #C9C9C9;
+    font-weight: 600;
   font-size: 16px;
+    justify-content: center;
+  align-content: center;
+  margin-top: 30px;
 `;
