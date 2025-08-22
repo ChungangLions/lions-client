@@ -10,9 +10,9 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
 
   if (cardType === 'home' || cardType === 'proposal') {
     cardData = [
-      { label: '소속 학생 수', value: organization.student_size }, // student_size로 바꿔야됨 
-      { label: '희망 제휴 기간', value: `${organization.partnership_start} ~ ${organization.partnership_end} (${organization.period}개월)` },
-      { label: '제휴 이력', value: `${organization.record}회` },
+      { label: '소속 학생 수', value: organization?.student_size }, // student_size로 바꿔야됨 
+      { label: '희망 제휴 기간', value: `${organization?.partnership_start} ~ ${organization?.partnership_end} (${organization?.period}개월)` },
+      { label: '제휴 이력', value: `${organization?.record}회` },
     ];
   } else if (cardType === 'suggest-received') {
     cardData = [

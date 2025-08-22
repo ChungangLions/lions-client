@@ -8,6 +8,8 @@ import MainLayout from './layout/MainLayout';
 import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
 import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
+import OwnerSentProposalDetail from './pages/owner/OwnerSentProposalDetail';
+import OwnerReceivedProposalDetail from './pages/owner/OwnerReceivedProposalDetail';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
 import Login from './pages/landing/Login';
 import OwnerWishlist from './pages/owner/OwnerWishlist';
@@ -53,6 +55,8 @@ function App() {
         <Route path="/owner/mypage/edit" element={<OwnerEditMyPage />}/>
         <Route path="/owner/mypage/received-suggest" element={<OwnerReceiveSuggest />}/>
         <Route path="/owner/mypage/sent-suggest" element={<OwnerSendSuggest />}/>
+        <Route path="/owner/mypage/sent-proposal/:id" element={<OwnerSentProposalDetail />}/>
+        <Route path="/owner/mypage/received-proposal/:id" element={<OwnerReceivedProposalDetail />}/>
         <Route path="/owner/mypage" element={<OwnerMyPage />}/>
       </Route>
       

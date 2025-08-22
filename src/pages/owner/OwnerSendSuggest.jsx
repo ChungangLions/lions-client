@@ -121,8 +121,10 @@ const OwnerSendSuggest = () => {
     REJECTED: "거절"
   };
   
-  const handleProposalClick = () => {
-    // 클릭 시 제안서로 이동 구현해야됨 
+  const handleProposalClick = (proposal) => {
+    navigate(`/owner/mypage/sent-proposal/${proposal.id}`, { 
+      state: { proposal } 
+    });
   }
 
 
@@ -136,7 +138,7 @@ const OwnerSendSuggest = () => {
           {proposalOrganizations.map((organization) => (
             <OrgCardSection 
               key={organization.id} 
-              onClick={() => handleProposalClick(organization)} 
+              onClick={handleProposalClick} 
               cardType={'suggest-sent'} 
               ButtonComponent= {() => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
               organization={organization} 
