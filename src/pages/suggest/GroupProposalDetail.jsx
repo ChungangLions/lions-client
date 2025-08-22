@@ -192,13 +192,16 @@ const GroupProposalDetail = () => {
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
         contact_info: contact || "", // 연락처
+
       };
 
 
       console.log('제안서 데이터:', createData);
       
-      const response = await createProposal(createData);
+      const proposalResponse = await createProposal(createData);
       alert('제안서가 전송되었습니다.');
+      setProposalId(proposalResponse.id);
+
       
     } catch (error) {
       console.error('제안서 생성 오류:', error);

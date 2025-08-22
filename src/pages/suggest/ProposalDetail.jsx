@@ -193,7 +193,7 @@ const ProposalDetail = () => {
   const handleSave = async () => {
 
     const createData = {
-        recipient: organization?.id, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
