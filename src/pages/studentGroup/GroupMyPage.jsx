@@ -41,6 +41,13 @@ const GroupMyPage = () => {
       <ProfileSection>
         <ProfileGroup>
             <ImageContainer /> 
+            {image ? (
+                <img
+                  src={organization?.photos[0].image}
+                  alt="profile"
+                  style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                />
+              ) : null}
             <ContentWrapper>
               <OrganizationWrapper>
                 {/*<NoWrapItem>{organization?.university}</NoWrapItem>*/}

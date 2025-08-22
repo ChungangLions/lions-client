@@ -90,35 +90,35 @@ const StudentHome = () => {
           </FilterBtn>
           </FilterWrapper>
         </FilterSection>
-    {/* <FilterSection>
+        <FilterSection>
           <TypeWrapper>제휴 유형</TypeWrapper>
           <FilterWrapper>
             <FilterBtn
-            onClick={() => filterByStoreType('RESTAURANT')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('타임형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('타임형')}
             >
             타임형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('BAR')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('서비스 제공형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('서비스 제공형')}
             >
             서비스 제공형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('CAFE')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('리뷰형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('리뷰형')}
             >
             리뷰형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('CAFE')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('할인형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('할인형')}
             >
             할인형
             </FilterBtn>
           </FilterWrapper>
-        </FilterSection> */}
+        </FilterSection>
         <OptionWrapper>
           <TypeWrapper>정렬</TypeWrapper>
             <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />

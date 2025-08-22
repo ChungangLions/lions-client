@@ -11,6 +11,7 @@ import { FiSearch } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa6";
+import { IoIosClose } from "react-icons/io";
 
 const SECTIONS = [
   { key: "photo", label: "프로필 사진", refKey: "photo" },
@@ -68,6 +69,9 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
   return visible ? (
   <ModalOverlay>
     <ModalContainer>
+      <CloseRow>
+        <ModalCloseBtn onClick={onClose} />
+      </CloseRow>
       <ModalHeader>대학 검색</ModalHeader>
       <SearchRow>
         <ModalInput
@@ -108,7 +112,6 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
           </ResultList>
         </div>
       )}
-      <ModalCloseBtn onClick={onClose}><IoClose /></ModalCloseBtn>
     </ModalContainer>
   </ModalOverlay>
   ) : null;
@@ -137,7 +140,13 @@ const StudentEditMyPage = () => {
         const formData = new FormData();
         formData.append('name', nameValue);
         formData.append('university_name', campusName);
-        formData.append('image', photoState[0]);
+        
+        // 이미지가 변경되었을 때만 FormData에 추가
+        // photoState[0]이 File 객체인지 확인 (새로 업로드된 이미지)
+        if (photoState[0] instanceof File) {
+            formData.append('image', photoState[0]);
+        }
+        // 기존 이미지 URL인 경우 FormData에 추가하지 않음
 
         try {
             const updatedProfile = await patchStudentProfile(profileId, formData);
@@ -440,7 +449,7 @@ const ModalContainer = styled.div`
     width: 600px;
     height: 402px;
     max-height: 560px;
-    padding: 50px 63px;
+    padding: 20px 63px 100px 63px;
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
@@ -543,24 +552,23 @@ const ResultItem = styled.div`
 `;
 
 // 닫기(X) 버튼
-const ModalCloseBtn = styled.button`
-  position: relative;
-  bottom: 440px;
-  left: 600px;
-  width: 24px;
-  height: 24px;
+const CloseRow = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  // align-items: end;
+  align-self: stretch;
+  margin-top: 10px;
+`;
+
+const ModalCloseBtn = styled(IoIosClose)`
+  width: 30px;
+  height: 30px;
   background: none;
   border: none;
   font-size: 24px;
   color: #222222;
   cursor: pointer;
+  storke-width: 2;
   &:hover { opacity: 80%; }
-`;
-
-const ResultTitle = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 6px;
-  margin-top: 4px;
 `;
