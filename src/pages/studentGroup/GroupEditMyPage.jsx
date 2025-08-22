@@ -1,7 +1,3 @@
-// TO DO LIST
-// 1. (백이랑) partnership_goal이 여러 개일 경우 제대로 fetch 안 되는 중 수정 필요
-// 2. (백한테 확인 받아야 함) 이미지 잘 들어가는지 확인
-
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import InputBox from "../../components/common/inputs/InputBox";
@@ -25,10 +21,12 @@ const SECTIONS = [
   { key: "period", label: "제휴 기간", refKey: "period" },
 ];
 
-const sampleCampus = {
-  name: '중앙대학교',
-  address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
-};
+const sampleCampus = '중앙대학교';
+
+// const sampleCampus = {
+//   name: '중앙대학교',
+//   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
+// };
 
 // ---- 학교 api 연결 ----
 const apiKey = process.env.REACT_APP_CAREER_API_KEY;
@@ -255,20 +253,31 @@ const GroupEditMyPage = () => {
   const handleProfileUpdate = async () => {
     try {
       
-      const updateData = {
-        photos: parsePhotos(photoState),
-        university_name: campusValue.name,
-        department: councilName,
-        council_name: department,
-        position: position,
-        student_size: students,
-        term_start: makeDateString(term.startYear, term.startMonth),
-        term_end: makeDateString(term.endYear, term.endMonth),
-        partnership_start: makeDateString(period.startYear, period.startMonth, period.startDay),
-        partnership_end: makeDateString(period.endYear, period.endMonth, period.endDay),
-      };
-      console.log("updateData:", updateData);
-      await editGroupProfile(profileId, updateData);
+      const formData = new FormData();
+      
+      // 사진 데이터 추가
+      photoState.forEach((photo, index) => {
+        formData.append('photos', photo);
+        formData.append('orders', index);
+      });
+      
+      // 텍스트 데이터 추가
+      formData.append('university_name', campusValue);
+      formData.append('department', councilName);
+      formData.append('council_name', department);
+      formData.append('position', position);
+      formData.append('student_size', students);
+      formData.append('term_start', makeDateString(term.startYear, term.startMonth));
+      formData.append('term_end', makeDateString(term.endYear, term.endMonth));
+      formData.append('partnership_start', makeDateString(period.startYear, period.startMonth, period.startDay));
+      formData.append('partnership_end', makeDateString(period.endYear, period.endMonth, period.endDay));
+      
+      console.log("FormData 내용:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      
+      await editGroupProfile(profileId, formData);
       alert("프로필 수정 완료!");
 
     } catch (error) {
@@ -319,9 +328,7 @@ const GroupEditMyPage = () => {
   // 진행상황 체크 용도
   const isFilledText = val => typeof val === "string" && val.trim() !== "";
   const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
-  const isFilledCampus = val =>
-    val && typeof val === "object" && typeof val.name === "string" && val.name.trim() !== "";
-  const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
+  const isFilledCampus = val => typeof val === "string" && val.trim() !== "";  const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
   const isFilledTerm = (term) =>
     !!term.startYear && !!term.startMonth &&
     !!term.endYear && !!term.endMonth;
@@ -384,12 +391,12 @@ const GroupEditMyPage = () => {
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > {campusValue ? campusValue.name : "대학 검색"} <SearchIcon /></SearchCampusButton>
+          > {campusValue ? campusValue : "대학 검색"} <SearchIcon /></SearchCampusButton>
           <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
             onSelect={campus => {
-              setCampusValue(campus);
+              setCampusValue(campus.name);
               setShowCampusModal(false);
             }}
           />
@@ -507,11 +514,17 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background-color: #F4F4F4;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
-  width: 100%;
   position: relative;
+
+// background-color: #F4F4F4;
+  // gap: 10px;
+  // margin-top: 10px;
+  // width: 100%;
+  // position: relative;
 `;
 
 const EditContainer = styled.div`
@@ -535,20 +548,30 @@ const EditTitle = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: sticky;
-  width: 100%;
+  position: fixed;
+  right: 45px;
+  width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: 999;
   transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left;
-  font-size: 20px;
-  color: #e9f4d0;
-  font-family: Pretendard;
-  box-sizing: border-box;
+
+// position: sticky;
+  // width: 100%;
+  // height: 587px;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
+  // justify-content: flex-start;
+  // gap: 10px;
+  // text-align: left;
+  // font-size: 20px;
+  // color: #e9f4d0;
+  // font-family: Pretendard;
+  // box-sizing: border-box;
 `;
 
 const ProgressList = styled.ul`
@@ -558,8 +581,16 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-  width: 197px;
-justify-content: flex-start;
+//   width: 197px;
+  align-self: stretch;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   gap: 15px;          // 아이템 간격
+//   margin: 0;          // 기본 여백 제거!
+//   padding: 0;
+//   width: 197px;
+// justify-content: flex-start;
 
 `;
 

@@ -53,6 +53,7 @@ const StyledNotRecommend = styled(EmptyRecommend)`
 const StyledButton = styled.button`
   position: relative;
   border: none;
+  background: transparent;
 
   // border-radius: 18.5px;
   // background: #FFF;
