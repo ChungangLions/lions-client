@@ -82,8 +82,9 @@ const OwnerHome = () => {
       <SelectContainer>
         <SelectWrapper>
         <FilterBtn onClick = {handleFilterChange} active={isActive}>{`제휴 이력`}</FilterBtn>
-          <OptionWrapper>
-            <TbArrowsSort size={30} strokeWidth={1} />
+        <OptionWrapper>
+          <TypeWrapper>정렬</TypeWrapper>
+            <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
                 { value: "likes", label: "찜 많은 순" },
@@ -173,4 +174,15 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 gap: 5px;
+`;
+
+const TypeWrapper = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px 0px;
+gap: 10px;
+min-width: 28px;
+max-width: 60px;
 `;

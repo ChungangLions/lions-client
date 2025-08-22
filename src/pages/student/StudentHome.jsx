@@ -82,6 +82,12 @@ const StudentHome = () => {
           >
           ☕️ 카페 및 디저트
           </FilterBtn>
+          <FilterBtn
+          onClick={() => filterByStoreType('ETC')}
+          active={Array.isArray(activeStoreType) && activeStoreType.includes('ETC')}
+          >
+          ...
+          </FilterBtn>
           </FilterWrapper>
         </FilterSection>
     {/* <FilterSection>
@@ -114,10 +120,10 @@ const StudentHome = () => {
           </FilterWrapper>
         </FilterSection> */}
         <OptionWrapper>
-            <TbArrowsSort size={30} strokeWidth={1} />
+          <TypeWrapper>정렬</TypeWrapper>
+            <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
-                { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
                 { value: "recommendations", label: "추천 많은 순" },
               ]}
@@ -208,6 +214,9 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px 0px;
+gap: 10px;
+min-width: 28px;
+max-width: 60px;
 `;
 
 const FilterWrapper =styled.div`

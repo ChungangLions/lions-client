@@ -9,7 +9,7 @@ const originalStores = [
                 {
                 name: '백소정',
                 caption: '돈까스 맛집',
-                storeType: 'restaurant', 
+                storeType: 'RESTAURANT', 
                 dealType: 'time',
                 likes: 100,
                 recommendations: 79,
@@ -18,7 +18,7 @@ const originalStores = [
                 {
                 name: '대관령',
                 caption: '안주가 맛있는 감성 술집',
-                storeType: 'bar',
+                storeType: 'BAR',
                 dealType: 'service',
                 likes: 50,
                 recommendations: 99,
@@ -27,7 +27,7 @@ const originalStores = [
                 {
                 name: '오후홍콩',
                 caption: '밀크티 맛집',
-                storeType: 'cafe',
+                storeType: 'CAFE',
                 dealType: 'review',
                 likes: 70,
                 record: 7,
@@ -36,7 +36,7 @@ const originalStores = [
                 {
                 name: '가',
                 caption: '감성 카페',
-                storeType: 'cafe',
+                storeType: 'CAFE',
                 dealType: 'sale',
                 likes: 20,
                 record: 12,
@@ -45,7 +45,7 @@ const originalStores = [
                 {
                 name: '나',
                 caption: '감성 카페',
-                storeType: 'cafe', 
+                storeType: 'CAFE', 
                 dealType: 'review',
                 likes: 30,
                 recommendations: 49,
@@ -59,7 +59,7 @@ const useVenueStore = create(
         originalStores: originalStores,
         stores: [],
 
-        activeStoreType: null, // 현재 필터 : 음식점, 바, 카페 
+        activeStoreType: [], // 현재 필터 : 음식점, 바, 카페 
         isFilteredByStoreType: false,
         activeDealType: null,
         isFilteredByDealType: false,
@@ -83,7 +83,7 @@ const useVenueStore = create(
                 id: item.user,
                 name: item.profile_name,
                 caption: item.comment,
-                storeType: item.business_type,
+                storeType: (item.business_type || '').toString().toUpperCase(),
                 dealType: item.deal_type || null,
                 likes: item.likes || null,
                 recommendations: item.recommendations || null,
@@ -113,43 +113,51 @@ const useVenueStore = create(
         },
 
 
-filterByStoreType: (type) => {
-  // 문자열 -> 배열 변환 방어
-  const rawStoreType = get().activeStoreType;
-  // 만약 문자열이면 반드시 배열로 변환, 아니면 그대로 사용
-  const currentActiveTypes = Array.isArray(rawStoreType)
-    ? rawStoreType
-    : (rawStoreType ? [rawStoreType] : []);
+        filterByStoreType: (type) => {
+          const allowed = ['RESTAURANT', 'BAR', 'CAFE', 'ETC'];
+          const normalizedType = (type ?? '').toString().toUpperCase();
 
-  // 알파벳 문자 분해를 막기 위해 type도 항상 문자열로만 추가
-  let newActiveTypes;
-  if (currentActiveTypes.includes(type)) {
-    newActiveTypes = currentActiveTypes.filter(t => t !== type);
-  } else {
-    newActiveTypes = [...currentActiveTypes, type];
-  }
+          // 문자열 -> 배열 변환 방어 및 비정상 상태 복구
+          const rawStoreType = get().activeStoreType;
+          const currentActiveTypes = Array.isArray(rawStoreType)
+            ? rawStoreType
+            : (rawStoreType ? [rawStoreType] : []);
 
-  // 선택된 타입 없으면 전체 리스트
-  let newList;
-  if (newActiveTypes.length === 0) {
-    newList = get().originalStores;
-  } else {
-    newList = get().originalStores.filter(store =>
-      newActiveTypes.includes(store.storeType)
-    );
-  }
-  const sortKey = get().sortKey;
-  if (sortKey) {
-    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-  }
+          let nextActive = currentActiveTypes.map(t => t && t.toString().toUpperCase());
+          nextActive = nextActive.filter(Boolean);
 
-  set({
-    stores: newList,
-    isFilteredByStoreType: newActiveTypes.length > 0,
-    activeStoreType: newActiveTypes // 항상 배열, string 절대 안됨!
-  });
-  console.log(newActiveTypes);
-},
+          // 토글 로직 (항상 문자열 요소만 추가/제거)
+          if (normalizedType && nextActive.includes(normalizedType)) {
+            nextActive = nextActive.filter(t => t !== normalizedType);
+          } else if (normalizedType) {
+            nextActive = [...nextActive, normalizedType];
+          }
+
+          // 허용된 값만 유지 + 중복 제거
+          nextActive = Array.from(new Set(nextActive.filter(t => allowed.includes(t))));
+
+          // 선택된 타입 없으면 전체 리스트
+          let newList;
+          if (nextActive.length === 0) {
+            newList = get().originalStores;
+          } else {
+            newList = get().originalStores.filter(store =>
+              nextActive.includes((store.storeType || '').toString().toUpperCase())
+            );
+          }
+
+          const sortKey = get().sortKey;
+          if (sortKey) {
+            newList = [...newList].sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+          }
+
+          set({
+            stores: newList,
+            isFilteredByStoreType: nextActive.length > 0,
+            activeStoreType: nextActive
+          });
+          console.log('activeStoreType:', nextActive);
+        },
 
 
             // // 필터가 켜져 있는지 확인 

@@ -114,7 +114,7 @@ const GroupHome = () => {
         </FilterSection>
         <OptionWrapper>
           <TypeWrapper>정렬</TypeWrapper>
-            <TbArrowsSort size={30} strokeWidth={1} />
+            <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
                 { value: "likes", label: "찜 많은 순" },
