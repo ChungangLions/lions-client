@@ -14,13 +14,13 @@ const OwnerHome = () => {
   const navigate = useNavigate();
   
 
-  const handleCardClick = (organization) => {
-    navigate(`/owner/student-group-profile`, { state: { userType: "owner", organization } });
+  // const handleCardClick = (organization) => {
+  //   navigate(`/owner/student-group-profile`, { state: { userType: "owner", organization } });
 
-//   const handleCardClick = (organization, id) => {
-//     navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+  const handleCardClick = (organization, id) => {
+    navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
 
-//   };
+  };
 
   const [isActive, setIsActive] = useState(false);
 
