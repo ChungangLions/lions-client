@@ -20,11 +20,13 @@ import createProposal, { editProposal } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 
 
-const AIProposalDetail = () => {
+const AIGroupProposalDetail = () => {
   const location = useLocation();
   const { organization, proposalData, isAI: isAIFromState } = location.state || {};
   const isAI = typeof isAIFromState === 'boolean' ? isAIFromState : Boolean(proposalData); // proposalData 있으면 ai 돌렸다는거니까 isAI = true
   console.log(location.state);
+  const { profileData } = location.state || {};
+  console.log("넘어온 데이터 확인", profileData);
 
   const { storeName, contactInfo } = useOwnerProfile();
   console.log(contactInfo);
@@ -128,7 +130,7 @@ const AIProposalDetail = () => {
   const handleEdit = async () => {
     
     const updateData = {
-      recipient: organization?.user,
+      recipient: profileData?.user,
       partnership_type: mapPartnership(selectedPartnershipTypes),
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
@@ -178,7 +180,7 @@ const AIProposalDetail = () => {
       }
 
       const createData = {
-        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
@@ -221,7 +223,7 @@ const AIProposalDetail = () => {
   const handleSave = async () => {
 
     const createData = {
-        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
@@ -299,18 +301,18 @@ const AIProposalDetail = () => {
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
-            <p>{organization?.university || ''} {organization?.department || ''} {organization?.council_name || ''}</p>
+            <p>{profileData.profile_name}</p>
             <p>제휴 요청 제안서</p>
             </HeaderTitle>
             <HeaderContent>
-              <p>안녕하세요.</p>
-              <p>귀 학생회의 적극적인 학생 복지 및 교내 활동 지원에 항상 감사드립니다.</p>
-              <p>저희 '{storeName}'는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
+                <p>안녕하세요.</p>
+              <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
+              <p>'{profileData.profile_name}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에, 가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
           <SectionWrapper>
-            <OwnerInfo/>
+            <OwnerInfo profileData = {profileData}/>
             {/* 제휴 유형, 제휴 조건, 기대 효과, 연락처 */}
             <DetailSection> 
               {/* 제휴 유형 */}
@@ -437,11 +439,7 @@ const AIProposalDetail = () => {
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
           <ReceiverWrapper>
-            <CardSection 
-              cardType={"proposal"} 
-              organization={organization} 
-              ButtonComponent={() => <FavoriteBtn organization={organization} />} 
-            />
+
             <ButtonWrapper>
               <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
               <SaveBtn onClick={handleSave} />
@@ -454,7 +452,7 @@ const AIProposalDetail = () => {
   )
 }
 
-export default AIProposalDetail
+export default AIGroupProposalDetail
 
 const ProposalContainer= styled.div`
 width: 100%;
