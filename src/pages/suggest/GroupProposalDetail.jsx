@@ -232,8 +232,7 @@ const GroupProposalDetail = () => {
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
         contact_info: contact || '', // 연락처
-        title: "제안서",
-        contents: "제휴 내용",
+        
       };
 
 
@@ -447,13 +446,20 @@ console.log(groupProfile);
               
             </DetailSection>
           </SectionWrapper>
-          <Signature>{groupProfile?.university_name || ''} {groupProfile?.council_name || ''} '{groupProfile?.department || ''}' 드림</Signature>
+          <Signature>{groupProfile?.university_name || ''} {groupProfile?.council_name || ''} '{groupProfile?.department || ''}' </Signature>
         </ProposalWrapper>
       </ProposalSection>
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
-            
+            <ButtonWrapper>
+                <>
+                    <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+                    <SaveBtn onClick={handleSave} />
+                    <SendProposalBtn onClick={handleSend}/>
+                </>
+                      
+            </ButtonWrapper>
         </ReceiverSection>
     </ProposalContainer>
 
