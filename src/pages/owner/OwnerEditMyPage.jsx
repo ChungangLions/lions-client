@@ -440,8 +440,8 @@ const OwnerEditMyPage = () => {
   }, []);
 
   const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = 50;
-    const maxTop = 230;
+    const minTop = -130;
+    const maxTop = 250;
     
     if (scrollY <= 0) return maxTop;
     if (scrollY >= 500) return minTop;
@@ -834,11 +834,16 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background-color: #F4F4F4;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
-  width: 100%;
   position: relative;
+// background-color: #F4F4F4;
+  // gap: 10px;
+  // margin-top: 10px;
+  // width: 100%;
+  // position: relative;
 `;
 
 const EditContainer = styled.div`
@@ -909,20 +914,29 @@ const ColumnLayout = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: sticky;
-  width: 100%;
+  position: fixed;
+  right: 45px;
+  width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: 999;
   transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left;
-  font-size: 20px;
-  color: #e9f4d0;
-  font-family: Pretendard;
-  box-sizing: border-box;
+// position: sticky;
+  // width: 100%;
+  // height: 587px;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
+  // justify-content: flex-start;
+  // gap: 10px;
+  // text-align: left;
+  // font-size: 20px;
+  // color: #e9f4d0;
+  // font-family: Pretendard;
+  // box-sizing: border-box;
 `;
 
 const ProgressList = styled.ul`
@@ -932,8 +946,16 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-  width: 197px;
-justify-content: flex-start;
+//   width: 197px;
+  align-self: stretch;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   gap: 15px;          // 아이템 간격
+//   margin: 0;          // 기본 여백 제거!
+//   padding: 0;
+//   width: 197px;
+// justify-content: flex-start;
 
 `;
 

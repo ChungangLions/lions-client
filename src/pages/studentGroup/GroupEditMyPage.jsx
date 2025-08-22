@@ -1,7 +1,3 @@
-// TO DO LIST
-// 1. (백이랑) partnership_goal이 여러 개일 경우 제대로 fetch 안 되는 중 수정 필요
-// 2. (백한테 확인 받아야 함) 이미지 잘 들어가는지 확인
-
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import InputBox from "../../components/common/inputs/InputBox";
@@ -507,11 +503,17 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background-color: #F4F4F4;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
-  width: 100%;
   position: relative;
+
+// background-color: #F4F4F4;
+  // gap: 10px;
+  // margin-top: 10px;
+  // width: 100%;
+  // position: relative;
 `;
 
 const EditContainer = styled.div`
@@ -535,20 +537,30 @@ const EditTitle = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: sticky;
-  width: 100%;
+  position: fixed;
+  right: 45px;
+  width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: 999;
   transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left;
-  font-size: 20px;
-  color: #e9f4d0;
-  font-family: Pretendard;
-  box-sizing: border-box;
+
+// position: sticky;
+  // width: 100%;
+  // height: 587px;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
+  // justify-content: flex-start;
+  // gap: 10px;
+  // text-align: left;
+  // font-size: 20px;
+  // color: #e9f4d0;
+  // font-family: Pretendard;
+  // box-sizing: border-box;
 `;
 
 const ProgressList = styled.ul`
@@ -558,8 +570,16 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-  width: 197px;
-justify-content: flex-start;
+//   width: 197px;
+  align-self: stretch;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   gap: 15px;          // 아이템 간격
+//   margin: 0;          // 기본 여백 제거!
+//   padding: 0;
+//   width: 197px;
+// justify-content: flex-start;
 
 `;
 
