@@ -15,7 +15,9 @@ import { LuCalendar } from "react-icons/lu";
 import { LuPhone } from "react-icons/lu";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { fetchLikes } from '../../services/apis/likesapi';
+import OrgSuggestDealBtn from '../../components/common/buttons/OrgSuggestDealBtn';
 
+// 제휴 제안하기 누르면 profileData state로 넘겨주기
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
@@ -191,7 +193,7 @@ const OwnerMyPage = () => {
                 userId={params.id} 
                 isLikeActive={isLikeActive} // 추가!
               />
-              <StyledBtn>제휴 제안하기</StyledBtn>
+              <OrgSuggestDealBtn profileData = {profileData}>제휴 제안하기</OrgSuggestDealBtn>
             </>
           ) : (
             <Link to="edit" style={{ textDecoration: 'none' }}>

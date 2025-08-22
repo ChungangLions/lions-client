@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 
 const Loading = ({ situation = 'ai', message, fullscreen = true }) => {
@@ -9,7 +10,7 @@ const Loading = ({ situation = 'ai', message, fullscreen = true }) => {
 
   const resolvedMessage = message || messages[situation] || ''
 
-  return (
+  const content = (
     <Overlay $fullscreen={fullscreen}>
       <SpinnerWrapper>
         <Spinner>
@@ -30,6 +31,12 @@ const Loading = ({ situation = 'ai', message, fullscreen = true }) => {
       </Content>
     </Overlay>
   )
+
+  if (fullscreen) {
+    return ReactDOM.createPortal(content, document.body)
+  }
+
+  return content
 }
 
 export default Loading

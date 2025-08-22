@@ -1,25 +1,51 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import ProfileImage from './ProfileImg'
 import { FaIndustry } from 'react-icons/fa6'
 import useOwnerProfile from '../../../hooks/useOwnerProfile'
 import useUserStore from '../../../stores/userStore'
 
-const OwnerInfo = () => {
+// profileData는 groupproposalDeatil.jsx에서 넘어옴 
+const OwnerInfo = ({profileData}) => {
     const { storeName, storeType, menuNames, storeImage, error } = useOwnerProfile();
 
- 
+    const [ownertype, setOwnerType] = useState('');
+    const [menus, setMenus] = useState([]);
+
+    useEffect(() => {
+        if (!profileData) return;
+
+        if (profileData.business_type === 'RESTAURANT') {
+            setOwnerType("일반 음식점");
+        } else if (profileData.business_type === 'CAFE') {
+            setOwnerType("카페 및 디저트");
+        } else if (profileData.business_type === 'BAR') {
+            setOwnerType("주점");
+        } else {
+            setOwnerType("기타");
+        }
+
+        if (Array.isArray(profileData.menus)) {
+            setMenus(profileData.menus.map(menu => menu.name).join(', '));
+        } else {
+            setMenus([]);
+        }
+        }, [profileData]);
+
   return (
     <InfoSection>
         <InfoWrapper>
-            <ProfileImage profileImage={storeImage}/>
+            {!profileData  
+            ? <ProfileImage profileImage={storeImage}/>
+            : <ProfileImage profileImage ={profileData.photos[0].image}/>
+            }
             <ContentWrapper>
                 <TitleSection>
                     <Title>
-                        {storeName}
+                    {!profileData ? storeName : profileData.profile_name}
                     </Title>
                     <Industry>
-                        {storeType}
+                    {!profileData ? storeType : ownertype}
                     </Industry>
                 </TitleSection>
                 <MenuSection>
@@ -27,7 +53,7 @@ const OwnerInfo = () => {
                         대표메뉴
                     </Title>
                     <MenuItem>
-                        {menuNames} 등
+                    {!profileData ? menuNames : menus } 등
                     </MenuItem>
                 </MenuSection>
 
