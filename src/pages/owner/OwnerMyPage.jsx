@@ -230,12 +230,12 @@ const OwnerMyPage = () => {
             <EtcSection> <Phone /> {infos.etc[1]} </EtcSection>
           </FurtherSum>
 
-          <InfoTitle> 제휴 유형 </InfoTitle>
+          {/* <InfoTitle> 제휴 유형 </InfoTitle>
             <TypeCardList>
               {infos.partnershipType.map((type, idx) => (
                 <TypeCard key={idx}>{type}</TypeCard>
               ))}
-            </TypeCardList>
+            </TypeCardList> */}
         </OwnerInfo>
 
         <OwnerMenu>

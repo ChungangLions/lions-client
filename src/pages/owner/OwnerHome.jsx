@@ -13,13 +13,8 @@ import { fetchLikes } from '../../services/apis/likesapi'
 const OwnerHome = () => {
   const navigate = useNavigate();
   
-
-  // const handleCardClick = (organization) => {
-  //   navigate(`/owner/student-group-profile`, { state: { userType: "owner", organization } });
-
   const handleCardClick = (organization, id) => {
     navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
-
   };
 
   const [isActive, setIsActive] = useState(false);
@@ -51,14 +46,25 @@ const OwnerHome = () => {
       filterByRecord();
   }
 
-
   // 찜 기능 
   const [likes, setLikes] = useState([]);
   const [likeStores, setLikeStores] = useState([]);
 
 
+  // useEffect(() => {
+  //   fetchAndSetOrganizations();
+  //   const fetchUserLikes = async () => {
+  //     const list = await fetchLikes('given');
+  //     console.log("찜 리스트 원본:", list);
+  // console.log("첫 번째 요소:", list[0]);
 
- 
+  //     setLikes(list.map(item => item.target.id));
+  //     console.log("찜 리스트:", list);
+  //     console.log("찜한 단체 ID배열:", list.map(item => item.target.id));
+  //   };
+  //   fetchUserLikes();
+  // }, []);
+
     useEffect(() => {
       fetchAndSetOrganizations();
       const fetchUserLikes = async () => {
@@ -70,7 +76,6 @@ const OwnerHome = () => {
       fetchUserLikes();
     }, []);
 
-
   
   return (
     <PageConatainer>
@@ -78,7 +83,7 @@ const OwnerHome = () => {
         <SelectWrapper>
         <FilterBtn onClick = {handleFilterChange} active={isActive}>{`제휴 이력`}</FilterBtn>
         <OptionWrapper>
-          <TypeWrapper>정렬</TypeWrapper>
+          {/* <TypeWrapper>정렬</TypeWrapper> */}
             <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
