@@ -34,7 +34,7 @@ const OrgSuggestDealBtn = ({profileData}) => {
 
       // AI 제안서 페이지로 이동 
 
-      navigate('/student-group/ai-proposal', { state: { isAI: true, proposalData } });
+      navigate('/student-group/ai-proposal', { state: {profileData, isAI: true, proposalData } });
     } catch (error) {
       console.error("제안서를 생성하는데 실패했습니다.", error);
       setIsModalOpen(false);

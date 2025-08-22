@@ -8,6 +8,8 @@ import MainLayout from './layout/MainLayout';
 import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
 import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
+import OwnerSentProposalDetail from './pages/owner/OwnerSentProposalDetail';
+import OwnerReceivedProposalDetail from './pages/owner/OwnerReceivedProposalDetail';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
 import Login from './pages/landing/Login';
 import OwnerWishlist from './pages/owner/OwnerWishlist';
@@ -19,6 +21,7 @@ import ProposalDetail from './pages/suggest/ProposalDetail';
 import AIProposalDetail from './pages/suggest/AIProposalDetail';
 import GroupEditMyPage from './pages/studentGroup/GroupEditMyPage';
 import GroupProposalDetail from './pages/suggest/GroupProposalDetail';
+import AIGroupProposalDetail from './pages/suggest/AIGroupProposalDetail';
 
 function App() {
   return (
@@ -40,6 +43,7 @@ function App() {
         <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
         <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
         <Route path="/student-group/proposal" element={<GroupProposalDetail/>} />
+        <Route path="/student-group/ai-proposal" element={<AIGroupProposalDetail/>} />
         
         <Route path="/student" element={<StudentHome />}/>
         <Route path="/student/mypage" element={<StudentMyPage />} />
@@ -51,6 +55,8 @@ function App() {
         <Route path="/owner/mypage/edit" element={<OwnerEditMyPage />}/>
         <Route path="/owner/mypage/received-suggest" element={<OwnerReceiveSuggest />}/>
         <Route path="/owner/mypage/sent-suggest" element={<OwnerSendSuggest />}/>
+        <Route path="/owner/mypage/sent-proposal/:id" element={<OwnerSentProposalDetail />}/>
+        <Route path="/owner/mypage/received-proposal/:id" element={<OwnerReceivedProposalDetail />}/>
         <Route path="/owner/mypage" element={<OwnerMyPage />}/>
       </Route>
       

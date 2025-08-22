@@ -32,7 +32,7 @@ const AIProposalDetail = () => {
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
   
-  // proposalData로부터 초기 선택 상태 동기화 (라벨/영문 코드 모두 대응)
+  // proposalData로부터 초기 선택 상태 동기화 
   useEffect(() => {
     const normalizePartnershipTypes = (types) => {
       const reverseMap = {
@@ -129,7 +129,7 @@ const AIProposalDetail = () => {
     
     const updateData = {
       recipient: organization?.user,
-      partnership_type: mapPartnership(selectedPartnershipTypes),
+      partnership_type: selectedPartnershipTypes,
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
@@ -144,6 +144,8 @@ const AIProposalDetail = () => {
     }
 
     const id = proposalData.id != null ? proposalData.id : userId;
+
+    console.log("id", proposalData.id); // null 인 이유?
 
     try {
       const response = await editProposal( id , updateData);
@@ -179,7 +181,7 @@ const AIProposalDetail = () => {
 
       const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
@@ -192,9 +194,11 @@ const AIProposalDetail = () => {
       }
 
       console.log('제안서 데이터:', createData);
+      console.log(createData.id);
       
       const response = await createProposal(createData);
       alert('제안서를 성공적으로 전송했습니다.');
+      console.log("제안서 Id", response);
       
     } catch (error) {
       console.error('제안서 생성 오류:', error);
@@ -222,7 +226,7 @@ const AIProposalDetail = () => {
 
     const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용

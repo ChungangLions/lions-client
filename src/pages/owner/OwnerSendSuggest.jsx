@@ -123,6 +123,7 @@ const OwnerSendSuggest = () => {
   
   const handleProposalClick = () => {
     // 클릭 시 제안서로 이동 구현해야됨 
+    navigate("owner/sent-suggest");
   }
 
 
