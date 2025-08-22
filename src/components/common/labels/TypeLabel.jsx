@@ -4,11 +4,10 @@ import useVenueStore from '../../../stores/venueStore';
 import { PiDropSimple } from 'react-icons/pi';
 
 const storeTypes = {
-  restaurant: { label: '일반 음식점', icon: '🍚' },
-  cafe: { label: '카페 및 디저트', icon: '☕' },
-  bar: { label: '주점', icon: '🍺' },
+  RESTAURANT: { label: '일반 음식점', icon: '🍚' },
+  CAFE: { label: '카페 및 디저트', icon: '☕' },
+  BAR: { label: '주점', icon: '🍺' },
 };
-
 
 function TypeLabel({ storeType, background }) {
   const { stores } = useVenueStore();
@@ -20,6 +19,7 @@ function TypeLabel({ storeType, background }) {
 
   return (
     <LabelBox
+      $storeType={storeType}
       $background={background}
     >
       <LabelText>
@@ -41,10 +41,22 @@ const LabelBox = styled.div`
   align-self: stretch;
   border-radius: 5px;
   background: ${(props) => props.$background || "transparent"};
+  width: ${(props) => {
+    switch(props.$storeType) {
+      case 'RESTAURANT':
+        return '110px';
+      case 'CAFE':
+        return '120px';
+      case 'BAR':
+        return '70px';
+      default:
+        return 'auto';
+    }
+  }};  
 `;
 
 const LabelText = styled.span`
-  color: #FFF;
+  color: #3F6113;
   font-family: Pretendard;
   font-size: 16px;
   font-style: normal;

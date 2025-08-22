@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px"}) => {
+const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px", readOnly=false, disabled=false, onClick }) => {
   return (
     <InputWrapper $width={width}>
       <TextInput
@@ -12,6 +12,9 @@ const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, ty
         $border={border}
         value={value}
         onChange={onChange}
+        readOnly={readOnly}
+        disabled={disabled}
+        onClick={onClick}
       />
       {unit && <InputUnit>{unit}</InputUnit>}
     </InputWrapper>
@@ -28,16 +31,19 @@ const InputWrapper = styled.div`
 
 const TextInput = styled.input`
   width: 100%;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 15px 20px;
   background-color:#fff;
   border: ${(props) => props.$border || "0px"};
   border-radius: 5px;
   font-size: 16px;
   font-weight: 400;
   /* 단위 공간 확보 (글자가 input 겹치지 않도록 오른쪽 여백 추가) */
-  padding-right: ${(props) => (props.$withUnit ? "36px" : "10px")};
+  padding-right: ${(props) => (props.$withUnit ? "36px" : "20px")};
   box-sizing: border-box;
+
+  & ::placeholder {
+    color: #898989;
+  }
 
   /* ===== 숫자 입력 시 스피너(화살표) 제거 ===== */
   /* Chrome, Safari, Edge */
@@ -49,12 +55,17 @@ const TextInput = styled.input`
 `;
 
 const InputUnit = styled.span`
+  width: 14px;
   position: absolute;
   right: 15px;
-  top: 55%;
+  top: 60%;
   transform: translateY(-50%);
+  color: var(--main-main600, #70AF19);
+  font-family: Pretendard;
   font-size: 16px;
-  color: #1A2D06;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
   pointer-events: none;
   z-index: 2;
   background: transparent;

@@ -7,8 +7,8 @@ const PhotoUploadWithInput = ({
   value = [],
   onChange = () => {},
   maxCount = 10, 
-  inputPlaceholder1 = "설명을 입력하세요", 
-  inputPlaceholder2 = "설명을 입력하세요" 
+  inputPlaceholder1 = "메뉴명", 
+  inputPlaceholder2 = "0,000원" 
 }) => {
   const fileInputRef = useRef(null);
   const [photos, setPhotos] = useState([]);
@@ -42,10 +42,20 @@ const PhotoUploadWithInput = ({
   };
 
 
-  // 파일 미리보기 URL
-  const getPreviewUrl = file =>
-    typeof file === "string" ? file : URL.createObjectURL(file);
-
+  // 파일 미리보기 URL : photo가 없을 때 오류 해결 
+  const getPreviewUrl = (item) => {
+      // item이 File 또는 Blob 객체인지 확인
+      if (item instanceof File || item instanceof Blob) {
+          return URL.createObjectURL(item);
+      }
+      // File 객체가 아니면 이미 URL 문자열로 간주
+      else if (typeof item === 'string') {
+          return item;
+      }
+      // 그 외의 경우 (예: null, undefined)
+      return null;
+  };
+  
   return (
     <PhotoBox>
       {/* + 박스 */}
@@ -96,7 +106,9 @@ const ImageInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  width: 128px;
+  justify-content: center;
 `;
 
 const PhotoBox = styled.div`
@@ -114,11 +126,11 @@ const ImageContainer = styled.div`
     display: flex;
     width: 128px;
     height: 128px;
-    // padding: 52px;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background-color: #D9D9D9;
+    background: #BCBCBC;
+    border-radius: 5px;
 `;
 const Plus = styled.span`
   font-size: 24px;
@@ -131,6 +143,7 @@ const PreviewImg = styled.img`
   height: 100%;
   object-fit: cover;
   background-color: white;
+  border-radius: 5px;
 `;
 
 const DeleteBtn = styled.button`
@@ -151,13 +164,26 @@ const DeleteBtn = styled.button`
 `;
 
 const DescInput = styled.input`
-  width: 118px;
-  margin-top: 4px;
-  padding: 5px 5px;
-  font-size: 14px;
-  border: 0px;
-  outline: none;
-  background: #D9D9D9;
+display: flex;
+padding: 5px;
+justify-content: center;
+align-items: center;
+gap: 10px;
+align-self: stretch;
+border-radius: 5px;
+border: 0px;
+background: #FFF;
+color: #1A2D06;
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+text-align: center;
+
+& ::placeholder {
+  color: #898989;
+}
 
   /* ===== 숫자 입력 시 스피너(화살표) 제거 ===== */
   /* Chrome, Safari, Edge */

@@ -15,9 +15,19 @@ const PhotoUpload = ({ value = [], onChange, maxCount = 10 }) => {
     onChange(newArr);
   };
 
-  const getPreviewUrl = (photo) =>
-    typeof photo === "string" ? photo : URL.createObjectURL(photo);
-
+  const getPreviewUrl = (item) => {
+      // item이 File 또는 Blob 객체인지 확인
+      if (item instanceof File || item instanceof Blob) {
+          return URL.createObjectURL(item);
+      }
+      // File 객체가 아니면 이미 URL 문자열로 간주
+      else if (typeof item === 'string') {
+          return item;
+      }
+      // 그 외의 경우 (예: null, undefined)
+      return null;
+  };
+  
   return (
     <PhotoBox>
       {value.length < maxCount && (
@@ -64,7 +74,7 @@ const ImageContainer = styled.div`
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background-color: #D9D9D9;
+    background: #BCBCBC;
     border-radius: 5px;
 `;
 const Plus = styled.span`
@@ -73,11 +83,13 @@ const Plus = styled.span`
   user-select: none;
   padding: 52px;
 `;
+
 const PreviewImg = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
   background-color: white;
+  border-radius: 5px;
 `;
 
 const DeleteBtn = styled.button`

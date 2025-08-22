@@ -1,33 +1,35 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaRegHeart as EmptyHeartIcon} from "react-icons/fa6";
 import { FaHeart as FilledHeartIcon } from "react-icons/fa6";
 import styled from 'styled-components';
-import { togglelikes } from '../../../services/apis/likesapi';
-import useUserStore from '../../../stores/userStore';
+import { toggleLikes} from '../../../services/apis/likesapi';
 
 
-const FavoriteBtn = ({userId, isLiked = false}) => {
-    const [isHeartActive, setIsHeartActive] = useState(isLiked);
+const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick }) => {
+  // console.log(defaultActive);
+
+    const [isLikeActive, setIsLikeActive] = useState(defaultActive);
+
+    useEffect(() => {
+      setIsLikeActive(defaultActive);
+    }, [defaultActive]); // prop이 바뀌면 변경됨
 
     const handleClick = async (event) => {
         event.stopPropagation();  // 클릭 이벤트가 부모로 전달 안 됨
-        const prevState = isHeartActive;
+        setIsLikeActive(!isLikeActive);
+        
         try {
-          const like_result = await togglelikes(userId);
-          if (like_result.status === "liked"){
-            setIsHeartActive(true);
-          } else if (like_result.status === "unliked"){
-            setIsHeartActive(false);
-          }
+          await toggleLikes(userId);
         } catch (error) {
-          console.error("찜 토글 실패:", error);
-          setIsHeartActive(prevState);
+          console.error("토글 실패:", error);
+          setIsLikeActive(isLikeActive);
         }
-    }
+      };
+
 
     return (
         <StyledButton onClick={handleClick}>
-            { isHeartActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
+            { isLikeActive ? <StyledFaHeart /> : <StyledFaRegHeart /> }
         </StyledButton>
     )
   

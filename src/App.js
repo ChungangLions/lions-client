@@ -4,11 +4,12 @@ import LandingPage from './pages/landing/LandingPage';
 import OwnerHome from './pages/owner/OwnerHome';
 import GroupHome from './pages/studentGroup/GroupHome';
 import StudentHome from './pages/student/StudentHome';
-import ProposalDetail from './pages/owner/ProposalDetail';
 import MainLayout from './layout/MainLayout';
 import OwnerMyPage from './pages/owner/OwnerMyPage';
 import OwnerReceiveSuggest from './pages/owner/OwnerReceiveSuggest';
 import OwnerSendSuggest from './pages/owner/OwnerSendSuggest';
+import OwnerSentProposalDetail from './pages/owner/OwnerSentProposalDetail';
+import OwnerReceivedProposalDetail from './pages/owner/OwnerReceivedProposalDetail';
 import OwnerEditMyPage from './pages/owner/OwnerEditMyPage';
 import Login from './pages/landing/Login';
 import OwnerWishlist from './pages/owner/OwnerWishlist';
@@ -16,6 +17,11 @@ import StudentMyPage from './pages/student/StudentMyPage';
 import StudentGroupProfile from './pages/owner/StudentGroupProfile';
 import StudentEditMyPage from './pages/student/StudentEditMyPage';
 import OwnerProfile from './pages/student/OwnerProfile';
+import ProposalDetail from './pages/suggest/ProposalDetail';
+import AIProposalDetail from './pages/suggest/AIProposalDetail';
+import GroupEditMyPage from './pages/studentGroup/GroupEditMyPage';
+import GroupProposalDetail from './pages/suggest/GroupProposalDetail';
+import AIGroupProposalDetail from './pages/suggest/AIGroupProposalDetail';
 
 function App() {
   return (
@@ -26,20 +32,31 @@ function App() {
 
       <Route element={<MainLayout hasMenu={false}/>}>
         <Route path="/owner" element={<OwnerHome />} />
+        <Route path="/owner/ai-proposal" element={<AIProposalDetail/>} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
+        <Route path="owner/student-group-profile/:id" element={<StudentGroupProfile/>} />
         <Route path="owner/student-group-profile" element={<StudentGroupProfile/>} />
         <Route path="owner/mypage/wishlist" element={<OwnerWishlist />}/>
-        <Route path="/group" element={<GroupHome />}/>
+
+        <Route path="/student_group" element={<GroupHome />}/>
+        <Route path="/student_group/store-profile/:id" element={<OwnerMyPage />} />
+        <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
+        <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
+        <Route path="/student-group/proposal" element={<GroupProposalDetail/>} />
+        <Route path="/student-group/ai-proposal" element={<AIGroupProposalDetail/>} />
+        
         <Route path="/student" element={<StudentHome />}/>
-        <Route path="/student/mypage/:id" element={<StudentMyPage />} />
-        <Route path="/student/mypage/:id/edit" element={<StudentEditMyPage />} />
-        <Route path="/student/store-profile/:id" element={<OwnerProfile />} />
+        <Route path="/student/mypage" element={<StudentMyPage />} />
+        <Route path="/student/mypage/edit" element={<StudentEditMyPage />} />
+        <Route path="/student/store-profile/:id" element={<OwnerMyPage />} />
 
       </Route>
       <Route element={<MainLayout hasMenu={true}/>}>
         <Route path="/owner/mypage/edit" element={<OwnerEditMyPage />}/>
         <Route path="/owner/mypage/received-suggest" element={<OwnerReceiveSuggest />}/>
         <Route path="/owner/mypage/sent-suggest" element={<OwnerSendSuggest />}/>
+        <Route path="/owner/mypage/sent-proposal/:id" element={<OwnerSentProposalDetail />}/>
+        <Route path="/owner/mypage/received-proposal/:id" element={<OwnerReceivedProposalDetail />}/>
         <Route path="/owner/mypage" element={<OwnerMyPage />}/>
       </Route>
       

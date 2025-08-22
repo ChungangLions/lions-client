@@ -9,7 +9,6 @@ import { fetchRecommendations } from '../../services/apis/recommendsapi'
 
 
 const OwnerProfile = () => {
-//   const [ownerId] = useParams();
   const [profileData, setProfileData] = useState(null);
 
   useEffect(() => {
@@ -145,6 +144,7 @@ const TitleContainer = styled.div`
   margin-top: 35px;
   margin-bottom: 25px;
   width: 100%;
+  
 `;
 
 const TitleBox = styled.div`

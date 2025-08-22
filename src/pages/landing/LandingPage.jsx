@@ -10,7 +10,7 @@ const LandingPage = () => {
       <LogoContainer>
         <ImageContainer src={Logo} alt="휴니버스 로고" />
       <CaptionContainer>
-        휴니버스와 함께 대학과 상권이 연결된 캠퍼스를 만들어봐요!
+        휴:니버스와 함께 대학과 상권이 연결된 캠퍼스를 만들어봐요!
       </CaptionContainer>
       </LogoContainer>
       <LoginSection>
@@ -28,13 +28,15 @@ export default LandingPage
 const PageContainer = styled.div`
 width: 100%;
 position: relative;
-background-color: #fff;
-height: 847px;
 overflow: hidden;
 text-align: left;
 font-size: 20px;
 color: #64a10f;
 font-family: Pretendard;
+box-sizing: border-box;
+height: 100vh;
+display: flex;
+justify-content: center;
 `;
 
 const LandingContainer = styled.div`
@@ -45,17 +47,22 @@ flex-direction: column;
 align-items: center;
 justify-content: flex-start;
 gap: 80px;
-padding-top: 58px;
-padding-bottom: 105px;
+padding: 58px 263px 172px 263px;
+// padding-top: 58px;
+// padding-bottom: 105px;
+margin: 0 auto;
+align-items: center;
 `;
 
 const LoginSection = styled.div`
-width: 446px;
+width: 100%;
+max-width: 446px;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
 gap: 10px;
+align-items: center;
 `;
 
 const LogoContainer = styled.div`
@@ -68,9 +75,12 @@ gap: 29px;
 `;
 
 const ImageContainer = styled.img`
-width: 696px;
+width: 100%;
+max-width: 556px;
+aspect-ratio: 278/133;
 position: relative;
 max-height: 100%;
+height: auto;
 object-fit: cover;
 `;
 

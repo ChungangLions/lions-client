@@ -4,15 +4,15 @@ import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
 import useStudentOrgStore from '../../../stores/studentOrgStore'
 
-const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => {
+const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, userId}) => {
   let cardData = [];
 
 
-  if (cardType === 'home') {
+  if (cardType === 'home' || cardType === 'proposal') {
     cardData = [
-      { label: '소속 학생 수', value: organization.student_size }, // student_size로 바꿔야됨 
-      { label: '희망 제휴 기간', value: `${organization.date.start} ~ ${organization.date.end} (${organization.period}개월)` },
-      { label: '제휴 이력', value: `${organization.record}회` },
+      { label: '소속 학생 수', value: organization?.student_size }, // student_size로 바꿔야됨 
+      { label: '희망 제휴 기간', value: `${organization?.partnership_start} ~ ${organization?.partnership_end} (${organization?.period}개월)` },
+      { label: '제휴 이력', value: `${organization?.record}회` },
     ];
   } else if (cardType === 'suggest-received') {
     cardData = [
@@ -25,6 +25,14 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
   }
 
 
+  const { updateOrganizationLikeState } = useStudentOrgStore();
+
+  const handleToggle = (nextLiked) => {
+    if (organization.user) {
+      updateOrganizationLikeState(organization.user, nextLiked);
+    }
+  };
+
   return (
       <CardGroup onClick={() => onClick(organization)} $isHome={cardType === 'home'}>
         <CardContent>
@@ -33,11 +41,12 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization}) => 
         </CardContent>
         <ButtonWrapper $isHome={cardType === 'home'}>
             <ButtonComponent 
-              width="20px" 
-              height="17px" 
-              position="relative" 
+              organization={organization}
+              isLiked={organization?.is_liked ?? false}
+              onToggle={handleToggle}
+              userId={organization.id} 
             />
-      </ButtonWrapper>
+        </ButtonWrapper>
       </CardGroup>
   )
 }
@@ -61,6 +70,8 @@ text-align: left;
 font-size: 18px;
 color: #1a2d06;
 font-family: Pretendard;
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+cursor: pointer;
 `;
 
 const CardContent = styled.div`
@@ -73,9 +84,16 @@ white-space: nowrap;
 `;
 
 const ButtonWrapper = styled.div`
-position: relative;
-top: ${({ $isHome }) => ($isHome ? '0px' : '50%')};
-left: ${({ $isHome }) => ($isHome ? '30px' : 'px')};
-display: flex;
-box-sizing: border-box;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  @media (max-width: 520px) {
+    top: 10px;
+    right: 10px;
+  }
 `;

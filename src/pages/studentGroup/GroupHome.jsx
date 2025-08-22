@@ -1,11 +1,3 @@
-// TO DO LIST
-// 1. 주점 스티커 구현하기 (position: absolute)
-//  ㄴ 업종별로 앞에 이모티콘 어떻게 구현할 지,,? type에서 바로 받아올 수 있나
-// 2. 하트, 따봉 개수 구현하기
-// 3. Best 여부 받아오기
-// 4. Best 텍스트 구현하기 (position: absolute)
-// 5. 우측 상단 하트 버튼 넣기
-
 import React, { useEffect, useState } from 'react'
 import GroupCard from '../../components/common/cards/GroupCard';
 import styled from 'styled-components';
@@ -13,16 +5,22 @@ import useVenueStore from '../../stores/venueStore';
 import { useNavigate } from 'react-router-dom';
 import FilterBtn from '../../components/common/filters/FilterBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import { TbArrowsSort } from "react-icons/tb";
+import DropDown from '../../components/common/filters/DropDown';
+import { fetchLikes } from '../../services/apis/likesapi';
 
 const GroupHome = () => {
+  const [likeStores, setLikeStores] = useState([]);
   const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    navigate("store-profile");
+  const handleCardClick = (id) => {
+    navigate(`/student_group/store-profile/${id}`, {
+      state: { userType: "studentOrganization" }
+    });
   };
 
   // zustand store에서 사용할 것들 가져오기 
   const {
+    fetchStores,
     stores,
     sortByDesc,
     filterByStoreType,
@@ -30,6 +28,21 @@ const GroupHome = () => {
     activeStoreType,
     activeDealType,
   } = useVenueStore();
+
+  useEffect(() => {
+    fetchStores();
+    const fetchUserLikes = async () => {
+      const list = await fetchLikes('given');
+      setLikeStores(list.map(item => item.target.id));
+      // console.log("좋아요한 가게 리스트:", list);
+      console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+    };
+    fetchUserLikes();
+  }, []);
+
+  useEffect(() => {
+    console.log("likeStores 내 데이터 출력:", likeStores);
+  }, [likeStores]);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -50,36 +63,86 @@ const GroupHome = () => {
         <FilterSection>
           <TypeWrapper>업종</TypeWrapper>
           <FilterWrapper>
-          <FilterBtn
-          onClick={() => filterByStoreType('restaurant')}
-          active={activeStoreType === 'restaurant'}
-          >
-          🍚 일반 음식점
-          </FilterBtn>
-          <FilterBtn
-          onClick={() => filterByStoreType('bar')}
-          active={activeStoreType === 'bar'}
-          >
-          🍺 주점
-          </FilterBtn>
-          <FilterBtn
-          onClick={() => filterByStoreType('cafe')}
-          active={activeStoreType === 'cafe'}
-          >
-          ☕️ 카페 및 디저트
-          </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('RESTAURANT')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('RESTAURANT')}
+            >
+            🍚 일반 음식점
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('BAR')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('BAR')}
+            >
+            🍺 주점
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            ☕️ 카페 및 디저트
+            </FilterBtn>
           </FilterWrapper>
         </FilterSection>
-        <SortSection onChange={handleSortChange}>
+        <FilterSection>
+          <TypeWrapper>제휴 유형</TypeWrapper>
+          <FilterWrapper>
+            <FilterBtn
+            onClick={() => filterByStoreType('RESTAURANT')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            타임형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('BAR')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            서비스 제공형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            리뷰형
+            </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('CAFE')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            >
+            할인형
+            </FilterBtn>
+          </FilterWrapper>
+        </FilterSection>
+        <OptionWrapper>
+          <TypeWrapper>정렬</TypeWrapper>
+            <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
+            <DropDown
+              options={[
+                { value: "likes", label: "찜 많은 순" },
+                { value: "record", label: "제휴 이력 많은 순" },
+                { value: "recommendations", label: "추천 많은 순" },
+              ]}
+              onClick= {(option) => sortByDesc(option.value)}
+            />
+          </OptionWrapper>
+        {/* <SortSection onChange={handleSortChange}>
           <option value="likes">찜 많은 순</option>
           <option value="record">제휴 이력 많은 순</option>
           <option value="recommendations">추천 많은 순</option>
-        </SortSection>
+        </SortSection> */}
       </SelectContainer>
       <GridContainer>
         {stores.map((store) => (
-          // 여기 detail 들어갈 거 props로 전달 필요 
-          <GroupCard key={store.id} onClick = {handleCardClick} ButtonComponent ={FavoriteBtn} store={store} />
+          <GroupCard 
+            key={store.id}
+            imageUrl={store.photo}
+            onClick={() => handleCardClick(store.id)}
+            ButtonComponent={() => (
+              <FavoriteBtn 
+                userId={store.id} 
+                isLikeActive={likeStores.includes(store.id)} // 추가!
+              />
+            )}
+            store={store} />
         ))}
       </GridContainer>
     </PageContainer>
@@ -89,6 +152,7 @@ const GroupHome = () => {
 export default GroupHome;
 
 const PageContainer = styled.div `
+  width: 100%;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -143,6 +207,9 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px 0px;
+gap: 10px;
+min-width: 28px;
+max-width: 60px;
 `;
 
 const FilterWrapper =styled.div`
@@ -154,3 +221,10 @@ gap: 10px;
 color: #64a10f;
 `;
 
+const OptionWrapper = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+gap: 5px;
+`;

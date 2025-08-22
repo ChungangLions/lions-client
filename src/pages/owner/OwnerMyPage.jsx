@@ -1,31 +1,62 @@
+// TO DO List
+// 1. userType 별로 button 로직 변경 필요 (student, studentOrganization)
+
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
-import { getOwnerProfile } from '../../services/apis/ownerAPI';
-import { fetchRecommendations } from '../../services/apis/recommendsapi'
-import EditBtn from '../../components/common/buttons/EditBtn';
+import { getOwnerProfile, getOwnerLikes, getOwnerRecommends } from '../../services/apis/ownerAPI';
+import { fetchRecommendations, toggleRecommends } from '../../services/apis/recommendsapi';
+import useUserStore from '../../stores/userStore';
+import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import { LuCalendar } from "react-icons/lu";
+import { LuPhone } from "react-icons/lu";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { fetchLikes } from '../../services/apis/likesapi';
+import OrgSuggestDealBtn from '../../components/common/buttons/OrgSuggestDealBtn';
 
+// 제휴 제안하기 누르면 profileData state로 넘겨주기
 
 const OwnerMyPage = () => {
   const [profileData, setProfileData] = useState(null);
+  const [userLikes, setUserLikes] = useState(0);
+  const [userRecommends, setUserRecommends] = useState(0);
+  const {userId} = useUserStore();
+  const params = useParams();
+  const location = useLocation();
+  const userType = location.state?.userType || "owner";
+  const [isRecommendActive, setIsRecommendActive] = useState(false);
+  const [isLikeActive, setIsLikeActive] = useState(false);
 
   useEffect(() => {
+    if (!userId && !params.id) return; // 둘다 없을 때 무시
+
     const fetchProfile = async () => { 
       try {
-        const ownerId = 1;
+        // 우선순위: 전달 받은 id (params), 그다음 userId
+        const ownerId = params.id || userId;
+        // console.log('fetching with ownerId:', ownerId);
         const data = await getOwnerProfile(ownerId);
         console.log(data);
         setProfileData(data);
+
+        const likesData = await getOwnerLikes(ownerId);
+        console.log(likesData.likes_received_count);
+        setUserLikes(likesData.likes_received_count);
+
+        const recommendsData = await getOwnerRecommends(ownerId);
+        console.log(recommendsData.recommendations_received_count);
+        setUserRecommends(recommendsData.recommendations_received_count);
 
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
       }
     };
     fetchProfile();
-  }, []); 
+  }, [userId, params.id]); 
+
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
@@ -34,32 +65,116 @@ const OwnerMyPage = () => {
   };
 
   const formattedPhotos = (profileData?.photos || []).map(photo => ({
-  id: photo.id,
-  image: photo.image, 
-}));
+    id: photo.id,
+    image: photo.image, 
+  }));
 
-  const [recommendNum, setRecommendNum] = useState(0);
 
-  useEffect(() => {
-    async function load() {
-      const data = await fetchRecommendations();
-      setRecommendNum(data.length);
-    }
-    load();
-  }, []);
+  function BusinessDay({ business_day = {}, title = '영업일 및 시간' }) {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const DAYS = ['월','화','수','목','금','토','일'];
+
+    // 각 요일별로 한 줄씩 보여주는 구조
+    const dayRows = DAYS.map(day => {
+      const dayInfo = business_day && business_day[day];
+      return (
+        // DayItem을 각 요일마다 한 번씩 쓰도록 변경
+        <DayItem key={day}>
+          <EtcText>
+            {day} {dayInfo ? dayInfo.replace('-', ' ~ ') : '휴무'}
+          </EtcText>
+        </DayItem>
+      );
+    });
+
+    return (
+      <EtcSection>
+        <Calendar />
+        <DaySection>
+          <DayItem>
+            <EtcText>{title}</EtcText>
+            <EtcSection onClick={() => setIsOpen(prev => !prev)}>
+              {isOpen ? <ArrowDown /> : <ArrowUp />}
+            </EtcSection>
+          </DayItem>
+          {/* 각각의 요일이 세로(colum)로 나열되게 DayList에 dayRows로 바로 렌더링 */}
+          {isOpen && (
+            <DayList>
+              {dayRows}
+            </DayList>
+          )}
+        </DaySection>
+      </EtcSection>
+    );
+  }
+
 
   const infos = {
     partnershipNum: 7,
-    likeNum: 46,
-    recommendNum,
-    etc: ['정문 앞 500m', '매주 일요일 휴무', '단체 이용 가능 (최대 20인)'],
+
+    userLikes,
+    userRecommends,
+    etc: [`영업일 및 시간 ${profileData?.business_day}`, `${profileData?.contact}`],
+
     partnershipType: ['할인형', '타임형'],
   };
 
+
+
+  // 학생 유저 접근 시 기능: 추천하기
+  useEffect(() => {
+    if (userType === 'student') {
+      async function fetchData() {
+        const list = await fetchRecommendations('given');
+        // 추천한 가게 id 배열 생성
+        const recommendedStoreIds = list.map(item => String(item.to_user.id));
+        const currentStoreId = params.id;
+
+        // 버튼 활성화 여부 결정
+        if (recommendedStoreIds.includes(currentStoreId)) {
+          // console.log('true');
+          setIsRecommendActive(true);
+        } else {
+          // console.log('false');
+          setIsRecommendActive(false);
+        }
+      }
+      fetchData();
+    }
+    if (userType === 'studentOrganization') {
+      async function fetchData() {
+        const list = await fetchLikes('given');
+        // 추천한 가게 id 배열 생성
+        const likedStoreIds = list.map(item => String(item.target.id));
+        const currentStoreId = params.id;
+
+        // 버튼 활성화 여부 결정
+        if (likedStoreIds.includes(currentStoreId)) {
+          // console.log('true');
+          setIsLikeActive(true);
+        } else {
+          // console.log('false');
+          setIsLikeActive(false);
+        }
+      }
+      fetchData();
+    }
+  }, [userType, params.id]);
+
+    const handleRecommendClick = async (event) => {
+      event.stopPropagation();
+      setIsRecommendActive(!isRecommendActive);
+      try {
+        await toggleRecommends(params.id);
+      } catch (error) {
+        console.error("추천 토글 실패:", error);
+        setIsRecommendActive(isRecommendActive);
+      }
+    };
+
   return (
     <PageContainer>
-      <Menu />
-
+      {userType === "owner" && <Menu />}
       {/* 타이틀 + 수정 버튼 section */}
       <TitleContainer>
         <TitleBox>
@@ -69,9 +184,23 @@ const OwnerMyPage = () => {
             <Description> {profileData?.comment} </Description>
           </DesBox>
         </TitleBox>
-        <Link to="edit" style={{ textDecoration: 'none' }}>
-          <EditButton>수정하기</EditButton>
-        </Link>
+        <ButtonGroup>
+          {userType === "student" ? (
+            <StyledBtn style={{ textDecoration: 'none' }} $active={isRecommendActive} onClick={handleRecommendClick}>추천하기</StyledBtn>
+          ) : userType === "studentOrganization" ? (
+            <>
+              <FavoriteBtn
+                userId={params.id} 
+                isLikeActive={isLikeActive} // 추가!
+              />
+              <OrgSuggestDealBtn profileData = {profileData}>제휴 제안하기</OrgSuggestDealBtn>
+            </>
+          ) : (
+            <Link to="edit" style={{ textDecoration: 'none' }}>
+              <StyledBtn>수정하기</StyledBtn>
+            </Link>
+          )}
+        </ButtonGroup>
       </TitleContainer>
 
       {/* 중간 사진 section */}
@@ -85,21 +214,20 @@ const OwnerMyPage = () => {
           <SumContainer>
             <SumBox>
               <div>제휴 이력</div>
-              <div style={{fontWeight: '600'}}> {infos.partnershipNum} 회</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.partnershipNum} 회</div>
             </SumBox>
             <SumBox>
               <div>찜 수</div>
-              <div style={{fontWeight: '600'}}> {infos.likeNum} 개</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.userLikes} 개</div>
             </SumBox>
             <SumBox>
               <div>추천 수</div>
-              <div style={{fontWeight: '600'}}> {infos.recommendNum} 개</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.userRecommends} 개</div>
             </SumBox>
           </SumContainer>
           <FurtherSum>
-            {infos.etc.map((info, idx) => (
-              <div key={idx}> ◻️ {info} </div>
-            ))}
+            <BusinessDay business_day={profileData?.business_day} />
+            <EtcSection> <Phone /> {infos.etc[1]} </EtcSection>
           </FurtherSum>
 
           <InfoTitle> 제휴 유형 </InfoTitle>
@@ -217,7 +345,8 @@ const SumContainer = styled.div`
   margin-bottom: 10px;
   padding: 20px;
   // gap: 150px;
-  border: 1px solid #818181;
+  border-radius: 5px;
+  border: 1px solid #898989;
 `;
 
 const SumBox = styled.div`
@@ -257,17 +386,124 @@ const TypeCard = styled.div`
 const OwnerMenu = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
   // width: 100%;
 `;
 
 const MenuList = styled.div`
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 10px;
+  align-self: stretch;
+  flex-wrap: wrap;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 7.5px;
   // width: 100%;
 `;
 
-const EditButton = styled(EditBtn)`
-max-width: 76px;
+const StyledBtn = styled.button`
+  display: flex;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  border: 1px solid #70AF19;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  background: transparent;
+  cursor: pointer;
+
+  background-color: ${({ $active }) => ($active ? "#70AF19" : "#FFF")};
+  color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#70AF19" : "#E9F4D0")};
+    color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
+`;
+
+const ButtonGroup = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 15px;
+  align-items: center;
+`
+
+const Calendar = styled(LuCalendar)`
+width: 24px;
+height: 24px;
+color: #898989;
+`;
+
+const Phone = styled(LuPhone)`
+width: 24px;
+height: 24px;
+color: #898989;
+`;
+
+const ArrowDown = styled(IoIosArrowDown)`
+width: 24px;
+height: 24px;
+flex-shrink: 0;
+color: #898989;
+// stroke-width: 2px;
+// stroke: var(--, #898989);
+// padding: 6px 12px;
+`;
+
+const ArrowUp = styled(IoIosArrowUp)`
+width: 24px;
+height: 24px;
+flex-shrink: 0;
+color: #898989;
+// stroke-width: 2px;
+//stroke: var(--, #898989);
+// padding: 6px 12px;
+`;
+
+const EtcSection = styled.div`
+display: flex;
+align-items: flex-start;
+gap: 10px;
+align-self: stretch;
+`;
+
+const EtcText = styled.div`
+color: #1A2D06;
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+`;
+
+const DaySection = styled.div`
+display: flex;
+// width: 123px;
+flex-direction: column;
+align-items: flex-start;
+gap: 4px;
+`;
+
+const DayList = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 6px;
+align-self: stretch;
+`;
+
+const DayItem = styled.div`
+display: flex;
+align-items: center;
+gap: 6px;
+align-self: stretch;
+// justify-content: center;
 `;

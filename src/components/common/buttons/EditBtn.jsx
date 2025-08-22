@@ -22,13 +22,14 @@ const EditButton = styled.button`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 10px;
-  text-align: left;
+  padding: 0 12px;
+  text-align: center;
   font-size: 16px;
   color: #64a10f;
   font-family: Pretendard;
   background-color: transparent;
   transition: all 0.2s ease;
+  font-weight: 600;
 
   &:hover {
     background-color: #e9f4d0; 

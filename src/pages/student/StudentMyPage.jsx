@@ -1,9 +1,10 @@
 // TO DO LIST
-// 1. 추천 누른 가게 api 연동 필요
+// 1. 추천 누른 가게 프로필 연동 필요
+// 2. 추천 목록 fetch 안됨 (콘솔은 뜨는데 화면에 안 나옴)
 
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import useStudentStore from '../../stores/studentStore'
 import { fetchRecommendations, fetchOwnerProfiles } from '../../services/apis/studentProfileApi'
 
@@ -11,6 +12,13 @@ const StudentMyPage = () => {
   const { id: studentProfileId } = useParams();
   const { name, university_name, image, setProfileInfo } = useStudentStore();
   const [recommendedStores, setRecommendedStores] = useState([]);
+
+  const navigate = useNavigate();
+  const handleCardClick = (id) => {
+    navigate(`/student/store-profile/${id}`, {
+      state: { userType: "student" }
+    });
+  };
 
   useEffect(() => {
     if (studentProfileId) {
@@ -20,23 +28,44 @@ const StudentMyPage = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const recommendations = await fetchRecommendations();
+      const recommendations = await fetchRecommendations('given');
       const ownerProfiles = await fetchOwnerProfiles();
-      const ownerIds = recommendations
-        .filter(r => r.to_user.user_role === "OWNER")
-        .map(r => r.to_user.id);
-      const stores = ownerProfiles
-        .filter(p => ownerIds.includes(p.user))
-        .map(p => ({
-          name: p.profile_name,
-          image: p.photos?.length > 0 ? p.photos[0].image : null,
-        }));
-      setRecommendedStores(stores);
+
+    // 1. user별 최신 id만 남기기 (to_user.id 기준)
+    const latestByUser = Object.values(
+      recommendations.reduce((acc, curr) => {
+        const userId = curr.to_user.id;
+        if (!acc[userId] || acc[userId].id < curr.id) {
+          acc[userId] = curr;
+        }
+        return acc;
+      }, {})
+    );
+    // console.log(latestByUser);
+
+    // 2. 최신 추천 리스트에서 가게 id만 추출
+    const ownerIds = latestByUser
+      .filter(r => r.to_user.user_role === "OWNER")
+      .map(r => r.to_user.id);
+    console.log(ownerIds);
+
+    // 3. 가게 프로필 필터링 및 가공
+    const stores = ownerProfiles
+      .filter(p => ownerIds.includes(p.user))
+      .map(p => ({
+        id: p.user,
+        name: p.profile_name,
+        image: p.photos?.[0]?.image || null,
+      }));
+  
+    console.log(ownerProfiles);
+    console.log(stores);
+    setRecommendedStores(stores);
     }
     fetchData();
   }, []);
 
-  const navigateToEditMyPage = `/student/mypage/${studentProfileId}/edit`;
+  const navigateToEditMyPage = `/student/mypage/edit`;
 
   if (!name && !university_name && !image) {
     return <div>로딩 중 또는 학생 정보 없음</div>;
@@ -73,22 +102,17 @@ const StudentMyPage = () => {
               </ShopContainer>
             ) : (
               <ShopList>
-                {recommendedStores.map((store, idx) => (
-                  <ShopCard key={idx}>
+                {recommendedStores.map((store) => (
+                  <ShopCard 
+                    key={store.id}
+                    onClick={() => handleCardClick(store.id)} 
+                  >
                     <ShopImg src={store.image} alt={store.name} />
                     <ShopName>{store.name}</ShopName>
                   </ShopCard>
                 ))}
               </ShopList>
             )}
-            {/* <ShopList>
-              {[1,2,3,4,5,6].map(idx => (
-                <ShopCard key={idx}>
-                  <ShopImg />
-                  <ShopName>{`가게명${idx}`}</ShopName>
-                </ShopCard>
-              ))}
-            </ShopList> */}
           </RecommendList>
         </RecommendSection>
       </Contents>
@@ -230,10 +254,11 @@ const ShopCard = styled.div`
     gap: 5px;
 `;
 
-const ShopImg = styled.div`
+const ShopImg = styled.img`
     height: 137px;
     align-self: stretch;
-    background: #D9D9D9;
+    background: ${({ src }) =>
+      src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
 `;
 
 const ShopName = styled.div`

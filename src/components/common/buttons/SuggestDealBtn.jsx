@@ -1,39 +1,229 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import Modal from './Modal';
+import { IoIosClose } from "react-icons/io";
+import { getAIDraftProposal, fetchProposal } from '../../../services/apis/proposalAPI';
+import useUserStore from '../../../stores/userStore';
+import { getOwnerProfile } from '../../../services/apis/ownerAPI';
+import Loading from '../../../layout/Loading';
 
-const SuggestDealBtn = ({ onClick }) => {
+const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const goToSuggestPage = () => {
-    navigate('/owner/proposal')
+ 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingVariant, setLoadingVariant] = useState('form');
+
+  // '예'를 누르면 바로 ai 제안서 생성  : 사장 -> 학생회
+  const handleProposal = async () => {
+
+    try {
+      
+      const recipient = organization.user;
+      const contact_info = String(organization.contact || '');
+      
+      console.log({ recipient, contact_info });
+
+      // 기존 제안서 조회
+      let existingDraft = null;
+      try {
+        const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
+        const proposals = list.results || list || [];
+        existingDraft = proposals.find(p => {
+          const r = p.recipient || {};
+          // recipient가 객체일 때 id로 매칭, 아니면 값 자체 비교
+          return (r.id != null ? r.id === recipient : r === recipient);
+        }) || null;
+      } catch (e) {
+        console.warn('기존 제안서 조회 실패:', e);
+      }
+
+      if (existingDraft) {
+        console.log('기존 작성중 제안서 발견:', existingDraft);
+        navigate('/owner/ai-proposal', { state: { organization, isAI: Boolean(existingDraft.expected_effects), proposalData: existingDraft } });
+        return;
+      }
+
+      // 2) 없으면 AI로 생성 후 이동
+      // 로딩이 기존 제안서 있을 땐 X, 없을 때 로딩화면 뜸 
+      setLoadingVariant('ai');
+      setIsLoading(true);
+      const proposalData = await getAIDraftProposal(recipient, contact_info);
+      console.log("제안서 내용", proposalData);
+
+      navigate('/owner/ai-proposal', { state: { organization, isAI: true, proposalData } });
+    } catch (error) {
+      console.error("제안서를 생성하는데 실패했습니다.", error);
+      setIsModalOpen(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  
+  
+  const goToProposalPage = async() => {
+    setLoadingVariant('form');
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      navigate('/owner/proposal', { state: { organization, isAI: false } });
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
+    }
   }
 
+
   return (
-    <SuggestButton onClick={goToSuggestPage}>
-      제휴 제안하기
-    </SuggestButton>
-  )
-}
+    <>
+      <SuggestButton onClick={() => setIsModalOpen(true)}>
+        제휴 제안하기
+      </SuggestButton>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalContentWrapper>
+          <TextWrapper>
+            <ModalTitle>
+              <p>우리 가게에 딱 맞는 제휴 조건, AI가 분석 완료!</p>
+              <p>AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?</p>
+            </ModalTitle>
+            <ButtonGroup>
+              <OptionButton onClick={goToProposalPage}>
+                <p>아니오</p>
+                <p>(직접 작성하기)</p>
+              </OptionButton>
+              <OptionButton primary onClick={handleProposal}>
+                예
+              </OptionButton>
+            </ButtonGroup>
+          </TextWrapper>
+          <CloseIcon color = "#1A2D06" alt="닫기" onClick={() => setIsModalOpen(false)} />
+        </ModalContentWrapper>
+      </Modal>
+
+      {isLoading && (
+        <Loading
+          situation={loadingVariant === 'ai' ? 'ai' : 'form'}
+          fullscreen
+        />
+      )}
+    </>
+  );
+};
 
 export default SuggestDealBtn;
 
 const SuggestButton = styled.button`
-width: 100%;
-position: relative;
-border-radius: 5px;
-background-color: #64a10f;
-height: 40px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 5px;
-box-sizing: border-box;
-text-align: left;
-font-size: 16px;
-color: #e9f4d0;
-font-family: Pretendard;
-border: none;
-font-weight : 600;
+  width: 100%;
+  position: relative;
+  border-radius: 5px;
+  background-color: #64a10f;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-sizing: border-box;
+  text-align: left;
+  font-size: 16px;
+  color: #e9f4d0;
+  font-family: Pretendard;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+
+  &: hover {
+    background-color: #4c7b10;
+  }
+
+  &: active {
+    background-color: #3f6113;
+  }
+`;
+
+const ModalContentWrapper = styled.div`
+  width: 546px;
+  height: 280px;
+  border-radius: 5px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 81px 79px 61px;
+  box-sizing: border-box;
+  position: relative; 
+`;
+
+const CloseIcon = styled(IoIosClose)`
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 17px;
+  left: 505px;
+  cursor: pointer;
+  z-index: 1;
+`;
+
+const TextWrapper = styled.div`
+  width: 387px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  text-align: center;
+`;
+
+const ModalTitle = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  p {
+    margin: 0;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  color: #898989;
+`;
+
+const OptionButton = styled.button`
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #898989;
+  background-color: transparent;
+  width: 134px;
+
+  ${props =>
+    props.primary &&
+    `
+    width: 237px;
+    background-color: #64a10f;
+    color: #e9f4d0;
+    font-weight: 600;
+    border: none;
+  `}
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
 `;
