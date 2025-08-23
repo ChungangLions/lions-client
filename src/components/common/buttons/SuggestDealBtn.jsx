@@ -27,6 +27,10 @@ const SuggestDealBtn = ({organization}) => {
       console.log({ recipient, contact_info });
 
       // 기존 제안서 조회
+      // 기존 제안서 만든 시간(created_at)이랑 사장님 프로필 수정 시간 비교해서 
+      // 수정 시간이 더 최근이면 ai 다시 생성 -> 모달창 : 최근에 프로필을 수정하셨네요 ! 어쩌구
+      // 수정 시간이 최근이 아닌데 제안서 있으면 -> 모달창 : 기존에 만들어둔 제안서를 불러올게요!
+      // 제안서 없으면 -> 원래 모달창 띄우기 
       let existingDraft = null;
       try {
         const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });

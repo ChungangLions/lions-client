@@ -118,7 +118,7 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: flex-start;
-gap: 3px;
+gap: 8px;
 color: black;
 `;
 

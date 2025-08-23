@@ -38,8 +38,8 @@ const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 70px;
+  padding-right: 70px;
   margin-top: 85px;
   color: #1a2d06;
 `;

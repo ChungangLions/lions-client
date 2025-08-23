@@ -49,9 +49,9 @@ const OwnerInfo = ({profileData}) => {
                     </Industry>
                 </TitleSection>
                 <MenuSection>
-                    <Title>
-                        대표메뉴
-                    </Title>
+                    <MenuTitle>
+                    대표메뉴
+                    </MenuTitle>
                     <MenuItem>
                     {!profileData ? menuNames : menus } 등
                     </MenuItem>
@@ -71,11 +71,11 @@ background-color: #eff6df;
 height: 149px;
 display: flex;
 flex-direction: column;
-padding: 20px 0;
+padding: 20px 41px;
 box-sizing: border-box;
 text-align: left;
 font-size: 20px;
-color: #000;
+color: #1A2D06
 font-family: Pretendard;
 width: 100%;
 `;
@@ -90,13 +90,11 @@ justify-content: flex-start;
 gap: 30px;
 text-align: left;
 font-size: 20px;
-color: #000;
 font-family: Pretendard;
-padding: 0 58px;
 `;
 
 const ContentWrapper = styled.div`
-width: 334px;
+width: 100%;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
@@ -109,40 +107,45 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: flex-start;
-gap: 8px;
+gap: 12px;
+width: 100%;
 `;
 
 const MenuSection = styled.div`
-align-self: stretch;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: flex-start;
 gap: 8px;
 font-size: 16px;
-color: #717171;
+color: #898989;
+width: 100%;
 `;
 
 const Title =styled.div`
 display: flex;
 flex-direction: row;
-align-items: center;
-justify-content: center;
+color : #1A2D06;
+font-weight: 600;
+white-space: nowrap;
+`;
+
+const MenuTitle =styled.div`
+display: flex;
+flex-direction: row;
+color : #717171;
 `;
 
 const Industry =styled.div`
 display: flex;
 flex-direction: row;
-align-items: center;
-justify-content: center;
 font-size: 16px;
 color: #717171;
+white-space: nowrap;
 `;
 
 const MenuItem = styled.div`
 display: flex;
 flex-direction: row;
-align-items: center;
-justify-content: center;
-color: #000;
+color : #1A2D06;
 `;

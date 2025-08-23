@@ -244,6 +244,7 @@ const AIProposalDetail = () => {
 
     try {
       const response = await createProposal(createData);
+      setIsEditMode(false); // 저장 후 읽기 모드로 변경
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -329,7 +330,8 @@ const AIProposalDetail = () => {
                       children={type} 
                       IconComponent={IconComponent}
                       isSelected={selectedPartnershipTypes.includes(type)}
-                      onClick={() => togglePartnershipType(type)}
+                      onClick={() => isEditMode && togglePartnershipType(type)}
+                      disabled={!isEditMode}
                     />
                   ))}
                 </ContentBox>
@@ -368,6 +370,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.applyTarget}
                         onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -378,6 +381,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.benefitDescription}
                         onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -390,6 +394,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.timeWindows}
                         onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -400,6 +405,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.partnershipPeriod}
                         onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -416,6 +422,7 @@ const AIProposalDetail = () => {
                     border="1px solid #E9E9E9"
                     value={expectedEffects}
                     onChange={(e) => setExpectedEffects(e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </DetailBox>
               )}
@@ -427,6 +434,7 @@ const AIProposalDetail = () => {
                   width="100%"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
+                  disabled={!isEditMode}
                 />
               </DetailBox>
               
@@ -447,7 +455,7 @@ const AIProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+              <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
               <SaveBtn onClick={handleSave} />
               <SendProposalBtn onClick={handleSend}/>
             </ButtonWrapper>

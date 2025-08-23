@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components';
 
-const EditBtn = ({onClick}) => {
+const EditBtn = ({onClick, isEditMode}) => {
   return (
     <EditButton onClick={onClick}>
         수정하기
