@@ -16,7 +16,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal } from '../../services/apis/proposalAPI';
+import createProposal, { editAllProposal, editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 
 
@@ -106,9 +106,9 @@ const ProposalDetail = () => {
     }));
   };
 
-  
 
-  // 수정하기
+  // 수정하기 : status "DRAFT"인 상태
+  // !!제안서 직접 수정하기 : 수정하기 비활성화!!
   const handleEdit = async () => {
     
     const updateData = {
@@ -134,7 +134,9 @@ const ProposalDetail = () => {
     }
   };
 
-  // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
+  // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성: status "UNREAD"
+  // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
+  // 저장하기를 통해 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출 
   const handleSend = async () => {
     try {
       // **저장하기는 필드 검증 필요 없음 
@@ -166,16 +168,29 @@ const ProposalDetail = () => {
         contact_info: contact || contactInfo, // 연락처
       };
 
-
       console.log('제안서 데이터:', createData);
-      
-      const response = await createProposal(createData);
-      alert('제안서가 전송되었습니다.');
-      console.log("제안서아이디", response.id);
-      setId(response.id);
+
+      if (proposalId === null) { 
+        // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
+        const response = await createProposal(createData); // 제안서 생성
+        setProposalId(response.id);
+        setId(response.id);
+        alert('제안서가 전송되었습니다.');
+        console.log("제안서아이디", response.id);
+      } else {
+        // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
+        const statusData = {
+          status: "UNREAD",
+          comment: ""
+        };
+        const response = await editProposalStatus(proposalId, statusData);
+        alert('제안서가 전송되었습니다.');
+        console.log("제안서 상태 변경 완료", response);
+      }
       
     } catch (error) {
-      console.error('제안서 생성 오류:', error);
+      console.error('제안서 전송 오류:', error);
+      alert('제안서 전송에 실패했습니다.');
     }
   };
 
@@ -195,7 +210,8 @@ const ProposalDetail = () => {
   };
 
 
-  // 저장하기는 일부 필드 비워져있어도 가능 
+  // 저장하기는 일부 필드 비워져있어도 가능 : status "DRAFT"
+  // 제안서 생성하기 api 호출 지금 O 
   const handleSave = async () => {
 
     const createData = {
@@ -214,7 +230,7 @@ const ProposalDetail = () => {
       console.log('제안서 데이터:', createData);
 
     try {
-      const response = await createProposal(createData);
+      const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
     } catch (error) {
       console.error('제안서 전송 오류:', error);
@@ -390,7 +406,7 @@ const ProposalDetail = () => {
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={contact}
+                  value={contactInfo}
                   onChange={(e) => setContact(e.target.value)}
                   readOnly={proposal && proposal.status !== 'DRAFT'}
                 />
