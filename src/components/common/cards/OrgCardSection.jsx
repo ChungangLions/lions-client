@@ -22,7 +22,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
     ];
   } else if (cardType === 'suggest-sent') {
     cardData = [
-      { label: '작성일', value: organization.writtenDate }
+      { label: '작성일', value: organization?.created_at }
     ];
   }
 
@@ -37,7 +37,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
 
   return (
 
-      <CardGroup onClick={() => onClick(organization)} $isHome={cardType === 'home'}>
+      <CardGroup onClick={() => onClick && onClick(organization)} $isHome={cardType === 'home'}>
         <CardContent>
           <UserInfo organization={organization} />
           <DetailInfo cardDetail={cardData} />
