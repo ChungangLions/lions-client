@@ -70,20 +70,20 @@ const AIProposalDetail = () => {
   useEffect(() => {
     if (!proposalData) return;
 
-    // 제휴기간 형식 포맷팅
-    const formattedTimeWindows = Array.isArray(proposalData.time_windows)
-      ? proposalData.time_windows
-          .map(
-            (time) =>
-              `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-          )
-          .join(" / ")
-      : '';
+    // // 제휴기간 형식 포맷팅
+    // const formattedTimeWindows = Array.isArray(proposalData.time_windows)
+    //   ? proposalData.time_windows
+    //       .map(
+    //         (time) =>
+    //           `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+    //       )
+    //       .join(" / ")
+    //   : '';
 
     setPartnershipConditions({
       applyTarget: proposalData.apply_target || '',
       benefitDescription: proposalData.benefit_description || '',
-      timeWindows: formattedTimeWindows,
+      timeWindows: proposalData.time_windows,
       partnershipPeriod:
         proposalData.period_start && proposalData.period_end
           ? `${proposalData.period_start} ~ ${proposalData.period_end}`
