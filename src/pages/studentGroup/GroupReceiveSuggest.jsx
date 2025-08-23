@@ -3,11 +3,11 @@ import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
-import Menu from '../../layout/Menu'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
 import { fetchProposal } from '../../services/apis/proposalAPI'
+import MenuGroup from '../../layout/MenuGroup'
 
-const OwnerReceiveSuggest = () => {
+const GroupReceiveSuggest = () => {
   const navigate = useNavigate();
   const [receivedProposals, setReceivedProposals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,10 +69,6 @@ const OwnerReceiveSuggest = () => {
     fetchReceivedProposals();
   }, []);
 
-  const handleCardClick = (proposal) => {
-    navigate(`/student-group/proposal`, { state: { proposal } });
-  };
-
   // 제안서 데이터를 organization 형태로 변환
   const proposalOrganizations = receivedProposals.map(proposal => ({
     id: proposal.id,
@@ -105,21 +101,21 @@ const OwnerReceiveSuggest = () => {
   if (loading) {
     return (
       <ScrollSection>
-        <Menu />
+        <MenuGroup />
         <Loading>로딩 중...</Loading>
       </ScrollSection>
     );
   }
 
    const handleProposalClick = (proposal) => {
-    navigate(`/owner/mypage/received-proposal/${proposal.id}`, { 
+    navigate(`/student-group/mypage/received-proposal/${proposal.id}`, { 
       state: { proposal } 
     });
   }
 
   return (
     <ScrollSection>
-      <Menu />
+      <MenuGroup />
       <SuggestSummaryBox items={summaryItems} />
  
         {proposalOrganizations.length > 0 ? (
@@ -143,7 +139,7 @@ const OwnerReceiveSuggest = () => {
   )
 }
 
-export default OwnerReceiveSuggest
+export default GroupReceiveSuggest
 
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`

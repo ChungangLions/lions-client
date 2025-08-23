@@ -89,3 +89,10 @@ export const editProposalStatus = async(id, statusData) => { // 여기서 Id는 
   const response = await authAxios.post(`/api/proposals/${id}/status/`, statusData);
   return response.data;
 }
+
+// 제안서 상세 조회
+export const getProposal = async(id) => { // 여기서 Id는 제안서 id
+  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+  const response = await authAxios.post(`/api/proposals/${id}/`);
+  return response.data;
+}
