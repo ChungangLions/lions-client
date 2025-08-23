@@ -7,16 +7,8 @@ import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
 import ViewBtn from '../../components/common/buttons/StatusBtn'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
-import { fetchUserLikes } from '../../services/apis/likesapi'
+import { fetchLikes, fetchUserLikes } from '../../services/apis/likesapi'
 import useUserStore from '../../stores/userStore'
-
-const summaryItems = [
-    { count: 2, label: '작성 중'},
-    { count: 5, label: '열람' },
-    { count: 0, label: '미열람' },
-    { count: 3, label: '제휴 체결' },
-    { count: 1, label: '거절' }
-];
 
 const OwnerWishlist = () => {
   const navigate = useNavigate();
@@ -24,75 +16,119 @@ const OwnerWishlist = () => {
   const { organizations, fetchAndSetOrganizations } = useStudentOrgStore();
 
   const handleCardClick = (organization) => {
-    navigate("student-group-profile", { state: { organization } });
+    navigate(`/owner/student-group-profile/${organization.id}`, { state: { organization } });
   };
 
-  // 찜한 목록 가져오기
+  const [likeStores, setLikeStores] = useState([]);
+  
   useEffect(() => {
-    if (userId) {
-      fetchAndSetOrganizations();
-    }
-  }, [userId, fetchAndSetOrganizations]);
+    fetchAndSetOrganizations();
+    const fetchUserLikes = async () => {
+      const list = await fetchLikes('given');
+      setLikeStores(list.map(item => item.target.id));
+      console.log("좋아요한 학생회 리스트:", list);
+      console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
+    };
+    fetchUserLikes();
+  }, []);
 
   // 찜한 항목들만 필터링
-  const likedOrganizations = organizations.filter(org => org.is_liked);
+  const likedOrganizations = organizations.filter(org => likeStores.includes(org.user));
 
   return (
-    <ScrollSection>
+    <PageConatainer>
       <Menu />
-      <SuggestSummaryBox items={summaryItems} />
-      {likedOrganizations.length > 0 ? (
+      <ContentContainer>
+          <NumText>총 {likedOrganizations.length}개</NumText>
         <CardListGrid> 
           {likedOrganizations.map((organization) => (
             <OrgCardSection
               key={organization.id}
               onClick={handleCardClick}
-              cardType="home"
-              ButtonComponent={FavoriteBtn}
+              cardType={'home'}
+              ButtonComponent={() => (
+                <FavoriteBtn 
+                  userId={organization.user} 
+                  isLikeActive={likeStores.includes(organization.user)} // 추가!
+                />
+              )}
               organization={organization}
+              userId={userId}
             />
           ))}
         </CardListGrid>
-      ) : (
-        <EmptyText>아직 찜한 단체가 없어요. 마음에 드는 단체를 찾아보세요!</EmptyText>
-      )}
-    </ScrollSection>
+        <EmptyRow />
+      </ContentContainer>
+    </PageConatainer>
   )
 }
 
+
 export default OwnerWishlist
 
-// 그리드 가로 3, 세로 자동
+const PageConatainer = styled.div`
+display: flex;
+flex-direction: column;
+gap: 15px;
+width: 100%;
+position: relative;
+justify-content: flex-start; 
+min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
+`;
+
+const ContentContainer = styled.div`
+display: flex;
+width: 1379px;
+flex-direction: column;
+align-items: flex-start;
+gap: 15px;
+`;
+
+const NumText = styled.div`
+font-family: Pretendard;
+font-weight: 400;
+font-style: Regular;
+font-size: 20px;
+leading-trim: NONE;
+line-height: 100%;
+letter-spacing: 0%;
+`;
+
 const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: ;
-  grid-template-columns: repeat(3, 447px); 
+  grid-template-columns: repeat(3, 1fr);
   justify-content: start;
   align-content: start;
   column-gap: 20px;
   row-gap: 20px;
   text-align: left;
   font-size: 18px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 
-const ScrollSection = styled.div`
+const OptionWrapper = styled.div`
 display: flex;
-flex-direction: column;
-gap: 15px;
-align-items: flex-start;
-
-position: sticky;
-top: 0;
-// height: 100vh; 
+flex-direction: row;
+align-items: center;
+justify-content: center;
+gap: 5px;
 `;
 
-const EmptyText = styled.div`
-  text-align: center;
-  padding: 40px;
-  color: #898989;
-  font-size: 16px;
+const TypeWrapper = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px 0px;
+gap: 10px;
+min-width: 28px;
+max-width: 60px;
+`;
+
+const EmptyRow = styled.div` // 여백 주기 위한 임시방편
+display: flex;
+height: 50px;
 `;
