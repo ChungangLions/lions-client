@@ -18,6 +18,7 @@ import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
 import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
+import { getOwnerProfile } from '../../services/apis/ownerAPI';
 
 
 const AIGroupProposalDetail = () => {
@@ -43,11 +44,29 @@ const AIGroupProposalDetail = () => {
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
-  const [contact, setContact] = useState('');
+  const [contact, setContact] = useState(profileData?.contact);
 
-  const [ proposalId, setProposalId] = useState(proposalData.id);
+  const [ proposalId, setProposalId] = useState(proposalData.id); // 이미 생성됐는지 확인
 
-  // proposalData 가져오기
+  // 사장님 프로필 가져오기 -> 유저 아이디로 API 호출
+  const { userId }= useUserStore();
+  const { profileId, setProfileId } = useState(profileData?.id); // 이 profileId로 제안서 불러오기 
+
+  useEffect(() => {
+  const fetchProfile = async () => { 
+    try {
+      const ownerId = profileData?.id;
+      const data = await getOwnerProfile(ownerId);
+      setProfileId(data.id);
+    } catch(error){
+      console.error(error);
+    }
+  } 
+  fetchProfile();
+}, []); 
+
+  
+  // 제안서가 있다면 proposalData 가져오기
   useEffect(() => {
     if (!proposalData) return;
 
@@ -74,12 +93,6 @@ const AIGroupProposalDetail = () => {
     if (contactInfo) setContact(contactInfo);
   }, [proposalData, contactInfo]);
 
-  // 연락처 초기화: 프로필 정보가 늦게 도착해도 반영
-  useEffect(() => {
-    if (contactInfo && !contact) {
-      setContact(contactInfo);
-    }
-  }, [contactInfo]);
 
   // 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -124,7 +137,6 @@ const AIGroupProposalDetail = () => {
   };
 
   // 수정하기
-  const {userId} = useUserStore();
 
   const handleEdit = async () => {
     
@@ -142,7 +154,7 @@ const AIGroupProposalDetail = () => {
     const id = proposalData.id != null ? proposalData.id : proposalId;
 
     try {
-      const response = await editProposal( id , updateData);
+      const response = await editProposal( userId , updateData);
       console.log('제안서 수정 완료:', response);
       setIsEditMode(false);
     } catch (error) {
@@ -292,7 +304,8 @@ const AIGroupProposalDetail = () => {
             <HeaderContent>
                 <p>안녕하세요.</p>
               <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
-              <p>'{profileData.profile_name}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에, 가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
+              <p>'{profileData.profile_name}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에,</p>
+              <p>가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
@@ -414,7 +427,7 @@ const AIGroupProposalDetail = () => {
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={contact}
+                  value={profileData?.contact}
                   onChange={(e) => setContact(e.target.value)}
                   disabled={!isEditMode}
                 />
@@ -424,7 +437,7 @@ const AIGroupProposalDetail = () => {
               
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{storeName}' 드림</Signature>
+          <Signature>'{profileData?.profile_name}'드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 

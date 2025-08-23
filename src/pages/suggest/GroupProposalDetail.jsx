@@ -73,7 +73,7 @@ const GroupProposalDetail = () => {
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
-  const [contact, setContact] = useState('');
+  const [contact, setContact] = useState(profileData.contact);
 
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -350,8 +350,8 @@ console.log(groupProfile);
                       children={type} 
                       IconComponent={IconComponent}
                       isSelected={selectedPartnershipTypes.includes(type)}
-                      onClick={() => !proposal || proposal.status === 'DRAFT' ? togglePartnershipType(type) : null}
-                      disabled={proposal && proposal.status !== 'DRAFT'}
+                      onClick={() => isEditMode ? togglePartnershipType(type) : null}
+                      disabled={!isEditMode}
                     />
                   ))}
                 </ContentBox>
@@ -390,7 +390,7 @@ console.log(groupProfile);
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.applyTarget}
                         onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -401,7 +401,7 @@ console.log(groupProfile);
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.benefitDescription}
                         onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -414,7 +414,7 @@ console.log(groupProfile);
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.timeWindows}
                         onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -425,7 +425,7 @@ console.log(groupProfile);
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.partnershipPeriod}
                         onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -441,7 +441,7 @@ console.log(groupProfile);
                   width="100%"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  readOnly={proposal && proposal.status !== 'DRAFT'}
+                  disabled={!isEditMode}
                 />
               </DetailBox>
               
@@ -457,7 +457,7 @@ console.log(groupProfile);
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
             <ButtonWrapper>
                 <>
-                    <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+                    <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
                     <SaveBtn onClick={handleSave} />
                     <SendProposalBtn onClick={handleSend}/>
                 </>
