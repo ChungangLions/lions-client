@@ -8,7 +8,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -37,29 +37,35 @@ const GroupProposalDetail = () => {
 
   // 현재 로그인된 사용자 정보 불러오기
   const [ groupProfile, setGroupProfile] = useState(null);
+  const [ isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log("UseEffect 실행됨, userId:", userId); // 뭐지? 안 뜸 
     
     const getProfile = async() => {
       try {
+        setIsLoading(true);
         const groupProfile = await fetchGroupProfile(userId);
         setGroupProfile(groupProfile);
         console.log("학생단체 데이터", groupProfile);
       } catch(error) {
         console.error("학생 단체 프로필 조회 실패:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     if (userId) {
       getProfile();
+    } else {
+      setIsLoading(false);
     }
   }, [userId]);
 
-  
-
-
- 
+  const navigate = useNavigate();
+  const handleCardClick = (organization, id) => {
+    navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+  }; 
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -332,6 +338,24 @@ const GroupProposalDetail = () => {
       }, [likeStores]);
     
 console.log(groupProfile);
+
+  // 로딩 중일 때 표시
+  if (isLoading) {
+    return (
+      <ProposalContainer>
+        <LoadingMessage>로딩 중...</LoadingMessage>
+      </ProposalContainer>
+    );
+  }
+
+  // groupProfile이 없을 때 표시
+  if (!groupProfile) {
+    return (
+      <ProposalContainer>
+        <ErrorMessage>학생단체 프로필을 불러올 수 없습니다.</ErrorMessage>
+      </ProposalContainer>
+    );
+  }
   
   return (
     <ProposalContainer>
@@ -472,11 +496,13 @@ console.log(groupProfile);
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
-          <OrgCardSection
-            cardType={'proposal'}
-            organization={groupProfile}
-            userId={groupProfile.user}
-          />
+          {groupProfile && (
+             <OrgCardSection
+               cardType={'proposal'}
+               organization={groupProfile}
+               onClick={() => handleCardClick(groupProfile, groupProfile.id)}
+             />
+           )}
             <ButtonWrapper>
                 <>
                     <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
@@ -864,4 +890,28 @@ const ListItem = styled.li`
     list-style: none;
     margin-left: -20px; 
   }
+`;
+
+const LoadingMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #70AF19;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+`;
+
+const ErrorMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #C9C9C9;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 `;

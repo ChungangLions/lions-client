@@ -131,8 +131,9 @@ const OwnerSendSuggest = () => {
 
   return (
     <ScrollSection>
-      <Menu />
-      <SuggestSummaryBox items={summaryItems} />
+      <Menu />     
+      <ContentContainer>
+        <SuggestSummaryBox items={summaryItems} />
       
         {proposalOrganizations.length > 0 ? (
           <CardListGrid> 
@@ -149,6 +150,7 @@ const OwnerSendSuggest = () => {
         ) : (
           <EmptyMessage>보낸 제안서가 없습니다.</EmptyMessage>
         )}
+      </ContentContainer>
     </ScrollSection>
   )
 }
@@ -201,4 +203,15 @@ text-align: center;
     justify-content: center;
   align-content: center;
   margin-top: 30px;
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
 `;

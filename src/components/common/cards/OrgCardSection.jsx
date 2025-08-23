@@ -42,14 +42,16 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
           <UserInfo organization={organization} />
           <DetailInfo cardDetail={cardData} />
         </CardContent>
-        <ButtonWrapper $isHome={cardType === 'home'}>
-            <ButtonComponent 
-              organization={organization}
-              isLiked={organization?.is_liked ?? false}
-              onToggle={handleToggle}
-              userId={organization.id} 
-            />
-        </ButtonWrapper>
+        {ButtonComponent && (
+          <ButtonWrapper $isHome={cardType === 'home'}>
+              <ButtonComponent 
+                organization={organization}
+                isLiked={organization?.is_liked ?? false}
+                onToggle={handleToggle}
+                userId={organization.id} 
+              />
+          </ButtonWrapper>
+        )}
       </CardGroup>
   )
 }
