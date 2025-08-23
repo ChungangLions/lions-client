@@ -8,6 +8,7 @@ import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown';
 import { fetchLikes } from '../../services/apis/likesapi';
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const GroupHome = () => {
   const [likeStores, setLikeStores] = useState([]);
@@ -81,6 +82,12 @@ const GroupHome = () => {
             >
             ☕️ 카페 및 디저트
             </FilterBtn>
+            <FilterBtn
+            onClick={() => filterByStoreType('OTHER')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('OTHER')}
+            >
+            <OptionWrapper><HiDotsHorizontal />기타</OptionWrapper>
+            </FilterBtn>
           </FilterWrapper>
         </FilterSection>
         <FilterSection>
@@ -137,6 +144,7 @@ const GroupHome = () => {
             key={store.id}
             imageUrl={store.photo}
             onClick={() => handleCardClick(store.id)}
+            isBest={store.isBest}
             ButtonComponent={() => (
               <FavoriteBtn 
                 userId={store.id} 
