@@ -73,8 +73,8 @@ const OwnerHome = () => {
       const fetchUserLikes = async () => {
         const list = await fetchLikes('given');
         setLikeStores(list.map(item => item.target.id));
-        console.log("좋아요한 가게 리스트:", list);
-        console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+        console.log("좋아요한 학생회 리스트:", list);
+        console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
       };
       fetchUserLikes();
     }, []);
@@ -146,8 +146,8 @@ const OwnerHome = () => {
             cardType={'home'}
             ButtonComponent={() => (
               <FavoriteBtn 
-                userId={organization.id} 
-                isLikeActive={likeStores.includes(organization.id)} // 추가!
+                userId={organization.user} 
+                isLikeActive={likeStores.includes(organization.user)} // 추가!
               />
             )}
             organization={organization}
@@ -155,6 +155,7 @@ const OwnerHome = () => {
           />
         ))}
       </CardListGrid>
+      <EmptyRow />
     </PageConatainer>
   )
 }
@@ -226,4 +227,9 @@ padding: 10px 0px;
 gap: 10px;
 min-width: 28px;
 max-width: 60px;
+`;
+
+const EmptyRow = styled.div` // 여백 주기 위한 임시방편
+display: flex;
+height: 50px;
 `;

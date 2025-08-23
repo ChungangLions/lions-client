@@ -20,6 +20,7 @@ import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
 
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
+  const [isRecommendActive, setIsRecommendActive] = useState(false);
   const navigate = useNavigate();
   const handleCardClick = (id) => {
     navigate(`/student/store-profile/${id}`, {
@@ -40,6 +41,9 @@ const StudentHome = () => {
 
   useEffect(() => {
     fetchStores();
+  }, []);
+
+  useEffect(() => {
     const fetchUserRecommendations = async () => {
       const list = await fetchRecommendations('given');
       setRecommendedStores(list.map(item => item.to_user.id));
@@ -47,7 +51,7 @@ const StudentHome = () => {
       console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
     };
     fetchUserRecommendations();
-  }, []);
+  }, [isRecommendActive]);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -60,6 +64,10 @@ const StudentHome = () => {
 
   const handleDealFilterChange = (e) => {
       filterByDealType();
+  }
+
+  const fetchNewInfo = (e) => {
+    setIsRecommendActive(!isRecommendActive);
   }
 
   // 학교 같은 것만 리스트 필터링
@@ -137,8 +145,8 @@ const StudentHome = () => {
             타임형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByDealType('서비스 제공형')}
-            active={Array.isArray(activeDealType) && activeDealType.includes('서비스 제공형')}
+            onClick={() => filterByDealType('서비스제공형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('서비스제공형')}
             >
             서비스 제공형
             </FilterBtn>
@@ -186,12 +194,14 @@ const StudentHome = () => {
             ButtonComponent={() => (
               <RecommendBtn 
                 userId={store.id} 
-                isRecommendActive={recommendedStores.includes(store.id)} // 추가!
+                isRecommendActive={recommendedStores.includes(store.id)}
+                onClick={() => fetchNewInfo()}
               />
             )}
             store={store} />
         ))}
       </GridContainer>
+      <EmptyRow />
     </PageContainer>
   )
 }
@@ -256,7 +266,7 @@ justify-content: center;
 padding: 10px 0px;
 gap: 10px;
 min-width: 28px;
-max-width: 60px;
+max-width: 90px;
 `;
 
 const FilterWrapper =styled.div`
@@ -274,4 +284,9 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 gap: 5px;
+`;
+
+const EmptyRow = styled.div` // 여백 주기 위한 임시방편
+display: flex;
+height: 50px;
 `;

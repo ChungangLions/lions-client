@@ -34,8 +34,7 @@ export default RecommendBtn;
 
 const StyledRecommend = styled(FilledRecommend)`
   height: 17px;
-  width: 17px;
-  max-width: 100%;
+  width: 100%;
   overflow: hidden;
   max-height: 100%;
   color: #64A10F;
@@ -43,17 +42,23 @@ const StyledRecommend = styled(FilledRecommend)`
 
 const StyledNotRecommend = styled(EmptyRecommend)`
   height: 17px;
-  width: 17px;
-  max-width: 100%;
+  width: 100%;
   overflow: hidden;
   max-height: 100%;
   color: #64A10F;
 `;
 
 const StyledButton = styled.button`
+  // width: 32px;
+  // height: 32px;
   position: relative;
   border: none;
   background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 
   // border-radius: 18.5px;
   // background: #FFF;

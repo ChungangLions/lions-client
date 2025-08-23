@@ -84,7 +84,7 @@ const GroupHome = () => {
           </FilterWrapper>
         </FilterSection>
         <FilterSection>
-          <TypeWrapper>제휴 유형</TypeWrapper>
+        <TypeWrapper>제휴 유형</TypeWrapper>
           <FilterWrapper>
             <FilterBtn
             onClick={() => filterByDealType('타임형')}
@@ -93,8 +93,8 @@ const GroupHome = () => {
             타임형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByDealType('서비스 제공형')}
-            active={Array.isArray(activeDealType) && activeDealType.includes('서비스 제공형')}
+            onClick={() => filterByDealType('서비스제공형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('서비스제공형')}
             >
             서비스 제공형
             </FilterBtn>
@@ -146,6 +146,7 @@ const GroupHome = () => {
             store={store} />
         ))}
       </GridContainer>
+      <EmptyRow />
     </PageContainer>
   )
 }
@@ -210,7 +211,7 @@ justify-content: center;
 padding: 10px 0px;
 gap: 10px;
 min-width: 28px;
-max-width: 60px;
+max-width: 90px;
 `;
 
 const FilterWrapper =styled.div`
@@ -228,4 +229,9 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 gap: 5px;
+`;
+
+const EmptyRow = styled.div` // 여백 주기 위한 임시방편
+display: flex;
+height: 50px;
 `;

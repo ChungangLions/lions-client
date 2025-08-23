@@ -23,7 +23,7 @@ const PageContainer = styled.div`
   flex-direction : column;
   width: 100%;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
   overflow-x: hidden;
   padding: 15px 29px;
   color: #1a2d06;
@@ -38,8 +38,9 @@ const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding-left: 30px;
-  padding-right: 30px;
+  // padding-left: 30px;
+  padding: ${({ hasMenu }) => (hasMenu ? '30px' : '0px')};
+  // margin-top: ${({ hasMenu }) => (hasMenu ? '85px' : '50px')};
   margin-top: 85px;
   color: #1a2d06;
 `;

@@ -325,8 +325,8 @@ const OwnerEditMyPage = () => {
         setPhotoState(storePhotoUrls(data.photos));
         setMenuList(parsedMenus);
         // 서버에서 받은 개별 boolean 필드들 확인
-         console.log("서버에서 받은 service_other:", data.service_other);
-         console.log("서버에서 받은 goal_other:", data.goal_other);
+        //  console.log("서버에서 받은 service_other:", data.service_other);
+        //  console.log("서버에서 받은 goal_other:", data.goal_other);
          
          // 개별 boolean 필드들로 직접 설정
          setServiceButtons({
@@ -350,7 +350,7 @@ const OwnerEditMyPage = () => {
 
         // 수정용 프로필 id
         setProfileId(data.id);
-        console.log("메뉴",data.menus);
+        // console.log("메뉴",data.menus);
 
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
@@ -407,17 +407,17 @@ const OwnerEditMyPage = () => {
         formData.append('goal_other', goalButtons.goal_other);
         formData.append('goal_other_detail', goalButtons.goal_other ? otherGoalValue : '');
       
-      console.log("FormData 내용:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+      console.log("FormData 내용: ", FormData);
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(key, value);
+      // }
       
       await editOwnerProfile(profileId, formData);
       alert("프로필 수정 완료!");
     } catch (error) {
       console.error("프로필 수정 실패:", error);
-      console.log(localStorage.getItem("accessToken"));
-      console.log(profileId);
+      // console.log(localStorage.getItem("accessToken"));
+      // console.log(profileId);
     
     }
   };

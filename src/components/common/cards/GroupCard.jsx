@@ -16,11 +16,11 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, re
         const storeId = store.id;
 
         const likesData = await getOwnerLikes(storeId);
-        console.log(likesData.likes_received_count);
+        // console.log(likesData.likes_received_count);
         setUserLikes(likesData.likes_received_count);
 
         const recommendsData = await getOwnerRecommends(storeId);
-        console.log(recommendsData.recommendations_received_count);
+        // console.log(recommendsData.recommendations_received_count);
         setUserRecommends(recommendsData.recommendations_received_count);
 
       } catch (error) {
@@ -76,7 +76,7 @@ const ImageWrapper = styled.div`
   aspect-ratio: 10/7.5;
   position: relative;
   min-height: 247px;
-  margin-bottom: 10px;
+  // margin-bottom: 10px;
   border-radius: 5px;
   // border: 1px solid black
 `;
@@ -101,14 +101,14 @@ const HeartBtnBox = styled.div`
   top: 12px;
 
   display: flex;
-  // width: 37px;
-  // height: 37px;
+  width: 20px;
+  height: 20px;
   padding: 10px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 18.5px;
+  border-radius: 100px;
   background: #FFF;
 `;
 
@@ -144,6 +144,10 @@ const CardTitle = styled.div`
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const ButtonNumbers = styled.div`
@@ -158,6 +162,10 @@ const CardSubtitle = styled.div`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const Row = styled.div`
