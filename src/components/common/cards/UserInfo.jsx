@@ -5,10 +5,34 @@ import sampleImage from '../../../assets/images/중앙대.svg';
 
 const UserInfo = ({organization}) => {
 
+  // 두 가지 데이터 구조를 모두 지원
+  const getProfileImage = () => {
+    if (!organization?.photos || organization.photos.length === 0) {
+      return null;
+    }
+    
+    const firstPhoto = organization.photos[0];
+    
+    // groupProfile 형태: photos[0].image
+    if (firstPhoto && typeof firstPhoto === 'object' && firstPhoto.image) {
+      return firstPhoto.image;
+    }
+    
+    // organization 형태: photos[0] (직접 이미지 URL)
+    if (typeof firstPhoto === 'string') {
+      return firstPhoto;
+    }
+    
+    return null;
+  };
+
+  const profileImage = getProfileImage();
+  console.log('Profile image:', profileImage);
+
   return (
     <UserInfoWrapper>
       <UserSection>
-        <ProfileImage profileImage={sampleImage} />
+        <ProfileImage profileImage={profileImage} />
         <NameWrapper>
           {/*<p>{organization?.university}</p>*/}
           <p>중앙대학교 서울캠퍼스</p>

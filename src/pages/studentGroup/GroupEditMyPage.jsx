@@ -30,7 +30,7 @@ const sampleCampus = '중앙대학교';
 //   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
 // };
 
-// ---- 학교 api 연결 ----
+// ---- 학교 api 연결 ---- 
 const apiKey = process.env.REACT_APP_CAREER_API_KEY;
 
 async function fetchCampusList(searchText) {
@@ -145,6 +145,10 @@ const GroupEditMyPage = () => {
     endYear: "", endMonth: "", endDay: ""
   });
 
+  // 사진 ID 추적을 위한 상태 추가
+  const [originalPhotos, setOriginalPhotos] = useState([]);
+  const [deletedPhotoIds, setDeletedPhotoIds] = useState([]);
+
     const handlePeriodChange = (field, val) => {
         setPeriod(prev => ({
             ...prev,
@@ -180,6 +184,16 @@ const GroupEditMyPage = () => {
     return { year, month, day };
   }    
 
+  // 사진 삭제 처리 함수
+  const handlePhotoDelete = (photoIndex) => {
+    // 원본 사진인 경우 ID를 삭제 목록에 추가
+    if (originalPhotos[photoIndex] && originalPhotos[photoIndex].id) {
+      setDeletedPhotoIds(prev => [...prev, originalPhotos[photoIndex].id]);
+    }
+    // 현재 상태에서 제거
+    setPhotoState(prev => prev.filter((_, index) => index !== photoIndex));
+  };
+
   // 학생 단체 프로필 조회 
   useEffect(() => {
     const fetchProfile = async () => { 
@@ -187,6 +201,9 @@ const GroupEditMyPage = () => {
         const groupId = userId;
         const data = await fetchGroupProfile(groupId);
         console.log(data);
+
+        // 원본 사진 데이터 저장 (ID 추적용)
+        setOriginalPhotos(data.photos || []);
 
         const termStart = parseDateString(data.term_start);
         const termEnd = parseDateString(data.term_end);
@@ -230,10 +247,17 @@ const GroupEditMyPage = () => {
       
       const formData = new FormData();
       
-      // 사진 데이터 추가
-      photoState.forEach((photo, index) => {
-        formData.append('photos', photo);
-        formData.append('orders', index);
+      // 삭제할 사진 ID 목록 추가
+      deletedPhotoIds.forEach(photoId => {
+        formData.append('photos_to_delete', photoId);
+      });
+      
+      // 새로 추가할 사진 파일들 (기존 사진이 아닌 새로운 파일들만)
+      const newPhotos = photoState.filter((photo, index) => 
+        !originalPhotos[index] || originalPhotos[index].image !== photo
+      );
+      newPhotos.forEach(photo => {
+        formData.append('new_photos', photo);
       });
       
       // 텍스트 데이터 추가
@@ -359,7 +383,12 @@ const GroupEditMyPage = () => {
             <Title> 대표 사진 </Title>
             <SubTitle> 학생단체 대표 사진(로고, 단체사진 등)을 자유롭게 등록해 주세요. (최대 2장) </SubTitle>
           </TitleContainer>
-          <PhotoUpload value={photoState} onChange={setPhotoState} maxCount={2}/>
+          <PhotoUpload 
+            value={photoState} 
+            onChange={setPhotoState} 
+            onDelete={handlePhotoDelete}
+            maxCount={2}
+          />
 
           {/* 학교 */}
           <TitleContainer ref={sectionRefs.campus}>

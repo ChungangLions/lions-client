@@ -4,7 +4,7 @@ import { RiThumbUpFill as FilledRecommend } from "react-icons/ri";
 import styled from 'styled-components';
 import { toggleRecommends } from '../../../services/apis/recommendsapi';
 
-const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick, height = '17px' }) => {
+const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick, height = '17px', onRecommendChange }) => {
   const [isRecommendActive, setIsRecommendActive] = useState(defaultActive);
 
   useEffect(() => {
@@ -13,12 +13,18 @@ const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick, heigh
 
   const handleClick = async (event) => {
     event.stopPropagation();
-    setIsRecommendActive(!isRecommendActive);
+    const newState = !isRecommendActive;
+    setIsRecommendActive(newState);
+    
     try {
       await toggleRecommends(userId);
+      // 추천 상태 변경 성공 시 부모 컴포넌트에게 알림
+      if (onRecommendChange) {
+        onRecommendChange(userId, newState);
+      }
     } catch (error) {
       console.error("추천 토글 실패:", error);
-      setIsRecommendActive(isRecommendActive);
+      setIsRecommendActive(isRecommendActive); // 실패 시 원래 상태로 복원
     }
   };
 

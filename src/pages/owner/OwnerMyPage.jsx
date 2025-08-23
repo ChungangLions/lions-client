@@ -38,6 +38,22 @@ const OwnerMyPage = () => {
   const [userRecord, setUserRecord] = useState(0);
   const [partnershipType, setPartnershipType] = useState([]);
 
+  // 찜 상태 변경 시 호출되는 콜백
+  const handleLikeChange = async (storeId, isLiked) => {
+    try {
+      // 찜 상태 업데이트
+      setIsLikeActive(isLiked);
+      
+      // 해당 가게의 찜 수 업데이트
+      const ownerId = params.id || userId;
+      const likesData = await getOwnerLikes(ownerId);
+      const newCount = likesData.likes_received_count || 0;
+      setUserLikes(newCount);
+    } catch (error) {
+      console.error("찜 수 업데이트 실패:", error);
+    }
+  };
+
   // 제휴 유형 데이터
   const partnershipTypes = [
     { type: '할인형', icon: AiOutlineDollar },
@@ -77,7 +93,7 @@ const OwnerMyPage = () => {
       }
     };
     fetchProfile();
-  }, [userId, params.id, isRecommendActive, isLikeActive]); 
+  }, [userId, params.id, isRecommendActive]); 
 
 
   const businessTypeMap = {
@@ -215,7 +231,8 @@ const OwnerMyPage = () => {
             <>
               <FavoriteBtn
                 userId={params.id} 
-                isLikeActive={isLikeActive} // 추가!
+                isLikeActive={isLikeActive}
+                onLikeChange={handleLikeChange}
               />
               <OrgSuggestDealBtn profileData = {profileData}>제휴 제안하기</OrgSuggestDealBtn>
             </>

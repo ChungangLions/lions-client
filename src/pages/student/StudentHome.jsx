@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import FilterBtn from '../../components/common/filters/FilterBtn';
 import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 import { fetchRecommendations } from '../../services/apis/recommendsapi';
+import { getOwnerRecommends } from '../../services/apis/ownerAPI';
 import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown';
 import useStudentOrgStore from '../../stores/studentOrgStore';
@@ -21,11 +22,36 @@ import { HiDotsHorizontal } from "react-icons/hi";
 
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
+  const [storeRecommendCounts, setStoreRecommendCounts] = useState({});
   const navigate = useNavigate();
+  
   const handleCardClick = (id) => {
     navigate(`/student/store-profile/${id}`, {
       state: { userType: "student" }
     });
+  };
+
+  // 추천 상태 변경 시 호출되는 콜백
+  const handleRecommendChange = async (storeId, isRecommended) => {
+    try {
+      // 추천한 가게 목록 업데이트
+      if (isRecommended) {
+        setRecommendedStores(prev => [...prev, storeId]);
+      } else {
+        setRecommendedStores(prev => prev.filter(id => id !== storeId));
+      }
+      
+      // 해당 가게의 추천 수 업데이트
+      const recommendationsData = await getOwnerRecommends(storeId);
+      const newCount = recommendationsData.recommendations_received_count || 0;
+      
+      setStoreRecommendCounts(prev => ({
+        ...prev,
+        [storeId]: newCount
+      }));
+    } catch (error) {
+      console.error("추천 수 업데이트 실패:", error);
+    }
   };
 
   // zustand store에서 사용할 것들 가져오기 
@@ -181,19 +207,21 @@ const StudentHome = () => {
       </SelectContainer>
       <GridContainer>
         {filterdStores.map((store) => (
-          <GroupCard 
-            key={store.id}
-            imageUrl={store.photo}
-            onClick={() => handleCardClick(store.id)}
-            likes={false}
-            isBest={store.isBest}
-            ButtonComponent={() => (
-              <RecommendBtn 
-                userId={store.id} 
-                isRecommendActive={recommendedStores.includes(store.id)}
-              />
-            )}
-            store={store} />
+                      <GroupCard 
+              key={store.id}
+              imageUrl={store.photo}
+              onClick={() => handleCardClick(store.id)}
+              likes={false}
+              isBest={store.isBest}
+              recommendCount={storeRecommendCounts[store.id] || store.recommendations || 0}
+              ButtonComponent={() => (
+                <RecommendBtn 
+                  userId={store.id} 
+                  isRecommendActive={recommendedStores.includes(store.id)}
+                  onRecommendChange={handleRecommendChange}
+                />
+              )}
+              store={store} />
         ))}
       </GridContainer>
       <EmptyRow />

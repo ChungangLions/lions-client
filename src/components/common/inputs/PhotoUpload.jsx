@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 
-const PhotoUpload = ({ value = [], onChange, maxCount = 10 }) => {
+const PhotoUpload = ({ value = [], onChange, onDelete, maxCount = 10 }) => {
   const fileInputRef = useRef(null);
 
   const handleAddPhoto = (e) => {
@@ -11,8 +11,14 @@ const PhotoUpload = ({ value = [], onChange, maxCount = 10 }) => {
   };
 
   const handleDeletePhoto = (idx) => {
-    const newArr = value.filter((_, i) => i !== idx);
-    onChange(newArr);
+    // 부모 컴포넌트의 삭제 핸들러가 있으면 호출
+    if (onDelete) {
+      onDelete(idx);
+    } else {
+      // 기본 동작
+      const newArr = value.filter((_, i) => i !== idx);
+      onChange(newArr);
+    }
   };
 
   const getPreviewUrl = (item) => {
