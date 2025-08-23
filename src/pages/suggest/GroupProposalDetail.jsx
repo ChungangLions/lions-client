@@ -16,7 +16,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal } from '../../services/apis/proposalAPI';
+import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import GroupCard from '../../components/common/cards/GroupCard';
@@ -197,12 +197,28 @@ const GroupProposalDetail = () => {
 
 
       console.log('제안서 데이터:', createData);
-      
-      const proposalResponse = await createProposal(createData);
-      alert('제안서가 전송되었습니다.');
-      setProposalId(proposalResponse.id);
 
-      
+      if (proposalId === null) { 
+              // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
+              const response = await createProposal(createData); // 제안서 생성
+              setProposalId(response.id)
+              alert('제안서가 전송되었습니다.');
+              const statusData = {
+                status: "UNREAD",
+                comment: ""
+              };
+              const status = await editProposalStatus(response.id, statusData);
+              console.log("제안서아이디", response.id);
+            } else {
+              // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
+              const statusData = {
+                status: "UNREAD",
+                comment: ""
+              };
+              const response = await editProposalStatus(proposalId, statusData);
+              alert('제안서가 전송되었습니다.');
+              console.log("제안서 상태 변경 완료", response);
+            }  
     } catch (error) {
       console.error('제안서 생성 오류:', error);
     }
