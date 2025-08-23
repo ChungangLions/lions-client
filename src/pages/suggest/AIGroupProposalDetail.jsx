@@ -88,19 +88,19 @@ const AIGroupProposalDetail = () => {
   useEffect(() => {
     if (!proposalData) return;
 
-    // const formattedTimeWindows = Array.isArray(proposalData.time_windows)
-    //   ? proposalData.time_windows
-    //       .map(
-    //         (time) =>
-    //           `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-    //       )
-    //       .join(" / ")
-    //   : '';
+    const formattedTimeWindows = Array.isArray(proposalData.time_windows)
+      ? proposalData.time_windows
+          .map(
+            (time) =>
+              `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+          )
+          .join(" / ")
+      : '';
 
     setPartnershipConditions({
       applyTarget: proposalData.apply_target || '',
       benefitDescription: proposalData.benefit_description || '',
-      timeWindows: proposalData.time_windows,
+      timeWindows: formattedTimeWindows,
       partnershipPeriod:
         proposalData.period_start && proposalData.period_end
           ? `${proposalData.period_start} ~ ${proposalData.period_end}`
