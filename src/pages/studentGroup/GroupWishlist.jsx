@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import useStudentOrgStore from '../../stores/studentOrgStore'
-import Menu from '../../layout/Menu'
+import MenuGroup from '../../layout/MenuGroup'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
 import { fetchLikes, fetchUserLikes } from '../../services/apis/likesapi'
 import useUserStore from '../../stores/userStore'
@@ -36,7 +36,7 @@ const GroupWishlist = () => {
 
   return (
     <PageConatainer>
-      <Menu />
+      <MenuGroup />
       <ContentContainer>
           <NumText>총 {likedStores.length}개</NumText>
         <CardListGrid> 
