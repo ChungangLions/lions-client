@@ -7,10 +7,15 @@ import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
 import { fetchProposal } from '../../services/apis/proposalAPI'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
+import { useLocation } from 'react-router-dom'
+import { fetchGroupProfilesByIds, mappedOrg } from '../../services/apis/groupProfileAPI'
 
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const groupIds = location?.state?.groupIds || [];
   const [sentProposals, setSentProposals] = useState([]);
+  const [groupProfiles, setGroupProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [summaryStats, setSummaryStats] = useState({
     writing: 0,
@@ -25,12 +30,18 @@ const OwnerSendSuggest = () => {
     const fetchSentProposals = async () => {
       try {
         setLoading(true);
-        // box=sent로 설정하여 보낸 제안서만 가져오기
-        const response = await fetchProposal({
-          box: 'sent',
-          ordering: '-created_at'
-        });
-        
+        // groupIds로 학생단체 프로필을 가져와야 하는 경우 우선 처리
+        if (Array.isArray(groupIds) && groupIds.length > 0) {
+          const profiles = await fetchGroupProfilesByIds(groupIds);
+          const orgs = profiles.map((p, idx) => mappedOrg(p, idx));
+          setGroupProfiles(orgs);
+          setSentProposals([]);
+          setSummaryStats({ writing: 0, read: 0, unread: 0, partnership: 0, rejected: 0 });
+          return;
+        }
+
+        // box=sent로 설정하여 보낸 제안서만 가져오기 (기본)
+        const response = await fetchProposal({ box: 'sent', ordering: '-created_at' });
         setSentProposals(response.results || response || []);
         
         // 상태별 통계 계산
@@ -73,7 +84,7 @@ const OwnerSendSuggest = () => {
     };
 
     fetchSentProposals();
-  }, []);
+  }, [groupIds]);
 
   const handleCardClick = (proposal) => {
     navigate(`/owner/proposal`, { state: { proposal } });
@@ -96,6 +107,11 @@ const OwnerSendSuggest = () => {
     department: proposal.recipient?.department,
     ...proposal
   }));
+
+  // groupIds로 가져온 프로필을 카드용 데이터로 사용
+  const gridOrganizations = (groupProfiles.length > 0)
+    ? groupProfiles
+    : proposalOrganizations;
 
   const summaryItems = [
     { count: summaryStats.writing, label: '작성 중'},
@@ -134,14 +150,14 @@ const OwnerSendSuggest = () => {
       <Menu />
       <SuggestSummaryBox items={summaryItems} />
       
-        {proposalOrganizations.length > 0 ? (
+        {gridOrganizations.length > 0 ? (
           <CardListGrid> 
-          {proposalOrganizations.map((organization) => (
+          {gridOrganizations.map((organization) => (
             <OrgCardSection 
               key={organization.id} 
               onClick={() => handleProposalClick(organization)} 
-              cardType={'suggest-sent'} 
-              ButtonComponent= {() => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
+              cardType={groupProfiles.length > 0 ? 'home' : 'suggest-sent'} 
+              ButtonComponent= {() => groupProfiles.length > 0 ? null : <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
               organization={organization} 
             />
           ))}

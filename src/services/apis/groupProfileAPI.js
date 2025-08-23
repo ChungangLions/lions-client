@@ -41,6 +41,25 @@ export async function fetchGroupProfile(userId) {
   }
 }
 
+// 여러 학생단체 프로필을 ID 배열로 조회
+export async function fetchGroupProfilesByIds(ids) {
+  try {
+    if (!Array.isArray(ids) || ids.length === 0) return [];
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token);
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        const res = await authAxios.get(`/api/profiles/student-groups/${id}/`);
+        return res.data;
+      })
+    );
+    return results;
+  } catch (err) {
+    console.error("학생단체 프로필 배열 조회 실패:", err);
+    return [];
+  }
+}
+
 export function mappedOrg(user, idx) {
     const safeToStringCount = (val) => {
       if (typeof val === "number") return `${val.toLocaleString()}명`;
@@ -49,8 +68,8 @@ export function mappedOrg(user, idx) {
     };
 
     // // 시작일과 종료일 Date 객체로 변환 (있을 때만)
-    // const startDate = user?.partnership_start ? new Date(user.partnership_start) : null;
-    // const endDate = user?.partnership_end ? new Date(user.partnership_end) : null;
+    // const startDate = new Date(user?.partnership_start);
+    // const endDate = new Date(user?.partnership_end);
 
     // // // 개월 수 계산 (startDate와 endDate가 모두 있을 때만)
     // const period = startDate && endDate
