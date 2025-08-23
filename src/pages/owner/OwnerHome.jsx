@@ -9,6 +9,7 @@ import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown'
 import useUserStore from '../../stores/userStore'
 import { fetchLikes } from '../../services/apis/likesapi'
+import { getOwnerProfile } from '../../services/apis/ownerAPI'
 
 const OwnerHome = () => {
   const navigate = useNavigate();
@@ -50,6 +51,8 @@ const OwnerHome = () => {
   const [likes, setLikes] = useState([]);
   const [likeStores, setLikeStores] = useState([]);
 
+  console.log(organizations);
+
 
   // useEffect(() => {
   //   fetchAndSetOrganizations();
@@ -76,6 +79,45 @@ const OwnerHome = () => {
       fetchUserLikes();
     }, []);
 
+
+      {/* 사장님 프로필 상 학교와 같은 학교들만 표시 */}
+      const [ownerCampus, setOwnerCampus] = useState(null);
+      const [filteredOrganizations, setFilteredOrganizations] = useState([]);
+      
+      useEffect(() => {
+        const fetchOwnerProfile = async() => {
+          try {
+            const ownerProfile = await getOwnerProfile(userId); // 사장님 프로필 가져오기 
+            setOwnerCampus(ownerProfile?.campus_name);
+            console.log('사장님 학교:', ownerProfile?.campus_name);  
+          } catch (error) {
+            console.error('사장님 프로필을 가져오는데 실패했습니다:', error);
+          }
+        };
+        if (userId) {
+          fetchOwnerProfile();
+        }
+      }, [userId]);  
+
+      // 사장님 학교와 같은 학교의 학생단체들만 필터링
+      useEffect(() => {
+
+        if (ownerCampus && organizations.length > 0) {
+          const filtered = organizations.filter(organization => {
+            console.log('학생 단체 학교:', organization.university_name); // 중앙대 서울캠퍼스
+            console.log('사장님 학교:', ownerCampus); // 중앙대학교
+            return organization.university_name.includes(ownerCampus); // 
+          });
+          console.log('필터링된 조직들:', filtered);
+          setFilteredOrganizations(filtered);
+        } else {
+          console.log('필터링 조건이 충족되지 않아 모든 학생단체 표시함');
+          setFilteredOrganizations(organizations); 
+        }
+      }, [ownerCampus, organizations]);
+
+
+
   
   return (
     <PageConatainer>
@@ -87,6 +129,7 @@ const OwnerHome = () => {
             <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
+                { value: "", label: "기본 순" },
                 { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
               ]}
@@ -96,7 +139,7 @@ const OwnerHome = () => {
         </SelectWrapper>
       </SelectContainer>
       <CardListGrid> 
-        {organizations.map((organization) => (
+        {filteredOrganizations.map((organization) => (
           <OrgCardSection
             key={organization.id}
             onClick={handleCardClick}
@@ -122,7 +165,6 @@ export default OwnerHome
 const PageConatainer = styled.div`
 display: flex;
 flex-direction: column;
-margin: 15px 29px;
 gap: 15px;
 width: 100%;
 position: relative;
@@ -152,12 +194,11 @@ color: #64a10f;
 font-family: Pretendard;
 `;
 
-// 그리드 가로 자동, 세로 자동, 447*3이 최대
 const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(447px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   justify-content: start;
   align-content: start;
   column-gap: 20px;

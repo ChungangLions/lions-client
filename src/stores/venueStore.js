@@ -65,6 +65,46 @@ const useVenueStore = create(
          isFilteredByDealType: false,
          sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
 
+
+//         fetchStores: async () => {
+//         try {
+//             const data = await getOwnerList();
+
+//             const latestUserMap = {};
+//             data.forEach(item => {
+//                 // 아직 user가 없거나, 현재 데이터 id가 더 크면 갱신
+//                 if (!latestUserMap[item.user] || item.id > latestUserMap[item.user].id) {
+//                   latestUserMap[item.user] = item;
+//                 }
+//             });
+//             const latestData = Object.values(latestUserMap);
+//             console.log("사장님 리스트 데이터", latestData);
+
+//             const converted = latestData.map(item => ({
+//                 id: item.user,
+//                 name: item.profile_name,
+//                 caption: item.comment,
+//                 storeType: item.business_type,
+//                 dealType: item.deal_type || null,
+//                 likes: item.likes || null,
+//                 recommendations: item.recommendations || null,
+//                 record: item.record || null,
+//                 // photo: item.photos[0].image || null,
+//                 photo: item.photos?.[0]?.image || null,
+//                 campus_name : item.campus_name,
+//               }));
+//           set({
+//             originalStores: converted,
+//             stores: converted,
+//           });
+
+//           console.log(converted);
+//           return converted;
+
+//         } catch (err) {
+//           console.error('Failed to fetch stores', err);
+//         }
+
          fetchStores: async () => {
           try {
               const data = await getOwnerList();
@@ -125,6 +165,7 @@ const useVenueStore = create(
                        partnershipType: item.partnership_type || null,
                        record: item.record || null,
                        photo: item.photos?.[0]?.image || null
+                       campus_name : item.campus_name,
                    };
                });
   
@@ -143,14 +184,23 @@ const useVenueStore = create(
           } catch (err) {
               console.error('Failed to fetch stores', err);
           }
+
       },
 
         // 찜/추천/제휴 이력 많은 순
         sortByDesc: (key) => {
-            const currentList = get().stores;
-            const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
-            set({ stores : sortedList, sortKey : key});
-            console.log("key: ", key, "sortedList: ", sortedList);
+<
+            // 기본 순 추가
+            if (key === "" || key === null) {
+                const originalList = get().originalStores;
+                set({ stores: originalList, sortKey: null });
+            } else {
+                // 많은 순 정렬
+                const currentList = get().stores;
+                const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
+                set({ stores : sortedList, sortKey : key});
+            }
+
         },
 
 

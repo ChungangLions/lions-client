@@ -13,6 +13,10 @@ import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 import { fetchRecommendations } from '../../services/apis/recommendsapi';
 import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown';
+import useStudentOrgStore from '../../stores/studentOrgStore';
+import useStudentStore from '../../stores/studentStore';
+import useUserStore from '../../stores/userStore';
+import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
 
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
@@ -57,6 +61,39 @@ const StudentHome = () => {
   const handleDealFilterChange = (e) => {
       filterByDealType();
   }
+
+  // 학교 같은 것만 리스트 필터링
+  const [ studentCampus, setStudentCampus] = useState('');
+  const [ filterdStores, setFilteredStores] = useState([]);
+
+  const {userId} = useUserStore();
+
+  useEffect(() => {
+    const getStudentProfile = async () => {
+      try {
+      const studentProfile = await fetchStudentProfile(userId);
+      setStudentCampus(studentProfile?.campus_name);
+    } catch(error) {
+      console.log("학생 프로필 가져오기 에러", error);
+    }
+  } ;
+    if (userId) {
+    getStudentProfile();
+  }
+  }, [userId]);
+
+  useEffect(() => {
+    if ( stores.length > 0 && studentCampus ){
+      const filtered = stores.filter(store => {
+      return store.campus_name.includes(studentCampus);
+    })
+    setFilteredStores(filtered);
+  } else {
+    setFilteredStores(stores);
+  }
+  },[studentCampus, stores]);
+
+ 
 
   return (
     <PageContainer>
@@ -124,6 +161,9 @@ const StudentHome = () => {
             <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
+
+                { value: "", label: "기본 순" },
+                { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
                 { value: "recommendations", label: "추천 많은 순" },
               ]}
@@ -137,7 +177,7 @@ const StudentHome = () => {
         </SortSection> */}
       </SelectContainer>
       <GridContainer>
-        {stores.map((store) => (
+        {filterdStores.map((store) => (
           <GroupCard 
             key={store.id}
             imageUrl={store.photo}

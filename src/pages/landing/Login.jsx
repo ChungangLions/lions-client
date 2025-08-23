@@ -61,7 +61,8 @@ const Login = () => {
                 value={username}
                 onChange={(e) => onChangeUsername(e.target.value)}
                 width="446px"
-                border = "1px solid #c4c4c4"
+                border = "1px solid #c4c4c4"                
+                onEnter = {onClick}
               />
             </InputWrapper>
             <InputWrapper>
@@ -72,6 +73,7 @@ const Login = () => {
                 width="446px"
                 type="password"
                 border = "1px solid #c4c4c4"
+                onEnter = {onClick}
               />
             </InputWrapper>
             {errorMessage && <ErrorText>{errorMessage}</ErrorText>}

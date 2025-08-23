@@ -48,15 +48,15 @@ export function mappedOrg(user, idx) {
       return "0명";
     };
 
-    // 시작일과 종료일 Date 객체로 변환 (있을 때만)
-    const startDate = user?.partnership_start ? new Date(user.partnership_start) : null;
-    const endDate = user?.partnership_end ? new Date(user.partnership_end) : null;
+    // // 시작일과 종료일 Date 객체로 변환 (있을 때만)
+    // const startDate = user?.partnership_start ? new Date(user.partnership_start) : null;
+    // const endDate = user?.partnership_end ? new Date(user.partnership_end) : null;
 
-    // 개월 수 계산 (startDate와 endDate가 모두 있을 때만)
-    const period = startDate && endDate
-      ? (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-        (endDate.getMonth() - startDate.getMonth()) + 1
-      : null;
+    // // // 개월 수 계산 (startDate와 endDate가 모두 있을 때만)
+    // const period = startDate && endDate
+    //   ? (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+    //     (endDate.getMonth() - startDate.getMonth()) + 1
+    //   : null;
 
 
     // user 필드가 객체로 오면 id만 추출
@@ -64,11 +64,10 @@ export function mappedOrg(user, idx) {
       ? user.user.id
       : user?.user ?? idx;
 
-
     return {
       id: user?.id ?? idx,
       user: userId,
-      university_name: user?.university || "알 수 없음",
+      university_name: user?.university_name || "",
       department: user?.department || "",
       council_name: user?.council_name || "",
       position: user?.position || "",
@@ -76,7 +75,6 @@ export function mappedOrg(user, idx) {
       is_liked: user?.is_liked ?? false, // 찜 저장용
       partnership_start: user?.partnership_start ? user.partnership_start.slice(0, 10) : (user?.created_at?.slice(0, 7) || ""),
       partnership_end: user?.partnership_end ? user.partnership_end.slice(0, 10) : (user?.modified_at?.slice(0, 7) || ""),
-      period,
       term_start : user?.term_start,
       term_end : user?.term_end,
       photos: user?.photos?.map(photo => photo.image) // url 배열
