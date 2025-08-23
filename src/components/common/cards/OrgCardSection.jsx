@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import UserInfo from './UserInfo'
 import DetailInfo from './DetailInfo'
 import useStudentOrgStore from '../../../stores/studentOrgStore'
+import useUserStore from '../../../stores/userStore'
+import { getOwnerProfile } from '../../../services/apis/ownerAPI'
 
 const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, userId}) => {
   let cardData = [];
@@ -34,6 +36,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
   };
 
   return (
+
       <CardGroup onClick={() => onClick(organization)} $isHome={cardType === 'home'}>
         <CardContent>
           <UserInfo organization={organization} />
