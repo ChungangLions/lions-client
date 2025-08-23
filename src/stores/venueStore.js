@@ -125,15 +125,31 @@ const useVenueStore = create(
                        try {
                            const likes = await getOwnerLikes(item.user);
                            const recommendations = await getOwnerRecommends(item.user);
-                           const partnershipType = await getOwnerPartnershipType(item.user);
-                           console.log("partnershipType: ", partnershipType);
+                           const sendPartnership = await getOwnerPartnershipType(item.user);
+                           const receivedPartnership = await getOwnerPartnershipType(item.user, 'received');
+                           console.log("sendPartnership: ", sendPartnership);
+                           console.log("receivedPartnership: ", receivedPartnership);
+
+                           // 제휴 이력 계산 로직
+                            // 1. 보낸 제휴 중 status가 PARTNERSHIP인 개수
+                            const sendPartnershipCount = (sendPartnership || []).filter(p => p.status === "PARTNERSHIP").length;
+                            // 2. 받은 제휴 중 status가 PARTNERSHIP인 개수
+                            const receivedPartnershipCount = (receivedPartnership || []).filter(p => p.status === "PARTNERSHIP").length;
+                            // 3. 총 제휴 이력 (보낸 + 받은)
+                            const record = sendPartnershipCount + receivedPartnershipCount;
+
+                            // console.log("제휴 이력 - sendPartnershipCount: ", sendPartnershipCount);
+                            // console.log("제휴 이력 - receivedPartnershipCount: ", receivedPartnershipCount);
+                            // console.log("제휴 이력 - record: ", record);
                            
                            // latestUserMap에 likes와 recommendations 데이터 추가
                            latestUserMap[item.user] = {
                                ...latestUserMap[item.user],
                                likes: likes.likes_received_count || 0,
                                recommendations: recommendations.recommendations_received_count || 0,
-                               partnershipType: partnershipType && partnershipType.length > 0 ? partnershipType[0].partnership_type : null,
+                               partnershipType: sendPartnership && sendPartnership.length > 0 ? sendPartnership[0].partnership_type : null,
+                               receivedSuggest: receivedPartnership && receivedPartnership.length > 0 ? receivedPartnership.length : null,
+                               record: record,
                            };
                        } catch (error) {
                            console.error(`Failed to fetch likes/recommendations for user ${item.user}:`, error);
@@ -143,6 +159,8 @@ const useVenueStore = create(
                                likes: 0,
                                recommendations: 0,
                                partnershipType: [],
+                               receivedSuggest: 0,
+                               record: 0,
                            };
                        }
                    })
@@ -150,7 +168,7 @@ const useVenueStore = create(
                
                console.log("latestUserMap with likes/recommendations: ", latestUserMap);
                const enrichedData = Object.values(latestUserMap);
-               console.log("사장님 리스트 데이터 (enriched): ", enrichedData);
+              //  console.log("사장님 리스트 데이터 (enriched): ", enrichedData);
    
                // 3단계: enriched 데이터를 사용해서 converted 생성 (API 호출 없이)
                const converted = enrichedData.map((item) => {
@@ -159,11 +177,11 @@ const useVenueStore = create(
                        name: item.profile_name,
                        caption: item.comment,
                        storeType: (item.business_type || '').toString().toUpperCase(),
-                       dealType: Array.isArray(item.deal_type) ? item.deal_type : (item.deal_type ? [item.deal_type] : []), // 배열로 변환
                        likes: item.likes || 0,
                        recommendations: item.recommendations || 0,
                        partnershipType: item.partnershipType || null,
-                       record: item.record || null,
+                       receivedSuggest: item.receivedSuggest || 0,
+                       record: item.record || 0,
                        photo: item.photos?.[0]?.image || null,
                        campus_name : item.campus_name,
                    };
@@ -249,7 +267,7 @@ const useVenueStore = create(
          },
 
          filterByDealType: (type) => {
-          const allowed = ['타임형', '서비스 제공형', '리뷰형', '할인형'];
+          const allowed = ['타임형', '서비스제공형', '리뷰형', '할인형'];
           const normalizedType = (type ?? '').toString();
 
           // 문자열 -> 배열 변환 방어 및 비정상 상태 복구
@@ -258,7 +276,7 @@ const useVenueStore = create(
             ? rawDealType
             : (rawDealType ? [rawDealType] : []);
 
-          let nextActive = currentDealTypes.map(t => t && t.toString().toUpperCase());
+          let nextActive = currentDealTypes.map(t => t && t.toString());
           nextActive = nextActive.filter(Boolean);
 
           // 토글 로직 (항상 문자열 요소만 추가/제거)
@@ -271,18 +289,26 @@ const useVenueStore = create(
           // 허용된 값만 유지 + 중복 제거
           nextActive = Array.from(new Set(nextActive.filter(t => allowed.includes(t))));
 
-                     // 선택된 타입 없으면 전체 리스트
+          // 선택된 타입 없으면 전체 리스트
            let newList;
            if (nextActive.length === 0) {
              newList = get().originalStores;
            } else {
-             newList = get().originalStores.filter(store => {
-               // store.dealType이 배열이므로 선택된 타입 중 하나라도 포함되어 있는지 확인
-               return store.dealType?.some(dealType => 
-                 nextActive.includes(dealType?.toString())
-               );
-             });
+            //  newList = get().originalStores.filter(store => {
+            //    return store.partnershipType?.some(partnership => 
+            //      nextActive.includes(partnership?.toString())
+            //    );
+            //  });
+            newList = get().originalStores.filter(store => {
+              // store.dealType 배열에서 선택된 타입 중 하나라도 포함되어 있는지 확인
+              const hasMatchingType = store.partnershipType?.some(dealType => 
+                nextActive.includes(dealType?.toString())
+              );
+              console.log(`Store "${store.name}": dealType=${store.partnershipType}, nextActive=${nextActive}, match=${hasMatchingType}`);
+              return hasMatchingType;
+            });
            }
+           console.log("new List: ", newList);
 
           const sortKey = get().sortKey;
           if (sortKey) {

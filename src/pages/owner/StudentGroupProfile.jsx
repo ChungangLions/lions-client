@@ -48,21 +48,21 @@ const StudentGroupProfile = () => {
     async function fetchData() {
       const list = await fetchLikes('given');
       // 추천한 가게 id 배열 생성
-      const likedStoreIds = list.map(item => String(item.target.id));
-
+      const likedStoreIds = list.map(item => item.target.id);
+      console.log("likedStoreIds: ", likedStoreIds);
       // 버튼 활성화 여부 결정
       if (likedStoreIds.includes(groupId)) {
-        // console.log('true');
+        console.log('true');
         setIsLikeActive(true);
       } else {
-        // console.log('false');
+        console.log('false');
         setIsLikeActive(false);
       }
 
       console.log("그룹 id:", groupId, "active 여부:", isLikeActive);
     }
     fetchData();
-  }, [groupId]);
+  }, [groupId, isLikeActive]);
   
   const handleHeartClick = async() => {
     const newState = !isLikeActive;
