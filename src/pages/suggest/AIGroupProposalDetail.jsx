@@ -34,6 +34,24 @@ const AIGroupProposalDetail = () => {
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
+
+  // proposalData로부터 초기 선택 상태 -> 오류 수정 ! 
+    useEffect(() => {
+      const normalizePartnershipTypes = (types) => {
+        const reverseMap = {
+          DISCOUNT: '할인형',
+          TIME: '타임형',
+          REVIEW: '리뷰형',
+          SERVICE: '서비스제공형',
+        };
+        if (!Array.isArray(types)) return [];
+        return types.map((t) => reverseMap[t] || t).filter(Boolean);
+      };
+  
+      if (proposalData?.partnership_type?.length) {
+        setSelectedPartnershipTypes(normalizePartnershipTypes(proposalData.partnership_type));
+      }
+    }, [proposalData]);
   
   // 제휴 조건 입력 
   const [partnershipConditions, setPartnershipConditions] = useState({
@@ -121,28 +139,13 @@ const AIGroupProposalDetail = () => {
     }));
   };
 
-  // 제휴 유형 매핑 함수
-  const mapPartnership = (selected) => {
-    const typeMap = {
-      '할인형': 'DISCOUNT',
-      '타임형': 'TIME',
-      '리뷰형': 'REVIEW',
-      '서비스제공형': 'SERVICE',
-    };
-
-    if (Array.isArray(selected)) {
-      return selected.map((label) => typeMap[label]).filter(Boolean);
-    }
-    return typeMap[selected] || null;
-  };
-
   // 수정하기
 
   const handleEdit = async () => {
     
     const updateData = {
       recipient: profileData?.user,
-      partnership_type: mapPartnership(selectedPartnershipTypes),
+      partnership_type: selectedPartnershipTypes,
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
@@ -291,6 +294,17 @@ const AIGroupProposalDetail = () => {
     return maxTop ;
   };
 
+  // 오른쪽 카드 클릭 : 사장님 프로필 전달 필요 
+
+//     const handleCardClick = (org) => {
+//     navigate('/student-group/owner-profile', {
+//       state: {
+//         store,
+//         userType: 'student-group'
+//       }
+//     });
+//   };
+
   
   return (
     <ProposalContainer>
@@ -342,7 +356,7 @@ const AIGroupProposalDetail = () => {
                     </TypeItem>
                     <TypeItem>
                       <ItemTitle>리뷰형)</ItemTitle>
-                      <ItemDescription>학생이 Type, 커뮤니티 등에 매장 후기/사진을 업로드하면 즉시 보상을 제공하는 제휴 방식</ItemDescription>
+                      <ItemDescription>학생이 SNS, 커뮤니티 등에 매장 후기/사진을 업로드하면 즉시 보상을 제공하는 제휴 방식</ItemDescription>
                     </TypeItem>
                     <TypeItem>
                       <ItemTitle>서비스 제공형)</ItemTitle>
@@ -437,7 +451,7 @@ const AIGroupProposalDetail = () => {
               
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{profileData?.profile_name}'드림</Signature>
+          <Signature>'{profileData?.profile_name}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 

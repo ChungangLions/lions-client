@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Modal from './Modal';
 import { IoIosClose } from "react-icons/io";
-import { getAIDraftProposal, getAutoAIDraftProposal } from '../../../services/apis/proposalAPI';
+import { fetchProposal, getAIDraftProposal, getAutoAIDraftProposal } from '../../../services/apis/proposalAPI';
 import useUserStore from '../../../stores/userStore';
 import { getOwnerProfile } from '../../../services/apis/ownerAPI';
 import Loading from '../../../layout/Loading';
@@ -19,16 +19,35 @@ const OrgSuggestDealBtn = ({profileData}) => {
   
 
   // '예'를 누르면 바로 ai 제안서 생성  : 학생회 -> 사장
+  
   const handleProposal = async () => {
+    try {
+      const recipient = profileData.user;
+      const contact_info = profileData.contact;
+
+      let existingDraft = null;
+            try {
+              const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
+              const proposals = list.results || list || [];
+              existingDraft = proposals.find(p => {
+                const r = p.recipient || {};
+                // recipient가 객체일 때 id로 매칭, 아니면 값 자체 비교
+                return (r.id != null ? r.id === recipient : r === recipient);
+              }) || null;
+            } catch (e) {
+              console.warn('기존 제안서 조회 실패:', e);
+            }
+                if (existingDraft) {
+        console.log('기존 작성중 제안서 발견:', existingDraft);
+        navigate('/student-group/ai-proposal', { state: {profileData, isAI: true, proposalData: existingDraft } });
+        return;
+      }
+      // 2) 없으면 AI로 생성 후 이동
+      // 로딩이 기존 제안서 있을 땐 X, 없을 때 로딩화면 뜸 
+
     setLoadingVariant('ai');
     setIsLoading(true);
-    try {
-      console.log("프로필 데이터", profileData);
-      const recipient = profileData.user; // 사장님 유저 아이디 
-      const contact_info = profileData.contact; // 
-      
-      console.log({ recipient, contact_info });
-
+  
       const proposalData = await getAutoAIDraftProposal(recipient, contact_info);
       console.log("제안서 내용", proposalData);
 

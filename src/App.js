@@ -22,6 +22,8 @@ import GroupEditMyPage from './pages/studentGroup/GroupEditMyPage';
 import GroupProposalDetail from './pages/suggest/GroupProposalDetail';
 import AIGroupProposalDetail from './pages/suggest/AIGroupProposalDetail';
 import GroupWishlist from './pages/studentGroup/GroupWishlist';
+import GroupReceiveSuggest from './pages/studentGroup/GroupReceiveSuggest';
+import GroupSendSuggest from './pages/studentGroup/GroupSendSuggest';
 
 function App() {
   return (
@@ -39,6 +41,13 @@ function App() {
 
         <Route path="/student_group" element={<GroupHome />}/>
         <Route path="/student_group/store-profile/:id" element={<OwnerMyPage />} />
+
+        <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
+        <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
+        <Route path="/student_group/mypage/wishlist" element={<GroupWishlist />} />
+        <Route path="/student_group/mypage/received-suggest" element={<GroupReceiveSuggest />} />
+        <Route path="/student_group/mypage/sent-suggest" element={<GroupSendSuggest />} />
+
         <Route path="/student-group/proposal" element={<GroupProposalDetail/>} />
         <Route path="/student-group/ai-proposal" element={<AIGroupProposalDetail/>} />
         
