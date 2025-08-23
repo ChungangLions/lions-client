@@ -221,7 +221,7 @@ const useVenueStore = create(
 
 
         filterByStoreType: (type) => {
-          const allowed = ['RESTAURANT', 'BAR', 'CAFE', 'ETC'];
+          const allowed = ['RESTAURANT', 'BAR', 'CAFE', 'OTHER'];
           const normalizedType = (type ?? '').toString().toUpperCase();
 
           // 문자열 -> 배열 변환 방어 및 비정상 상태 복구

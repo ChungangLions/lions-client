@@ -52,5 +52,5 @@ const MenuName = styled.div`
 const MenuPrice = styled.div`
   font-weight: 400;
   font-size: 16px;
-  color: #8D8D8D8D
+  color: #898989
 `;
