@@ -211,6 +211,7 @@ align-self: stretch;
 position: relative;
 font-weight: 600;
 white-space: nowrap;
+font-size: 24px;
 `;
 
 const RecordContainer= styled.div`
