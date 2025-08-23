@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
@@ -7,13 +7,15 @@ import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
 import { fetchProposal } from '../../services/apis/proposalAPI'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
+import useGroupProfile from '../../hooks/useOrgProfile'
+import { fetchGroupProfile, getGroupProfile } from '../../services/apis/groupProfileAPI'
 
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
   const [sentProposals, setSentProposals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [summaryStats, setSummaryStats] = useState({
-    writing: 0,
+    draft: 0,
     read: 0,
     unread: 0,
     partnership: 0,
@@ -35,7 +37,7 @@ const OwnerSendSuggest = () => {
         
         // 상태별 통계 계산
         const stats = {
-          writing: 0,
+          draft: 0,
           read: 0,
           unread: 0,
           partnership: 0,
@@ -58,7 +60,7 @@ const OwnerSendSuggest = () => {
               stats.rejected++;
               break;
             case 'DRAFT':
-              stats.writing++;
+              stats.draft++;
               break;
           }
         });
@@ -75,34 +77,89 @@ const OwnerSendSuggest = () => {
     fetchSentProposals();
   }, []);
 
-  const handleCardClick = (proposal) => {
-    navigate(`/owner/proposal`, { state: { proposal } });
+
+  // proposal.recipient.id => 학생단체 프로필 아이디 
+  const [ groupId, setGroupId] = useState('');
+
+  // 학생 단체 프로필 아이디의 배열
+  const groupIds = useMemo(() => {
+    return sentProposals.map(p => {
+      const recipient = p.recipient || {};
+      // recipient가 객체일 때 id 사용, 아니면 값 자체 사용
+      return recipient.id != null ? recipient.id : recipient;
+    });
+  }, [sentProposals]);
+  console.log("학생 단체 아이디", groupIds);
+  console.log("sentProposals:", sentProposals);
+
+  // 가져온 학생 단체 프로필 아이디로 학생 단체 배열 생성
+  const [groupProfiles, setGroupProfiles] = useState([]);
+
+useEffect(() => {
+  const fetchProfiles = async () => {
+    try {
+      if (groupIds.length === 0) return;
+
+      const profiles = await Promise.all(
+        groupIds.map(id => fetchGroupProfile(id))
+      )
+
+      setGroupProfiles(profiles);
+      console.log("학생단체프로필", profiles);
+      console.log("profiles 길이:", profiles.length);
+      console.log("sentProposals 길이:", sentProposals.length);
+    } catch (err) {
+      console.error("학생 단체 프로필 가져오기 실패:", err);
+    }
   };
 
-  // zustand store에서 사용할 것들 가져오기 
-  const {
-    organizations,
-  } = useStudentOrgStore();
+  fetchProfiles();
+}, [groupIds]);
 
-  // 제안서 데이터를 organization 형태로 변환
-  const proposalOrganizations = sentProposals.map(proposal => ({
-    id: proposal.id,
-    name: proposal.recipient?.name || proposal.recipient ,
-    description: proposal.title ,
-    status: proposal.current_status,
-    created_at: proposal.created_at,
-    writtenDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
-    council_name: proposal.recipient?.council_name || proposal.recipient?.name ,
-    department: proposal.recipient?.department,
-    ...proposal
-  }));
+console.log(sentProposals);
+
+const proposalOrganizations = groupProfiles.map((profile, index) => {
+  const proposal = sentProposals[index]; // 같은 순서의 proposal 꺼내기
+
+  // profile이 null이거나 proposal이 없으면 건너뛰기
+  if (!profile || !proposal) {
+    return null;
+  }
+
+  return {
+    ...profile,
+    id: proposal?.id || null, // 제안서 id
+    status: proposal?.current_status || null, // 제안서 상태
+    created_at: proposal
+      ? new Date(proposal.created_at).toLocaleDateString('ko-KR')
+      : null, // 생성일
+    receivedDate: proposal
+      ? new Date(proposal.created_at).toLocaleDateString('ko-KR')
+      : null, // 받은 날짜 (created_at과 같다면 중복 제거 가능)
+    // recipient 정보 추가 - 제안서의 recipient 정보를 포함
+    recipient: proposal?.recipient || null,
+    // 제안서의 상세 정보들도 포함
+    partnership_type: proposal?.partnership_type || null,
+    apply_target: proposal?.apply_target || null,
+    benefit_description: proposal?.benefit_description || null,
+    time_windows: proposal?.time_windows || null,
+    partnership_period: proposal?.partnership_period || null,
+    contact_info: proposal?.contact_info || null,
+  };
+}).filter(Boolean); // null 값 제거
+
+console.log(proposalOrganizations);
+
+
+
 
   const summaryItems = [
-    { count: summaryStats.writing, label: '작성 중'},
+    { count: summaryStats.draft, label: '작성중'},
     { count: summaryStats.read, label: '열람' },
     { count: summaryStats.unread, label: '미열람' },
     { count: summaryStats.partnership, label: '제휴 체결' },
-    { count: summaryStats.rejected, label: '거절' }
+    { count: summaryStats.rejected, label: '거절' },
+
   ];
 
   if (loading) {
@@ -118,15 +175,22 @@ const OwnerSendSuggest = () => {
     UNREAD: "미열람",
     READ: "열람",
     PARTNERSHIP: "제휴체결",
-    REJECTED: "거절"
+    REJECTED: "거절",
+    DRAFT: "작성중"
   };
+
+  // proposal.id로 제안서 정보 접근 가능
   
-  const handleProposalClick = (proposal) => {
+  const handleProposalClick = (proposalOrganizations) => {
+    console.log("클릭된 organization:", proposalOrganizations);
     // 클릭 시 제안서 상세 페이지로 이동
-    navigate(`/owner/mypage/sent-proposal/${proposal.id}`, { 
-      state: { proposal } 
+    navigate(`/owner/mypage/sent-proposal/${proposalOrganizations.id}`, { 
+      state: { proposalOrganizations } 
     });
   }
+
+  console.log(proposalOrganizations);
+
 
 
   return (
@@ -144,7 +208,7 @@ const OwnerSendSuggest = () => {
               ButtonComponent= {() => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
               organization={organization} 
             />
-          ))}
+          ))} 
           </CardListGrid>
         ) : (
           <EmptyMessage>보낸 제안서가 없습니다.</EmptyMessage>

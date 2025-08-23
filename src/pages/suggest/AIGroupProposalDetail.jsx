@@ -458,7 +458,8 @@ const AIGroupProposalDetail = () => {
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
           <ReceiverWrapper>
-
+            {/* 사장님 프로필 카드 불러오기 profileData 불러오면 사장님 프로필 정보 볼 수 있음*/}
+            
             <ButtonWrapper>
               <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
               <SaveBtn onClick={handleSave} />

@@ -6,6 +6,8 @@ import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
+import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
+import { fetchProposal } from '../../services/apis/proposalAPI';
 
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
@@ -14,9 +16,18 @@ import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-i
 const OwnerSentProposalDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { proposal } = location.state || {};
+  const { proposalOrganizations } = location.state || {};
   
   const { storeName } = useOwnerProfile();
+  
+  // 상태 관리
+  const [proposalData, setProposalData] = useState([]);
+  const [selectedProposal, setSelectedProposal] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  console.log("넘어온데이터", proposalOrganizations);
+
+
 
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
@@ -30,7 +41,7 @@ const OwnerSentProposalDetail = () => {
   };
 
   // 제휴 유형을 배열로 변환
-  const getPartnershipTypes = () => {
+  const getPartnershipTypes = (proposal) => {
     if (!proposal?.partnership_type) return [];
     if (Array.isArray(proposal.partnership_type)) {
       return proposal.partnership_type.map(type => mapPartnershipType(type));
@@ -57,6 +68,130 @@ const OwnerSentProposalDetail = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // 전달받은 proposalOrganizations가 있으면 사용, 없으면 API에서 가져오기
+  useEffect(() => {
+    const fetchProposalData = async () => {
+      try {
+        setLoading(true);
+        
+        if (proposalOrganizations) {
+          // OwnerSendSuggest에서 전달받은 데이터가 있는 경우
+          console.log("전달받은 제안서 데이터:", proposalOrganizations);
+          
+          // 단일 제안서를 배열로 변환하여 처리
+          const enrichedProposal = {
+            ...proposalOrganizations,
+            // 제안서 ID 설정
+            proposal_id: proposalOrganizations.id,
+            // 상태 정보 설정
+            status: proposalOrganizations.status,
+            // 제안서 정보들
+            partnership_type: proposalOrganizations.partnership_type,
+            apply_target: proposalOrganizations.apply_target,
+            benefit_description: proposalOrganizations.benefit_description,
+            time_windows: proposalOrganizations.time_windows,
+            partnership_period: proposalOrganizations.partnership_period,
+            contact_info: proposalOrganizations.contact_info,
+            created_at: proposalOrganizations.created_at,
+          };
+          
+          setProposalData([enrichedProposal]);
+          setSelectedProposal(enrichedProposal);
+        } else {
+          // 전달받은 데이터가 없는 경우 API에서 가져오기
+          const proposalsResponse = await fetchProposal();
+          const proposals = proposalsResponse.results || proposalsResponse;
+          
+          // 각 제안서에 대해 학생 프로필 정보 가져오기
+          const enrichedProposals = await Promise.all(
+            proposals.map(async (proposal) => {
+              try {
+                // 제안서의 recipient 정보에서 학생 프로필 가져오기
+                const studentProfile = await fetchStudentProfile(proposal.recipient);
+                
+                // 학생 프로필 정보와 제안서 정보 합치기
+                const enrichedProposal = {
+                  ...proposal,
+                  // 학생 프로필 정보
+                  id: studentProfile?.id || proposal.recipient,
+                  name: studentProfile?.name || proposal.recipient,
+                  university: studentProfile?.university || '중앙대학교',
+                  department: studentProfile?.department || '',
+                  council_name: studentProfile?.council_name || studentProfile?.name || '',
+                  student_size: studentProfile?.student_size || 0,
+                  partnership_start: studentProfile?.partnership_start || '',
+                  partnership_end: studentProfile?.partnership_end || '',
+                  period: studentProfile?.period || 0,
+                  record: studentProfile?.record || 0,
+                  is_liked: studentProfile?.is_liked || false,
+                  user: studentProfile?.id || proposal.recipient,
+                  // 제안서 정보
+                  proposal_id: proposal.id,
+                  created_at: proposal.created_at,
+                  status: proposal.status,
+                  partnership_type: proposal.partnership_type,
+                  apply_target: proposal.apply_target,
+                  benefit_description: proposal.benefit_description,
+                  time_windows: proposal.time_windows,
+                  partnership_period: proposal.partnership_period,
+                  contact_info: proposal.contact_info,
+                };
+                
+                return enrichedProposal;
+              } catch (error) {
+                console.error('학생 프로필 정보 가져오기 실패:', error);
+                // 프로필 정보를 가져올 수 없는 경우 기본 정보만 사용
+                return {
+                  ...proposal,
+                  id: proposal.recipient,
+                  name: proposal.recipient,
+                  university: '중앙대학교',
+                  department: '',
+                  council_name: proposal.recipient,
+                  student_size: 0,
+                  partnership_start: '',
+                  partnership_end: '',
+                  period: 0,
+                  record: 0,
+                  is_liked: false,
+                  user: proposal.recipient,
+                  proposal_id: proposal.id,
+                  created_at: proposal.created_at,
+                  status: proposal.status,
+                  partnership_type: proposal.partnership_type,
+                  apply_target: proposal.apply_target,
+                  benefit_description: proposal.benefit_description,
+                  time_windows: proposal.time_windows,
+                  partnership_period: proposal.partnership_period,
+                  contact_info: proposal.contact_info,
+                };
+              }
+            })
+          );
+          
+          setProposalData(enrichedProposals);
+          
+          // 첫 번째 제안서를 기본 선택
+          if (enrichedProposals.length > 0) {
+            setSelectedProposal(enrichedProposals[0]);
+          }
+        }
+        
+      } catch (error) {
+        console.error('제안서 데이터 가져오기 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProposalData();
+  }, [proposalOrganizations]);
+
+  // 카드 클릭 핸들러
+  const handleCardClick = (proposal) => {
+    setSelectedProposal(proposal);
+  };
 
   const getProposalContainerTop = () => {
     const minTop = 0;
@@ -86,30 +221,31 @@ const OwnerSentProposalDetail = () => {
     navigate('/owner/mypage/sent-suggest');
   };
 
-  if (!proposal) {
+  if (loading) {
     return (
       <Container>
-        <ErrorMessage>제안서 정보를 찾을 수 없습니다.</ErrorMessage>
+        <LoadingMessage>제안서 정보를 불러오는 중...</LoadingMessage>
+      </Container>
+    );
+  }
+
+  if (!proposalData || proposalData.length === 0) {
+    return (
+      <Container>
+        <ErrorMessage>보낸 제안서가 없습니다.</ErrorMessage>
         <BackButton onClick={handleBack}>뒤로가기</BackButton>
       </Container>
     );
   }
 
-  // 수신자 정보 (proposal.recipient에서 추출)
-  const recipientInfo = {
-    id: proposal.recipient?.id || proposal.recipient,
-    name: proposal.recipient?.name || proposal.recipient,
-    university: proposal.recipient?.university || '중앙대학교',
-    department: proposal.recipient?.department || '',
-    council_name: proposal.recipient?.council_name || proposal.recipient?.name || '',
-    student_size: proposal.recipient?.student_size || 0,
-    partnership_start: proposal.recipient?.partnership_start || '',
-    partnership_end: proposal.recipient?.partnership_end || '',
-    period: proposal.recipient?.period || 0,
-    record: proposal.recipient?.record || 0,
-    is_liked: proposal.recipient?.is_liked || false,
-    user: proposal.recipient?.id || proposal.recipient
-  };
+  if (!selectedProposal) {
+    return (
+      <Container>
+        <ErrorMessage>선택된 제안서가 없습니다.</ErrorMessage>
+        <BackButton onClick={handleBack}>뒤로가기</BackButton>
+      </Container>
+    );
+  }
 
   return (
     <ProposalContainer>
@@ -117,7 +253,7 @@ const OwnerSentProposalDetail = () => {
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
-              <p>{recipientInfo.university} {recipientInfo.department} {recipientInfo.council_name}</p>
+              <p>{selectedProposal.university} {selectedProposal.department} {selectedProposal.council_name}</p>
               <p>제휴 요청 제안서</p>
             </HeaderTitle>
             <HeaderContent>
@@ -143,7 +279,7 @@ const OwnerSentProposalDetail = () => {
                       key={type}
                       children={type} 
                       IconComponent={IconComponent}
-                      isSelected={getPartnershipTypes().includes(type)}
+                      isSelected={getPartnershipTypes(selectedProposal).includes(type)}
                       onClick={() => {}} // 읽기 전용이므로 클릭 불가
                       disabled={true}
                     />
@@ -179,13 +315,13 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.apply_target || '(입력되지 않음)'}</p>
+                        <p>{selectedProposal.apply_target || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>혜택 내용</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.benefit_description || '(입력되지 않음)'}</p>
+                        <p>{selectedProposal.benefit_description || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -193,13 +329,13 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.time_windows || '(입력되지 않음)'}</p>
+                        <p>{selectedProposal.time_windows || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.partnership_period || '(입력되지 않음)'}</p>
+                        <p>{selectedProposal.partnership_period || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -210,7 +346,7 @@ const OwnerSentProposalDetail = () => {
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
                 <ConditionContent>
-                  <p>{proposal.contact_info || '(입력되지 않음)'}</p>
+                  <p>{selectedProposal.contact_info || '(입력되지 않음)'}</p>
                 </ConditionContent>
               </DetailBox>
             </DetailSection>
@@ -219,17 +355,27 @@ const OwnerSentProposalDetail = () => {
         </ProposalWrapper>
       </ProposalSection>
 
-      {/* 오른쪽 섹션 */}
+      {/* 오른쪽 섹션 - 제안서 목록 또는 단일 제안서 정보 */}
       <ReceiverSection style={{ top: getProposalContainerTop() }}>
         <ReceiverWrapper>
-          <CardSection 
-            cardType={"proposal"} 
-            organization={recipientInfo} 
-            ButtonComponent={() => <FavoriteBtn organization={recipientInfo} />} 
-          />
-                      <ButtonWrapper>
-  
-            </ButtonWrapper>
+              <SelectedCardWrapper $isSelected={true}>
+                <CardSection 
+                  cardType={"proposal"} 
+                  organization={selectedProposal} 
+                  ButtonComponent={() => <FavoriteBtn organization={selectedProposal} />}
+                />
+                {/* <ProposalStatus status={selectedProposal?.status}>
+                  {selectedProposal?.status === 'UNREAD' && '미열람'}
+                  {selectedProposal?.status === 'READ' && '열람'}
+                  {selectedProposal?.status === 'PARTNERSHIP' && '제휴체결'}
+                  {selectedProposal?.status === 'REJECTED' && '거절'}
+                  {selectedProposal?.status === 'DRAFT' && '작성중'}
+                </ProposalStatus> */}
+              </SelectedCardWrapper>        
+          <ButtonWrapper>
+            <StatusBtn>현재 {selectedProposal?.status}된 제안서입니다.</StatusBtn>
+            <CloseBtn onClick={handleBack}>닫기</CloseBtn>
+          </ButtonWrapper>
         </ReceiverWrapper>
       </ReceiverSection>
     </ProposalContainer>
@@ -238,6 +384,43 @@ const OwnerSentProposalDetail = () => {
 
 export default OwnerSentProposalDetail
 
+const StatusBtn = styled.button`
+width: 100%;
+position: relative;
+border-radius: 5px;
+border: 1px solid #bcbcbc;
+box-sizing: border-box;
+height: 45px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 13px 81px;
+text-align: left;
+font-size: 16px;
+color: #bcbcbc;
+font-family: Pretendard;
+`;
+
+const CloseBtn = styled.button`
+width: 100%;
+position: relative;
+border-radius: 5px;
+background-color: #70af19;
+height: 45px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 13px 81px;
+box-sizing: border-box;
+text-align: left;
+font-size: 16px;
+color: #e9f4d0;
+font-family: Pretendard;
+border-none;
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -245,6 +428,11 @@ const Container = styled.div`
   justify-content: center;
   min-height: 100vh;
   gap: 20px;
+`;
+
+const LoadingMessage = styled.div`
+  font-size: 18px;
+  color: #70AF19;
 `;
 
 const ErrorMessage = styled.div`
@@ -264,6 +452,36 @@ const BackButton = styled.button`
   &:hover {
     background-color: #5a8f15;
   }
+`;
+
+const ProposalListTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a2d06;
+  margin: 0 0 15px 0;
+  padding: 0 20px;
+`;
+
+const SelectedCardWrapper = styled.div`
+  border: 1px solid #e7e7e7;
+  border-radius: 5px;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  
+`;
+
+const ProposalStatus = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+ 
+  z-index: 2;
 `;
 
 const ProposalContainer= styled.div`
@@ -333,6 +551,7 @@ color: #1a2d06;
 font-family: Pretendard;
 height: fit-content;
 transition: top 0.3s ease-out;
+max-height: calc(100vh - 100px);
 `;
 
 const ReceiverWrapper = styled.div`
@@ -346,6 +565,8 @@ display: flex;
 flex-direction: column;
 position: relative;
 gap: 10px;
+max-height: 80vh;
+overflow-y: auto;
 `;
 
 const SectionWrapper = styled.div`
@@ -390,6 +611,9 @@ const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   margin-top: 4px;
+  flex-direction: column;
+  border: none;
+  gap: 10px;
 `;
 
 const LineDiv = styled.div`
