@@ -95,6 +95,8 @@ const OwnerReceivedProposalDetail = () => {
     );
   }
 
+  
+
   // 발신자 정보 (proposal.sender에서 추출)
   const senderInfo = {
     id: proposal.sender?.id || proposal.sender,

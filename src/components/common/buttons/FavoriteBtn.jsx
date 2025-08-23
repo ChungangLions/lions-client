@@ -6,7 +6,7 @@ import { toggleLikes} from '../../../services/apis/likesapi';
 import { ReactComponent as HeartIcon } from "../../../assets/images/icons/HeartIcon.svg";
 import { ReactComponent as ActiveHeartIcon } from "../../../assets/images/icons/FilledHeart.svg";
 
-const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick, customColor, useCustomIcon }) => {
+const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick, customColor, useCustomIcon, onLikeChange }) => {
   // console.log(defaultActive);
 
     const [isLikeActive, setIsLikeActive] = useState(defaultActive);
@@ -22,6 +22,10 @@ const FavoriteBtn = ({ userId, isLikeActive: defaultActive, onClick, customColor
         
         try {
           await toggleLikes(userId);
+          // 찜 상태 변경 성공 시 부모 컴포넌트에게 알림
+          if (onLikeChange) {
+            onLikeChange(userId, newState);
+          }
         } catch (error) {
           console.error("토글 실패:", error);
           setIsLikeActive(!newState); // 이전 상태로 되돌리기

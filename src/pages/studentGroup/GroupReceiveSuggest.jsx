@@ -3,12 +3,11 @@ import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
-import useStudentOrgStore from '../../stores/studentOrgStore'
-import Menu from '../../layout/Menu'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
 import { fetchProposal } from '../../services/apis/proposalAPI'
+import MenuGroup from '../../layout/MenuGroup'
 
-const OwnerReceiveSuggest = () => {
+const GroupReceiveSuggest = () => {
   const navigate = useNavigate();
   const [receivedProposals, setReceivedProposals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +58,6 @@ const OwnerReceiveSuggest = () => {
         });
         
         console.log('계산된 통계:', stats);
-        
         setSummaryStats(stats);
       } catch (error) {
         console.error('받은 제안서 조회 실패:', error);
@@ -86,8 +84,6 @@ const OwnerReceiveSuggest = () => {
 
   console.log("받은 제안서 데이터", proposalOrganizations);
 
-
-
   const STATUS_MAP = {
     UNREAD: "미열람",
     READ: "열람",
@@ -100,29 +96,27 @@ const OwnerReceiveSuggest = () => {
     { count: summaryStats.unread, label: '미열람' },
     { count: summaryStats.partnership, label: '제휴 체결' },
     { count: summaryStats.rejected, label: '거절' }
-    
   ];
 
   if (loading) {
     return (
       <ScrollSection>
-        <Menu />
+        <MenuGroup />
         <Loading>로딩 중...</Loading>
       </ScrollSection>
     );
   }
 
    const handleProposalClick = (proposal) => {
-    navigate(`/owner/mypage/received-proposal/${proposal.id}`, { 
+    navigate(`/student-group/mypage/received-proposal/${proposal.id}`, { 
       state: { proposal } 
     });
   }
 
   return (
     <ScrollSection>
-      <ContentContainer>
-      <Menu />
-        <SuggestSummaryBox items={summaryItems} />
+      <MenuGroup />
+      <SuggestSummaryBox items={summaryItems} />
  
         {proposalOrganizations.length > 0 ? (
           <CardListGrid> 
@@ -140,12 +134,12 @@ const OwnerReceiveSuggest = () => {
          ) : (
           <EmptyMessage>받은 제안서가 없습니다.</EmptyMessage>
         )}
-      </ContentContainer>
+     
     </ScrollSection>
   )
 }
 
-export default OwnerReceiveSuggest
+export default GroupReceiveSuggest
 
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`
@@ -196,15 +190,4 @@ justify-content: center;
 align-content: center;
 padding : 100px;
  
-`;
-
-const ContentContainer = styled.div`
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-  box-sizing: border-box; 
-  align-items: center; 
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 40px;
 `;

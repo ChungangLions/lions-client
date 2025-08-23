@@ -6,6 +6,7 @@ import styled from "styled-components";
 const PhotoUploadWithInput = ({ 
   value = [],
   onChange = () => {},
+  onDelete,
   maxCount = 10, 
   inputPlaceholder1 = "메뉴명", 
   inputPlaceholder2 = "0,000원" 
@@ -31,7 +32,13 @@ const PhotoUploadWithInput = ({
   };
 
   const handleDeletePhoto = (idx) => {
-    updatePhotos(photos.filter((_, i) => i !== idx));
+    // 부모 컴포넌트의 삭제 핸들러가 있으면 호출
+    if (onDelete) {
+      onDelete(idx);
+    } else {
+      // 기본 동작
+      updatePhotos(photos.filter((_, i) => i !== idx));
+    }
   };
 
   const handleInputChange = (idx, field, val) => {

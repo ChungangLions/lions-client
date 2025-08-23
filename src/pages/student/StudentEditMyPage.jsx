@@ -30,7 +30,7 @@ async function fetchCampusList(searchText) {
     svcType: "api",
     svcCode: "SCHOOL",
     contentType: "json",
-    gubun: "univ_list",
+    gubun: "univ_list", 
     searchSchulNm: searchText,
   });
 
@@ -124,6 +124,18 @@ const StudentEditMyPage = () => {
   const [photoState, setPhotoState] = useState(image ? [image] : []);
   const [campusName, setCampusName] = useState(university_name || "");
   const [nameValue, setNameValue] = useState(name);
+  
+  // 사진 상태 추적을 위한 변수들
+  const [originalImage, setOriginalImage] = useState(image);
+  const [imageDeleted, setImageDeleted] = useState(false);
+
+  // 사진 삭제 처리 함수
+  const handlePhotoDelete = (photoIndex) => {
+    // 사진이 삭제되었음을 표시
+    setImageDeleted(true);
+    // 현재 상태에서 제거
+    setPhotoState(prev => prev.filter((_, index) => index !== photoIndex));
+  };
 
   const [showModal, setShowModal] = useState(false);
   const [showCampusModal, setShowCampusModal] = useState(false);
@@ -141,12 +153,17 @@ const StudentEditMyPage = () => {
         formData.append('name', nameValue);
         formData.append('university_name', campusName);
         
-        // 이미지가 변경되었을 때만 FormData에 추가
-        // photoState[0]이 File 객체인지 확인 (새로 업로드된 이미지)
-        if (photoState[0] instanceof File) {
+        // 백엔드 API 형식에 맞춰 사진 데이터 처리
+        
+        // 1. 사진이 삭제된 경우
+        if (imageDeleted && photoState.length === 0) {
+            formData.append('delete_image', 'true');
+        }
+        
+        // 2. 새로 업로드된 사진이 있는 경우
+        if (photoState.length > 0 && photoState[0] instanceof File) {
             formData.append('image', photoState[0]);
         }
-        // 기존 이미지 URL인 경우 FormData에 추가하지 않음
 
         try {
             const updatedProfile = await patchStudentProfile(profileId, formData);
@@ -191,11 +208,13 @@ const StudentEditMyPage = () => {
 
   // 진행상황 체크 용도
   const isFilledText = val => typeof val === "string" && val.trim() !== "";
-  const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
   const isFilledCampus = val => typeof val === "string" && val.trim() !== "";
+  
+  // 사진 섹션: 사진이 있거나 삭제된 경우 모두 완료로 간주
+  const isPhotoFilled = photoState.length > 0 || imageDeleted;
 
   const isSectionFilled = {
-    photo: isFilledList(photoState),
+    photo: isPhotoFilled,
     name: isFilledText(nameValue),
     campus: isFilledCampus(campusName),
   };
@@ -218,7 +237,12 @@ const StudentEditMyPage = () => {
             <Title> 프로필 사진 </Title>
             <SubTitle> 학생단체 대표 사진(로고, 단체사진 등)을 자유롭게 등록해주세요. (최대 1장) </SubTitle>
           </TitleContainer>
-          <PhotoUpload value={photoState} onChange={setPhotoState} maxCount={1} />
+          <PhotoUpload 
+            value={photoState} 
+            onChange={setPhotoState} 
+            onDelete={handlePhotoDelete}
+            maxCount={1} 
+          />
 
           <TitleContainer ref={sectionRefs.name}>
             <Title> 이름 </Title>

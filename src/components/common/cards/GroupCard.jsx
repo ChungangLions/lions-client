@@ -6,9 +6,9 @@ import ShowNum from '../labels/ShowNum';
 import { getOwnerLikes, getOwnerRecommends } from '../../../services/apis/ownerAPI'
 
 
-function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, recommends = true }) {
-  const [userLikes, setUserLikes] = useState(0);
-  const [userRecommends, setUserRecommends] = useState(0);
+function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, recommends = true, isBest = false, recommendCount, likeCount }) {
+  const [userLikes, setUserLikes] = useState(likeCount || 0);
+  const [userRecommends, setUserRecommends] = useState(recommendCount || 0);
 
   useEffect(() => {
     const fetchProfile = async () => { 
@@ -28,7 +28,21 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, re
       }
     };
     fetchProfile();
-  }, []); 
+  }, []);
+
+  // recommendCount prop이 변경될 때 userRecommends 업데이트
+  useEffect(() => {
+    if (recommendCount !== undefined) {
+      setUserRecommends(recommendCount);
+    }
+  }, [recommendCount]);
+
+  // likeCount prop이 변경될 때 userLikes 업데이트
+  useEffect(() => {
+    if (likeCount !== undefined) {
+      setUserLikes(likeCount);
+    }
+  }, [likeCount]); 
 
     return (
     <CardWrapper onClick={onClick}>
@@ -42,7 +56,7 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, re
         <CardTitleRow>
           <Row>
             <CardTitle>{store.name}</CardTitle>
-            <BestText>best</BestText>
+            {isBest && <BestText>best</BestText>}
           </Row>
           <CardSubtitle>{store.caption}</CardSubtitle>
         </CardTitleRow>

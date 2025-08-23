@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import OrgCardSection from '../../components/common/cards/OrgCardSection'
+import GroupCard from '../../components/common/cards/GroupCard'
 import { useNavigate } from 'react-router-dom'
 import useStudentOrgStore from '../../stores/studentOrgStore'
 import MenuGroup from '../../layout/MenuGroup'
@@ -14,8 +14,8 @@ const GroupWishlist = () => {
   const { userId } = useUserStore();
   const { stores, fetchStores } = useVenueStore();
 
-  const handleCardClick = (store) => {
-    navigate(`/student_group/store-profile/${store.id}`, { state: { store } });
+  const handleCardClick = (id) => {
+    navigate(`/student_group/store-profile/${id}`, { state: { userType: "studentOrganization" } });
   };
 
   const [likeStores, setLikeStores] = useState([]);
@@ -26,35 +26,35 @@ const GroupWishlist = () => {
       const list = await fetchLikes('given');
       setLikeStores(list.map(item => item.target.id));
       console.log("좋아요한 가게 리스트:", list);
-      console.log("좋아요한 가게게 ID배열:", list.map(item => item.target.id));
+      console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
     };
     fetchUserLikes();
   }, []);
 
   // 찜한 항목들만 필터링
-  const likedStores = stores.filter(store => likeStores.includes(store.user));
+  const filteredLikeStores = stores.filter(store => likeStores.includes(store.id));
+  console.log("filteredLikeStores: ", filteredLikeStores);
 
   return (
     <PageConatainer>
-      <MenuGroup />
       <ContentContainer>
-          <NumText>총 {likedStores.length}개</NumText>
+      <MenuGroup />
+          <NumText>총 {filteredLikeStores.length}개</NumText>
         <CardListGrid> 
-          {likedStores.map((store) => (
-            <OrgCardSection
-              key={store.id}
-              onClick={handleCardClick}
-              cardType={'home'}
+                     {filteredLikeStores.map((store) => (
+             <GroupCard
+               key={store.id}
+               imageUrl={store.photo}
+               onClick={() => handleCardClick(store.id)}
               ButtonComponent={() => (
-                <FavoriteBtn 
-                  userId={store.user} 
-                  isLikeActive={likedStores.includes(store.user)} // 추가!
-                />
-              )}
-              store={store}
-              userId={userId}
-            />
-          ))}
+                  <FavoriteBtn 
+                    userId={store.id} 
+                    isLikeActive={likeStores.includes(store.id)}
+                  />
+                )}
+               store={store}
+             />
+           ))}
         </CardListGrid>
         <EmptyRow />
       </ContentContainer>
@@ -97,7 +97,7 @@ const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   justify-content: start;
   align-content: start;
   column-gap: 20px;

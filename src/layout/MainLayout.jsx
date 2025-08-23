@@ -5,10 +5,11 @@ import Header from './Header'
 import styled from 'styled-components'
 
 const MainLayout = ({hasMenu}) => {
+  console.log ("hasMenu: ", hasMenu);
   return (
     <PageContainer>
       <Header hasMenu={hasMenu}/>
-      <ContentWrapper>
+      <ContentWrapper hasMenu={hasMenu}>
         <Outlet />
       </ContentWrapper>
     </PageContainer>
@@ -39,8 +40,8 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   // padding-left: 30px;
-  padding: ${({ hasMenu }) => (hasMenu ? '30px' : '0px')};
-  // margin-top: ${({ hasMenu }) => (hasMenu ? '85px' : '50px')};
-  margin-top: 85px;
+  padding: ${({ hasMenu }) => (hasMenu ? '0px' : '0px 40px')};
+  margin-top: ${({ hasMenu }) => (hasMenu ? '70px' : '85px')};
+  // margin-top: 85px;
   color: #1a2d06;
 `;

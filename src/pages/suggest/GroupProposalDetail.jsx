@@ -8,7 +8,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -16,11 +16,12 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal } from '../../services/apis/proposalAPI';
+import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import GroupCard from '../../components/common/cards/GroupCard';
 import { fetchLikes } from '../../services/apis/likesapi';
+import OrgCardSection from '../../components/common/cards/OrgCardSection';
 
 // profileData : 사장님, groupProfile: 학생단체 
 const GroupProposalDetail = () => {
@@ -36,29 +37,35 @@ const GroupProposalDetail = () => {
 
   // 현재 로그인된 사용자 정보 불러오기
   const [ groupProfile, setGroupProfile] = useState(null);
+  const [ isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log("UseEffect 실행됨, userId:", userId); // 뭐지? 안 뜸 
     
     const getProfile = async() => {
       try {
+        setIsLoading(true);
         const groupProfile = await fetchGroupProfile(userId);
         setGroupProfile(groupProfile);
         console.log("학생단체 데이터", groupProfile);
       } catch(error) {
         console.error("학생 단체 프로필 조회 실패:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     if (userId) {
       getProfile();
+    } else {
+      setIsLoading(false);
     }
   }, [userId]);
 
-  
-
-
- 
+  const navigate = useNavigate();
+  const handleCardClick = (organization, id) => {
+    navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+  }; 
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -197,12 +204,28 @@ const GroupProposalDetail = () => {
 
 
       console.log('제안서 데이터:', createData);
-      
-      const proposalResponse = await createProposal(createData);
-      alert('제안서가 전송되었습니다.');
-      setProposalId(proposalResponse.id);
 
-      
+      if (proposalId === null) { 
+              // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
+              const response = await createProposal(createData); // 제안서 생성
+              setProposalId(response.id)
+              alert('제안서가 전송되었습니다.');
+              const statusData = {
+                status: "UNREAD",
+                comment: ""
+              };
+              const status = await editProposalStatus(response.id, statusData);
+              console.log("제안서아이디", response.id);
+            } else {
+              // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
+              const statusData = {
+                status: "UNREAD",
+                comment: ""
+              };
+              const response = await editProposalStatus(proposalId, statusData);
+              alert('제안서가 전송되었습니다.');
+              console.log("제안서 상태 변경 완료", response);
+            }  
     } catch (error) {
       console.error('제안서 생성 오류:', error);
     }
@@ -296,25 +319,43 @@ const GroupProposalDetail = () => {
     return maxTop ;
   };
 
-//   // 카드 내 찜 부분 (GroupHome에서 가져옴)
-//     const [likeStores, setLikeStores] = useState([]);
+  // 카드 내 찜 부분 (GroupHome에서 가져옴)
+    const [likeStores, setLikeStores] = useState([]);
 
-//     useEffect(() => {
-//         //fetchStores();
-//         const fetchUserLikes = async () => {
-//           const list = await fetchLikes('given');
-//           setLikeStores(list.map(item => item.target.id));
-//           // console.log("좋아요한 가게 리스트:", list);
-//           console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
-//         };
-//         fetchUserLikes();
-//       }, []);
+    useEffect(() => {
+        //fetchStores();
+        const fetchUserLikes = async () => {
+          const list = await fetchLikes('given');
+          setLikeStores(list.map(item => item.target.id));
+          // console.log("좋아요한 가게 리스트:", list);
+          console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+        };
+        fetchUserLikes();
+      }, []);
     
-//       useEffect(() => {
-//         console.log("likeStores 내 데이터 출력:", likeStores);
-//       }, [likeStores]);
+      useEffect(() => {
+        console.log("likeStores 내 데이터 출력:", likeStores);
+      }, [likeStores]);
     
 console.log(groupProfile);
+
+  // 로딩 중일 때 표시
+  if (isLoading) {
+    return (
+      <ProposalContainer>
+        <LoadingMessage>로딩 중...</LoadingMessage>
+      </ProposalContainer>
+    );
+  }
+
+  // groupProfile이 없을 때 표시
+  if (!groupProfile) {
+    return (
+      <ProposalContainer>
+        <ErrorMessage>학생단체 프로필을 불러올 수 없습니다.</ErrorMessage>
+      </ProposalContainer>
+    );
+  }
   
   return (
     <ProposalContainer>
@@ -455,6 +496,13 @@ console.log(groupProfile);
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
+          {groupProfile && (
+             <OrgCardSection
+               cardType={'proposal'}
+               organization={groupProfile}
+               onClick={() => handleCardClick(groupProfile, groupProfile.id)}
+             />
+           )}
             <ButtonWrapper>
                 <>
                     <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
@@ -842,4 +890,28 @@ const ListItem = styled.li`
     list-style: none;
     margin-left: -20px; 
   }
+`;
+
+const LoadingMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #70AF19;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+`;
+
+const ErrorMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #C9C9C9;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 `;

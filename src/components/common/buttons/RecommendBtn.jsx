@@ -4,7 +4,7 @@ import { RiThumbUpFill as FilledRecommend } from "react-icons/ri";
 import styled from 'styled-components';
 import { toggleRecommends } from '../../../services/apis/recommendsapi';
 
-const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => {
+const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick, height = '17px', onRecommendChange }) => {
   const [isRecommendActive, setIsRecommendActive] = useState(defaultActive);
 
   useEffect(() => {
@@ -13,18 +13,24 @@ const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => 
 
   const handleClick = async (event) => {
     event.stopPropagation();
-    setIsRecommendActive(!isRecommendActive);
+    const newState = !isRecommendActive;
+    setIsRecommendActive(newState);
+    
     try {
       await toggleRecommends(userId);
+      // 추천 상태 변경 성공 시 부모 컴포넌트에게 알림
+      if (onRecommendChange) {
+        onRecommendChange(userId, newState);
+      }
     } catch (error) {
       console.error("추천 토글 실패:", error);
-      setIsRecommendActive(isRecommendActive);
+      setIsRecommendActive(isRecommendActive); // 실패 시 원래 상태로 복원
     }
   };
 
   return (
     <StyledButton onClick={handleClick}>
-      { isRecommendActive ? <StyledRecommend /> : <StyledNotRecommend /> }
+      { isRecommendActive ? <StyledRecommend height={height}/> : <StyledNotRecommend $height={height}/> }
     </StyledButton>
   );
 };
@@ -33,7 +39,7 @@ const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => 
 export default RecommendBtn;
 
 const StyledRecommend = styled(FilledRecommend)`
-  height: 17px;
+  height: ${(props) => props.height || "17px"};
   width: 100%;
   overflow: hidden;
   max-height: 100%;
@@ -41,7 +47,7 @@ const StyledRecommend = styled(FilledRecommend)`
 `;
 
 const StyledNotRecommend = styled(EmptyRecommend)`
-  height: 17px;
+  height: ${(props) => props.height || "17px"};
   width: 100%;
   overflow: hidden;
   max-height: 100%;
