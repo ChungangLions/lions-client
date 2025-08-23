@@ -121,6 +121,7 @@ const OwnerHome = () => {
             <TbArrowsSort size={30} strokeWidth={1} />
             <DropDown
               options={[
+                { value: "", label: "기본 순" },
                 { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
               ]}
@@ -156,7 +157,6 @@ export default OwnerHome
 const PageConatainer = styled.div`
 display: flex;
 flex-direction: column;
-margin: 15px 29px;
 gap: 15px;
 width: 100%;
 position: relative;
@@ -186,12 +186,11 @@ color: #64a10f;
 font-family: Pretendard;
 `;
 
-// 그리드 가로 자동, 세로 자동, 447*3이 최대
 const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(447px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   justify-content: start;
   align-content: start;
   column-gap: 20px;

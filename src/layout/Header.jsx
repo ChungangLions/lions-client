@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
@@ -50,6 +50,21 @@ const navigateToHome = () => {
   navigate(userRole ? `/${userRole.toLowerCase()}/` : "/");
 };
 
+// 바깥쪽 클릭시 없어짐
+const dropdownRef = useRef(null);
+
+useEffect(() => {
+  function handleClickOutside(event) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsDropdownOpen(false);
+    }
+  }
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   return (
     <HeaderContainer>
       <HeaderGroup>
@@ -68,7 +83,7 @@ const navigateToHome = () => {
               <DropdownArrow />
             </NavItem>
             {isDropdownOpen && (
-            <DropdownMenu>
+            <DropdownMenu ref={dropdownRef}>
                   <DropdownItem onClick={handleLogout}>
                     로그아웃
                   </DropdownItem>

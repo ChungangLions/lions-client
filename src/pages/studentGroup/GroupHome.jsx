@@ -117,6 +117,7 @@ const GroupHome = () => {
             <TbArrowsSort size={30} strokeWidth={1} />
             <DropDown
               options={[
+                { value: "", label: "기본 순" },
                 { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
                 { value: "recommendations", label: "추천 많은 순" },
