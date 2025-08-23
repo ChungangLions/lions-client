@@ -1,6 +1,7 @@
 // 이거 하나에 다하려니까 함수 너무 길어져서 나중에 리팩토링 해야댐 ㅠ 
 // 1. 수정하기 버튼 비활성화
 // 2. 연락처 필드 수정 불가인 상태 -> 수정가능으로 
+// 3. 전송하기 한 번 더 누르면 '제안서를 이미 전송하였습니다' 뜨게 하기 
 
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
@@ -110,32 +111,32 @@ const ProposalDetail = () => {
   };
 
 
-  // 수정하기 : status "DRAFT"인 상태
-  // !!제안서 직접 수정하기 : 수정하기 비활성화!!
-  const handleEdit = async () => {
+  // // 수정하기 : status "DRAFT"인 상태
+  // // !!제안서 직접 수정하기 : 수정하기 비활성화!!
+  // const handleEdit = async () => {
     
-    const updateData = {
-      recipient: organization?.user,
-      partnership_type: mapPartnership(selectedPartnershipTypes),
-      apply_target: partnershipConditions.applyTarget,
-      time_windows: partnershipConditions.timeWindows,
-      benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
-      contact_info: contact,
-      title: '제안서',
-      contents: '제휴 내용',
-    };
+  //   const updateData = {
+  //     recipient: organization?.user,
+  //     partnership_type: mapPartnership(selectedPartnershipTypes),
+  //     apply_target: partnershipConditions.applyTarget,
+  //     time_windows: partnershipConditions.timeWindows,
+  //     benefit_description: partnershipConditions.benefitDescription,
+  //     partnership_period: partnershipConditions.partnershipPeriod,
+  //     contact_info: contact,
+  //     title: '제안서',
+  //     contents: '제휴 내용',
+  //   };
 
 
-    try {
-      const response = await editProposal( id , updateData);
-      console.log('제안서 수정 완료:', response);
-      setIsEditMode(false);
-    } catch (error) {
-      console.error('제안서 ID:', id);
-      console.error('제안서 수정 실패:', error);
-    }
-  };
+  //   try {
+  //     const response = await editProposal( id , updateData);
+  //     console.log('제안서 수정 완료:', response);
+  //     setIsEditMode(false);
+  //   } catch (error) {
+  //     console.error('제안서 ID:', id);
+  //     console.error('제안서 수정 실패:', error);
+  //   }
+  // };
 
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성: status "UNREAD"
   // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
@@ -163,7 +164,7 @@ const ProposalDetail = () => {
 
       const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
@@ -219,7 +220,7 @@ const ProposalDetail = () => {
 
     const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
@@ -444,7 +445,7 @@ const ProposalDetail = () => {
             />
             <ButtonWrapper>
 
-                  <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+                  <StyledEditBtn isEditMode={isEditMode} />
                   <SaveBtn onClick={handleSave} />
                   <SendProposalBtn onClick={handleSend}/>
            
@@ -753,79 +754,12 @@ font-weight: 600;
 white-space: nowrap;
 `;
 
-const ConditionTitle = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-`;
+ const StyledEditBtn = styled(EditBtn)`
+ cursor: pointer;
 
-const ConditionContent = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: #1a2d06;
-  font-size: 16px;
-  
-  p {
-    margin: 0;
+ &:hover,
+  &:active,
+  &:focus {
+    all: unset; /* 기본 스타일 다 제거 */
   }
-`;
-
-const TimeWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 22px;
-`;
-
-const TimeTitle = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TimeContent = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: #1a2d06;
-  font-size: 16px;
-`;
-
-// 제휴 효과
-const ContentWrapper = styled.div`
-  align-self: stretch;
-  border-radius: 5px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 15px 20px;
-  font-size: 16px;
-`;
-
-const InputText= styled(InputBox)`
-  margin: 0;
-  font-family: inherit;
-  font-size: inherit;
-`;
-
-const ListItem = styled.li`
-  margin-bottom: 0;
-
-  &:last-child {
-    font-size: 16px;
-    font-family: Pretendard;
-    color: #1a2d06;
-    list-style: none;
-    margin-left: -20px; 
-  }
-`;
+ `;

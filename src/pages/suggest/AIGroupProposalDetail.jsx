@@ -221,32 +221,30 @@ const AIGroupProposalDetail = () => {
 
   // 저장하기는 일부 필드 비워져있어도 가능 
   const handleSave = async () => {
-
-    const createData = {
-        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
-        apply_target: partnershipConditions.applyTarget, // 적용 대상
-        time_windows: partnershipConditions.timeWindows, // 적용 시간대
-        benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        contact_info: contact || contactInfo, // 연락처
-        title: "제안서",
-        contents: "제휴 내용",
-      };
  
-      if (isAI) {
-        createData.expected_effects = expectedEffects;
-      }
-
-      console.log('제안서 데이터:', createData);
-
-    try {
-      const response = await createProposal(createData);
-      setIsEditMode(false); // 저장 후 읽기 모드로 변경
-    } catch (error) {
-      console.error('제안서 전송 오류:', error);
-    }
-  };
+     const createData = {
+         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+         apply_target: partnershipConditions.applyTarget, // 적용 대상
+         time_windows: partnershipConditions.timeWindows, // 적용 시간대
+         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
+         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+         contact_info: contact || contactInfo, // 연락처
+         title: "제안서",
+         contents: "제휴 내용",
+       };
+ 
+ 
+       console.log('제안서 데이터:', createData);
+ 
+     try {
+       const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
+       setProposalId(response.id);
+     } catch (error) {
+       console.error('제안서 전송 오류:', error);
+     }
+   };
+ 
 
 
   // 제휴 유형 데이터
