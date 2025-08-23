@@ -114,7 +114,6 @@ const SuggestButton = styled.button`
   background-color: white;
   color: #64a10f;
   font-family: Pretendard;
-  font-weight: 600;
   cursor: pointer;
 
   &: hover {
