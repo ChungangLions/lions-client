@@ -23,9 +23,9 @@ const OrgSuggestDealBtn = ({profileData}) => {
     setLoadingVariant('ai');
     setIsLoading(true);
     try {
-      
-      const recipient = profileData.user; // 사장님 유저 아이디 .. 프로필 아이디면 -> profileData.id
-      const contact_info = "";
+      console.log("프로필 데이터", profileData);
+      const recipient = profileData.user; // 사장님 유저 아이디 
+      const contact_info = profileData.contact; // 
       
       console.log({ recipient, contact_info });
 
@@ -114,7 +114,6 @@ const SuggestButton = styled.button`
   background-color: white;
   color: #64a10f;
   font-family: Pretendard;
-  font-weight: 600;
   cursor: pointer;
 
   &: hover {

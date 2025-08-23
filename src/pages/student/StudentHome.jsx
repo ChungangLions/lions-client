@@ -13,9 +13,14 @@ import RecommendBtn from '../../components/common/buttons/RecommendBtn';
 import { fetchRecommendations } from '../../services/apis/recommendsapi';
 import { TbArrowsSort } from "react-icons/tb";
 import DropDown from '../../components/common/filters/DropDown';
+import useStudentOrgStore from '../../stores/studentOrgStore';
+import useStudentStore from '../../stores/studentStore';
+import useUserStore from '../../stores/userStore';
+import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
 
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
+  const [isRecommendActive, setIsRecommendActive] = useState(false);
   const navigate = useNavigate();
   const handleCardClick = (id) => {
     navigate(`/student/store-profile/${id}`, {
@@ -36,6 +41,9 @@ const StudentHome = () => {
 
   useEffect(() => {
     fetchStores();
+  }, []);
+
+  useEffect(() => {
     const fetchUserRecommendations = async () => {
       const list = await fetchRecommendations('given');
       setRecommendedStores(list.map(item => item.to_user.id));
@@ -43,7 +51,7 @@ const StudentHome = () => {
       console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
     };
     fetchUserRecommendations();
-  }, []);
+  }, [isRecommendActive]);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -57,6 +65,43 @@ const StudentHome = () => {
   const handleDealFilterChange = (e) => {
       filterByDealType();
   }
+
+  const fetchNewInfo = (e) => {
+    setIsRecommendActive(!isRecommendActive);
+  }
+
+  // 학교 같은 것만 리스트 필터링
+  const [ studentCampus, setStudentCampus] = useState('');
+  const [ filterdStores, setFilteredStores] = useState([]);
+
+  const {userId} = useUserStore();
+
+  useEffect(() => {
+    const getStudentProfile = async () => {
+      try {
+      const studentProfile = await fetchStudentProfile(userId);
+      setStudentCampus(studentProfile?.campus_name);
+    } catch(error) {
+      console.log("학생 프로필 가져오기 에러", error);
+    }
+  } ;
+    if (userId) {
+    getStudentProfile();
+  }
+  }, [userId]);
+
+  useEffect(() => {
+    if ( stores.length > 0 && studentCampus ){
+      const filtered = stores.filter(store => {
+      return store.campus_name.includes(studentCampus);
+    })
+    setFilteredStores(filtered);
+  } else {
+    setFilteredStores(stores);
+  }
+  },[studentCampus, stores]);
+
+ 
 
   return (
     <PageContainer>
@@ -90,40 +135,43 @@ const StudentHome = () => {
           </FilterBtn>
           </FilterWrapper>
         </FilterSection>
-    {/* <FilterSection>
+        <FilterSection>
           <TypeWrapper>제휴 유형</TypeWrapper>
           <FilterWrapper>
             <FilterBtn
-            onClick={() => filterByStoreType('RESTAURANT')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('타임형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('타임형')}
             >
             타임형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('BAR')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('서비스제공형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('서비스제공형')}
             >
             서비스 제공형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('CAFE')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('리뷰형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('리뷰형')}
             >
             리뷰형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('CAFE')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('할인형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('할인형')}
             >
             할인형
             </FilterBtn>
           </FilterWrapper>
-        </FilterSection> */}
+        </FilterSection>
         <OptionWrapper>
           <TypeWrapper>정렬</TypeWrapper>
             <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
+
+                { value: "", label: "기본 순" },
+                { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
                 { value: "recommendations", label: "추천 많은 순" },
               ]}
@@ -137,7 +185,7 @@ const StudentHome = () => {
         </SortSection> */}
       </SelectContainer>
       <GridContainer>
-        {stores.map((store) => (
+        {filterdStores.map((store) => (
           <GroupCard 
             key={store.id}
             imageUrl={store.photo}
@@ -146,12 +194,14 @@ const StudentHome = () => {
             ButtonComponent={() => (
               <RecommendBtn 
                 userId={store.id} 
-                isRecommendActive={recommendedStores.includes(store.id)} // 추가!
+                isRecommendActive={recommendedStores.includes(store.id)}
+                onClick={() => fetchNewInfo()}
               />
             )}
             store={store} />
         ))}
       </GridContainer>
+      <EmptyRow />
     </PageContainer>
   )
 }
@@ -216,7 +266,7 @@ justify-content: center;
 padding: 10px 0px;
 gap: 10px;
 min-width: 28px;
-max-width: 60px;
+max-width: 90px;
 `;
 
 const FilterWrapper =styled.div`
@@ -234,4 +284,9 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 gap: 5px;
+`;
+
+const EmptyRow = styled.div` // 여백 주기 위한 임시방편
+display: flex;
+height: 50px;
 `;

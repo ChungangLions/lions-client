@@ -187,11 +187,18 @@ const useStudentOrgStore = create(
         searchQuery: "",
 
         
-        // 많은 순
+        // 정렬 (기본순, 많은 순)
         sortByDesc: (key) => {
-            const currentList = get().organizations;
-            const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
-            set({ organizations : sortedList, sortKey : key});
+            if (key === "" || key === null) {
+                // 기본순: 원래 순서로 복원
+                const originalList = get().originalOrganizations;
+                set({ organizations: originalList, sortKey: null });
+            } else {
+                // 많은 순 정렬
+                const currentList = get().organizations;
+                const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
+                set({ organizations : sortedList, sortKey : key});
+            }
         },
 
         // 제휴 이력 1 이상 필터링

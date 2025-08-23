@@ -7,7 +7,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import Menu from '../../layout/Menu';
 import MenuItem from '../../components/common/cards/MenuItem'
 import ImageSlider from '../../components/common/cards/ImageSlider'
-import { getOwnerProfile, getOwnerLikes, getOwnerRecommends } from '../../services/apis/ownerAPI';
+import { getOwnerProfile, getOwnerLikes, getOwnerRecommends, getOwnerPartnershipType } from '../../services/apis/ownerAPI';
 import { fetchRecommendations, toggleRecommends } from '../../services/apis/recommendsapi';
 import useUserStore from '../../stores/userStore';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
@@ -29,6 +29,8 @@ const OwnerMyPage = () => {
   const userType = location.state?.userType || "owner";
   const [isRecommendActive, setIsRecommendActive] = useState(false);
   const [isLikeActive, setIsLikeActive] = useState(false);
+  const [userRecord, setUserRecord] = useState(0);
+  const [partnershipType, setPartnershipType] = useState([]);
 
   useEffect(() => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
@@ -43,19 +45,25 @@ const OwnerMyPage = () => {
         setProfileData(data);
 
         const likesData = await getOwnerLikes(ownerId);
-        console.log(likesData.likes_received_count);
+        // console.log(likesData.likes_received_count);
         setUserLikes(likesData.likes_received_count);
 
         const recommendsData = await getOwnerRecommends(ownerId);
-        console.log(recommendsData.recommendations_received_count);
+        // console.log(recommendsData.recommendations_received_count);
         setUserRecommends(recommendsData.recommendations_received_count);
+
+        const send = await getOwnerPartnershipType(ownerId);
+        const receive = await getOwnerPartnershipType(ownerId);
+        const record = (send || []).filter(p => p.status === "PARTNERSHIP").length + (receive|| []).filter(p => p.status === "PARTNERSHIP").length;
+        setPartnershipType(send[0].partnership_type);
+        setUserRecord(record);
 
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
       }
     };
     fetchProfile();
-  }, [userId, params.id]); 
+  }, [userId, params.id, isRecommendActive, isLikeActive]); 
 
 
   const businessTypeMap = {
@@ -94,7 +102,7 @@ const OwnerMyPage = () => {
           <DayItem>
             <EtcText>{title}</EtcText>
             <EtcSection onClick={() => setIsOpen(prev => !prev)}>
-              {isOpen ? <ArrowDown /> : <ArrowUp />}
+              {isOpen ? <ArrowUp /> : <ArrowDown />}
             </EtcSection>
           </DayItem>
           {/* 각각의 요일이 세로(colum)로 나열되게 DayList에 dayRows로 바로 렌더링 */}
@@ -110,13 +118,11 @@ const OwnerMyPage = () => {
 
 
   const infos = {
-    partnershipNum: 7,
-
+    userRecord,
     userLikes,
     userRecommends,
     etc: [`영업일 및 시간 ${profileData?.business_day}`, `${profileData?.contact}`],
-
-    partnershipType: ['할인형', '타임형'],
+    partnershipType
   };
 
 
@@ -214,7 +220,7 @@ const OwnerMyPage = () => {
           <SumContainer>
             <SumBox>
               <div>제휴 이력</div>
-              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.partnershipNum} 회</div>
+              <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.userRecord} 회</div>
             </SumBox>
             <SumBox>
               <div>찜 수</div>

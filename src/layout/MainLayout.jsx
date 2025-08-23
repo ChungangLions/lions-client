@@ -23,11 +23,11 @@ const PageContainer = styled.div`
   flex-direction : column;
   width: 100%;
   align-items: center;
-  min-height: 100vh;
-  // margin: 30px;
-  // margin-top: 0px;
+  height: 100vh;
   overflow-x: hidden;
   padding: 15px 29px;
+  color: #1a2d06;
+
 `;
 
 const ContentWrapper = styled.div`
@@ -38,5 +38,9 @@ const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  margin-top: 15px;
+  // padding-left: 30px;
+  padding: ${({ hasMenu }) => (hasMenu ? '30px' : '0px')};
+  // margin-top: ${({ hasMenu }) => (hasMenu ? '85px' : '50px')};
+  margin-top: 85px;
+  color: #1a2d06;
 `;

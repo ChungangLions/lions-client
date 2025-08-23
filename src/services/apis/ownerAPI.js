@@ -69,3 +69,12 @@ export const getOwnerRecommends = async(id) => {
     console.log(response.data);
     return response.data;
 }
+
+export const getOwnerPartnershipType = async(id, mode='send') => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token); 
+
+    const response = await authAxios.get(`/api/proposals/${mode}/${id}`);
+    console.log(response.data);
+    return response.data;
+}

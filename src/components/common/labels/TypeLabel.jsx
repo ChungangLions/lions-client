@@ -46,7 +46,7 @@ const LabelBox = styled.div`
       case 'RESTAURANT':
         return '110px';
       case 'CAFE':
-        return '120px';
+        return '130px';
       case 'BAR':
         return '70px';
       default:

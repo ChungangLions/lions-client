@@ -2,57 +2,56 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
-import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
-import Menu from '../../layout/Menu'
-import ViewBtn from '../../components/common/buttons/StatusBtn'
+import MenuGroup from '../../layout/MenuGroup'
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
 import { fetchLikes, fetchUserLikes } from '../../services/apis/likesapi'
 import useUserStore from '../../stores/userStore'
+import useVenueStore from '../../stores/venueStore'
 
-const OwnerWishlist = () => {
+const GroupWishlist = () => {
   const navigate = useNavigate();
   const { userId } = useUserStore();
-  const { organizations, fetchAndSetOrganizations } = useStudentOrgStore();
+  const { stores, fetchStores } = useVenueStore();
 
-  const handleCardClick = (organization) => {
-    navigate(`/owner/student-group-profile/${organization.id}`, { state: { organization } });
+  const handleCardClick = (store) => {
+    navigate(`/student_group/store-profile/${store.id}`, { state: { store } });
   };
 
   const [likeStores, setLikeStores] = useState([]);
   
   useEffect(() => {
-    fetchAndSetOrganizations();
+    fetchStores();
     const fetchUserLikes = async () => {
       const list = await fetchLikes('given');
       setLikeStores(list.map(item => item.target.id));
-      console.log("좋아요한 학생회 리스트:", list);
-      console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
+      console.log("좋아요한 가게 리스트:", list);
+      console.log("좋아요한 가게게 ID배열:", list.map(item => item.target.id));
     };
     fetchUserLikes();
   }, []);
 
   // 찜한 항목들만 필터링
-  const likedOrganizations = organizations.filter(org => likeStores.includes(org.user));
+  const likedStores = stores.filter(store => likeStores.includes(store.user));
 
   return (
     <PageConatainer>
-      <Menu />
+      <MenuGroup />
       <ContentContainer>
-          <NumText>총 {likedOrganizations.length}개</NumText>
+          <NumText>총 {likedStores.length}개</NumText>
         <CardListGrid> 
-          {likedOrganizations.map((organization) => (
+          {likedStores.map((store) => (
             <OrgCardSection
-              key={organization.id}
+              key={store.id}
               onClick={handleCardClick}
               cardType={'home'}
               ButtonComponent={() => (
                 <FavoriteBtn 
-                  userId={organization.user} 
-                  isLikeActive={likeStores.includes(organization.user)} // 추가!
+                  userId={store.user} 
+                  isLikeActive={likedStores.includes(store.user)} // 추가!
                 />
               )}
-              organization={organization}
+              store={store}
               userId={userId}
             />
           ))}
@@ -64,7 +63,7 @@ const OwnerWishlist = () => {
 }
 
 
-export default OwnerWishlist
+export default GroupWishlist
 
 const PageConatainer = styled.div`
 display: flex;

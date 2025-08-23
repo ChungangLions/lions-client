@@ -10,6 +10,7 @@ import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 import { fetchLikes } from '../../services/apis/likesapi'
+import MenuGroup from '../../layout/MenuGroup'
 
 const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -48,35 +49,43 @@ const StudentGroupProfile = () => {
     async function fetchData() {
       const list = await fetchLikes('given');
       // 추천한 가게 id 배열 생성
-      const likedStoreIds = list.map(item => String(item.target.id));
-
+      const likedStoreIds = list.map(item => item.target.id);
+      console.log("likedStoreIds: ", likedStoreIds);
       // 버튼 활성화 여부 결정
       if (likedStoreIds.includes(groupId)) {
-        // console.log('true');
+        console.log('true');
         setIsLikeActive(true);
       } else {
-        // console.log('false');
+        console.log('false');
         setIsLikeActive(false);
       }
 
       console.log("그룹 id:", groupId, "active 여부:", isLikeActive);
     }
     fetchData();
-  }, [groupId]);
-    
+  }, [groupId, isLikeActive]);
+  
+  const handleHeartClick = async() => {
+    const newState = !isLikeActive;
+    setIsLikeActive(newState);
+
+    // API 연결
+  }
+
 
   return (
     <PageContainer>
+      {userType === "student_group" && <MenuGroup />}
       <PageWrapper>
       <ProfileSection>
         <ProfileGroup>
-            <ImageContainer /> 
+            <ImageContainer src={groupImage} />
             <ContentWrapper>
               <OrganizationWrapper>
                 {/*<NoWrapItem>{organization?.university}</NoWrapItem>*/}
                 <NoWrapItem>{university}</NoWrapItem>
-                <NoWrapItem> {groupName} </NoWrapItem>
                 <NoWrapItem> {groupDepartment} </NoWrapItem>
+                <NoWrapItem> {groupName} </NoWrapItem>
               </OrganizationWrapper>
               <DetailSection>
                 {detailCards.map((card, index) => (
@@ -87,8 +96,8 @@ const StudentGroupProfile = () => {
         </ProfileGroup>
           {userType === "owner" ? (
             <ButtonGroup>
-              <FavoriteBox >
-                <FavoriteBtn userId={groupId} isLikeActive={isLikeActive} />
+              <FavoriteBox onClick={handleHeartClick} >
+                <FavoriteBtn userId={groupId} isLikeActive={isLikeActive} customColor="#898989" useCustomIcon={true} />
                 찜하기
               </FavoriteBox>
               <SuggestDealBtn organization={ organization} />
@@ -102,7 +111,7 @@ const StudentGroupProfile = () => {
       <RecordSection>
         <Divider />
         <RecordList>
-            <Title>추천 목록</Title>
+            <Title>제휴 이력</Title>
             {dealHistories.length === 0 ? (
               <RecordContainer>
                 <EmptyNotice>제휴 이력이 없습니다.</EmptyNotice>
@@ -142,9 +151,12 @@ text-align: center;
 `;
 
 const PageContainer = styled.div`
-width: 100%;
-position: relative;
-display: flex;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content:center;
+  margin: 0 auto;
 `;
 
 const PageWrapper = styled.div`
@@ -152,8 +164,7 @@ const PageWrapper = styled.div`
   display: flex;
   flex-direction: row;
   position: relative;
-  padding: 49px 59.5px 195px;
-  max-width: 1200px; 
+  padding: 49px 0px 195px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -211,6 +222,7 @@ align-self: stretch;
 position: relative;
 font-weight: 600;
 white-space: nowrap;
+font-size: 24px;
 `;
 
 const RecordContainer= styled.div`
@@ -222,12 +234,13 @@ display: flex;
 
 `;
 
-const ImageContainer = styled.div`
+const ImageContainer = styled.img`
 width: 210px;
 position: relative;
 background-color: #d9d9d9;
 height: 210px;
 border-radius: 50%;
+object-fit: cover;
 `;
 
 // title + detail
@@ -280,7 +293,7 @@ display: flex;
 `;
 
 const FavoriteBox = styled.div`
-width: 115px;
+width: 100%;
 border-radius: 5px;
 border: 1px solid #898989;
 box-sizing: border-box;
@@ -289,9 +302,10 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
-padding: 5px;
-gap: 10px;
-min-width: 85px;
+padding: 10px;
+gap: 5px;
+max-width: 130px;
+cursor: pointer;
 `;
 
 

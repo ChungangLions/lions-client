@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import useUserStore from '../stores/userStore'
 import SearchBar from './SearchBar'
@@ -50,6 +50,21 @@ const navigateToHome = () => {
   navigate(userRole ? `/${userRole.toLowerCase()}/` : "/");
 };
 
+// 바깥쪽 클릭시 없어짐
+const dropdownRef = useRef(null);
+
+useEffect(() => {
+  function handleClickOutside(event) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsDropdownOpen(false);
+    }
+  }
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   return (
     <HeaderContainer>
       <HeaderGroup>
@@ -68,7 +83,7 @@ const navigateToHome = () => {
               <DropdownArrow />
             </NavItem>
             {isDropdownOpen && (
-            <DropdownMenu>
+            <DropdownMenu ref={dropdownRef}>
                   <DropdownItem onClick={handleLogout}>
                     로그아웃
                   </DropdownItem>
@@ -76,7 +91,8 @@ const navigateToHome = () => {
               )}
           </UserContainer>
           <StyledLink to={userRole ? `/${userRole.toLowerCase()}/mypage` : "/"} aria-label="마이페이지">
-            <ProfileIcon isActive={isActive}/>
+            <ProfileIcon isActive={isActive}/> 
+            <ProfileText isActive={isActive}>MY</ProfileText>
           </StyledLink>
         </RightBox>
       </HeaderGroup>
@@ -96,31 +112,36 @@ const LogoImage = styled.img`
 `;
 
 const StyledLink = styled(Link)`
-width: 28px;
 position: relative;
-height: 28px;
+text-decoration: none;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+gap: 8px;
+color: black;
 `;
 
 const HeaderContainer = styled.div`
 box-sizing: border-box; 
-width: 100%;
-position: relative;
+width: calc(100% - 58px); /* 29px씩 양쪽에서 떨어뜨리기 */
+position: fixed;
+left: 29px;
+right: 29px;
+top: 0;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-// gap: 15px;
+gap: 10px;
 text-align: left;
 font-size: 16px;
 color: #1a2d06;
 font-family: Pretendard;
-
-/*스크롤 관련*/
-
-position: sticky;
-top:0;
 background-color: white;
 z-index: 1000;
+height: 85px;
+padding: 15px 0;
 `;
 
 const LeftBox = styled.div`
@@ -187,9 +208,8 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: space-between;
-gap: 0px;
 background-color: white;
-margin-bottom: 15px;
+//height: 55px;
 `;
 
 const DropdownMenu = styled.div`
@@ -218,4 +238,10 @@ const DropdownItem = styled.div`
 const DropdownArrow = styled(IoIosArrowDown)`
   margin-left: 5px;
   cursor: pointer;
+`;
+
+const ProfileText = styled.div`
+position: relative;
+color: ${({ isActive }) => (isActive ? '#70AF19' : '#1A2D06')};
+transition: color 0.2s ease;
 `;
