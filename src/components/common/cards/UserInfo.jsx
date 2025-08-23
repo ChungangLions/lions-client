@@ -34,10 +34,10 @@ const UserInfo = ({organization}) => {
       <UserSection>
         <ProfileImage profileImage={profileImage} />
         <NameWrapper>
-          {/*<p>{organization?.university}</p>*/}
-          <p>중앙대학교 서울캠퍼스</p>
+          <p>{organization?.university_name}</p>
+           <p>{organization?.department}</p>
           <p>{organization?.council_name}</p> 
-          <p>{organization?.department}</p>
+         
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>
