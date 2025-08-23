@@ -121,9 +121,11 @@ const OwnerSendSuggest = () => {
     REJECTED: "거절"
   };
   
-  const handleProposalClick = () => {
-    // 클릭 시 제안서로 이동 구현해야됨 
-    navigate("owner/sent-suggest");
+  const handleProposalClick = (proposal) => {
+    // 클릭 시 제안서 상세 페이지로 이동
+    navigate(`/owner/mypage/sent-proposal/${proposal.id}`, { 
+      state: { proposal } 
+    });
   }
 
 
