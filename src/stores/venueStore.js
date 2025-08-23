@@ -133,7 +133,7 @@ const useVenueStore = create(
                                ...latestUserMap[item.user],
                                likes: likes.likes_received_count || 0,
                                recommendations: recommendations.recommendations_received_count || 0,
-                               partnershipType: partnershipType[0].partnership_type || null,
+                               partnershipType: partnershipType && partnershipType.length > 0 ? partnershipType[0].partnership_type : null,
                            };
                        } catch (error) {
                            console.error(`Failed to fetch likes/recommendations for user ${item.user}:`, error);
@@ -159,12 +159,12 @@ const useVenueStore = create(
                        name: item.profile_name,
                        caption: item.comment,
                        storeType: (item.business_type || '').toString().toUpperCase(),
-                       dealType: Array.isArray(item.deal_type) ? item.deal_type : [item.deal_type], // 배열로 변환
+                       dealType: Array.isArray(item.deal_type) ? item.deal_type : (item.deal_type ? [item.deal_type] : []), // 배열로 변환
                        likes: item.likes || 0,
                        recommendations: item.recommendations || 0,
-                       partnershipType: item.partnership_type || null,
+                       partnershipType: item.partnershipType || null,
                        record: item.record || null,
-                       photo: item.photos?.[0]?.image || null
+                       photo: item.photos?.[0]?.image || null,
                        campus_name : item.campus_name,
                    };
                });
@@ -189,7 +189,6 @@ const useVenueStore = create(
 
         // 찜/추천/제휴 이력 많은 순
         sortByDesc: (key) => {
-<
             // 기본 순 추가
             if (key === "" || key === null) {
                 const originalList = get().originalStores;
@@ -200,7 +199,6 @@ const useVenueStore = create(
                 const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
                 set({ stores : sortedList, sortKey : key});
             }
-
         },
 
 
