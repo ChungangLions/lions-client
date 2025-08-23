@@ -113,30 +113,19 @@ const ProposalDetail = () => {
 
   // // 수정하기 : status "DRAFT"인 상태
   // // !!제안서 직접 수정하기 : 수정하기 비활성화!!
-  // const handleEdit = async () => {
+  const handleEdit = async () => {
     
-  //   const updateData = {
-  //     recipient: organization?.user,
-  //     partnership_type: mapPartnership(selectedPartnershipTypes),
-  //     apply_target: partnershipConditions.applyTarget,
-  //     time_windows: partnershipConditions.timeWindows,
-  //     benefit_description: partnershipConditions.benefitDescription,
-  //     partnership_period: partnershipConditions.partnershipPeriod,
-  //     contact_info: contact,
-  //     title: '제안서',
-  //     contents: '제휴 내용',
-  //   };
-
-
-  //   try {
-  //     const response = await editProposal( id , updateData);
-  //     console.log('제안서 수정 완료:', response);
-  //     setIsEditMode(false);
-  //   } catch (error) {
-  //     console.error('제안서 ID:', id);
-  //     console.error('제안서 수정 실패:', error);
-  //   }
-  // };
+    try {
+      const statusData = {
+          status: "DRAFT",
+          comment: ""
+        };
+        const status = await editProposalStatus(id, statusData);
+    } catch (error) {
+      console.error('제안서 ID:', id);
+      console.error('제안서 수정 실패:', error);
+    }
+  };
 
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성: status "UNREAD"
   // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
@@ -201,21 +190,6 @@ const ProposalDetail = () => {
       console.error('제안서 전송 오류:', error);
       alert('제안서 전송에 실패했습니다.');
     }
-  };
-
-
-  const mapPartnership = (selected) => {
-    const typeMap = {
-      '할인형': 'DISCOUNT',
-      '타임형': 'TIME',
-      '리뷰형': 'REVIEW',
-      '서비스제공형': 'SERVICE',
-    };
-
-    if (Array.isArray(selected)) {
-      return selected.map((label) => typeMap[label]).filter(Boolean);
-    }
-    return typeMap[selected] || null;
   };
 
 
@@ -450,7 +424,7 @@ const ProposalDetail = () => {
             />
             <ButtonWrapper>
 
-                  <StyledEditBtn isEditMode={isEditMode} />
+                  <StyledEditBtn isEditMode={isEditMode}  />
                   <SaveBtn onClick={handleSave} />
                   <SendProposalBtn onClick={handleSend}/>
            

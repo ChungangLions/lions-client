@@ -131,36 +131,19 @@ const AIProposalDetail = () => {
   // 수정하기
   const {userId} = useUserStore();
 
-  const handleEdit = async () => {
+  // const handleEdit = async () => {
     
-    const updateData = {
-      recipient: organization?.user,
-      partnership_type: selectedPartnershipTypes,
-      apply_target: partnershipConditions.applyTarget,
-      time_windows: partnershipConditions.timeWindows,
-      benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
-      contact_info: contact || proposalData.contact_info,
-      title: '제안서',
-      contents: '제휴 내용',
-    };
+  //   try {
+  //     const statusData = {
+  //         status: "DRAFT",
+  //         comment: ""
+  //       };
+  //       const status = await editProposalStatus(proposalId, statusData);
+  //   } catch (error) {
+  //     console.error('제안서 수정 실패:', error);
+  //   }
+  // };
 
-    if (isAI) {
-      updateData.expected_effects = expectedEffects;
-    }
-
-    const id = proposalData.id != null ? proposalData.id : proposalId;
-    console.log("id", proposalData.id); // null 인 이유?
-
-    try {
-      const response = await editProposal( id , updateData);
-      console.log('제안서 수정 완료:', response);
-      setIsEditMode(false);
-    } catch (error) {
-      console.error('제안서 ID:', id);
-      console.error('제안서 수정 실패:', error);
-    }
-  };
 
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
    const handleSend = async () => {
@@ -193,7 +176,11 @@ const AIProposalDetail = () => {
           partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
           contact_info: contact || contactInfo, // 연락처
         };
-  
+
+        if (isAI) {
+        createData.expected_effects = expectedEffects;
+      }
+
         console.log('제안서 데이터:', createData);
 
           // 예 누른 순간 제안서 생성이 된 상태이므로 제안서 상태 변경 api 호출
@@ -455,7 +442,7 @@ const AIProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} onClick={handleCardClick}/>} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
+              <EditBtn onClick={() => {toggleEditMode(); }} isEditMode={isEditMode} />
               <SaveBtn onClick={handleSave} />
               <SendProposalBtn onClick={handleSend}/>
             </ButtonWrapper>
