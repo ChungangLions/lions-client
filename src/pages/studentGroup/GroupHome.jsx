@@ -144,6 +144,7 @@ const GroupHome = () => {
             key={store.id}
             imageUrl={store.photo}
             onClick={() => handleCardClick(store.id)}
+            isBest={store.isBest}
             ButtonComponent={() => (
               <FavoriteBtn 
                 userId={store.id} 

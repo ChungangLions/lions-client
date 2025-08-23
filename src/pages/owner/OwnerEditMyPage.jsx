@@ -733,7 +733,7 @@ const OwnerEditMyPage = () => {
           <TitleContainer ref={sectionRefs.extra}>
             <Title> 추가 제공 가능 서비스 </Title>
             <SubTitle>
-              <p>제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요. </p>
+              <p>제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요. 추가 제공 가능한 서비스가 없는 경우, ‘기타’ 선택 후 ‘없음’으로 작성해주세요. </p>
               <p>※ 작성하신 메뉴가 반드시 제휴에서 제공되는 것은 아니며, 제휴 유형이 ‘서비스 제공형’으로 결정될 경우에만 해당 메뉴가 서비스로 제공됩니다.</p>
             </SubTitle>
           </TitleContainer>
