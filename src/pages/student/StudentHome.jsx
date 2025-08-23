@@ -17,10 +17,10 @@ import useStudentOrgStore from '../../stores/studentOrgStore';
 import useStudentStore from '../../stores/studentStore';
 import useUserStore from '../../stores/userStore';
 import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
-  const [isRecommendActive, setIsRecommendActive] = useState(false);
   const navigate = useNavigate();
   const handleCardClick = (id) => {
     navigate(`/student/store-profile/${id}`, {
@@ -51,7 +51,7 @@ const StudentHome = () => {
       console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
     };
     fetchUserRecommendations();
-  }, [isRecommendActive]);
+  }, []);
 
   const handleSortChange = (e) => {
     const key = e.target.value 
@@ -64,10 +64,6 @@ const StudentHome = () => {
 
   const handleDealFilterChange = (e) => {
       filterByDealType();
-  }
-
-  const fetchNewInfo = (e) => {
-    setIsRecommendActive(!isRecommendActive);
   }
 
   // 학교 같은 것만 리스트 필터링
@@ -128,10 +124,10 @@ const StudentHome = () => {
           ☕️ 카페 및 디저트
           </FilterBtn>
           <FilterBtn
-          onClick={() => filterByStoreType('ETC')}
-          active={Array.isArray(activeStoreType) && activeStoreType.includes('ETC')}
-          >
-          ...
+            onClick={() => filterByStoreType('OTHER')}
+            active={Array.isArray(activeStoreType) && activeStoreType.includes('OTHER')}
+            >
+            <OptionWrapper><HiDotsHorizontal />기타</OptionWrapper>
           </FilterBtn>
           </FilterWrapper>
         </FilterSection>
@@ -169,7 +165,6 @@ const StudentHome = () => {
             <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
-
                 { value: "", label: "기본 순" },
                 { value: "likes", label: "찜 많은 순" },
                 { value: "record", label: "제휴 이력 많은 순" },
@@ -191,11 +186,11 @@ const StudentHome = () => {
             imageUrl={store.photo}
             onClick={() => handleCardClick(store.id)}
             likes={false}
+            isBest={store.isBest}
             ButtonComponent={() => (
               <RecommendBtn 
                 userId={store.id} 
                 isRecommendActive={recommendedStores.includes(store.id)}
-                onClick={() => fetchNewInfo()}
               />
             )}
             store={store} />

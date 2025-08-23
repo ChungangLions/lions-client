@@ -6,7 +6,7 @@ import ShowNum from '../labels/ShowNum';
 import { getOwnerLikes, getOwnerRecommends } from '../../../services/apis/ownerAPI'
 
 
-function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, recommends = true }) {
+function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, recommends = true, isBest = false }) {
   const [userLikes, setUserLikes] = useState(0);
   const [userRecommends, setUserRecommends] = useState(0);
 
@@ -42,7 +42,7 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, re
         <CardTitleRow>
           <Row>
             <CardTitle>{store.name}</CardTitle>
-            <BestText>best</BestText>
+            {isBest && <BestText>best</BestText>}
           </Row>
           <CardSubtitle>{store.caption}</CardSubtitle>
         </CardTitleRow>

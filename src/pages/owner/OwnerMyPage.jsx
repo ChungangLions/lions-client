@@ -17,6 +17,12 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { fetchLikes } from '../../services/apis/likesapi';
 import OrgSuggestDealBtn from '../../components/common/buttons/OrgSuggestDealBtn';
 
+// 제휴 유형 아이콘
+import { AiOutlineDollar } from "react-icons/ai"; // 할인형
+import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
+import RecommendBtn from '../../components/common/buttons/RecommendBtn';
+
 // 제휴 제안하기 누르면 profileData state로 넘겨주기
 
 const OwnerMyPage = () => {
@@ -31,6 +37,14 @@ const OwnerMyPage = () => {
   const [isLikeActive, setIsLikeActive] = useState(false);
   const [userRecord, setUserRecord] = useState(0);
   const [partnershipType, setPartnershipType] = useState([]);
+
+  // 제휴 유형 데이터
+  const partnershipTypes = [
+    { type: '할인형', icon: AiOutlineDollar },
+    { type: '타임형', icon: MdOutlineAlarm },
+    { type: '리뷰형', icon: MdOutlineArticle },
+    { type: '서비스제공형', icon: MdOutlineRoomService }
+  ];
 
   useEffect(() => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
@@ -167,20 +181,21 @@ const OwnerMyPage = () => {
     }
   }, [userType, params.id]);
 
-    const handleRecommendClick = async (event) => {
-      event.stopPropagation();
-      setIsRecommendActive(!isRecommendActive);
-      try {
-        await toggleRecommends(params.id);
-      } catch (error) {
-        console.error("추천 토글 실패:", error);
-        setIsRecommendActive(isRecommendActive);
-      }
-    };
+  const handleRecommendClick = async (event) => {
+    event.stopPropagation();
+    setIsRecommendActive(!isRecommendActive);
+    try {
+      await toggleRecommends(params.id);
+    } catch (error) {
+      console.error("추천 토글 실패:", error);
+      setIsRecommendActive(isRecommendActive);
+    }
+  };
 
   return (
     <PageContainer>
       {userType === "owner" && <Menu />}
+      <ContentContainer>
       {/* 타이틀 + 수정 버튼 section */}
       <TitleContainer>
         <TitleBox>
@@ -192,7 +207,10 @@ const OwnerMyPage = () => {
         </TitleBox>
         <ButtonGroup>
           {userType === "student" ? (
-            <StyledBtn style={{ textDecoration: 'none' }} $active={isRecommendActive} onClick={handleRecommendClick}>추천하기</StyledBtn>
+          <RecommendBox onClick={handleRecommendClick}>
+            <RecommendBtn userId={params.id} isRecommendActive={isRecommendActive} />
+            추천하기
+          </RecommendBox>
           ) : userType === "studentOrganization" ? (
             <>
               <FavoriteBtn
@@ -237,11 +255,26 @@ const OwnerMyPage = () => {
           </FurtherSum>
 
           <InfoTitle> 제휴 유형 </InfoTitle>
-            <TypeCardList>
-              {infos.partnershipType.map((type, idx) => (
-                <TypeCard key={idx}>{type}</TypeCard>
-              ))}
-            </TypeCardList>
+          <ContentBox>  
+            {partnershipTypes
+              .filter(({ type }) => partnershipType.includes(type))
+              .length > 0 ? (
+              partnershipTypes
+                .filter(({ type }) => partnershipType.includes(type))
+                .map(({ type, icon: IconComponent }) => (
+                <PartnershipTypeBox
+                  key={type}
+                  children={type} 
+                  IconComponent={IconComponent}
+                  disabled={true}
+                />
+              ))
+            ) : (
+              <NoPartnershipType>
+                제휴 유형은 AI 제안서 작성 이후 산출됩니다.
+              </NoPartnershipType>
+            )}
+          </ContentBox>
         </OwnerInfo>
 
         <OwnerMenu>
@@ -258,6 +291,7 @@ const OwnerMyPage = () => {
           </MenuList>
         </OwnerMenu>
       </ProfileContainer>
+      </ContentContainer>
     </PageContainer>
   )
 }
@@ -512,4 +546,58 @@ align-items: center;
 gap: 6px;
 align-self: stretch;
 // justify-content: center;
+`;
+
+const ContentBox = styled.div`
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+justify-content: flex-start;
+gap: 10px;
+text-align: center;
+font-size: 16px;
+`;
+
+const NoPartnershipType = styled.div`
+display: flex;
+align-items: center;
+justify-content: center;
+width: 100%;
+height: 122px;
+color: #898989;
+font-family: Pretendard;
+font-size: 16px;
+font-weight: 400;
+text-align: center;
+`;
+
+const RecommendBox = styled.button`
+background: transparent;
+width: 115px;
+border-radius: 5px;
+border: 1px solid #70AF19;
+box-sizing: border-box;
+height: 40px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 5px;
+gap: 10px;
+min-width: 85px;
+text-align: left;
+font-size: 16px;
+color: #70AF19;
+font-family: Pretendard;
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
 `;

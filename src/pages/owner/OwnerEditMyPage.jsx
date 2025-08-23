@@ -533,7 +533,7 @@ const OwnerEditMyPage = () => {
   return (
     <PageContainer>
       <Menu />
-
+      <ContentContainer>
       <TitleContainer>
         <Title> 제휴 프로필 설정 </Title>
         <SubTitle> 우리 가게에 딱 맞는 제휴 조건을 찾기 위해 정보를 입력해주세요. </SubTitle>
@@ -593,7 +593,7 @@ const OwnerEditMyPage = () => {
             <Title> 한 줄 소개 </Title>
             <SubTitle> 우리 가게를 잘 나타내는 한 줄 소개를 입력해 주세요. (25자 미만)</SubTitle>
           </TitleContainer>
-          <InputBox defaultText="텍스트 입력" value={commentValue} onChange={e => setCommentValue(e.target.value)} />
+          <InputBox defaultText="텍스트 입력" value={commentValue} onChange={e => setCommentValue(e.target.value)} maxCount={25}/>
 
           {/* 영업 시간 */}
           <TitleContainer ref={sectionRefs.openHours}>
@@ -733,7 +733,7 @@ const OwnerEditMyPage = () => {
           <TitleContainer ref={sectionRefs.extra}>
             <Title> 추가 제공 가능 서비스 </Title>
             <SubTitle>
-              <p>제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요. </p>
+              <p>제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요. 추가 제공 가능한 서비스가 없는 경우, ‘기타’ 선택 후 ‘없음’으로 작성해주세요. </p>
               <p>※ 작성하신 메뉴가 반드시 제휴에서 제공되는 것은 아니며, 제휴 유형이 ‘서비스 제공형’으로 결정될 경우에만 해당 메뉴가 서비스로 제공됩니다.</p>
             </SubTitle>
           </TitleContainer>
@@ -792,6 +792,7 @@ const OwnerEditMyPage = () => {
                 </ModalBox>
             </ModalOverlay>
             )} */}
+      </ContentContainer>
     </PageContainer>
   );
 };
@@ -1193,4 +1194,15 @@ const ContentSection = styled.div`
 display: flex;
 flex-direction: row;
 gap: 24px;
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
 `;

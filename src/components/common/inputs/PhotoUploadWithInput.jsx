@@ -8,7 +8,7 @@ const PhotoUploadWithInput = ({
   onChange = () => {},
   maxCount = 10, 
   inputPlaceholder1 = "메뉴명", 
-  inputPlaceholder2 = "0,000원" 
+  inputPlaceholder2 = "0,000원"
 }) => {
   const fileInputRef = useRef(null);
   const [photos, setPhotos] = useState([]);

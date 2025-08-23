@@ -259,6 +259,7 @@ const ShopImg = styled.img`
     align-self: stretch;
     background: ${({ src }) =>
       src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
+    border-radius: 5px;
 `;
 
 const ShopName = styled.div`
