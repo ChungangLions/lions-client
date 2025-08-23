@@ -271,7 +271,6 @@ const PageContainer = styled.div`
   align-items: center;
   justify-content:center;
   margin: 0 auto;
-  padding: 0 20px;
 `;
 
 const TitleContainer = styled.div`

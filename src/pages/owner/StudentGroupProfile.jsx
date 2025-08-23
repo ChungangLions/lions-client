@@ -10,6 +10,7 @@ import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 import { fetchLikes } from '../../services/apis/likesapi'
+import Menu from '../../layout/Menu'
 
 const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -74,6 +75,7 @@ const StudentGroupProfile = () => {
 
   return (
     <PageContainer>
+      {userType === "student_group" && <Menu />}
       <PageWrapper>
       <ProfileSection>
         <ProfileGroup>
@@ -149,9 +151,12 @@ text-align: center;
 `;
 
 const PageContainer = styled.div`
-width: 100%;
-position: relative;
-display: flex;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content:center;
+  margin: 0 auto;
 `;
 
 const PageWrapper = styled.div`
