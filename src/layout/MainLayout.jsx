@@ -24,10 +24,10 @@ const PageContainer = styled.div`
   width: 100%;
   align-items: center;
   min-height: 100vh;
-  // margin: 30px;
-  // margin-top: 0px;
   overflow-x: hidden;
   padding: 15px 29px;
+  color: #1a2d06;
+
 `;
 
 const ContentWrapper = styled.div`
@@ -40,5 +40,6 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   padding-left: 30px;
   padding-right: 30px;
-  margin-top: 14px;
+  margin-top: 85px;
+  color: #1a2d06;
 `;

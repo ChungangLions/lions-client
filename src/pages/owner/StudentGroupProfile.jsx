@@ -63,7 +63,14 @@ const StudentGroupProfile = () => {
     }
     fetchData();
   }, [groupId]);
-    
+  
+  const handleHeartClick = async() => {
+    const newState = !isLikeActive;
+    setIsLikeActive(newState);
+
+    // API 연결
+  }
+
 
   return (
     <PageContainer>
@@ -87,8 +94,8 @@ const StudentGroupProfile = () => {
         </ProfileGroup>
           {userType === "owner" ? (
             <ButtonGroup>
-              <FavoriteBox >
-                <FavoriteBtn userId={groupId} isLikeActive={isLikeActive} />
+              <FavoriteBox onClick={handleHeartClick} >
+                <FavoriteBtn userId={groupId} isLikeActive={isLikeActive} customColor="#898989" useCustomIcon={true} />
                 찜하기
               </FavoriteBox>
               <SuggestDealBtn organization={ organization} />
@@ -152,8 +159,7 @@ const PageWrapper = styled.div`
   display: flex;
   flex-direction: row;
   position: relative;
-  padding: 49px 59.5px 195px;
-  max-width: 1200px; 
+  padding: 49px 0px 195px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -211,6 +217,7 @@ align-self: stretch;
 position: relative;
 font-weight: 600;
 white-space: nowrap;
+font-size: 24px;
 `;
 
 const RecordContainer= styled.div`
@@ -281,7 +288,7 @@ display: flex;
 `;
 
 const FavoriteBox = styled.div`
-width: 115px;
+width: 100%;
 border-radius: 5px;
 border: 1px solid #898989;
 box-sizing: border-box;
@@ -290,9 +297,10 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
-padding: 5px;
-gap: 10px;
-min-width: 85px;
+padding: 10px;
+gap: 5px;
+max-width: 130px;
+cursor: pointer;
 `;
 
 

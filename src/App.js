@@ -16,7 +16,6 @@ import OwnerWishlist from './pages/owner/OwnerWishlist';
 import StudentMyPage from './pages/student/StudentMyPage';
 import StudentGroupProfile from './pages/owner/StudentGroupProfile';
 import StudentEditMyPage from './pages/student/StudentEditMyPage';
-import OwnerProfile from './pages/student/OwnerProfile';
 import ProposalDetail from './pages/suggest/ProposalDetail';
 import AIProposalDetail from './pages/suggest/AIProposalDetail';
 import GroupEditMyPage from './pages/studentGroup/GroupEditMyPage';

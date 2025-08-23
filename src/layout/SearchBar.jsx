@@ -86,6 +86,11 @@ const SearchInput = styled.input`
   font-size: 16px;
   position: relative;
   z-index: 0;
+  color: #1a2d06;
+  
+  &::placeholder {
+    color: #bcbcbc;
+  }
 `;
 
 const SearchIcon = styled(FiSearch)`
