@@ -124,8 +124,11 @@ color: black;
 
 const HeaderContainer = styled.div`
 box-sizing: border-box; 
-width: 100%;
-position: relative;
+width: calc(100% - 58px); /* 29px씩 양쪽에서 떨어뜨리기 */
+position: fixed;
+left: 29px;
+right: 29px;
+top: 0;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
@@ -135,12 +138,6 @@ text-align: left;
 font-size: 16px;
 color: #1a2d06;
 font-family: Pretendard;
-
-/*스크롤 관련*/
-position: fixed;
-right: 29px;
-left: 29px;
-top: 0;
 background-color: white;
 z-index: 1000;
 height: 85px;
