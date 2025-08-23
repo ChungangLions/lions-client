@@ -352,7 +352,7 @@ const useVenueStore = create(
             let next = searchList;
             if (tokens.length > 0) {
                 next = searchList.filter((store) => {
-                    const hay = `${store.name || ""} ${store.caption || ""} ${store.storeType || ""}`
+                    const hay = `${store.name || ""}  ${store.storeType || ""}`
                         .toLowerCase();
                     // 모든 토큰이 포함되면 통과 (AND 매칭)
                     return tokens.every((t) => hay.includes(t));
