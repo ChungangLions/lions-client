@@ -91,7 +91,8 @@ useEffect(() => {
               )}
           </UserContainer>
           <StyledLink to={userRole ? `/${userRole.toLowerCase()}/mypage` : "/"} aria-label="마이페이지">
-            <ProfileIcon isActive={isActive}/>
+            <ProfileIcon isActive={isActive}/> 
+            <ProfileText isActive={isActive}>MY</ProfileText>
           </StyledLink>
         </RightBox>
       </HeaderGroup>
@@ -111,9 +112,14 @@ const LogoImage = styled.img`
 `;
 
 const StyledLink = styled(Link)`
-width: 28px;
 position: relative;
-height: 28px;
+text-decoration: none;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: flex-start;
+gap: 3px;
+color: black;
 `;
 
 const HeaderContainer = styled.div`
@@ -233,4 +239,10 @@ const DropdownItem = styled.div`
 const DropdownArrow = styled(IoIosArrowDown)`
   margin-left: 5px;
   cursor: pointer;
+`;
+
+const ProfileText = styled.div`
+position: relative;
+color: ${({ isActive }) => (isActive ? '#70AF19' : '#1A2D06')};
+transition: color 0.2s ease;
 `;

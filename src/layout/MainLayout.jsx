@@ -28,6 +28,7 @@ const PageContainer = styled.div`
   // margin-top: 0px;
   overflow-x: hidden;
   padding: 15px 29px;
+  color: #1a2d06;
 `;
 
 const ContentWrapper = styled.div`
@@ -41,4 +42,5 @@ const ContentWrapper = styled.div`
   padding-left: 30px;
   padding-right: 30px;
   margin-top: 14px;
+  color: #1a2d06;
 `;
