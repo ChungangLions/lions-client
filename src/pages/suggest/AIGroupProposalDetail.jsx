@@ -8,10 +8,11 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
@@ -19,11 +20,12 @@ import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-i
 import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
+import OrgCardSection from '../../components/common/cards/OrgCardSection';
 
 
 const AIGroupProposalDetail = () => {
   const location = useLocation();
-  const { organization, proposalData, isAI: isAIFromState } = location.state || {};
+  const { organization, proposalData, isAI: isAIFromState } = location.state || {}; // organiztion undefined로 뜸뜸
   const isAI = typeof isAIFromState === 'boolean' ? isAIFromState : Boolean(proposalData); // proposalData 있으면 ai 돌렸다는거니까 isAI = true
   console.log(location.state);
   const { profileData } = location.state || {};
@@ -52,6 +54,39 @@ const AIGroupProposalDetail = () => {
         setSelectedPartnershipTypes(normalizePartnershipTypes(proposalData.partnership_type));
       }
     }, [proposalData]);
+
+      // 현재 로그인된 사용자 정보 불러오기
+  const [ groupProfile, setGroupProfile] = useState(null);
+  const [ isLoading, setIsLoading] = useState(true);
+  const { userId } = useUserStore();
+
+  useEffect(() => {
+    console.log("UseEffect 실행됨, userId:", userId); // 뭐지? 안 뜸 
+    
+    const getProfile = async() => {
+      try {
+        setIsLoading(true);
+        const groupProfile = await fetchGroupProfile(userId);
+        setGroupProfile(groupProfile);
+        console.log("학생단체 데이터", groupProfile);
+      } catch(error) {
+        console.error("학생 단체 프로필 조회 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (userId) {
+      getProfile();
+    } else {
+      setIsLoading(false);
+    }
+  }, [userId]);
+    
+    const navigate = useNavigate();
+    const handleCardClick = (organization, id) => {
+      navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+    }; 
   
   // 제휴 조건 입력 
   const [partnershipConditions, setPartnershipConditions] = useState({
@@ -67,7 +102,6 @@ const AIGroupProposalDetail = () => {
   const [ proposalId, setProposalId] = useState(proposalData.id); // 이미 생성됐는지 확인
 
   // 사장님 프로필 가져오기 -> 유저 아이디로 API 호출
-  const { userId }= useUserStore();
   const { profileId, setProfileId } = useState(profileData?.id); // 이 profileId로 제안서 불러오기 
 
   useEffect(() => {
@@ -458,8 +492,18 @@ const AIGroupProposalDetail = () => {
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
           <ReceiverWrapper>
+
             {/* 사장님 프로필 카드 불러오기 profileData 불러오면 사장님 프로필 정보 볼 수 있음*/}
             
+
+          {groupProfile && (
+             <OrgCardSection
+               cardType={'proposal'}
+               organization={groupProfile}
+               onClick={() => handleCardClick(groupProfile, groupProfile.id)}
+             />
+           )}
+
             <ButtonWrapper>
               <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
               <SaveBtn onClick={handleSave} />

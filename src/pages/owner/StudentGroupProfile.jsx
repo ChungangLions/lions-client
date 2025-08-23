@@ -75,8 +75,10 @@ const StudentGroupProfile = () => {
 
   return (
     <PageContainer>
+      
       {userType === "student_group" && <MenuGroup />}
-      <PageWrapper>
+      <ContentContainer>
+        <PageWrapper>
       <ProfileSection>
         <ProfileGroup>
             <ImageContainer src={groupImage} />
@@ -125,7 +127,8 @@ const StudentGroupProfile = () => {
             )}
           </RecordList>
       </RecordSection>
-      </PageWrapper>
+        </PageWrapper>
+      </ContentContainer>
     </PageContainer>
   )
 }
@@ -346,4 +349,15 @@ gap: 10px;
   &:hover {
     background-color: ${({ $active }) => ($active ? "#70AF19" : "#E9F4D0")};
     color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
 `;
