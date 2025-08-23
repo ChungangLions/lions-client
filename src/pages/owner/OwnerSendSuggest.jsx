@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
-import { fetchProposal } from '../../services/apis/proposalAPI'
+import { fetchProposal, editProposalStatus } from '../../services/apis/proposalAPI'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import { fetchGroupProfile, getGroupProfile } from '../../services/apis/groupProfileAPI'
@@ -118,35 +118,37 @@ useEffect(() => {
 
 console.log(sentProposals);
 
-const proposalOrganizations = groupProfiles.map((profile, index) => {
-  const proposal = sentProposals[index]; // 같은 순서의 proposal 꺼내기
+const proposalOrganizations = useMemo(() => {
+  return groupProfiles.map((profile, index) => {
+    const proposal = sentProposals[index]; // 같은 순서의 proposal 꺼내기
 
-  // profile이 null이거나 proposal이 없으면 건너뛰기
-  if (!profile || !proposal) {
-    return null;
-  }
+    // profile이 null이거나 proposal이 없으면 건너뛰기
+    if (!profile || !proposal) {
+      return null;
+    }
 
-  return {
-    ...profile,
-    id: proposal?.id || null, // 제안서 id
-    status: proposal?.current_status || null, // 제안서 상태
-    created_at: proposal
-      ? new Date(proposal.created_at).toLocaleDateString('ko-KR')
-      : null, // 생성일
-    receivedDate: proposal
-      ? new Date(proposal.created_at).toLocaleDateString('ko-KR')
-      : null, // 받은 날짜 (created_at과 같다면 중복 제거 가능)
-    // recipient 정보 추가 - 제안서의 recipient 정보를 포함
-    recipient: proposal?.recipient || null,
-    // 제안서의 상세 정보들도 포함
-    partnership_type: proposal?.partnership_type || null,
-    apply_target: proposal?.apply_target || null,
-    benefit_description: proposal?.benefit_description || null,
-    time_windows: proposal?.time_windows || null,
-    partnership_period: proposal?.partnership_period || null,
-    contact_info: proposal?.contact_info || null,
-  };
-}).filter(Boolean); // null 값 제거
+    return {
+      ...profile,
+      id: proposal?.id || null, // 제안서 id
+      status: proposal?.current_status || null, // 제안서 상태
+      created_at: proposal
+        ? new Date(proposal.created_at).toLocaleDateString('ko-KR')
+        : null, // 생성일
+      receivedDate: proposal
+        ? new Date(proposal.created_at).toLocaleDateString('ko-KR')
+        : null, // 받은 날짜 (created_at과 같다면 중복 제거 가능)
+      // recipient 정보 추가 - 제안서의 recipient 정보를 포함
+      recipient: proposal?.recipient || null,
+      // 제안서의 상세 정보들도 포함
+      partnership_type: proposal?.partnership_type || null,
+      apply_target: proposal?.apply_target || null,
+      benefit_description: proposal?.benefit_description || null,
+      time_windows: proposal?.time_windows || null,
+      partnership_period: proposal?.partnership_period || null,
+      contact_info: proposal?.contact_info || null,
+    };
+  }).filter(Boolean); // null 값 제거
+}, [groupProfiles, sentProposals]);
 
 console.log(proposalOrganizations);
 
@@ -181,8 +183,28 @@ console.log(proposalOrganizations);
 
   // proposal.id로 제안서 정보 접근 가능
   
-  const handleProposalClick = (proposalOrganizations) => {
+  const handleProposalClick = async (proposalOrganizations) => {
     console.log("클릭된 organization:", proposalOrganizations);
+    
+    // try {
+    //   // 제안서 상태를 READ로 변경
+    //   if (proposalOrganizations.status === 'UNREAD') {
+    //     await editProposalStatus(proposalOrganizations.id, { status: 'READ', comment: '' });
+  
+        
+    //     // 로컬 상태도 업데이트
+    //     setSentProposals(prevProposals => 
+    //       prevProposals.map(proposal => 
+    //         proposal.id === proposalOrganizations.id 
+    //           ? { ...proposal, current_status: 'READ' }
+    //           : proposal
+    //       )
+    //     );
+    //   }
+    // } catch (error) {
+    //   console.error('제안서 상태 변경 실패:', error);
+    // }
+    
     // 클릭 시 제안서 상세 페이지로 이동
     navigate(`/owner/mypage/sent-proposal/${proposalOrganizations.id}`, { 
       state: { proposalOrganizations } 
