@@ -1,4 +1,6 @@
 // 이거 하나에 다하려니까 함수 너무 길어져서 나중에 리팩토링 해야댐 ㅠ 
+// 1. 수정하기 버튼 비활성화
+// 2. 연락처 필드 수정 불가인 상태 -> 수정가능으로 
 
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
@@ -8,7 +10,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -22,6 +24,7 @@ import useUserStore from '../../stores/userStore';
 
 const ProposalDetail = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { organization, proposal } = location.state || {};
   console.log(location.state);
 
@@ -248,6 +251,16 @@ const ProposalDetail = () => {
 
   const [scrollY, setScrollY] = useState(0);
 
+  // CardSection 클릭 시 해당 organization의 프로필로 이동
+  const handleCardClick = (org) => {
+    navigate('/owner/student-group-profile', {
+      state: {
+        organization: org,
+        userType: 'owner'
+      }
+    });
+  };
+
   // ---- 우측 리스트 스크롤 구현 ----
   useEffect(() => {       // 스크롤 위치 감지
     const handleScroll = () => {
@@ -427,6 +440,7 @@ const ProposalDetail = () => {
               cardType={"proposal"} 
               organization={organization} 
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
+              onClick={handleCardClick}
             />
             <ButtonWrapper>
 
