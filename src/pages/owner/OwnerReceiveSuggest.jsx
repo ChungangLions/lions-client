@@ -59,6 +59,7 @@ const OwnerReceiveSuggest = () => {
         });
         
         console.log('계산된 통계:', stats);
+        
         setSummaryStats(stats);
       } catch (error) {
         console.error('받은 제안서 조회 실패:', error);
@@ -69,10 +70,6 @@ const OwnerReceiveSuggest = () => {
 
     fetchReceivedProposals();
   }, []);
-
-  const handleCardClick = (proposal) => {
-    navigate(`/owner/proposal`, { state: { proposal } });
-  };
 
   // 제안서 데이터를 organization 형태로 변환
   const proposalOrganizations = receivedProposals.map(proposal => ({
@@ -89,6 +86,8 @@ const OwnerReceiveSuggest = () => {
 
   console.log("받은 제안서 데이터", proposalOrganizations);
 
+
+
   const STATUS_MAP = {
     UNREAD: "미열람",
     READ: "열람",
@@ -101,6 +100,7 @@ const OwnerReceiveSuggest = () => {
     { count: summaryStats.unread, label: '미열람' },
     { count: summaryStats.partnership, label: '제휴 체결' },
     { count: summaryStats.rejected, label: '거절' }
+    
   ];
 
   if (loading) {

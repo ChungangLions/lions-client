@@ -12,6 +12,16 @@ export async function fetchAllGroupProfile() {
     return response.data
 }
 
+// 특정 학생 단체 프로필
+export const getGroupProfile = async(id) => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token); 
+    
+    const response = await authAxios.get(`/api/profiles/student-groups/${id}/`);
+    return response.data
+}
+
+
 // userId에 해당하는 유저의 최신 학생단체 프로필 데이터
 export async function fetchGroupProfile(userId) {
   try {
