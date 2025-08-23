@@ -89,8 +89,8 @@ const useVenueStore = create(
                 recommendations: item.recommendations || null,
                 record: item.record || null,
                 // photo: item.photos[0].image || null,
-                photo: item.photos?.[0]?.image || null
-
+                photo: item.photos?.[0]?.image || null,
+                campus_name : item.campus_name,
               }));
           set({
             originalStores: converted,
