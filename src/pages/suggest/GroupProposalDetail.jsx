@@ -21,6 +21,7 @@ import useUserStore from '../../stores/userStore';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import GroupCard from '../../components/common/cards/GroupCard';
 import { fetchLikes } from '../../services/apis/likesapi';
+import OrgCardSection from '../../components/common/cards/OrgCardSection';
 
 // profileData : 사장님, groupProfile: 학생단체 
 const GroupProposalDetail = () => {
@@ -312,23 +313,23 @@ const GroupProposalDetail = () => {
     return maxTop ;
   };
 
-//   // 카드 내 찜 부분 (GroupHome에서 가져옴)
-//     const [likeStores, setLikeStores] = useState([]);
+  // 카드 내 찜 부분 (GroupHome에서 가져옴)
+    const [likeStores, setLikeStores] = useState([]);
 
-//     useEffect(() => {
-//         //fetchStores();
-//         const fetchUserLikes = async () => {
-//           const list = await fetchLikes('given');
-//           setLikeStores(list.map(item => item.target.id));
-//           // console.log("좋아요한 가게 리스트:", list);
-//           console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
-//         };
-//         fetchUserLikes();
-//       }, []);
+    useEffect(() => {
+        //fetchStores();
+        const fetchUserLikes = async () => {
+          const list = await fetchLikes('given');
+          setLikeStores(list.map(item => item.target.id));
+          // console.log("좋아요한 가게 리스트:", list);
+          console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+        };
+        fetchUserLikes();
+      }, []);
     
-//       useEffect(() => {
-//         console.log("likeStores 내 데이터 출력:", likeStores);
-//       }, [likeStores]);
+      useEffect(() => {
+        console.log("likeStores 내 데이터 출력:", likeStores);
+      }, [likeStores]);
     
 console.log(groupProfile);
   
@@ -471,6 +472,11 @@ console.log(groupProfile);
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
+          <OrgCardSection
+            cardType={'proposal'}
+            organization={groupProfile}
+            userId={groupProfile.user}
+          />
             <ButtonWrapper>
                 <>
                     <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />

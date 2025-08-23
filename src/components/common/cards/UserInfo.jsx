@@ -8,7 +8,7 @@ const UserInfo = ({organization}) => {
   return (
     <UserInfoWrapper>
       <UserSection>
-        <ProfileImage profileImage={sampleImage} />
+        <ProfileImage profileImage={organization.photos[0]} />
         <NameWrapper>
           {/*<p>{organization?.university}</p>*/}
           <p>중앙대학교 서울캠퍼스</p>

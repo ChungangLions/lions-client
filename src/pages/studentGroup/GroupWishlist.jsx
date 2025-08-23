@@ -26,7 +26,7 @@ const GroupWishlist = () => {
       const list = await fetchLikes('given');
       setLikeStores(list.map(item => item.target.id));
       console.log("좋아요한 가게 리스트:", list);
-      console.log("좋아요한 가게게 ID배열:", list.map(item => item.target.id));
+      console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
     };
     fetchUserLikes();
   }, []);
