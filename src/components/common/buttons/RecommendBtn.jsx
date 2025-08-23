@@ -4,7 +4,7 @@ import { RiThumbUpFill as FilledRecommend } from "react-icons/ri";
 import styled from 'styled-components';
 import { toggleRecommends } from '../../../services/apis/recommendsapi';
 
-const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => {
+const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick, height = '17px' }) => {
   const [isRecommendActive, setIsRecommendActive] = useState(defaultActive);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => 
 
   return (
     <StyledButton onClick={handleClick}>
-      { isRecommendActive ? <StyledRecommend /> : <StyledNotRecommend /> }
+      { isRecommendActive ? <StyledRecommend height={height}/> : <StyledNotRecommend $height={height}/> }
     </StyledButton>
   );
 };
@@ -33,7 +33,7 @@ const RecommendBtn = ({ userId, isRecommendActive: defaultActive, onClick }) => 
 export default RecommendBtn;
 
 const StyledRecommend = styled(FilledRecommend)`
-  height: 17px;
+  height: ${(props) => props.height || "17px"};
   width: 100%;
   overflow: hidden;
   max-height: 100%;
@@ -41,7 +41,7 @@ const StyledRecommend = styled(FilledRecommend)`
 `;
 
 const StyledNotRecommend = styled(EmptyRecommend)`
-  height: 17px;
+  height: ${(props) => props.height || "17px"};
   width: 100%;
   overflow: hidden;
   max-height: 100%;

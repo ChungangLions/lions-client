@@ -449,10 +449,10 @@ const ModalContainer = styled.div`
     width: 600px;
     height: 402px;
     max-height: 560px;
-    padding: 20px 63px 100px 63px;
+    padding: 20px 63px 80px 63px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+    gap: 10px;
     flex-shrink: 0;
     border-radius: 5px;
     background: #FFF;
@@ -471,7 +471,7 @@ const SearchRow = styled.div`
   align-items: center;
   // justify-content: center;
   gap: 8px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 `;
 
 const ModalInput = styled.input`

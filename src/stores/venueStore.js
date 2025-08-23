@@ -170,22 +170,28 @@ const useVenueStore = create(
                const enrichedData = Object.values(latestUserMap);
               //  console.log("사장님 리스트 데이터 (enriched): ", enrichedData);
    
-               // 3단계: enriched 데이터를 사용해서 converted 생성 (API 호출 없이)
-               const converted = enrichedData.map((item) => {
-                   return {
-                       id: item.user,
-                       name: item.profile_name,
-                       caption: item.comment,
-                       storeType: (item.business_type || '').toString().toUpperCase(),
-                       likes: item.likes || 0,
-                       recommendations: item.recommendations || 0,
-                       partnershipType: item.partnershipType || null,
-                       receivedSuggest: item.receivedSuggest || 0,
-                       record: item.record || 0,
-                       photo: item.photos?.[0]?.image || null,
-                       campus_name : item.campus_name,
-                   };
-               });
+                               // 3단계: enriched 데이터를 사용해서 converted 생성 (API 호출 없이)
+                const converted = enrichedData.map((item) => {
+                    return {
+                        id: item.user,
+                        name: item.profile_name,
+                        caption: item.comment,
+                        storeType: (item.business_type || '').toString().toUpperCase(),
+                        likes: item.likes || 0,
+                        recommendations: item.recommendations || 0,
+                        partnershipType: item.partnershipType || null,
+                        receivedSuggest: item.receivedSuggest || 0,
+                        record: item.record || 0,
+                        photo: item.photos?.[0]?.image || null,
+                        campus_name : item.campus_name,
+                    };
+                });
+
+                // receivedSuggest가 가장 많은 가게들에 isBest: true 설정
+                const maxReceivedSuggest = Math.max(...converted.map(store => store.receivedSuggest || 0));
+                converted.forEach(store => {
+                    store.isBest = (store.receivedSuggest || 0) === maxReceivedSuggest && maxReceivedSuggest > 0;
+                });
   
                 set({
                    originalStores: converted,
@@ -221,7 +227,7 @@ const useVenueStore = create(
 
 
         filterByStoreType: (type) => {
-          const allowed = ['RESTAURANT', 'BAR', 'CAFE', 'ETC'];
+          const allowed = ['RESTAURANT', 'BAR', 'CAFE', 'OTHER'];
           const normalizedType = (type ?? '').toString().toUpperCase();
 
           // 문자열 -> 배열 변환 방어 및 비정상 상태 복구
@@ -243,14 +249,24 @@ const useVenueStore = create(
           // 허용된 값만 유지 + 중복 제거
           nextActive = Array.from(new Set(nextActive.filter(t => allowed.includes(t))));
 
-          // 선택된 타입 없으면 전체 리스트
-          let newList;
-          if (nextActive.length === 0) {
-            newList = get().originalStores;
-          } else {
-            newList = get().originalStores.filter(store =>
+          // 두 필터를 모두 적용하여 필터링
+          let newList = get().originalStores;
+          
+          // 1. 업종 필터 적용
+          if (nextActive.length > 0) {
+            newList = newList.filter(store =>
               nextActive.includes((store.storeType || '').toString().toUpperCase())
             );
+          }
+          
+          // 2. 제휴 유형 필터 적용
+          const activeDealTypes = get().activeDealType;
+          if (Array.isArray(activeDealTypes) && activeDealTypes.length > 0) {
+            newList = newList.filter(store => {
+              return store.partnershipType?.some(dealType => 
+                activeDealTypes.includes(dealType?.toString())
+              );
+            });
           }
 
           const sortKey = get().sortKey;
@@ -289,26 +305,27 @@ const useVenueStore = create(
           // 허용된 값만 유지 + 중복 제거
           nextActive = Array.from(new Set(nextActive.filter(t => allowed.includes(t))));
 
-          // 선택된 타입 없으면 전체 리스트
-           let newList;
-           if (nextActive.length === 0) {
-             newList = get().originalStores;
-           } else {
-            //  newList = get().originalStores.filter(store => {
-            //    return store.partnershipType?.some(partnership => 
-            //      nextActive.includes(partnership?.toString())
-            //    );
-            //  });
-            newList = get().originalStores.filter(store => {
-              // store.dealType 배열에서 선택된 타입 중 하나라도 포함되어 있는지 확인
-              const hasMatchingType = store.partnershipType?.some(dealType => 
+          // 두 필터를 모두 적용하여 필터링
+          let newList = get().originalStores;
+          
+          // 1. 제휴 유형 필터 적용
+          if (nextActive.length > 0) {
+            newList = newList.filter(store => {
+              return store.partnershipType?.some(dealType => 
                 nextActive.includes(dealType?.toString())
               );
-              console.log(`Store "${store.name}": dealType=${store.partnershipType}, nextActive=${nextActive}, match=${hasMatchingType}`);
-              return hasMatchingType;
             });
-           }
-           console.log("new List: ", newList);
+          }
+          
+          // 2. 업종 필터 적용
+          const activeStoreTypes = get().activeStoreType;
+          if (Array.isArray(activeStoreTypes) && activeStoreTypes.length > 0) {
+            newList = newList.filter(store =>
+              activeStoreTypes.includes((store.storeType || '').toString().toUpperCase())
+            );
+          }
+
+          console.log("new List: ", newList);
 
           const sortKey = get().sortKey;
           if (sortKey) {
