@@ -439,7 +439,8 @@ const AIProposalDetail = () => {
             <CardSection 
               cardType={"proposal"} 
               organization={organization} 
-              ButtonComponent={() => <FavoriteBtn organization={organization} onClick={handleCardClick}/>} 
+              onClick={handleCardClick}
+              ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
               <EditBtn onClick={() => {toggleEditMode(); }} isEditMode={isEditMode} />
