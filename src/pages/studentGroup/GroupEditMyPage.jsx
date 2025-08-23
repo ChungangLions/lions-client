@@ -9,7 +9,7 @@ import { FiSearch } from "react-icons/fi";
 import { editGroupProfile, fetchGroupProfile } from "../../services/apis/groupProfileAPI";
 import PeriodPicker from "../../components/common/inputs/PeriodPicker";
 import { IoIosClose } from "react-icons/io";
-import Menu from "../../layout/Menu";
+import MenuGroup from "../../layout/MenuGroup";
 
 const SECTIONS = [
   { type: "section", label: "기본 정보" },
@@ -345,7 +345,7 @@ const GroupEditMyPage = () => {
   // ----------- 렌더링 -----------
   return (
     <PageContainer>
-      <Menu />
+      <MenuGroup />
       <TitleContainer>
         <Title> 제휴 프로필 설정 </Title>
         <SubTitle> 우리 가게에 딱 맞는 제휴 조건을 찾기 위해 정보를 입력해주세요. </SubTitle>

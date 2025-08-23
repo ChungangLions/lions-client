@@ -42,7 +42,7 @@ function App() {
         <Route path="/student_group/store-profile/:id" element={<OwnerMyPage />} />
         <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
         <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
-        <Route path="/student-group/mypage/wisthlist" element={<GroupWishlist />} />
+        <Route path="/student_group/mypage/wishlist" element={<GroupWishlist />} />
         <Route path="/student-group/proposal" element={<GroupProposalDetail/>} />
         <Route path="/student-group/ai-proposal" element={<AIGroupProposalDetail/>} />
         
