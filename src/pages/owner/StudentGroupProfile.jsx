@@ -70,13 +70,13 @@ const StudentGroupProfile = () => {
       <PageWrapper>
       <ProfileSection>
         <ProfileGroup>
-            <ImageContainer /> 
+            <ImageContainer src={groupImage} />
             <ContentWrapper>
               <OrganizationWrapper>
                 {/*<NoWrapItem>{organization?.university}</NoWrapItem>*/}
                 <NoWrapItem>{university}</NoWrapItem>
-                <NoWrapItem> {groupName} </NoWrapItem>
                 <NoWrapItem> {groupDepartment} </NoWrapItem>
+                <NoWrapItem> {groupName} </NoWrapItem>
               </OrganizationWrapper>
               <DetailSection>
                 {detailCards.map((card, index) => (
@@ -102,7 +102,7 @@ const StudentGroupProfile = () => {
       <RecordSection>
         <Divider />
         <RecordList>
-            <Title>추천 목록</Title>
+            <Title>제휴 이력</Title>
             {dealHistories.length === 0 ? (
               <RecordContainer>
                 <EmptyNotice>제휴 이력이 없습니다.</EmptyNotice>
@@ -222,12 +222,13 @@ display: flex;
 
 `;
 
-const ImageContainer = styled.div`
+const ImageContainer = styled.img`
 width: 210px;
 position: relative;
 background-color: #d9d9d9;
 height: 210px;
 border-radius: 50%;
+object-fit: cover;
 `;
 
 // title + detail

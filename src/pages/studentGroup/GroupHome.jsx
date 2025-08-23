@@ -87,26 +87,26 @@ const GroupHome = () => {
           <TypeWrapper>제휴 유형</TypeWrapper>
           <FilterWrapper>
             <FilterBtn
-            onClick={() => filterByStoreType('RESTAURANT')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('타임형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('타임형')}
             >
             타임형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('BAR')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('서비스 제공형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('서비스 제공형')}
             >
             서비스 제공형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('CAFE')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('리뷰형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('리뷰형')}
             >
             리뷰형
             </FilterBtn>
             <FilterBtn
-            onClick={() => filterByStoreType('CAFE')}
-            active={Array.isArray(activeStoreType) && activeStoreType.includes('CAFE')}
+            onClick={() => filterByDealType('할인형')}
+            active={Array.isArray(activeDealType) && activeDealType.includes('할인형')}
             >
             할인형
             </FilterBtn>
@@ -114,7 +114,7 @@ const GroupHome = () => {
         </FilterSection>
         <OptionWrapper>
           <TypeWrapper>정렬</TypeWrapper>
-            <TbArrowsSort size={30} strokeWidth={1} />
+            <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
                 { value: "", label: "기본 순" },
@@ -204,9 +204,13 @@ background-color: white;
 
 const TypeWrapper = styled.div`
 display: flex;
+flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 10px 0px;
+gap: 10px;
+min-width: 28px;
+max-width: 60px;
 `;
 
 const FilterWrapper =styled.div`

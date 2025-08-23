@@ -28,7 +28,10 @@ const ImageSlider = ({photos}) => {
   const translateX = -(start * (BOX_WIDTH + BOX_GAP));
 
   return (
-    <SliderSection style={{ width: sliderViewportWidth }}>
+    <SliderSection 
+      style={{ 
+        width: sliderViewportWidth 
+    }}>
       {start > 0 && (
         <ArrowBtn left onClick={handlePrev}>
           &lt;
@@ -39,6 +42,8 @@ const ImageSlider = ({photos}) => {
           width: totalWidth,
           transform: `translateX(${translateX}px)`,
           transition: 'transform 0.5s cubic-bezier(0.57,0.21,0.56,1.17)',
+          margin: BOX_COUNT <= 2 ? '0px auto' : '',
+          gap: BOX_COUNT <= 2 ? '50px' : '',
         }}
       >
         {photos.map((photo) => (

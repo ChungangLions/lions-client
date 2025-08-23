@@ -1,7 +1,3 @@
-// TO DO LIST
-// 1. (백이랑) partnership_goal이 여러 개일 경우 제대로 fetch 안 되는 중 수정 필요
-// 2. (백한테 확인 받아야 함) 이미지 잘 들어가는지 확인
-
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import InputBox from "../../components/common/inputs/InputBox";
@@ -12,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import { editGroupProfile, fetchGroupProfile } from "../../services/apis/groupProfileAPI";
 import PeriodPicker from "../../components/common/inputs/PeriodPicker";
+import { IoIosClose } from "react-icons/io";
 
 const SECTIONS = [
   { type: "section", label: "기본 정보" },
@@ -25,10 +22,12 @@ const SECTIONS = [
   { key: "period", label: "제휴 기간", refKey: "period" },
 ];
 
-const sampleCampus = {
-  name: '중앙대학교',
-  address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
-};
+const sampleCampus = '중앙대학교';
+
+// const sampleCampus = {
+//   name: '중앙대학교',
+//   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
+// };
 
 // ---- 학교 api 연결 ----
 const apiKey = process.env.REACT_APP_CAREER_API_KEY;
@@ -79,6 +78,9 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
   return visible ? (
   <ModalOverlay>
     <ModalContainer>
+      <CloseRow>
+        <ModalCloseBtn onClick={onClose} />
+      </CloseRow>
       <ModalHeader>대학 검색</ModalHeader>
       <SearchRow>
         <ModalInput
@@ -120,7 +122,6 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
           </ResultList>
         </div>
       )}
-      <ModalCloseBtn onClick={onClose}>x</ModalCloseBtn>
     </ModalContainer>
   </ModalOverlay>
   ) : null;
@@ -172,40 +173,11 @@ const GroupEditMyPage = () => {
     return photos.map(photo => photo.image);
   }
 
-    const parsePhotos = (photos) => {
-    const isFile = (file) => file instanceof File || file instanceof Blob;
-
-    const photosToSend = photos.map((photo, idx) => {
-        if (!isFile(photo)) {
-        console.warn(`photo at index ${idx} is not a File or Blob object.`);
-        }
-        return {
-        image: photo,
-        order: idx,
-        };
-    });
-
-    return photosToSend;
-    };
-
-
   function parseDateString(dateStr) {
     if (!dateStr) return { year: "", month: "", day: "" };
     const [year, month, day] = dateStr.split("-");
     return { year, month, day };
-  }
-
-  // const formData = new FormData();
-  // photos.forEach((p, i) => {
-  //   formData.append("photos", p.file);
-  //   formData.append("orders", p.order);
-  // });
-
-
-  // const parsePhotos = (photos) => photos.map((file, index) => ({
-  //   file: file,
-  //   order: index,
-  // }));      
+  }    
 
   // 학생 단체 프로필 조회 
   useEffect(() => {
@@ -255,20 +227,31 @@ const GroupEditMyPage = () => {
   const handleProfileUpdate = async () => {
     try {
       
-      const updateData = {
-        photos: parsePhotos(photoState),
-        university_name: campusValue.name,
-        department: councilName,
-        council_name: department,
-        position: position,
-        student_size: students,
-        term_start: makeDateString(term.startYear, term.startMonth),
-        term_end: makeDateString(term.endYear, term.endMonth),
-        partnership_start: makeDateString(period.startYear, period.startMonth, period.startDay),
-        partnership_end: makeDateString(period.endYear, period.endMonth, period.endDay),
-      };
-      console.log("updateData:", updateData);
-      await editGroupProfile(profileId, updateData);
+      const formData = new FormData();
+      
+      // 사진 데이터 추가
+      photoState.forEach((photo, index) => {
+        formData.append('photos', photo);
+        formData.append('orders', index);
+      });
+      
+      // 텍스트 데이터 추가
+      formData.append('university_name', campusValue);
+      formData.append('department', department);
+      formData.append('council_name', councilName);
+      formData.append('position', position);
+      formData.append('student_size', students);
+      formData.append('term_start', makeDateString(term.startYear, term.startMonth));
+      formData.append('term_end', makeDateString(term.endYear, term.endMonth));
+      formData.append('partnership_start', makeDateString(period.startYear, period.startMonth, period.startDay));
+      formData.append('partnership_end', makeDateString(period.endYear, period.endMonth, period.endDay));
+      
+      console.log("FormData 내용:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      
+      await editGroupProfile(profileId, formData);
       alert("프로필 수정 완료!");
 
     } catch (error) {
@@ -290,8 +273,8 @@ const GroupEditMyPage = () => {
   }, []);
 
   const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = 50;
-    const maxTop = 230;
+    const minTop = 20;
+    const maxTop = 215;
     
     if (scrollY <= 0) return maxTop;
     if (scrollY >= 500) return minTop;
@@ -319,9 +302,8 @@ const GroupEditMyPage = () => {
   // 진행상황 체크 용도
   const isFilledText = val => typeof val === "string" && val.trim() !== "";
   const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
-  const isFilledCampus = val =>
-    val && typeof val === "object" && typeof val.name === "string" && val.name.trim() !== "";
-  const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
+  const isFilledCampus = val => typeof val === "string" && val.trim() !== "";  
+  const isFilledNum = val => !isNaN(val) && val > 0;
   const isFilledTerm = (term) =>
     !!term.startYear && !!term.startMonth &&
     !!term.endYear && !!term.endMonth;
@@ -384,12 +366,12 @@ const GroupEditMyPage = () => {
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > {campusValue ? campusValue.name : "대학 검색"} <SearchIcon /></SearchCampusButton>
+          > {campusValue ? campusValue : "대학 검색"} <SearchIcon /></SearchCampusButton>
           <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
             onSelect={campus => {
-              setCampusValue(campus);
+              setCampusValue(campus.name);
               setShowCampusModal(false);
             }}
           />
@@ -420,7 +402,7 @@ const GroupEditMyPage = () => {
             <Title> 소속 단위 학생 수 </Title>
             <SubTitle> 해당 학생단체에 속한 학생 수를 입력해 주세요.</SubTitle>
           </TitleContainer>
-          <InputBox defaultText="숫자 입력" type='number' value={students} onChange={e => setStudents(e.target.value)} />
+          <InputBox defaultText="숫자 입력" type='number' value={students} onChange={e => setStudents(e.target.value)} unit="명"/>
 
           {/* 임기 */}
           <TitleContainer ref={sectionRefs.term}>
@@ -507,17 +489,23 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background-color: #F4F4F4;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
-  width: 100%;
   position: relative;
+
+// background-color: #F4F4F4;
+  // gap: 10px;
+  // margin-top: 10px;
+  // width: 100%;
+  // position: relative;
 `;
 
 const EditContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 50px 117px;
+  padding: 50px 180px 50px 117px;
   align-items: start;
   background: #F4F4F4;
   top: 148px;
@@ -535,20 +523,30 @@ const EditTitle = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: sticky;
-  width: 100%;
+  position: fixed;
+  right: 45px;
+  width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: 999;
   transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left;
-  font-size: 20px;
-  color: #e9f4d0;
-  font-family: Pretendard;
-  box-sizing: border-box;
+
+// position: sticky;
+  // width: 100%;
+  // height: 587px;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
+  // justify-content: flex-start;
+  // gap: 10px;
+  // text-align: left;
+  // font-size: 20px;
+  // color: #e9f4d0;
+  // font-family: Pretendard;
+  // box-sizing: border-box;
 `;
 
 const ProgressList = styled.ul`
@@ -558,8 +556,16 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-  width: 197px;
-justify-content: flex-start;
+//   width: 197px;
+  align-self: stretch;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   gap: 15px;          // 아이템 간격
+//   margin: 0;          // 기본 여백 제거!
+//   padding: 0;
+//   width: 197px;
+// justify-content: flex-start;
 
 `;
 
@@ -598,7 +604,7 @@ width: 100%;
 position: relative;
 border-radius: 5px;
 background-color: #64a10f;
-height: 85px;
+height: 70px;
 display: flex;
 flex-direction: row;
 align-items: center;
@@ -676,7 +682,7 @@ const ModalContainer = styled.div`
     width: 600px;
     height: 402px;
     max-height: 560px;
-    padding: 50px 63px;
+    padding: 20px 63px 100px 63px;
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
@@ -779,17 +785,24 @@ const ResultItem = styled.div`
 `;
 
 // 닫기(X) 버튼
-const ModalCloseBtn = styled.button`
-  position: relative;
-  bottom: 440px;
-  left: 600px;
-  width: 24px;
+const CloseRow = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  // align-items: end;
+  align-self: stretch;
+  margin-top: 10px;
+`;
+
+const ModalCloseBtn = styled(IoIosClose)`
+  width: 30px;
   height: 24px;
   background: none;
   border: none;
   font-size: 24px;
   color: #222222;
   cursor: pointer;
+  storke-width: 2;
   &:hover { opacity: 80%; }
 `;
 

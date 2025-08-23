@@ -15,6 +15,7 @@ import { FaCheck } from "react-icons/fa6";
 import useUserStore from "../../stores/userStore";
 import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
+import { IoIosClose } from "react-icons/io";
 
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] };
@@ -53,20 +54,21 @@ const menuImage = [
 ];
 
 const initialGoalButtons = { 
-  new_customers: false, 
-  revisit: false, 
-  clear_stock: false, 
-  spread_peak: false, 
-  sns_marketing: false, 
-  collect_reviews: false, 
-  other: false
+  goal_new_customers: false, 
+  goal_revisit: false, 
+  goal_clear_stock: false, 
+  goal_spread_peak: false, 
+  goal_sns_marketing: false, 
+  goal_collect_reviews: false, 
+  goal_other: false
 };
 
-const ServiceButtons = { drink: false , side_menu: false };
-const sampleCampus = {
-  name: '중앙대학교',
-  address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
-};
+const ServiceButtons = { service_drink: false, service_side_menu: false, service_other: false };
+const sampleCampus = '중앙대학교';
+// const sampleCampus = {
+//   name: '중앙대학교',
+//   address: "서울특별시 동작구 흑석로 84 (흑석동, 중앙대학교)",
+// };
 
 
 // ---- 학교 api 연결 ----
@@ -116,59 +118,59 @@ function CampusSearchModal({ visible, onClose, onSelect }) {
   };
 
   return visible ? (
-  <ModalOverlay>
-    <ModalContainer>
-      <ModalHeader>대학 검색</ModalHeader>
-      <SearchRow>
-        <ModalInput
-          placeholder="대학 검색"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          style={{ flex: 1, marginRight: 6, padding: 8, fontSize: 16 }}
-          onKeyDown={e => { if (e.key === 'Enter') handleSearchClick(); }}
-          autoFocus
-        />
-        <SearchBtnBox onClick={handleSearchClick} style={{ padding: '8px 14px' }}>검색</SearchBtnBox>
-      </SearchRow>
-      {loading && <div>검색 중...</div>}
-      {!!error && (
-        <div style={{ color: "#c00", whiteSpace: "pre-line" }}>
-          {error}
-        </div>
-      )}
-      {searchResults !== null && (
-        <div>
-          <div style={{ marginBottom: 8 }}>검색 결과 {searchResults.length}건</div>
-          <ResultList>
-            {searchResults.length === 0
-              ? <ResultItem>검색 결과가 없습니다.</ResultItem>
-              : searchResults.map((campus, idx) => (
-                  <ResultItem
-                    key={campus.name + campus.address}
-                    selected={selectedIdx === idx}
-                    onClick={() => {
-                      setSelectedIdx(idx);
-                      if (onSelect) onSelect(campus);
-                    }}
-                  >
-                    <div><b>{campus.name}</b></div>
-                    <div style={{color: "#889"}}>{campus.address}</div>
-                  </ResultItem>
-                ))
-            }
-          </ResultList>
-        </div>
-      )}
-      <ModalCloseBtn onClick={onClose}>x</ModalCloseBtn>
-    </ModalContainer>
-  </ModalOverlay>
-  ) : null;
-}
+    <ModalOverlay>
+      <ModalContainer>
+        <CloseRow>
+          <ModalCloseBtn onClick={onClose} />
+        </CloseRow>
+        <ModalHeader>대학 검색</ModalHeader>
+        <SearchRow>
+          <ModalInput
+            placeholder="대학 검색"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            style={{ flex: 1, marginRight: 6, padding: 8, fontSize: 16 }}
+            onKeyDown={e => { if (e.key === 'Enter') handleSearchClick(); }}
+            autoFocus
+          />
+          <SearchBtnBox onClick={handleSearchClick} style={{ padding: '8px 14px' }}>검색</SearchBtnBox>
+        </SearchRow>
+        {loading && <div>검색 중...</div>}
+        {!!error && (
+          <div style={{ color: "#c00", whiteSpace: "pre-line" }}>
+            {error}
+          </div>
+        )}
+        {searchResults !== null && (
+          <div>
+            <div style={{ marginBottom: 8 }}>검색 결과 {searchResults.length}건</div>
+            <ResultList>
+              {searchResults.length === 0
+                ? <ResultItem>검색 결과가 없습니다.</ResultItem>
+                : searchResults.map((campus, idx) => (
+                    <ResultItem
+                      key={campus.name + campus.address}
+                      selected={selectedIdx === idx}
+                      onClick={() => {
+                        setSelectedIdx(idx);
+                        if (onSelect) onSelect(campus);
+                      }}
+                    >
+                      <div><b>{campus.name}</b></div>
+                      <div style={{color: "#889"}}>{campus.address}</div>
+                    </ResultItem>
+                  ))
+              }
+            </ResultList>
+          </div>
+        )}
+      </ModalContainer>
+    </ModalOverlay>
+    ) : null;
+  }
 
 
 const OwnerEditMyPage = () => {
-
-  // ---- 예시 데이터로 값 채워져 있는 상태, 나중에 데이터 받으면 수정해야 함 ----
   const [photoState, setPhotoState] = useState(storePhoto);
   const [campusValue, setCampusValue] = useState(sampleCampus);
   const [typeValue, setTypeValue] = useState("");
@@ -255,31 +257,7 @@ const OwnerEditMyPage = () => {
     }, {});
   };
 
-  // 제공 가능 서비스 유형 api 데이터 변환
-  const ServiceType = (Service, otherService) => {
-    const services = Array.isArray(Service) ? Service : (Service ? Service.split(",") : []);
 
-    return {
-      drink: services.includes("DRINK"),
-      side_menu: services.includes("SIDE_MENU"),
-      serviceEtc: otherService && otherService.trim().length > 0
-    };
-  };
-
-
-  const GoalType = (Goal, otherGoal) => {
-    const goals = Goal ? Goal.split(",") : []; // 문자열로 들어가 있는 경우 ','를 기준으로 분기
-
-    return {
-      new_customers: goals.includes("new_customers"),
-      revisit: goals.includes("REVISIT"),
-      clear_stock: goals.includes("CLEAR_STOCK"),
-      spread_peak: goals.includes("SPREAD_PEAK"),
-      sns_marketing: goals.includes("SNS_MARKETING"),
-      collect_reviews: goals.includes("collect_reviewsS"),
-      other: otherGoal && otherGoal.trim().length > 0
-    };
-  };
 
   const convertToApiBusiness = (data) => {
     const toBusinessType = {
@@ -344,10 +322,30 @@ const OwnerEditMyPage = () => {
         setOpenHours(parseSchedule(data.business_day));
         setBusyHours(parseSchedule(data.peak_time));
         setFreeHours(parseSchedule(data.off_peak_time));
-        setServiceButtons(ServiceType(data.available_service, data.available_service_other));
         setPhotoState(storePhotoUrls(data.photos));
         setMenuList(parsedMenus);
-        setGoalButtons(GoalType(data.partnership_goal, data.partnership_goal_other)); // 지금 여러 개일 경우 OTHER로 들어가서 원래 값 제대로 반영 안 되는 중
+        // 서버에서 받은 개별 boolean 필드들 확인
+         console.log("서버에서 받은 service_other:", data.service_other);
+         console.log("서버에서 받은 goal_other:", data.goal_other);
+         
+         // 개별 boolean 필드들로 직접 설정
+         setServiceButtons({
+           service_drink: Boolean(data.service_drink),
+           service_side_menu: Boolean(data.service_side_menu),
+           service_other: Boolean(data.service_other)
+         });
+         
+         setGoalButtons({
+           goal_new_customers: Boolean(data.goal_new_customers),
+           goal_revisit: Boolean(data.goal_revisit),
+           goal_clear_stock: Boolean(data.goal_clear_stock),
+           goal_spread_peak: Boolean(data.goal_spread_peak),
+           goal_sns_marketing: Boolean(data.goal_sns_marketing),
+           goal_collect_reviews: Boolean(data.goal_collect_reviews),
+           goal_other: Boolean(data.goal_other)
+         });
+         setOtherServiceValue(data.service_other_detail || '');
+         setOtherGoalValue(data.goal_other_detail || '');
         
 
         // 수정용 프로필 id
@@ -362,64 +360,59 @@ const OwnerEditMyPage = () => {
     fetchProfile();
   }, []);
 
-  // 프로필 수정
-  const serviceData= Object.entries(serviceButtons)
-  .filter(([key, value]) => key!== "serviceEtc" && value)  // 기타 제외 true인 값만
-  .map(([key]) => key.toUpperCase());
-
-  const goalData= Object.entries(goalButtons)
-  .filter(([key, value]) => key!== "other" && value)  // 기타 제외 true인 값만
-  .map(([key]) => key.toUpperCase());
-
-  // const goalDataObj = GoalType(
-  //   Object.entries(goalButtons)
-  //     .filter(([key, val]) => val)
-  //     .map(([key]) => key)
-  //     .join(","),
-  //   otherGoalValue
-  // );
-
-  // const partnership_goal = Object.entries(goalDataObj)
-  // .filter(([k,v]) => v && k !== "other")
-  // .map(([k]) => {
-  //   switch (k) {
-  //     case 'new_customers': return "new_customers";
-  //     case 'revisit': return "REVISIT";
-  //     case 'clear_stock': return "CLEAR_STOCK";
-  //     case 'spread_peak': return "SPREAD";
-  //     case 'sns_marketing': return "SNS";
-  //     case 'collect_reviews': return "REVIEW";
-  //     case 'other': return "OTHER";
-  //     default: return k.toUpperCase();
-  //   }
-  // }).join(",");
-
-  // const partnership_goal_other = goalDataObj.other ? otherGoalValue : "";
+  // 프로필 수정 - 새로운 boolean 형식으로 전송
 
   const handleProfileUpdate = async () => {
     try {
       
-      const updateData = {
-        profile_name: nameValue, 
-        comment: commentValue,
-        photos: parsePhotos(photoState),
-        contact: contactValue,
-        menus: menuList,
-        campus: campusValue?.name,
-        business_day : convertToApiFormat(openHours),
-        business_type : convertToApiBusiness(typeValue),
-        average_sales : Number(revenueValue), // 백엔드 데이터베이스 상 string이 아닌 숫자타입
-        margin_rate: marginValue,
-        peak_time : convertToApiFormat(busyHours),
-        off_peak_time : convertToApiFormat(freeHours),
-        available_service : serviceData,
-        available_service_other: serviceButtons.serviceEtc ? otherServiceValue : "",
-        partnership_goal : goalData,
-        partnership_goal_other : goalButtons.other ? otherGoalValue : "",
-
-      };
-      console.log("updateData:", updateData);
-      await editOwnerProfile(profileId, updateData);
+      const formData = new FormData();
+      
+      // 사진 데이터 추가
+      photoState.forEach((photo, index) => {
+        formData.append('photos', photo);
+        formData.append('orders', index);
+      });
+      
+      // 메뉴 사진 데이터 추가
+      menuList.forEach((menu, index) => {
+        formData.append('menus', menu);
+        formData.append('menu_orders', index);
+      });
+      
+      // 텍스트 데이터 추가
+      formData.append('profile_name', nameValue);
+      formData.append('comment', commentValue);
+      formData.append('contact', contactValue);
+      formData.append('campus_name', campusValue || '');
+      formData.append('business_day', JSON.stringify(convertToApiFormat(openHours)));
+      formData.append('business_type', convertToApiBusiness(typeValue));
+      formData.append('average_sales', Number(revenueValue));
+      formData.append('margin_rate', marginValue);
+             formData.append('peak_time', JSON.stringify(convertToApiFormat(busyHours)));
+       formData.append('off_peak_time', JSON.stringify(convertToApiFormat(freeHours)));
+       
+               // 새로운 boolean 형식으로 서비스 데이터 전송
+        formData.append('service_drink', serviceButtons.service_drink);
+        formData.append('service_side_menu', serviceButtons.service_side_menu);
+        formData.append('service_other', serviceButtons.service_other);
+        formData.append('service_other_detail', serviceButtons.service_other ? otherServiceValue : '');
+        
+        // 새로운 boolean 형식으로 목표 데이터 전송
+        formData.append('goal_new_customers', goalButtons.goal_new_customers);
+        formData.append('goal_revisit', goalButtons.goal_revisit);
+        formData.append('goal_clear_stock', goalButtons.goal_clear_stock);
+        formData.append('goal_spread_peak', goalButtons.goal_spread_peak);
+        formData.append('goal_sns_marketing', goalButtons.goal_sns_marketing);
+        formData.append('goal_collect_reviews', goalButtons.goal_collect_reviews);
+        formData.append('goal_other', goalButtons.goal_other);
+        formData.append('goal_other_detail', goalButtons.goal_other ? otherGoalValue : '');
+      
+      console.log("FormData 내용:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      
+      await editOwnerProfile(profileId, formData);
       alert("프로필 수정 완료!");
     } catch (error) {
       console.error("프로필 수정 실패:", error);
@@ -440,8 +433,8 @@ const OwnerEditMyPage = () => {
   }, []);
 
   const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = 50;
-    const maxTop = 230;
+    const minTop = -130;
+    const maxTop = 250;
     
     if (scrollY <= 0) return maxTop;
     if (scrollY >= 500) return minTop;
@@ -476,8 +469,7 @@ const OwnerEditMyPage = () => {
   const isFilledList = arr => Array.isArray(arr) && arr.length > 0;
   const isFilledSchedule = arr => Array.isArray(arr) && arr.some(v => v.day && v.start && v.end);
   const isFilledButtons = obj => obj && Object.values(obj).some(Boolean);
-  const isFilledCampus = val =>
-    val && typeof val === "object" && typeof val.name === "string" && val.name.trim() !== "";
+  const isFilledCampus = val => typeof val === "string" && val.trim() !== "";  
   const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
 
   const isSectionFilled = {
@@ -564,12 +556,12 @@ const OwnerEditMyPage = () => {
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}
-          > {campusValue ? campusValue.name : "대학 검색"} <SearchIcon /></SearchCampusButton>
+          > {campusValue ? campusValue : "대학 검색"} <SearchIcon /></SearchCampusButton>
           <CampusSearchModal
             visible={showCampusModal}
             onClose={() => setShowCampusModal(false)}
             onSelect={campus => {
-              setCampusValue(campus);
+              setCampusValue(campus.name);
               setShowCampusModal(false);
             }}
           />
@@ -645,16 +637,16 @@ const OwnerEditMyPage = () => {
               <p>학생단체가 이전 제휴 유형을 기반으로 제안을 검토할 수 있으므로, 변경 시 신중히 판단해 주세요.</p>
               </SubTitle>
           </TitleContainer>
-          <ButtonGroup>
-            <TextButton $active={goalButtons.new_customers} onClick={() => toggleGoalButton('new_customers')}>신규 고객 유입</TextButton>
-            <TextButton $active={goalButtons.revisit} onClick={() => toggleGoalButton('revisit')}>재방문 증가</TextButton>
-            <TextButton $active={goalButtons.clear_stock} onClick={() => toggleGoalButton('clear_stock')}>재고 소진</TextButton>
-            <TextButton $active={goalButtons.spread_peak} onClick={() => toggleGoalButton('spread_peak')}>피크타임 분산</TextButton>
-            <TextButton $active={goalButtons.sns_marketing} onClick={() => toggleGoalButton('sns_marketing')}>SNS 홍보</TextButton>
-            <TextButton $active={goalButtons.collect_reviews} onClick={() => toggleGoalButton('collect_reviews')}>리뷰 확보</TextButton>
-            <TextButton $active={goalButtons.other} onClick={() => toggleGoalButton('other')}>기타</TextButton>
-          </ButtonGroup>
-          {goalButtons.other && 
+                     <ButtonGroup>
+             <TextButton $active={goalButtons.goal_new_customers} onClick={() => toggleGoalButton('goal_new_customers')}>신규 고객 유입</TextButton>
+             <TextButton $active={goalButtons.goal_revisit} onClick={() => toggleGoalButton('goal_revisit')}>재방문 증가</TextButton>
+             <TextButton $active={goalButtons.goal_clear_stock} onClick={() => toggleGoalButton('goal_clear_stock')}>재고 소진</TextButton>
+             <TextButton $active={goalButtons.goal_spread_peak} onClick={() => toggleGoalButton('goal_spread_peak')}>피크타임 분산</TextButton>
+             <TextButton $active={goalButtons.goal_sns_marketing} onClick={() => toggleGoalButton('goal_sns_marketing')}>SNS 홍보</TextButton>
+             <TextButton $active={goalButtons.goal_collect_reviews} onClick={() => toggleGoalButton('goal_collect_reviews')}>리뷰 확보</TextButton>
+             <TextButton $active={goalButtons.goal_other} onClick={() => toggleGoalButton('goal_other')}>기타</TextButton>
+           </ButtonGroup>
+           {goalButtons.goal_other &&  
           (<InputBox 
           defaultText="기타 입력"
           value={otherGoalValue} 
@@ -745,12 +737,12 @@ const OwnerEditMyPage = () => {
               <p>※ 작성하신 메뉴가 반드시 제휴에서 제공되는 것은 아니며, 제휴 유형이 ‘서비스 제공형’으로 결정될 경우에만 해당 메뉴가 서비스로 제공됩니다.</p>
             </SubTitle>
           </TitleContainer>
-          <ButtonGroup>
-            <TextButton $active={serviceButtons.drink} onClick={() => toggleServiceButton('drink')}>음료수</TextButton>
-            <TextButton $active={serviceButtons.side_menu} onClick={() => toggleServiceButton('side_menu')}>사이드 메뉴</TextButton>
-            <TextButton $active={serviceButtons.serviceEtc} onClick={() => toggleServiceButton('serviceEtc')}>기타</TextButton>
-          </ButtonGroup>
-          {serviceButtons.serviceEtc && 
+                     <ButtonGroup>
+             <TextButton $active={serviceButtons.service_drink} onClick={() => toggleServiceButton('service_drink')}>음료수</TextButton>
+             <TextButton $active={serviceButtons.service_side_menu} onClick={() => toggleServiceButton('service_side_menu')}>사이드 메뉴</TextButton>
+             <TextButton $active={serviceButtons.service_other} onClick={() => toggleServiceButton('service_other')}>기타</TextButton>
+           </ButtonGroup>
+           {serviceButtons.service_other &&  
           <InputBox 
           defaultText="기타 입력" 
           value={otherServiceValue} 
@@ -818,6 +810,7 @@ const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
+  margin-bottom: 10px;
 `;
 
 const Title = styled.div`
@@ -834,11 +827,16 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background-color: #F4F4F4;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 10px;
   margin-top: 10px;
-  width: 100%;
   position: relative;
+// background-color: #F4F4F4;
+  // gap: 10px;
+  // margin-top: 10px;
+  // width: 100%;
+  // position: relative;
 `;
 
 const EditContainer = styled.div`
@@ -909,20 +907,29 @@ const ColumnLayout = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: sticky;
-  width: 100%;
+  position: fixed;
+  right: 45px;
+  width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: 999;
   transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left;
-  font-size: 20px;
-  color: #e9f4d0;
-  font-family: Pretendard;
-  box-sizing: border-box;
+// position: sticky;
+  // width: 100%;
+  // height: 587px;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
+  // justify-content: flex-start;
+  // gap: 10px;
+  // text-align: left;
+  // font-size: 20px;
+  // color: #e9f4d0;
+  // font-family: Pretendard;
+  // box-sizing: border-box;
 `;
 
 const ProgressList = styled.ul`
@@ -932,8 +939,16 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-  width: 197px;
-justify-content: flex-start;
+//   width: 197px;
+  align-self: stretch;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   gap: 15px;          // 아이템 간격
+//   margin: 0;          // 기본 여백 제거!
+//   padding: 0;
+//   width: 197px;
+// justify-content: flex-start;
 
 `;
 
@@ -995,31 +1010,6 @@ const ModalOverlay = styled.div`
   z-index: 9999;
 `;
 
-const ModalBox = styled.div`
-  width: 492px;
-  height: 213px;
-  padding: 59px 58px;
-  justify-content: center;
-  gap: 50px; // 값이 없길래 임의로 넣음
-  flex-shrink: 0;
-  background: #F8F8F8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const ModalText = styled.div`
-    color: #000;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: normal;
-`;
-
-const ModalBtnRow = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
 const ModalBtn = styled.button`
     display: flex;
     width: 90px;
@@ -1030,13 +1020,6 @@ const ModalBtn = styled.button`
     border: 1px solid #000;
     cursor: pointer;
     background: #F8F8F8;
-`;
-
-const ModalBtnPrimary = styled(ModalBtn)`
-    width: 204px;
-    padding: 10px;
-    background: #3D3D3D;
-    color: #FFFFFF;
 `;
 
 const SearchCampusButton = styled.button`
@@ -1082,7 +1065,7 @@ const ModalContainer = styled.div`
     width: 600px;
     height: 402px;
     max-height: 560px;
-    padding: 50px 63px;
+    padding: 20px 63px 100px 63px;
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
@@ -1185,26 +1168,25 @@ const ResultItem = styled.div`
 `;
 
 // 닫기(X) 버튼
-const ModalCloseBtn = styled.button`
-  position: relative;
-  bottom: 440px;
-  left: 600px;
-  width: 24px;
-  height: 24px;
+const CloseRow = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  // align-items: end;
+  align-self: stretch;
+  margin-top: 10px;
+`;
+
+const ModalCloseBtn = styled(IoIosClose)`
+  width: 30px;
+  height: 30px;
   background: none;
   border: none;
   font-size: 24px;
   color: #222222;
   cursor: pointer;
+  storke-width: 2;
   &:hover { opacity: 80%; }
-`;
-
-const ResultTitle = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 6px;
-  margin-top: 4px;
 `;
 
 const ContentSection = styled.div`

@@ -3,14 +3,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
-import { getOwnerList } from '../services/apis/ownerAPI';
+import { getOwnerList, getOwnerLikes, getOwnerRecommends, getOwnerPartnershipType } from '../services/apis/ownerAPI';
 
 const originalStores = [
                 {
                 name: '백소정',
                 caption: '돈까스 맛집',
-                storeType: 'restaurant', 
-                dealType: 'time',
+                storeType: 'RESTAURANT', 
+                dealType: ['타임형'],
                 likes: 100,
                 recommendations: 79,
                 record: 5,
@@ -18,8 +18,8 @@ const originalStores = [
                 {
                 name: '대관령',
                 caption: '안주가 맛있는 감성 술집',
-                storeType: 'bar',
-                dealType: 'service',
+                storeType: 'BAR',
+                dealType: ['서비스 제공형'],
                 likes: 50,
                 recommendations: 99,
                 record: 3,
@@ -27,8 +27,8 @@ const originalStores = [
                 {
                 name: '오후홍콩',
                 caption: '밀크티 맛집',
-                storeType: 'cafe',
-                dealType: 'review',
+                storeType: 'CAFE',
+                dealType: ['리뷰형'],
                 likes: 70,
                 record: 7,
                 recommendations: 29,
@@ -36,8 +36,8 @@ const originalStores = [
                 {
                 name: '가',
                 caption: '감성 카페',
-                storeType: 'cafe',
-                dealType: 'sale',
+                storeType: 'CAFE',
+                dealType: ['할인형'],
                 likes: 20,
                 record: 12,
                 recommendations: 39,
@@ -45,8 +45,8 @@ const originalStores = [
                 {
                 name: '나',
                 caption: '감성 카페',
-                storeType: 'cafe', 
-                dealType: 'review',
+                storeType: 'CAFE', 
+                dealType: ['리뷰형'],
                 likes: 30,
                 recommendations: 49,
                 record: 8,
@@ -59,54 +59,137 @@ const useVenueStore = create(
         originalStores: originalStores,
         stores: [],
 
-        activeStoreType: null, // 현재 필터 : 음식점, 바, 카페 
-        isFilteredByStoreType: false,
-        activeDealType: null,
-        isFilteredByDealType: false,
-        sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
+         activeStoreType: [], // 현재 필터 : 음식점, 바, 카페 
+         isFilteredByStoreType: false,
+         activeDealType: [], // 현재 필터 : 타임형, 서비스 제공형, 리뷰형, 할인형
+         isFilteredByDealType: false,
+         sortKey: null, // 현재 정렬 상태를 저장할 변수 : 정렬 + 필터 위함
 
-        fetchStores: async () => {
-        try {
-            const data = await getOwnerList();
 
-            const latestUserMap = {};
-            data.forEach(item => {
-                // 아직 user가 없거나, 현재 데이터 id가 더 크면 갱신
-                if (!latestUserMap[item.user] || item.id > latestUserMap[item.user].id) {
-                  latestUserMap[item.user] = item;
-                }
-            });
-            const latestData = Object.values(latestUserMap);
-            console.log("사장님 리스트 데이터", latestData);
+//         fetchStores: async () => {
+//         try {
+//             const data = await getOwnerList();
 
-            const converted = latestData.map(item => ({
-                id: item.user,
-                name: item.profile_name,
-                caption: item.comment,
-                storeType: item.business_type,
-                dealType: item.deal_type || null,
-                likes: item.likes || null,
-                recommendations: item.recommendations || null,
-                record: item.record || null,
-                // photo: item.photos[0].image || null,
-                photo: item.photos?.[0]?.image || null,
-                campus_name : item.campus_name,
-              }));
-          set({
-            originalStores: converted,
-            stores: converted,
-          });
+//             const latestUserMap = {};
+//             data.forEach(item => {
+//                 // 아직 user가 없거나, 현재 데이터 id가 더 크면 갱신
+//                 if (!latestUserMap[item.user] || item.id > latestUserMap[item.user].id) {
+//                   latestUserMap[item.user] = item;
+//                 }
+//             });
+//             const latestData = Object.values(latestUserMap);
+//             console.log("사장님 리스트 데이터", latestData);
 
-          console.log(converted);
-          return converted;
+//             const converted = latestData.map(item => ({
+//                 id: item.user,
+//                 name: item.profile_name,
+//                 caption: item.comment,
+//                 storeType: item.business_type,
+//                 dealType: item.deal_type || null,
+//                 likes: item.likes || null,
+//                 recommendations: item.recommendations || null,
+//                 record: item.record || null,
+//                 // photo: item.photos[0].image || null,
+//                 photo: item.photos?.[0]?.image || null,
+//                 campus_name : item.campus_name,
+//               }));
+//           set({
+//             originalStores: converted,
+//             stores: converted,
+//           });
 
-        } catch (err) {
-          console.error('Failed to fetch stores', err);
-        }
+//           console.log(converted);
+//           return converted;
+
+//         } catch (err) {
+//           console.error('Failed to fetch stores', err);
+//         }
+
+         fetchStores: async () => {
+          try {
+              const data = await getOwnerList();
+  
+                             const latestUserMap = {};
+               
+               // 1단계: latestUserMap 생성 (id가 가장 큰 프로필만 선택)
+               data.forEach(item => {
+                   if (!latestUserMap[item.user] || item.id > latestUserMap[item.user].id) {
+                     latestUserMap[item.user] = item;
+                   }
+               });
+               
+               // 2단계: likes와 recommendations 데이터를 미리 가져와서 latestUserMap에 추가
+               const latestData = Object.values(latestUserMap);
+               await Promise.all(
+                   latestData.map(async (item) => {
+                       try {
+                           const likes = await getOwnerLikes(item.user);
+                           const recommendations = await getOwnerRecommends(item.user);
+                           const partnershipType = await getOwnerPartnershipType(item.user);
+                           console.log("partnershipType: ", partnershipType);
+                           
+                           // latestUserMap에 likes와 recommendations 데이터 추가
+                           latestUserMap[item.user] = {
+                               ...latestUserMap[item.user],
+                               likes: likes.likes_received_count || 0,
+                               recommendations: recommendations.recommendations_received_count || 0,
+                               partnershipType: partnershipType[0].partnership_type || null,
+                           };
+                       } catch (error) {
+                           console.error(`Failed to fetch likes/recommendations for user ${item.user}:`, error);
+                           // 에러가 발생해도 기본값 설정
+                           latestUserMap[item.user] = {
+                               ...latestUserMap[item.user],
+                               likes: 0,
+                               recommendations: 0,
+                               partnershipType: [],
+                           };
+                       }
+                   })
+               );
+               
+               console.log("latestUserMap with likes/recommendations: ", latestUserMap);
+               const enrichedData = Object.values(latestUserMap);
+               console.log("사장님 리스트 데이터 (enriched): ", enrichedData);
+   
+               // 3단계: enriched 데이터를 사용해서 converted 생성 (API 호출 없이)
+               const converted = enrichedData.map((item) => {
+                   return {
+                       id: item.user,
+                       name: item.profile_name,
+                       caption: item.comment,
+                       storeType: (item.business_type || '').toString().toUpperCase(),
+                       dealType: Array.isArray(item.deal_type) ? item.deal_type : [item.deal_type], // 배열로 변환
+                       likes: item.likes || 0,
+                       recommendations: item.recommendations || 0,
+                       partnershipType: item.partnership_type || null,
+                       record: item.record || null,
+                       photo: item.photos?.[0]?.image || null
+                       campus_name : item.campus_name,
+                   };
+               });
+  
+                set({
+                   originalStores: converted,
+                   stores: converted,
+                   activeStoreType: [],
+                   activeDealType: [],
+                   isFilteredByStoreType: false,
+                   isFilteredByDealType: false
+               });
+  
+              console.log("converted: ", converted);
+              return converted;
+  
+          } catch (err) {
+              console.error('Failed to fetch stores', err);
+          }
+
       },
 
         // 찜/추천/제휴 이력 많은 순
         sortByDesc: (key) => {
+<
             // 기본 순 추가
             if (key === "" || key === null) {
                 const originalList = get().originalStores;
@@ -117,132 +200,149 @@ const useVenueStore = create(
                 const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
                 set({ stores : sortedList, sortKey : key});
             }
+
         },
 
 
-filterByStoreType: (type) => {
-  // 문자열 -> 배열 변환 방어
-  const rawStoreType = get().activeStoreType;
-  // 만약 문자열이면 반드시 배열로 변환, 아니면 그대로 사용
-  const currentActiveTypes = Array.isArray(rawStoreType)
-    ? rawStoreType
-    : (rawStoreType ? [rawStoreType] : []);
+        filterByStoreType: (type) => {
+          const allowed = ['RESTAURANT', 'BAR', 'CAFE', 'ETC'];
+          const normalizedType = (type ?? '').toString().toUpperCase();
 
-  // 알파벳 문자 분해를 막기 위해 type도 항상 문자열로만 추가
-  let newActiveTypes;
-  if (currentActiveTypes.includes(type)) {
-    newActiveTypes = currentActiveTypes.filter(t => t !== type);
-  } else {
-    newActiveTypes = [...currentActiveTypes, type];
-  }
+          // 문자열 -> 배열 변환 방어 및 비정상 상태 복구
+          const rawStoreType = get().activeStoreType;
+          const currentActiveTypes = Array.isArray(rawStoreType)
+            ? rawStoreType
+            : (rawStoreType ? [rawStoreType] : []);
 
-  // 선택된 타입 없으면 전체 리스트
-  let newList;
-  if (newActiveTypes.length === 0) {
-    newList = get().originalStores;
-  } else {
-    newList = get().originalStores.filter(store =>
-      newActiveTypes.includes(store.storeType)
-    );
-  }
-  const sortKey = get().sortKey;
-  if (sortKey) {
-    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-  }
+          let nextActive = currentActiveTypes.map(t => t && t.toString().toUpperCase());
+          nextActive = nextActive.filter(Boolean);
 
-  set({
-    stores: newList,
-    isFilteredByStoreType: newActiveTypes.length > 0,
-    activeStoreType: newActiveTypes // 항상 배열, string 절대 안됨!
-  });
-  console.log(newActiveTypes);
-},
+          // 토글 로직 (항상 문자열 요소만 추가/제거)
+          if (normalizedType && nextActive.includes(normalizedType)) {
+            nextActive = nextActive.filter(t => t !== normalizedType);
+          } else if (normalizedType) {
+            nextActive = [...nextActive, normalizedType];
+          }
 
+          // 허용된 값만 유지 + 중복 제거
+          nextActive = Array.from(new Set(nextActive.filter(t => allowed.includes(t))));
 
-            // // 필터가 켜져 있는지 확인 
-            // if (isFiltered){
-            //     if (currentActiveType === type){
-            //         // 같은 타입이면 필터 해제 
-            //         let newList = get().originalStores; // 필터 해제니까 기존 배열 가져오기
-            //         if(sortKey != null){
-            //             // 정렬이 설정되어 있는 상태면 정렬 적용
-            //             newList = [...newList].sort((a,b)=> b[sortKey] - a[sortKey]);
-            //         }
-            //         set({
-            //             stores: newList,
-            //             isFilteredByStoreType: false,
-            //             activeStoreType: null, // 필터 해제 상태 
-            //         });
-            //     } else {
-            //         // 다른 타입이면 필터 교체
-            //         let newList = get().originalStores.filter(store => store.storeType === type); // 다른 필터 적용
-            //         if (sortKey != null) { // 정렬이 있다면 정렬 적용
-            //             newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-            //         }
-            //         set({
-            //             stores: newList,
-            //             isFilteredByStoreType: true,
-            //             activeStoreType: type, // 새 필터 타입으로 교체하기
-            //         });
-                    
-            //     }       
-            // } else { // 필터 적용 X 상태면 필터 적용하기 
-            //     let newList = get().originalStores.filter(store => store.storeType === type); // 다른 필터 적용
-            //     if (sortKey != null) {
-            //         newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-            //     }
-            //     set({
-            //         stores: newList,
-            //         isFilteredByStoreType: true,
-            //         activeStoreType: type,
-            //     });
-            // }
-        // },
+          // 선택된 타입 없으면 전체 리스트
+          let newList;
+          if (nextActive.length === 0) {
+            newList = get().originalStores;
+          } else {
+            newList = get().originalStores.filter(store =>
+              nextActive.includes((store.storeType || '').toString().toUpperCase())
+            );
+          }
 
-        filterByDealType: (type) => {
-            const currentActiveType = get().activeDealType; // 현재 필터 상태 : 'restaurant', 'cafe', 'bar'
-            const isFiltered = get().isFilteredByDealType; // 현재 필터가 켜져 있는 상태인지 확인 
-            const sortKey = get().sortKey; // 현재 정렬 상태 가져오기 
+          const sortKey = get().sortKey;
+          if (sortKey) {
+            newList = [...newList].sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+          }
+
+          set({
+            stores: newList,
+            isFilteredByStoreType: nextActive.length > 0,
+            activeStoreType: nextActive
+          });
+          console.log('activeStoreType:', nextActive);
+         },
+
+         filterByDealType: (type) => {
+          const allowed = ['타임형', '서비스 제공형', '리뷰형', '할인형'];
+          const normalizedType = (type ?? '').toString();
+
+          // 문자열 -> 배열 변환 방어 및 비정상 상태 복구
+          const rawDealType = get().activeDealType;
+          const currentDealTypes = Array.isArray(rawDealType)
+            ? rawDealType
+            : (rawDealType ? [rawDealType] : []);
+
+          let nextActive = currentDealTypes.map(t => t && t.toString().toUpperCase());
+          nextActive = nextActive.filter(Boolean);
+
+          // 토글 로직 (항상 문자열 요소만 추가/제거)
+          if (normalizedType && nextActive.includes(normalizedType)) {
+            nextActive = nextActive.filter(t => t !== normalizedType);
+          } else if (normalizedType) {
+            nextActive = [...nextActive, normalizedType];
+          }
+
+          // 허용된 값만 유지 + 중복 제거
+          nextActive = Array.from(new Set(nextActive.filter(t => allowed.includes(t))));
+
+                     // 선택된 타입 없으면 전체 리스트
+           let newList;
+           if (nextActive.length === 0) {
+             newList = get().originalStores;
+           } else {
+             newList = get().originalStores.filter(store => {
+               // store.dealType이 배열이므로 선택된 타입 중 하나라도 포함되어 있는지 확인
+               return store.dealType?.some(dealType => 
+                 nextActive.includes(dealType?.toString())
+               );
+             });
+           }
+
+          const sortKey = get().sortKey;
+          if (sortKey) {
+            newList = [...newList].sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0));
+          }
+
+          set({
+            stores: newList,
+            isFilteredByDealType: nextActive.length > 0,
+            activeDealType: nextActive
+          });
+          console.log('activeDealType:', nextActive);
+         },
+
+        // filterByDealType: (type) => {
+        //     const currentActiveType = get().activeDealType; // 현재 필터 상태 : 'restaurant', 'cafe', 'bar'
+        //     const isFiltered = get().isFilteredByDealType; // 현재 필터가 켜져 있는 상태인지 확인 
+        //     const sortKey = get().sortKey; // 현재 정렬 상태 가져오기 
             
-            // 필터가 켜져 있는지 확인 
-            if (isFiltered){
-                if (currentActiveType === type){
-                    // 같은 타입이면 필터 해제 
-                    let newList = get().originalStores; // 필터 해제니까 기존 배열 가져오기
-                    if(sortKey != null){
-                        // 정렬이 설정되어 있는 상태면 정렬 적용
-                        newList = [...newList].sort((a,b)=> b[sortKey] - a[sortKey]);
-                    }
-                    set({
-                        stores: newList,
-                        isFilteredByDealType: false,
-                        activeDealType: null, // 필터 해제 상태 
-                    });
-                } else {
-                    // 다른 타입이면 필터 교체
-                    let newList = get().originalStores.filter(store => store.dealType === type); // 다른 필터 적용
-                    if (sortKey != null) { // 정렬이 있다면 정렬 적용
-                        newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-                    }
-                    set({
-                        stores: newList,
-                        isFilteredByDealType: true,
-                        activeDealType: type, // 새 필터 타입으로 교체하기
-                    });
+        //     // 필터가 켜져 있는지 확인 
+        //     if (isFiltered){
+        //         if (currentActiveType === type){
+        //             // 같은 타입이면 필터 해제 
+        //             let newList = get().originalStores; // 필터 해제니까 기존 배열 가져오기
+        //             if(sortKey != null){
+        //                 // 정렬이 설정되어 있는 상태면 정렬 적용
+        //                 newList = [...newList].sort((a,b)=> b[sortKey] - a[sortKey]);
+        //             }
+        //             set({
+        //                 stores: newList,
+        //                 isFilteredByDealType: false,
+        //                 activeDealType: null, // 필터 해제 상태 
+        //             });
+        //         } else {
+        //             // 다른 타입이면 필터 교체
+        //             let newList = get().originalStores.filter(store => store.dealType === type); // 다른 필터 적용
+        //             if (sortKey != null) { // 정렬이 있다면 정렬 적용
+        //                 newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+        //             }
+        //             set({
+        //                 stores: newList,
+        //                 isFilteredByDealType: true,
+        //                 activeDealType: type, // 새 필터 타입으로 교체하기
+        //             });
                     
-                }       
-            } else { // 필터 적용 X 상태면 필터 적용하기 
-                let newList = get().originalStores.filter(store => store.dealType === type); // 다른 필터 적용
-                if (sortKey != null) {
-                    newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
-                }
-                set({
-                    stores: newList,
-                    isFilteredByDealType: true,
-                    activeDealType: type,
-                });
-            }
-        },
+        //         }       
+        //     } else { // 필터 적용 X 상태면 필터 적용하기 
+        //         let newList = get().originalStores.filter(store => store.dealType === type); // 다른 필터 적용
+        //         if (sortKey != null) {
+        //             newList = [...newList].sort((a, b) => b[sortKey] - a[sortKey]);
+        //         }
+        //         set({
+        //             stores: newList,
+        //             isFilteredByDealType: true,
+        //             activeDealType: type,
+        //         });
+        //     }
+        // },
         
         // 검색 기능 추가 
         setStoreSearchQuery: (query) => {

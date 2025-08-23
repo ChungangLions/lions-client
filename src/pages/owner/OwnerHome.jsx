@@ -14,13 +14,8 @@ import { getOwnerProfile } from '../../services/apis/ownerAPI'
 const OwnerHome = () => {
   const navigate = useNavigate();
   
-
-  // const handleCardClick = (organization) => {
-  //   navigate(`/owner/student-group-profile`, { state: { userType: "owner", organization } });
-
   const handleCardClick = (organization, id) => {
     navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
-
   };
 
   const [isActive, setIsActive] = useState(false);
@@ -52,7 +47,6 @@ const OwnerHome = () => {
       filterByRecord();
   }
 
-
   // 찜 기능 
   const [likes, setLikes] = useState([]);
   const [likeStores, setLikeStores] = useState([]);
@@ -60,8 +54,20 @@ const OwnerHome = () => {
   console.log(organizations);
 
 
+  // useEffect(() => {
+  //   fetchAndSetOrganizations();
+  //   const fetchUserLikes = async () => {
+  //     const list = await fetchLikes('given');
+  //     console.log("찜 리스트 원본:", list);
+  // console.log("첫 번째 요소:", list[0]);
 
- 
+  //     setLikes(list.map(item => item.target.id));
+  //     console.log("찜 리스트:", list);
+  //     console.log("찜한 단체 ID배열:", list.map(item => item.target.id));
+  //   };
+  //   fetchUserLikes();
+  // }, []);
+
     useEffect(() => {
       fetchAndSetOrganizations();
       const fetchUserLikes = async () => {
@@ -72,6 +78,7 @@ const OwnerHome = () => {
       };
       fetchUserLikes();
     }, []);
+
 
       {/* 사장님 프로필 상 학교와 같은 학교들만 표시 */}
       const [ownerCampus, setOwnerCampus] = useState(null);
@@ -117,8 +124,9 @@ const OwnerHome = () => {
       <SelectContainer>
         <SelectWrapper>
         <FilterBtn onClick = {handleFilterChange} active={isActive}>{`제휴 이력`}</FilterBtn>
-          <OptionWrapper>
-            <TbArrowsSort size={30} strokeWidth={1} />
+        <OptionWrapper>
+          {/* <TypeWrapper>정렬</TypeWrapper> */}
+            <TbArrowsSort size={30} strokeWidth={1} stroke={'#70AF19'} />
             <DropDown
               options={[
                 { value: "", label: "기본 순" },
@@ -207,4 +215,15 @@ flex-direction: row;
 align-items: center;
 justify-content: center;
 gap: 5px;
+`;
+
+const TypeWrapper = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 10px 0px;
+gap: 10px;
+min-width: 28px;
+max-width: 60px;
 `;
