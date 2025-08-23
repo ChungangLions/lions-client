@@ -130,18 +130,21 @@ display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-// gap: 15px;
+gap: 10px;
 text-align: left;
 font-size: 16px;
 color: #1a2d06;
 font-family: Pretendard;
 
 /*스크롤 관련*/
-
-position: sticky;
-top:0;
+position: fixed;
+right: 29px;
+left: 29px;
+top: 0;
 background-color: white;
 z-index: 1000;
+height: 85px;
+padding: 15px 0;
 `;
 
 const LeftBox = styled.div`
@@ -208,9 +211,8 @@ display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: space-between;
-gap: 0px;
 background-color: white;
-margin-bottom: 15px;
+//height: 55px;
 `;
 
 const DropdownMenu = styled.div`
