@@ -180,6 +180,11 @@ const ProposalDetail = () => {
         setProposalId(response.id);
         setId(response.id);
         alert('제안서가 전송되었습니다.');
+        const statusData = {
+          status: "UNREAD",
+          comment: ""
+        };
+        const status = await editProposalStatus(response.id, statusData);
         console.log("제안서아이디", response.id);
       } else {
         // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
