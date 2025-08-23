@@ -107,9 +107,16 @@ const useVenueStore = create(
 
         // 찜/추천/제휴 이력 많은 순
         sortByDesc: (key) => {
-            const currentList = get().stores;
-            const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
-            set({ stores : sortedList, sortKey : key});
+            // 기본 순 추가
+            if (key === "" || key === null) {
+                const originalList = get().originalStores;
+                set({ stores: originalList, sortKey: null });
+            } else {
+                // 많은 순 정렬
+                const currentList = get().stores;
+                const sortedList = [...currentList].sort((a,b)=> b[key]-a[key]);
+                set({ stores : sortedList, sortKey : key});
+            }
         },
 
 
