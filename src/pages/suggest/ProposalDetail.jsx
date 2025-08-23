@@ -1,4 +1,7 @@
 // 이거 하나에 다하려니까 함수 너무 길어져서 나중에 리팩토링 해야댐 ㅠ 
+// 1. 수정하기 버튼 비활성화
+// 2. 연락처 필드 수정 불가인 상태 -> 수정가능으로 
+// 3. 전송하기 한 번 더 누르면 '제안서를 이미 전송하였습니다' 뜨게 하기 
 
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
@@ -8,7 +11,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -16,12 +19,13 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal } from '../../services/apis/proposalAPI';
+import createProposal, { editAllProposal, editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 
 
 const ProposalDetail = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { organization, proposal } = location.state || {};
   console.log(location.state);
 
@@ -106,35 +110,26 @@ const ProposalDetail = () => {
     }));
   };
 
-  
 
-  // 수정하기
+  // // 수정하기 : status "DRAFT"인 상태
+  // // !!제안서 직접 수정하기 : 수정하기 비활성화!!
   const handleEdit = async () => {
     
-    const updateData = {
-      recipient: organization?.user,
-      partnership_type: mapPartnership(selectedPartnershipTypes),
-      apply_target: partnershipConditions.applyTarget,
-      time_windows: partnershipConditions.timeWindows,
-      benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
-      contact_info: contact,
-      title: '제안서',
-      contents: '제휴 내용',
-    };
-
-
     try {
-      const response = await editProposal( id , updateData);
-      console.log('제안서 수정 완료:', response);
-      setIsEditMode(false);
+      const statusData = {
+          status: "DRAFT",
+          comment: ""
+        };
+        const status = await editProposalStatus(id, statusData);
     } catch (error) {
       console.error('제안서 ID:', id);
       console.error('제안서 수정 실패:', error);
     }
   };
 
-  // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
+  // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성: status "UNREAD"
+  // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
+  // 저장하기를 통해 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출 
   const handleSend = async () => {
     try {
       // **저장하기는 필드 검증 필요 없음 
@@ -158,7 +153,7 @@ const ProposalDetail = () => {
 
       const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
@@ -166,41 +161,45 @@ const ProposalDetail = () => {
         contact_info: contact || contactInfo, // 연락처
       };
 
-
       console.log('제안서 데이터:', createData);
-      
-      const response = await createProposal(createData);
-      alert('제안서가 전송되었습니다.');
-      console.log("제안서아이디", response.id);
-      setId(response.id);
+
+      if (proposalId === null) { 
+        // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
+        const response = await createProposal(createData); // 제안서 생성
+        setProposalId(response.id);
+        setId(response.id);
+        alert('제안서가 전송되었습니다.');
+        const statusData = {
+          status: "UNREAD",
+          comment: ""
+        };
+        const status = await editProposalStatus(response.id, statusData);
+        console.log("제안서아이디", response.id);
+      } else {
+        // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
+        const statusData = {
+          status: "UNREAD",
+          comment: ""
+        };
+        const response = await editProposalStatus(proposalId, statusData);
+        alert('제안서가 전송되었습니다.');
+        console.log("제안서 상태 변경 완료", response);
+      }
       
     } catch (error) {
-      console.error('제안서 생성 오류:', error);
+      console.error('제안서 전송 오류:', error);
+      alert('제안서 전송에 실패했습니다.');
     }
   };
 
 
-  const mapPartnership = (selected) => {
-    const typeMap = {
-      '할인형': 'DISCOUNT',
-      '타임형': 'TIME',
-      '리뷰형': 'REVIEW',
-      '서비스제공형': 'SERVICE',
-    };
-
-    if (Array.isArray(selected)) {
-      return selected.map((label) => typeMap[label]).filter(Boolean);
-    }
-    return typeMap[selected] || null;
-  };
-
-
-  // 저장하기는 일부 필드 비워져있어도 가능 
+  // 저장하기는 일부 필드 비워져있어도 가능 : status "DRAFT"
+  // 제안서 생성하기 api 호출 지금 O 
   const handleSave = async () => {
 
     const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+        partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
@@ -214,7 +213,7 @@ const ProposalDetail = () => {
       console.log('제안서 데이터:', createData);
 
     try {
-      const response = await createProposal(createData);
+      const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
     } catch (error) {
       console.error('제안서 전송 오류:', error);
@@ -231,6 +230,16 @@ const ProposalDetail = () => {
   ];
 
   const [scrollY, setScrollY] = useState(0);
+
+  // CardSection 클릭 시 해당 organization의 프로필로 이동
+  const handleCardClick = (org) => {
+    navigate('/owner/student-group-profile', {
+      state: {
+        organization: org,
+        userType: 'owner'
+      }
+    });
+  };
 
   // ---- 우측 리스트 스크롤 구현 ----
   useEffect(() => {       // 스크롤 위치 감지
@@ -390,7 +399,7 @@ const ProposalDetail = () => {
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={contact}
+                  value={contactInfo}
                   onChange={(e) => setContact(e.target.value)}
                   readOnly={proposal && proposal.status !== 'DRAFT'}
                 />
@@ -411,10 +420,11 @@ const ProposalDetail = () => {
               cardType={"proposal"} 
               organization={organization} 
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
+              onClick={handleCardClick}
             />
             <ButtonWrapper>
 
-                  <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+                  <StyledEditBtn isEditMode={isEditMode}  />
                   <SaveBtn onClick={handleSave} />
                   <SendProposalBtn onClick={handleSend}/>
            
@@ -723,79 +733,12 @@ font-weight: 600;
 white-space: nowrap;
 `;
 
-const ConditionTitle = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-`;
+ const StyledEditBtn = styled(EditBtn)`
+ cursor: pointer;
 
-const ConditionContent = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: #1a2d06;
-  font-size: 16px;
-  
-  p {
-    margin: 0;
+ &:hover,
+  &:active,
+  &:focus {
+    all: unset; /* 기본 스타일 다 제거 */
   }
-`;
-
-const TimeWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 22px;
-`;
-
-const TimeTitle = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TimeContent = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: #1a2d06;
-  font-size: 16px;
-`;
-
-// 제휴 효과
-const ContentWrapper = styled.div`
-  align-self: stretch;
-  border-radius: 5px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 15px 20px;
-  font-size: 16px;
-`;
-
-const InputText= styled(InputBox)`
-  margin: 0;
-  font-family: inherit;
-  font-size: inherit;
-`;
-
-const ListItem = styled.li`
-  margin-bottom: 0;
-
-  &:last-child {
-    font-size: 16px;
-    font-family: Pretendard;
-    color: #1a2d06;
-    list-style: none;
-    margin-left: -20px; 
-  }
-`;
+ `;

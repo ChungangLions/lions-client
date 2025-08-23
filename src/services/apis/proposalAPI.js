@@ -45,11 +45,19 @@ export default async function createProposal(createData) {
   return res.data;
 }
 
-// 제안서 부분 수정
+// 제안서 부분 수정 : 수정하기 
 export const editProposal = async (id, data) => {
     const token = localStorage.getItem("accessToken");
     const authAxios = getAuthAxios(token);
     const response = await authAxios.patch(`/api/proposals/${id}/`, data);
+    return response.data;
+};
+
+// 제안서 전체 수정 : 전송하기
+export const editAllProposal = async (id, data) => {
+    const token = localStorage.getItem("accessToken");
+    const authAxios = getAuthAxios(token);
+    const response = await authAxios.put(`/api/proposals/${id}/`, data);
     return response.data;
 };
 
@@ -75,9 +83,9 @@ export const fetchProposal = async (params = {}) => {
   }
 };
 
-// // 제안서 상태 변경 (승낙 / 거절 누를 시)
-// export default async function editProposalStatus(id, statusData) { // 여기서 Id는 제안서 id
-//   const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
-//   const res = await authAxios.post(`/api/proposals/${id}/status/`, statusData);
-//   return res.data;
-// }
+// 제안서 상태 변경 (전송/승낙/거절) : 기본이 DRAFT
+export const editProposalStatus = async(id, statusData) => { // 여기서 Id는 제안서 id
+  const authAxios = getAuthAxios(localStorage.getItem('accessToken'));
+  const response = await authAxios.post(`/api/proposals/${id}/status/`, statusData);
+  return response.data;
+}

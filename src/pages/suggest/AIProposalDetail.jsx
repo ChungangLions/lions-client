@@ -8,7 +8,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -16,12 +16,15 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal } from '../../services/apis/proposalAPI';
+
+import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 
 
 const AIProposalDetail = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  // 이건 이미 "예" 누른 순간 제안서 생성됨 
   const { organization, proposalData, isAI: isAIFromState } = location.state || {};
   const isAI = typeof isAIFromState === 'boolean' ? isAIFromState : Boolean(proposalData); // proposalData 있으면 ai 돌렸다는거니까 isAI = true
   console.log(location.state);
@@ -61,10 +64,13 @@ const AIProposalDetail = () => {
   const [expectedEffects, setExpectedEffects] = useState('');
   const [contact, setContact] = useState('');
 
+  const [ proposalId, setProposalId] = useState(proposalData.id);
+
   // proposalData 가져오기
   useEffect(() => {
     if (!proposalData) return;
 
+    // 제휴기간 형식 포맷팅
     const formattedTimeWindows = Array.isArray(proposalData.time_windows)
       ? proposalData.time_windows
           .map(
@@ -84,19 +90,19 @@ const AIProposalDetail = () => {
           : '',
     });
 
-    if (isAI) setExpectedEffects(proposalData.expected_effects || '');
+    setExpectedEffects(proposalData.expected_effects || '');
     if (contactInfo) setContact(contactInfo);
   }, [proposalData, isAI]);
 
-  // 연락처 초기화: 프로필 정보가 늦게 도착해도 반영
+  // 수정모드 On/ off 
+  const [isEditMode, setIsEditMode] = useState(false);
+
+   // 연락처 초기화
   useEffect(() => {
     if (contactInfo && !contact) {
       setContact(contactInfo);
     }
   }, [contactInfo]);
-
-  // 
-  const [isEditMode, setIsEditMode] = useState(false);
 
   // 제휴 유형 토글 
   const togglePartnershipType = (type) => {
@@ -125,103 +131,76 @@ const AIProposalDetail = () => {
   // 수정하기
   const {userId} = useUserStore();
 
-  const handleEdit = async () => {
+  // const handleEdit = async () => {
     
-    const updateData = {
-      recipient: organization?.user,
-      partnership_type: selectedPartnershipTypes,
-      apply_target: partnershipConditions.applyTarget,
-      time_windows: partnershipConditions.timeWindows,
-      benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
-      contact_info: contact || proposalData.contact_info,
-      title: '제안서',
-      contents: '제휴 내용',
-    };
+  //   try {
+  //     const statusData = {
+  //         status: "DRAFT",
+  //         comment: ""
+  //       };
+  //       const status = await editProposalStatus(proposalId, statusData);
+  //   } catch (error) {
+  //     console.error('제안서 수정 실패:', error);
+  //   }
+  // };
 
-    if (isAI) {
-      updateData.expected_effects = expectedEffects;
-    }
-
-    const id = proposalData.id != null ? proposalData.id : userId;
-
-    console.log("id", proposalData.id); // null 인 이유?
-
-    try {
-      const response = await editProposal( id , updateData);
-      console.log('제안서 수정 완료:', response);
-      setIsEditMode(false);
-    } catch (error) {
-      console.error('제안서 ID:', proposalData.id);
-      console.error('제안서 수정 실패:', error);
-    }
-  };
 
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
-  const handleSend = async () => {
-    try {
-      // **저장하기는 필드 검증 필요 없음 
-      if (selectedPartnershipTypes.length === 0) {
-        alert('제휴 유형을 선택해주세요.');
-        return;
-      }
+   const handleSend = async () => {
+      try {
+        // **저장하기는 필드 검증 필요 없음 
+        if (selectedPartnershipTypes.length === 0) {
+          alert('제휴 유형을 선택해주세요.');
+          return;
+        }
+  
+        if (!partnershipConditions.applyTarget || 
+            !partnershipConditions.benefitDescription || 
+            !partnershipConditions.timeWindows || 
+            !partnershipConditions.partnershipPeriod) {
+          alert('제휴 조건을 모두 입력해주세요.');
+          return;
+        }
+  
+        if (!((contact || contactInfo || '').trim())) {
+          alert('연락처를 입력해주세요.');
+          return;
+        }
+  
+        const createData = {
+          recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+          partnership_type: selectedPartnershipTypes, // 제휴 유형 
+          apply_target: partnershipConditions.applyTarget, // 적용 대상
+          time_windows: partnershipConditions.timeWindows, // 적용 시간대
+          benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
+          partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+          contact_info: contact || contactInfo, // 연락처
+        };
 
-      if (!partnershipConditions.applyTarget || 
-          !partnershipConditions.benefitDescription || 
-          !partnershipConditions.timeWindows || 
-          !partnershipConditions.partnershipPeriod) {
-        alert('제휴 조건을 모두 입력해주세요.');
-        return;
-      }
-
-      if (!((contact || contactInfo || '').trim())) {
-        alert('연락처를 입력해주세요.');
-        return;
-      }
-
-      const createData = {
-        recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: selectedPartnershipTypes, // 제휴 유형 
-        apply_target: partnershipConditions.applyTarget, // 적용 대상
-        time_windows: partnershipConditions.timeWindows, // 적용 시간대
-        benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-        contact_info: contact || contactInfo, // 연락처
-      };
-
-      if (isAI) {
+        if (isAI) {
         createData.expected_effects = expectedEffects;
       }
 
-      console.log('제안서 데이터:', createData);
-      console.log(createData.id);
-      
-      const response = await createProposal(createData);
-      alert('제안서를 성공적으로 전송했습니다.');
-      console.log("제안서 Id", response);
-      
-    } catch (error) {
-      console.error('제안서 생성 오류:', error);
-    }
-  };
+        console.log('제안서 데이터:', createData);
 
-
-  const mapPartnership = (selected) => {
-    const typeMap = {
-      '할인형': 'DISCOUNT',
-      '타임형': 'TIME',
-      '리뷰형': 'REVIEW',
-      '서비스제공형': 'SERVICE',
+          // 예 누른 순간 제안서 생성이 된 상태이므로 제안서 상태 변경 api 호출
+          const statusData = {
+            status: "UNREAD",
+            comment: ""
+          };
+          const response = await editProposalStatus(proposalId, statusData);
+          alert('제안서가 전송되었습니다.');
+          console.log("제안서 상태 변경 완료", response);
+        
+        
+      } catch (error) {
+        console.error('제안서 전송 오류:', error);
+        alert('제안서 전송에 실패했습니다.');
+      }
     };
 
-    if (Array.isArray(selected)) {
-      return selected.map((label) => typeMap[label]).filter(Boolean);
-    }
-    return typeMap[selected] || null;
-  };
-
-
-  // 저장하기는 일부 필드 비워져있어도 가능 
+  // 저장하기는 일부 필드 비워져있어도 가능 : status "DRAFT"
+  // 제안서 생성하기 api 호출 지금 O 
   const handleSave = async () => {
 
     const createData = {
@@ -235,19 +214,19 @@ const AIProposalDetail = () => {
         title: "제안서",
         contents: "제휴 내용",
       };
- 
-      if (isAI) {
-        createData.expected_effects = expectedEffects;
-      }
+
+      createData.expected_effects = expectedEffects;
 
       console.log('제안서 데이터:', createData);
 
     try {
-      const response = await createProposal(createData);
+      const response = await editProposal(proposalId, createData); // "DRAFT"인 상태로 생성됨
+      setIsEditMode(false);
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
   };
+
 
 
   // 제휴 유형 데이터
@@ -296,6 +275,15 @@ const AIProposalDetail = () => {
     return maxTop ;
   };
 
+    const handleCardClick = (org) => {
+    navigate('/owner/student-group-profile', {
+      state: {
+        organization: org,
+        userType: 'owner'
+      }
+    });
+  };
+
   
   return (
     <ProposalContainer>
@@ -329,7 +317,8 @@ const AIProposalDetail = () => {
                       children={type} 
                       IconComponent={IconComponent}
                       isSelected={selectedPartnershipTypes.includes(type)}
-                      onClick={() => togglePartnershipType(type)}
+                      onClick={() => isEditMode && togglePartnershipType(type)}
+                      disabled={!isEditMode}
                     />
                   ))}
                 </ContentBox>
@@ -368,6 +357,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.applyTarget}
                         onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -378,6 +368,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.benefitDescription}
                         onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -390,6 +381,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.timeWindows}
                         onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                     <ConditionItem>
@@ -400,6 +392,7 @@ const AIProposalDetail = () => {
                         border="1px solid #E9E9E9"
                         value={partnershipConditions.partnershipPeriod}
                         onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
+                        disabled={!isEditMode}
                       />
                     </ConditionItem>
                   </ConditionGroup>
@@ -416,6 +409,7 @@ const AIProposalDetail = () => {
                     border="1px solid #E9E9E9"
                     value={expectedEffects}
                     onChange={(e) => setExpectedEffects(e.target.value)}
+                    disabled={!isEditMode}
                   />
                 </DetailBox>
               )}
@@ -427,6 +421,7 @@ const AIProposalDetail = () => {
                   width="100%"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
+                  disabled={!isEditMode}
                 />
               </DetailBox>
               
@@ -444,10 +439,11 @@ const AIProposalDetail = () => {
             <CardSection 
               cardType={"proposal"} 
               organization={organization} 
+              onClick={handleCardClick}
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={() => {handleEdit();}} isEditMode={isEditMode} />
+              <EditBtn onClick={() => {toggleEditMode(); }} isEditMode={isEditMode} />
               <SaveBtn onClick={handleSave} />
               <SendProposalBtn onClick={handleSend}/>
             </ButtonWrapper>
