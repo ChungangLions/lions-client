@@ -276,11 +276,14 @@ const OwnerEditMyPage = () => {
 
   };
 
-  // 사진 데이터 변환 (조회용)
+  // 사진 데이터 변환 (조회용) - ID 정보 포함
   const storePhotoUrls = (photos) => {
-    if ( !photos) return [];
-    return photos.map(photo => photo.image);
-    }
+    if (!photos) return [];
+    return photos.map(photo => ({
+      id: photo.id,
+      image: photo.image
+    }));
+  }
 
   const parsePhotos = (photos) => {
     const formData = new FormData();
@@ -313,8 +316,8 @@ const OwnerEditMyPage = () => {
         const data = await getOwnerProfile(ownerId);
         console.log(data);
 
-        // 원본 데이터 저장 (ID 추적용)
-        setOriginalPhotos(data.photos || []);
+        // 원본 데이터 저장 (ID 추적용) - 화면 표시용으로 변환
+        setOriginalPhotos(storePhotoUrls(data.photos));
         setOriginalMenus(data.menus || []);
 
         const parsedMenus = data.menus.map(menu => ({
@@ -374,20 +377,24 @@ const OwnerEditMyPage = () => {
   // 사진과 메뉴 삭제 처리 함수들
   const handlePhotoDelete = (photoIndex) => {
     const photo = photoState[photoIndex];
+    
     // 원본 사진인 경우 ID를 삭제 목록에 추가
-    if (originalPhotos[photoIndex] && originalPhotos[photoIndex].id) {
-      setDeletedPhotoIds(prev => [...prev, originalPhotos[photoIndex].id]);
+    if (photo && photo.id) {
+      setDeletedPhotoIds(prev => [...prev, photo.id]);
     }
+    
     // 현재 상태에서 제거
     setPhotoState(prev => prev.filter((_, index) => index !== photoIndex));
   };
 
   const handleMenuDelete = (menuIndex) => {
     const menu = menuList[menuIndex];
+    
     // 원본 메뉴인 경우 ID를 삭제 목록에 추가
-    if (originalMenus[menuIndex] && originalMenus[menuIndex].id) {
-      setDeletedMenuIds(prev => [...prev, originalMenus[menuIndex].id]);
+    if (menu && menu.id) {
+      setDeletedMenuIds(prev => [...prev, menu.id]);
     }
+    
     // 현재 상태에서 제거
     setMenuList(prev => prev.filter((_, index) => index !== menuIndex));
   };
@@ -405,11 +412,11 @@ const OwnerEditMyPage = () => {
       });
       
       // 새로 추가할 사진 파일들 (기존 사진이 아닌 새로운 파일들만)
-      const newPhotos = photoState.filter((photo, index) => 
-        !originalPhotos[index] || originalPhotos[index].image !== photo
+      const newPhotos = photoState.filter(photo => 
+        !photo.id // ID가 없으면 새로 추가된 사진
       );
       newPhotos.forEach(photo => {
-        formData.append('new_photos', photo);
+        formData.append('new_photos', photo.image || photo);
       });
       
       // 삭제할 메뉴 ID 목록 추가
@@ -418,10 +425,8 @@ const OwnerEditMyPage = () => {
       });
       
       // 새로 추가할 메뉴 데이터 (기존 메뉴가 아닌 새로운 메뉴들만)
-      const newMenus = menuList.filter((menu, index) => 
-        !originalMenus[index] || 
-        originalMenus[index].name !== menu.value1 || 
-        originalMenus[index].price !== Number(menu.value2)
+      const newMenus = menuList.filter(menu => 
+        !menu.id // ID가 없으면 새로 추가된 메뉴
       );
       
       if (newMenus.length > 0) {
@@ -467,10 +472,10 @@ const OwnerEditMyPage = () => {
       formData.append('goal_other', goalButtons.goal_other);
       formData.append('goal_other_detail', goalButtons.goal_other ? otherGoalValue : '');
       
-      console.log("FormData 내용: ", formData);
-      // for (let [key, value] of formData.entries()) {
-      //   console.log(key, value);
-      // }
+      // console.log("FormData 내용: ", formData);
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
       
       await editOwnerProfile(profileId, formData);
       alert("프로필 수정 완료!");

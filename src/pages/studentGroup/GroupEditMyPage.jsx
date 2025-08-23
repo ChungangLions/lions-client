@@ -174,8 +174,11 @@ const GroupEditMyPage = () => {
 
   // 사진 데이터 변환 (조회용)
   const storePhotoUrls = (photos) => {
-    if ( !photos) return [];
-    return photos.map(photo => photo.image);
+    if (!photos) return [];
+    return photos.map(photo => ({
+      id: photo.id,
+      image: photo.image
+    }));
   }
 
   function parseDateString(dateStr) {
@@ -186,10 +189,13 @@ const GroupEditMyPage = () => {
 
   // 사진 삭제 처리 함수
   const handlePhotoDelete = (photoIndex) => {
+    const photo = photoState[photoIndex];
+    
     // 원본 사진인 경우 ID를 삭제 목록에 추가
-    if (originalPhotos[photoIndex] && originalPhotos[photoIndex].id) {
-      setDeletedPhotoIds(prev => [...prev, originalPhotos[photoIndex].id]);
+    if (photo && photo.id) {
+      setDeletedPhotoIds(prev => [...prev, photo.id]);
     }
+    
     // 현재 상태에서 제거
     setPhotoState(prev => prev.filter((_, index) => index !== photoIndex));
   };
@@ -202,8 +208,8 @@ const GroupEditMyPage = () => {
         const data = await fetchGroupProfile(groupId);
         console.log(data);
 
-        // 원본 사진 데이터 저장 (ID 추적용)
-        setOriginalPhotos(data.photos || []);
+        // 원본 사진 데이터 저장 (ID 추적용) - 화면 표시용으로 변환
+        setOriginalPhotos(storePhotoUrls(data.photos));
 
         const termStart = parseDateString(data.term_start);
         const termEnd = parseDateString(data.term_end);
@@ -253,11 +259,11 @@ const GroupEditMyPage = () => {
       });
       
       // 새로 추가할 사진 파일들 (기존 사진이 아닌 새로운 파일들만)
-      const newPhotos = photoState.filter((photo, index) => 
-        !originalPhotos[index] || originalPhotos[index].image !== photo
+      const newPhotos = photoState.filter(photo => 
+        !photo.id // ID가 없으면 새로 추가된 사진
       );
       newPhotos.forEach(photo => {
-        formData.append('new_photos', photo);
+        formData.append('new_photos', photo.image || photo);
       });
       
       // 텍스트 데이터 추가
