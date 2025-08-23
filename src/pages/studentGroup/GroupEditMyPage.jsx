@@ -378,7 +378,7 @@ const GroupEditMyPage = () => {
       <MenuGroup />
       <TitleContainer>
         <Title> 제휴 프로필 설정 </Title>
-        <SubTitle> 우리 가게에 딱 맞는 제휴 조건을 찾기 위해 정보를 입력해주세요. </SubTitle>
+        <SubTitle> 우리 학생회에 딱 맞는 제휴 조건을 찾기 위해 정보를 입력해주세요. </SubTitle>
       </TitleContainer>
       <ContentSection>
       <MainContainer>
