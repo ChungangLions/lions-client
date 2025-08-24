@@ -41,8 +41,8 @@ export const Dropdown = (props) => {
         {currentValue ? currentValue : (placeholder ?? list[0])} <DropdownArrow />
       </Label>
       <SelectOptions show={showOptions}>
-        {list.map((data, index) => (
-          <Option key={index} value={data} onClick={handleOnChangeSelectValue}>
+        {list.map((data) => (
+          <Option key={data.id} value={data} onClick={handleOnChangeSelectValue}>
             {data}
           </Option>
         ))}
