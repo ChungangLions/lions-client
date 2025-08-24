@@ -17,6 +17,7 @@ import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import useUserStore from '../../stores/userStore';
 import AcceptBtn from '../../components/common/buttons/proposal/AcceptBtn';
 import RejectBtn from '../../components/common/buttons/proposal/RejectBtn';
+import GroupCard from '../../components/common/cards/GroupCard';
 
 const GroupReceiveProposalDetail = () => {
   const location = useLocation();
@@ -195,6 +196,12 @@ const GroupReceiveProposalDetail = () => {
       .join(" / ")
   : '';
 
+    const handleCardClick = (id) => {
+    navigate(`/student_group/store-profile/${id}`, {
+      state: { userType: "studentOrganization" }
+    });
+  };
+
   return (
     <ProposalContainer>
       <ProposalSection>
@@ -240,7 +247,7 @@ const GroupReceiveProposalDetail = () => {
                   <TypeList>
                     <TypeItem>
                       <ItemTitle>할인형)</ItemTitle>
-                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 방식의 제휴</ItemDescription>
+                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 제휴 방식</ItemDescription>
                     </TypeItem>
                     <TypeItem>
                       <ItemTitle>타임형)</ItemTitle>
@@ -292,17 +299,38 @@ const GroupReceiveProposalDetail = () => {
                   </ConditionGroup>
                 </ConditionsBox>
               </DetailBox>
+              <DetailBox>
+                <Title> <div>연락처</div> </Title>
+                <ConditionContent>
+                  <p>{proposalData.contact_info || '(입력되지 않음)'}</p>
+                </ConditionContent>
+              </DetailBox>
             </DetailSection>
           </SectionWrapper>
           <Signature>'{ownerProfile?.profile_name || proposalData.author?.name || '사장님'}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
+
       {/* 오른쪽 섹션 - 제안서 정보 */}
       <ReceiverSection style={{ top: getProposalContainerTop() }}>
         <ReceiverWrapper>
           <SelectedCardWrapper $isSelected={true}>
             {/* ownerProfile 띄우기 */}
+            <GroupCard 
+                        key={ownerProfile.id}
+                        imageUrl={ownerProfile.photo}
+                        onClick={() => handleCardClick(ownerProfile.id)}
+                        // isBest={ownerProfile.isBest}
+                        // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
+                        // ButtonComponent={() => (
+                        //   // <FavoriteBtn 
+                        //   //   userId={ownerProfile.id} 
+                        //   //   isLikeActive={likeStores.includes(store.id)}
+                        //   //   onLikeChange={handleLikeChange}
+                        //   // />
+                        // )}
+                        store={ownerProfile} />
           </SelectedCardWrapper>        
           <ButtonWrapper>
               <AcceptBtn 
