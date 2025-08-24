@@ -8,6 +8,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import Modal from '../../components/common/buttons/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
@@ -17,7 +18,7 @@ import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
+import createProposal, { editProposal, editProposalStatus, getProposal } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import OrgCardSection from '../../components/common/cards/OrgCardSection';
@@ -33,6 +34,11 @@ const AIGroupProposalDetail = () => {
 
   const { storeName, contactInfo } = useOwnerProfile();
   console.log(contactInfo);
+
+  // 모달 상태 관리
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [proposalStatus, setProposalStatus] = useState('');
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -54,6 +60,21 @@ const AIGroupProposalDetail = () => {
         setSelectedPartnershipTypes(normalizePartnershipTypes(proposalData.partnership_type));
       }
     }, [proposalData]);
+
+  // 제안서 상태 가져오기
+  useEffect(() => {
+    const fetchProposalStatus = async () => {
+      if (proposalData?.id) {
+        try {
+          const proposal = await getProposal(proposalData.id);
+          setProposalStatus(proposal.status);
+        } catch (error) {
+          console.error('제안서 상태 조회 실패:', error);
+        }
+      }
+    };
+    fetchProposalStatus();
+  }, [proposalData?.id]);
 
       // 현재 로그인된 사용자 정보 불러오기
   const [ groupProfile, setGroupProfile] = useState(null);
@@ -173,6 +194,18 @@ const AIGroupProposalDetail = () => {
     }));
   };
 
+
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
+
   // 수정하기
 
   const handleEdit = async () => {
@@ -203,6 +236,12 @@ const AIGroupProposalDetail = () => {
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
   const handleSend = async () => {
     try {
+      // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
+      if (proposalStatus && proposalStatus !== 'DRAFT') {
+        openModal('이미 전송된 제안서이에요');
+        return;
+      }
+
       // **저장하기는 필드 검증 필요 없음 
       if (selectedPartnershipTypes.length === 0) {
         alert('제휴 유형을 선택해주세요.');
@@ -244,8 +283,9 @@ const AIGroupProposalDetail = () => {
                   comment: ""
                 };
                 const response = await editProposalStatus(proposalId, statusData);
-                alert('제안서가 전송되었습니다.');
+                openModal('제안서가 전송되었습니다.');
                 console.log("제안서 상태 변경 완료", response);
+ 
               
               
             } catch (error) {
@@ -275,6 +315,7 @@ const AIGroupProposalDetail = () => {
     try {
       const response = await editProposal(proposalId, createData); // "DRAFT"인 상태로 생성됨
       setIsEditMode(false);
+      openModal('제안서가 저장되었어요. <br /> MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -511,6 +552,7 @@ const AIGroupProposalDetail = () => {
             </ButtonWrapper>
           </ReceiverWrapper>
         </ReceiverSection>
+        <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
 
             )

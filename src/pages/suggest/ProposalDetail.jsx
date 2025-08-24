@@ -11,6 +11,7 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import Modal from '../../components/common/buttons/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
@@ -19,7 +20,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editAllProposal, editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
+import createProposal, { editAllProposal, editProposal, editProposalStatus, getProposal } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 
 
@@ -31,6 +32,11 @@ const ProposalDetail = () => {
 
   const { storeName, contactInfo } = useOwnerProfile();
   console.log(contactInfo);
+
+  // 모달 상태 관리
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [proposalStatus, setProposalStatus] = useState('');
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -52,6 +58,21 @@ const ProposalDetail = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [proposalId, setProposalId] = useState(proposal?.id || null);
+
+  // 제안서 상태 가져오기
+  useEffect(() => {
+    const fetchProposalStatus = async () => {
+      if (proposal?.id) {
+        try {
+          const proposalData = await getProposal(proposal.id);
+          setProposalStatus(proposalData.status);
+        } catch (error) {
+          console.error('제안서 상태 조회 실패:', error);
+        }
+      }
+    };
+    fetchProposalStatus();
+  }, [proposal?.id]);
 
   // 제안서 데이터가 있으면 초기값 설정
   useEffect(() => {
@@ -110,6 +131,16 @@ const ProposalDetail = () => {
     }));
   };
 
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
+
 
   // // 수정하기 : status "DRAFT"인 상태
   // // !!제안서 직접 수정하기 : 수정하기 비활성화!!
@@ -132,6 +163,12 @@ const ProposalDetail = () => {
   // 저장하기를 통해 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출 
   const handleSend = async () => {
     try {
+      // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
+      if (proposalStatus && proposalStatus !== 'DRAFT') {
+        openModal('이미 전송된 제안서이에요');
+        return;
+      }
+
       // **저장하기는 필드 검증 필요 없음 
       if (selectedPartnershipTypes.length === 0) {
         alert('제휴 유형을 선택해주세요.');
@@ -168,13 +205,15 @@ const ProposalDetail = () => {
         const response = await createProposal(createData); // 제안서 생성
         setProposalId(response.id);
         setId(response.id);
-        alert('제안서가 전송되었습니다.');
+        openModal('제안서가 전송되었습니다.');
         const statusData = {
           status: "UNREAD",
           comment: ""
         };
         const status = await editProposalStatus(response.id, statusData);
         console.log("제안서아이디", response.id);
+        // 제안서 상태 업데이트
+        setProposalStatus('UNREAD');
       } else {
         // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
         const statusData = {
@@ -182,8 +221,9 @@ const ProposalDetail = () => {
           comment: ""
         };
         const response = await editProposalStatus(proposalId, statusData);
-        alert('제안서가 전송되었습니다.');
+        openModal('제안서가 전송되었습니다.');
         console.log("제안서 상태 변경 완료", response);
+
       }
       
     } catch (error) {
@@ -215,6 +255,7 @@ const ProposalDetail = () => {
     try {
       const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
+      openModal('제안서가 저장되었어요. <br /> MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -431,6 +472,7 @@ const ProposalDetail = () => {
             </ButtonWrapper>
           </ReceiverWrapper>
         </ReceiverSection>
+        <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
 
   )
