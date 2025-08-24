@@ -14,11 +14,118 @@ const OrgSuggestDealBtn = ({profileData}) => {
   console.log("넘어온 데이터",profileData);
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasExistingProposal, setHasExistingProposal] = useState(false);
+  const [proposalStatus, setProposalStatus] = useState(null); 
+  const [isCheckingProposal, setIsCheckingProposal] = useState(false);
+  const [profileUpdatedAfterProposal, setProfileUpdatedAfterProposal] = useState(false);
  
   const [isLoading, setIsLoading] = useState(false);
   const [loadingVariant, setLoadingVariant] = useState('form');
-  
 
+  // 모달 열 때 기존 제안서 확인
+  const handleModalOpen = async () => {
+    setIsCheckingProposal(true);
+    
+    try {
+      const recipient = profileData.user;
+      const list = await fetchProposal({ box: 'sent', ordering: '-modified_at' });
+      const proposals = list.results || list || [];
+      const existingDraft = proposals.find(p => {
+        const r = p.recipient || {};
+        return (r.id != null ? r.id === recipient : r === recipient);
+      }) || null;
+      
+      if (existingDraft) {
+        setHasExistingProposal(true);
+        // 제안서 상태 확인 (DRAFT = 작성중, SENT = 전송됨)
+        setProposalStatus(existingDraft.current_status || 'DRAFT');
+        
+        // 전송된 제안서인 경우 프로필 수정 시간 확인
+        if (existingDraft.current_status === 'UNREAD' || existingDraft.current_status === 'READ' || existingDraft.current_status === 'PARTNERSHIP') {
+          try {
+            const ownerProfile = await getOwnerProfile(recipient);
+            if (ownerProfile) {
+              const proposalCreatedAt = new Date(existingDraft.created_at);
+              const profileUpdatedAt = new Date(ownerProfile.updated_at);
+              setProfileUpdatedAfterProposal(profileUpdatedAt > proposalCreatedAt);
+            }
+          } catch (e) {
+            console.warn('프로필 조회 실패:', e);
+            setProfileUpdatedAfterProposal(false);
+          }
+        }
+      } else {
+        setHasExistingProposal(false);
+        setProposalStatus(null);
+        setProfileUpdatedAfterProposal(false);
+      }
+    } catch (e) {
+      console.warn('기존 제안서 조회 실패:', e);
+      setHasExistingProposal(false);
+      setProposalStatus(null);
+      setProfileUpdatedAfterProposal(false);
+    } finally {
+      setIsCheckingProposal(false);
+      setIsModalOpen(true);
+    }
+  };
+
+  // 제안서 상태에 따른 모달 메시지 반환
+  const getModalMessage = () => {
+    if (!hasExistingProposal) {
+      return {
+        title: "이 가게에 딱 맞는 제휴 조건, AI가 분석 완료!",
+        subtitle: "AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?"
+      };
+    }
+
+    // 전송된 제안서인 경우
+    if (proposalStatus === 'UNREAD' || proposalStatus === 'READ' || proposalStatus === 'PARTNERSHIP') {
+      if (profileUpdatedAfterProposal) {
+        return {
+          title: "이 가게에 딱 맞는 제휴 조건, AI가 분석 완료!",
+          subtitle: "AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?"
+        };
+      } else {
+        return {
+          title: "이미 제안서를 전송했던 적이 있어요.",
+          subtitle: "보낸 제안 목록으로 넘어갈까요?"
+        };
+      }
+    }
+
+    if (proposalStatus === 'DRAFT') {
+      return {
+        title: "이전에 작성 중이던 제안서가 있어요.",
+        subtitle: "이어서 작성하러 갈까요?"
+      };
+    }
+
+    return {
+      title: "기존에 작성했던 제안서가 있어요",
+      subtitle: "기존에 작성했던 제안서를 불러올게요."
+    };
+  };
+
+  // 제안서 상태에 따른 버튼 동작
+  const handleProposalAction = async () => {
+    // 전송된 제안서인 경우
+    if (proposalStatus === 'UNREAD' || proposalStatus === 'READ' || proposalStatus === 'PARTNERSHIP') {
+      if (profileUpdatedAfterProposal) {
+        // 프로필이 최근에 수정된 경우 새로 생성
+        await handleProposal();
+        return;
+      } else {
+        // 프로필 변화가 없는 경우 보낸 제안 목록으로 이동
+        navigate('/student-group/mypage/sent-suggest');
+        return;
+      }
+    }
+
+    // 기존 handleProposal 로직 실행
+    await handleProposal();
+  };
+  
   // '예'를 누르면 바로 ai 제안서 생성  : 학생회 -> 사장
   
   const handleProposal = async () => {
@@ -43,13 +150,56 @@ const OrgSuggestDealBtn = ({profileData}) => {
       if (existingDraft) {
         console.log('기존 작성중 제안서 발견:', existingDraft);
         
-        // 1. 사장님 프로필 수정 시간과 제안서 생성 시간 비교
+        // 전송된 제안서인 경우 프로필 변화 여부 확인
+        if (existingDraft.current_status === 'UNREAD' || existingDraft.current_status === 'READ' || existingDraft.current_status === 'PARTNERSHIP') {
+          console.log('전송된 제안서 발견:', existingDraft);
+          
+          // 사장님 프로필 수정 시간과 제안서 생성 시간 비교
+          try {
+            const ownerProfile = await getOwnerProfile(recipient);
+            if (ownerProfile) {
+              const proposalCreatedAt = new Date(existingDraft.created_at);
+              const profileUpdatedAt = new Date(ownerProfile.updated_at);
+              
+              // 프로필 수정 시간이 제안서 생성 시간보다 최근이면 새로 생성
+              if (profileUpdatedAt > proposalCreatedAt) {
+                console.log('전송된 제안서가 있지만 프로필이 최근에 수정되어 새로 생성합니다.');
+                setLoadingVariant('ai');
+                setIsLoading(true);
+                
+                const proposalData = await getAutoAIDraftProposal(recipient, contact_info);
+                console.log("새로 생성된 제안서 내용", proposalData);
+                
+                navigate('/student-group/ai-proposal', { state: {profileData, isAI: true, proposalData } });
+                return;
+              }
+            }
+          } catch (profileError) {
+            console.warn('사장님 프로필 조회 실패:', profileError);
+            // 프로필 조회 실패 시 보낸 제안 목록으로 이동
+          }
+          
+          // 프로필 변화가 없거나 프로필 조회 실패 시 보낸 제안 목록으로 이동
+          navigate('/student-group/mypage/sent-suggest');
+          return;
+        }
+        
+        // 작성중인 제안서인 경우 프로필 수정 시간과 비교
         try {
           const ownerProfile = await getOwnerProfile(recipient);
           if (ownerProfile) {
             const proposalCreatedAt = new Date(existingDraft.created_at); // 제안서 생성한 시간
             const profileUpdatedAt = new Date(ownerProfile.modified_at); // 프로필 수정한 시간
             
+                
+            console.log('=== 시간 비교 정보 ===');
+            console.log('제안서 생성 시간 (created_at):', existingDraft.created_at);
+            console.log('제안서 생성 시간 (Date 객체):', proposalCreatedAt);
+            console.log('프로필 수정 시간 (modified_at):', ownerProfile.modified_at);
+            console.log('프로필 수정 시간 (Date 객체):', profileUpdatedAt);
+            console.log('프로필이 더 최근인가?:', profileUpdatedAt > proposalCreatedAt);
+            console.log('========================');
+
             // 프로필 수정 시간이 제안서 생성 시간보다 최근이면 새로 생성
             if (profileUpdatedAt > proposalCreatedAt) {
               console.log('최근에 프로필을 수정하셨네요!');
@@ -99,6 +249,7 @@ const OrgSuggestDealBtn = ({profileData}) => {
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
       navigate('/student-group/proposal', { state: { profileData, isAI: false } });
+
     } finally {
       setIsLoading(false);
       setIsModalOpen(false);
@@ -108,23 +259,23 @@ const OrgSuggestDealBtn = ({profileData}) => {
 
   return (
     <>
-      <SuggestButton onClick={() => setIsModalOpen(true)}>
-        제휴 제안하기
+      <SuggestButton onClick={handleModalOpen} disabled={isCheckingProposal}>
+        {isCheckingProposal ? '확인 중...' : '제휴 제안하기'}
       </SuggestButton>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalContentWrapper>
           <TextWrapper>
             <ModalTitle>
-              <p>이 가게에 딱 맞는 제휴 조건, AI가 분석 완료!</p>
-              <p>AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?</p>
+              <p>{getModalMessage().title}</p>
+              <p>{getModalMessage().subtitle}</p>
             </ModalTitle>
             <ButtonGroup>
               <OptionButton onClick={goToProposalPage}>
                 <p>아니오</p>
                 <p>(직접 작성하기)</p>
               </OptionButton>
-              <OptionButton primary onClick={handleProposal}>
+              <OptionButton primary onClick={handleProposalAction}>
                 예
               </OptionButton>
             </ButtonGroup>

@@ -1,3 +1,4 @@
+// 로딩중이 카드가 로딩될 때까지 기다리지 않고 제안서 없음 표시하는 문제 있음 
 import React, { useState, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
@@ -11,10 +12,12 @@ import useGroupProfile from '../../hooks/useOrgProfile'
 import { fetchGroupProfile, getGroupProfile } from '../../services/apis/groupProfileAPI'
 import ProposalCard from '../../components/common/cards/ProposalCard'
 
+
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
   const [sentProposals, setSentProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [profilesLoading, setProfilesLoading] = useState(false); // 카드 로딩 확인
   const [selectedStatus, setSelectedStatus] = useState(null); // 선택된 상태 필터
   const [summaryStats, setSummaryStats] = useState({
     draft: 0,
@@ -102,16 +105,17 @@ useEffect(() => {
     try {
       if (groupIds.length === 0) return;
 
+      setProfilesLoading(true);
       const profiles = await Promise.all(
         groupIds.map(id => fetchGroupProfile(id))
       )
 
       setGroupProfiles(profiles);
       console.log("학생단체프로필", profiles);
-      console.log("profiles 길이:", profiles.length);
-      console.log("sentProposals 길이:", sentProposals.length);
     } catch (err) {
       console.error("학생 단체 프로필 가져오기 실패:", err);
+    } finally {
+      setProfilesLoading(false);
     }
   };
 
@@ -172,12 +176,17 @@ const filteredProposalOrganizations = selectedStatus
     setSelectedStatus(selectedStatus === status ? null : status);
   };
 
-  if (loading) {
+  // 제안서 로딩 중 + 카드 로딩 중일 때
+  const isOverallLoading = loading || profilesLoading;
+
+  if (isOverallLoading) {
     return (
-      <ContentContainer>
+      <PageContainer>
         <Menu />
-        <Loading>로딩 중...</Loading>
-      </ContentContainer>
+        <Loading>
+          로딩중 ...
+        </Loading>
+      </PageContainer>
     );
   }
 
@@ -292,7 +301,7 @@ const CardListGrid = styled.div`
   row-gap: 13px;
   text-align: left;
   font-size: 18px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 
@@ -305,18 +314,6 @@ const CardListGrid = styled.div`
 // min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
 // `;
 
-const Loading = styled.div`
-width: 100%;
-text-align: center;
-color: #70AF19;
-font-weight: 600;
-font-size: 16px;
-justify-content: center;
-align-content: center;
-padding : 100px;
- 
-`;
-
 const EmptyMessage = styled.div`
 width: 100%;
 text-align: center;
@@ -326,4 +323,16 @@ text-align: center;
     justify-content: center;
   align-content: center;
   margin-top: 30px;
+`;
+
+const Loading = styled.div`
+width: 100%;
+text-align: center;
+color: #1A2D06;
+font-weight: 600;
+font-size: 16px;
+justify-content: center;
+align-content: center;
+padding : 100px;
+ 
 `;

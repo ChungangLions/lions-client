@@ -145,7 +145,7 @@ const OwnerReceiveSuggest = () => {
     return (
       <ContentContainer>
         <Menu />
-        <Loading>로딩 중...</Loading>
+        <Loading>로딩중...</Loading>
       </ContentContainer>
     );
   }
@@ -266,7 +266,7 @@ const CardListGrid = styled.div`
   row-gap: 13px;
   text-align: left;
   font-size: 18px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 
@@ -313,15 +313,14 @@ color: #C9C9C9;
   margin-top: 30px;
 `;
 
-
 const Loading = styled.div`
 width: 100%;
 text-align: center;
-color: #70AF19;
+color: #1A2D06;
 font-weight: 600;
 font-size: 16px;
 justify-content: center;
 align-content: center;
-padding : 100px;
+padding : 200px;
  
 `;

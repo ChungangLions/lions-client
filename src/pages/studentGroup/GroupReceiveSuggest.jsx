@@ -225,16 +225,17 @@ const GroupReceiveSuggest = () => {
                 >
                   <ContentWrapper>
                     <TextWrapper>
-                      <NameWrapper>
-                        <NameText>
-                          {profile?.profile_name || proposal.author?.name || '알 수 없음'}
-                        </NameText>
-                        {profile?.comment && `${profile.comment}`}
-                      </NameWrapper>
                       <DateWrapper>
                         <SendText>수신일</SendText>
                         <DateText>{formatDate(proposal.created_at)}</DateText>
                       </DateWrapper>
+                      <NameWrapper>
+                        <NameText>
+                          {profile?.profile_name || proposal.author?.name || '알 수 없음'}
+                        </NameText>
+           
+                      </NameWrapper>
+                      
                     </TextWrapper>
                     <ButtonWrapper>
                       {STATUS_MAP[proposal.status] || proposal.status}

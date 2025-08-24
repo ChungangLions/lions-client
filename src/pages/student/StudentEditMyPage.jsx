@@ -486,7 +486,7 @@ const ModalContainer = styled.div`
 const ModalHeader = styled.div`
   font-size: 24px;
   font-weight: 600;
-  color: #000;
+  color: #1A2D06;
   margin-bottom: 10px;
 `;
 

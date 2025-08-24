@@ -77,7 +77,7 @@ gap: 2px;
 `;
 
 const NameWrapper = styled.div`
-color: #000;
+color: #1A2D06;
     font-family: Pretendard;
     font-size: 16px;
     font-style: normal;
