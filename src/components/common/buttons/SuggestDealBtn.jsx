@@ -20,7 +20,7 @@ const SuggestDealBtn = ({organization}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingVariant, setLoadingVariant] = useState('form');
 
-  // 모달 열 때 기존 제안서 확인
+  // 기존 제안서 확인
   const handleModalOpen = async () => {
     setIsCheckingProposal(true);
     
@@ -35,7 +35,7 @@ const SuggestDealBtn = ({organization}) => {
       
       if (existingDraft) {
         setHasExistingProposal(true);
-        // 제안서 상태 확인 (DRAFT = 작성중, SENT = 전송됨)
+        // 제안서 상태 확인 
         setProposalStatus(existingDraft.current_status || 'DRAFT');
         
         // 전송된 제안서인 경우 프로필 수정 시간 확인
@@ -68,7 +68,7 @@ const SuggestDealBtn = ({organization}) => {
     }
   };
 
-  // 제안서 상태에 따른 모달 메시지 반환
+  // 제안서 상태 나누기
   const getModalMessage = () => {
     if (!hasExistingProposal) {
       return {
@@ -105,7 +105,6 @@ const SuggestDealBtn = ({organization}) => {
     };
   };
 
-  // 제안서 상태에 따른 버튼 동작
   const handleProposalAction = async () => {
     // 전송된 제안서인 경우
     if (proposalStatus === 'UNREAD' || proposalStatus === 'READ' || proposalStatus === 'PARTNERSHIP') {
@@ -120,7 +119,6 @@ const SuggestDealBtn = ({organization}) => {
       }
     }
 
-    // 기존 handleProposal 로직 실행
     await handleProposal();
   };
 
