@@ -71,6 +71,8 @@ function App() {
         <Route path="/student-group/mypage/edit" element={<GroupEditMyPage />} />
         <Route path="/student-group/mypage/received-suggest" element={<GroupReceiveSuggest />} />
         <Route path="/student-group/mypage/sent-suggest" element={<GroupSendSuggest />} />
+        <Route path="/student-group/mypage/received-proposal/:id" element={<GroupReceiveProposalDetail />} />
+        <Route path="/student-group/mypage/sent-proposal/:id" element={<GroupSendSuggestDetail />} />
         <Route path="/student-group/mypage/wishlist" element={<GroupWishlist />} />
       </Route>
       
