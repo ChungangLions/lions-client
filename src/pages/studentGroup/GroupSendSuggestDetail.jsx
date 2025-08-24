@@ -6,28 +6,81 @@ import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
-import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
-import { fetchProposal } from '../../services/apis/proposalAPI';
 
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+import { getProposal } from '../../services/apis/proposalAPI';
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
+import useUserStore from '../../stores/userStore';
+import { fetchOwnerProfiles } from '../../services/apis/studentProfileApi';
 
-const OwnerSentProposalDetail = () => {
+const GroupSendSuggestDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { proposalOrganizations } = location.state || {};
-  
-  const { storeName } = useOwnerProfile();
-  
-  // 상태 관리
-  const [proposalData, setProposalData] = useState([]);
-  const [selectedProposal, setSelectedProposal] = useState(null);
+  const [newGroupProposal, setNewGroupProposal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { proposal } = location.state || {};
+  console.log("받아온 proposal 데이터: ", proposal);
 
-  console.log("넘어온데이터", proposalOrganizations);
+  const { userId} = useUserStore();
+
+  const [profile, setProfile] = useState();
+  const { ownerProfile, setOwnerProfile} = useState();
+
+  const getGroupProfile = async (userId) => {
+    try {
+      const groupProfile = await fetchGroupProfile(userId);
+      console.log("그룹 프로필:", groupProfile);
+      setProfile(groupProfile);
+    } catch (error) {
+      console.error("프로필 가져오기 실패:", error);
+      setProfile(null);
+    }
+  };
+
+//     const getOwnerProfile = async (proposal.name.id) => {
+//     try {
+//       const ownerProfile = await fetchOwnerProfiles(userId);
+//       console.log("사장님 프로필:", ownerProfile);
+//       setOwnerProfile(ownerProfile);
+//     } catch (error) {
+//       console.error("프로필 가져오기 실패:", error);
+//       setProfile(null);
+//     }
+//   };
 
 
+
+
+
+  useEffect(() => {
+    const fetchProposal = async () => {
+      try {
+        setLoading(true);
+        const response = await getProposal(proposal.id);
+        console.log("새로운 proposal 데이터: ", response);
+        setNewGroupProposal(response);
+      } catch (error) {
+        console.error("제안서 데이터 가져오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (proposal?.id) {
+      fetchProposal();
+    } else {
+      setLoading(false);
+    }
+  }, [proposal?.id]);
+
+  // 그룹 프로필 가져오기
+  useEffect(() => {
+    if (userId) {
+      getGroupProfile(userId);
+    }
+  }, [userId]);
 
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
@@ -41,12 +94,12 @@ const OwnerSentProposalDetail = () => {
   };
 
   // 제휴 유형을 배열로 변환
-  const getPartnershipTypes = (proposal) => {
-    if (!proposal?.partnership_type) return [];
-    if (Array.isArray(proposal.partnership_type)) {
-      return proposal.partnership_type.map(type => mapPartnershipType(type));
+  const getPartnershipTypes = () => {
+    if (!newGroupProposal?.partnership_type) return [];
+    if (Array.isArray(newGroupProposal.partnership_type)) {
+      return newGroupProposal.partnership_type.map(type => mapPartnershipType(type));
     }
-    return [mapPartnershipType(proposal.partnership_type)];
+    return [mapPartnershipType(newGroupProposal.partnership_type)];
   };
 
   // 제휴 유형 데이터
@@ -68,130 +121,6 @@ const OwnerSentProposalDetail = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // 전달받은 proposalOrganizations가 있으면 사용, 없으면 API에서 가져오기
-  useEffect(() => {
-    const fetchProposalData = async () => {
-      try {
-        setLoading(true);
-        
-        if (proposalOrganizations) {
-          // OwnerSendSuggest에서 전달받은 데이터가 있는 경우
-          console.log("전달받은 제안서 데이터:", proposalOrganizations);
-          
-          // 단일 제안서를 배열로 변환하여 처리
-          const enrichedProposal = {
-            ...proposalOrganizations,
-            // 제안서 ID 설정
-            proposal_id: proposalOrganizations.id,
-            // 상태 정보 설정
-            status: proposalOrganizations.status,
-            // 제안서 정보들
-            partnership_type: proposalOrganizations.partnership_type,
-            apply_target: proposalOrganizations.apply_target,
-            benefit_description: proposalOrganizations.benefit_description,
-            time_windows: proposalOrganizations.time_windows,
-            partnership_period: proposalOrganizations.partnership_period,
-            contact_info: proposalOrganizations.contact_info,
-            created_at: proposalOrganizations.created_at,
-          };
-          
-          setProposalData([enrichedProposal]);
-          setSelectedProposal(enrichedProposal);
-        } else {
-          // 전달받은 데이터가 없는 경우 API에서 가져오기
-          const proposalsResponse = await fetchProposal();
-          const proposals = proposalsResponse.results || proposalsResponse;
-          
-          // 각 제안서에 대해 학생 프로필 정보 가져오기
-          const enrichedProposals = await Promise.all(
-            proposals.map(async (proposal) => {
-              try {
-                // 제안서의 recipient 정보에서 학생 프로필 가져오기
-                const studentProfile = await fetchStudentProfile(proposal.recipient);
-                
-                // 학생 프로필 정보와 제안서 정보 합치기
-                const enrichedProposal = {
-                  ...proposal,
-                  // 학생 프로필 정보
-                  id: studentProfile?.id || proposal.recipient,
-                  name: studentProfile?.name || proposal.recipient,
-                  university: studentProfile?.university || '중앙대학교',
-                  department: studentProfile?.department || '',
-                  council_name: studentProfile?.council_name || studentProfile?.name || '',
-                  student_size: studentProfile?.student_size || 0,
-                  partnership_start: studentProfile?.partnership_start || '',
-                  partnership_end: studentProfile?.partnership_end || '',
-                  period: studentProfile?.period || 0,
-                  record: studentProfile?.record || 0,
-                  is_liked: studentProfile?.is_liked || false,
-                  user: studentProfile?.id || proposal.recipient,
-                  // 제안서 정보
-                  proposal_id: proposal.id,
-                  created_at: proposal.created_at,
-                  status: proposal.status,
-                  partnership_type: proposal.partnership_type,
-                  apply_target: proposal.apply_target,
-                  benefit_description: proposal.benefit_description,
-                  time_windows: proposal.time_windows,
-                  partnership_period: proposal.partnership_period,
-                  contact_info: proposal.contact_info,
-                };
-                
-                return enrichedProposal;
-              } catch (error) {
-                console.error('학생 프로필 정보 가져오기 실패:', error);
-                // 프로필 정보를 가져올 수 없는 경우 기본 정보만 사용
-                return {
-                  ...proposal,
-                  id: proposal.recipient,
-                  name: proposal.recipient,
-                  university: '중앙대학교',
-                  department: '',
-                  council_name: proposal.recipient,
-                  student_size: 0,
-                  partnership_start: '',
-                  partnership_end: '',
-                  period: 0,
-                  record: 0,
-                  is_liked: false,
-                  user: proposal.recipient,
-                  proposal_id: proposal.id,
-                  created_at: proposal.created_at,
-                  status: proposal.status,
-                  partnership_type: proposal.partnership_type,
-                  apply_target: proposal.apply_target,
-                  benefit_description: proposal.benefit_description,
-                  time_windows: proposal.time_windows,
-                  partnership_period: proposal.partnership_period,
-                  contact_info: proposal.contact_info,
-                };
-              }
-            })
-          );
-          
-          setProposalData(enrichedProposals);
-          
-          // 첫 번째 제안서를 기본 선택
-          if (enrichedProposals.length > 0) {
-            setSelectedProposal(enrichedProposals[0]);
-          }
-        }
-        
-      } catch (error) {
-        console.error('제안서 데이터 가져오기 실패:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProposalData();
-  }, [proposalOrganizations]);
-
-  // 카드 클릭 핸들러
-  const handleCardClick = (proposal) => {
-    setSelectedProposal(proposal);
-  };
 
   const getProposalContainerTop = () => {
     const minTop = 0;
@@ -218,34 +147,52 @@ const OwnerSentProposalDetail = () => {
 
   // 뒤로가기
   const handleBack = () => {
-    navigate('/owner/mypage/sent-suggest');
+    navigate('/student-group/mypage/sent-suggest');
   };
 
-  if (loading) {
-    return (
-      <Container>
-        <LoadingMessage>제안서 정보를 불러오는 중...</LoadingMessage>
-      </Container>
-    );
-  }
+//   if (loading) {
+//     return (
+//       <Container>
+//         <LoadingMessage>로딩 중...</LoadingMessage>
+//       </Container>
+//     );
+//   }
 
-  if (!proposalData || proposalData.length === 0) {
+  if (!proposal || !newGroupProposal) {
     return (
       <Container>
-        <ErrorMessage>보낸 제안서가 없습니다.</ErrorMessage>
+        <ErrorMessage>제안서 정보를 찾을 수 없습니다.</ErrorMessage>
         <BackButton onClick={handleBack}>뒤로가기</BackButton>
       </Container>
     );
   }
 
-  if (!selectedProposal) {
-    return (
-      <Container>
-        <ErrorMessage>선택된 제안서가 없습니다.</ErrorMessage>
-        <BackButton onClick={handleBack}>뒤로가기</BackButton>
-      </Container>
-    );
-  }
+  
+  const formattedTimeWindows = newGroupProposal?.time_windows && Array.isArray(newGroupProposal.time_windows)
+  ? newGroupProposal.time_windows
+      .map(
+        (time) =>
+          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+      )
+      .join(" / ")
+  : '';
+  
+
+  // 발신자 정보: 학생 단체
+  const senderInfo = {
+    id: proposal.id || null,
+    name: newGroupProposal.author?.username || null,
+    university: profile?.university_name || '중앙대학교',
+    department: profile?.department || '',
+    council_name: profile?.council_name || newGroupProposal.sender?.name || '',
+    student_size: profile?.student_size || 0,
+    partnership_start: proposal.partnership_start || '',
+    partnership_end: proposal.partnership_end || '',
+    period: newGroupProposal.sender?.period || 0,     // 고쳐야할 부분!
+    record: proposal.partnership_count || 0,
+    is_liked: newGroupProposal.sender?.is_liked || false,     // 고쳐야할 부분!
+    user: proposal.id || null,
+  };
 
   return (
     <ProposalContainer>
@@ -253,13 +200,14 @@ const OwnerSentProposalDetail = () => {
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
-              <p>{selectedProposal.university} {selectedProposal.department} {selectedProposal.council_name}</p>
+              <p>{senderInfo.university} {senderInfo.department} {senderInfo.council_name}</p>
               <p>제휴 요청 제안서</p>
             </HeaderTitle>
             <HeaderContent>
               <p>안녕하세요.</p>
-              <p>귀 학생회의 적극적인 학생 복지 및 교내 활동 지원에 항상 감사드립니다.</p>
-              <p>저희 '{storeName}'는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
+              <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
+              <p>'{}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에,</p>
+              <p>가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
@@ -279,7 +227,7 @@ const OwnerSentProposalDetail = () => {
                       key={type}
                       children={type} 
                       IconComponent={IconComponent}
-                      isSelected={getPartnershipTypes(selectedProposal).includes(type)}
+                      isSelected={getPartnershipTypes().includes(type)}
                       onClick={() => {}} // 읽기 전용이므로 클릭 불가
                       disabled={true}
                     />
@@ -315,13 +263,13 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
                       <ConditionContent>
-                        <p>{selectedProposal.apply_target || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.apply_target || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>혜택 내용</ConditionLabel>
                       <ConditionContent>
-                        <p>{selectedProposal.benefit_description || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.benefit_description || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -329,13 +277,13 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{selectedProposal.time_windows || '(입력되지 않음)'}</p>
+                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{selectedProposal.partnership_period || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.period_start || '(입력되지 않음)'} ~ {newGroupProposal.period_end || '(입력되지 않음)'}</p> 
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -346,35 +294,25 @@ const OwnerSentProposalDetail = () => {
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
                 <ConditionContent>
-                  <p>{selectedProposal.contact_info || '(입력되지 않음)'}</p>
+                  <p>{newGroupProposal.contact_info || '(입력되지 않음)'}</p>
                 </ConditionContent>
               </DetailBox>
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{storeName}' 드림</Signature>
+          <Signature>'{senderInfo.council_name}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
-      {/* 오른쪽 섹션 - 제안서 목록 또는 단일 제안서 정보 */}
+      {/* 오른쪽 섹션 */}
       <ReceiverSection style={{ top: getProposalContainerTop() }}>
         <ReceiverWrapper>
-              <SelectedCardWrapper $isSelected={true}>
-                <CardSection 
-                  cardType={"proposal"} 
-                  organization={selectedProposal} 
-                  ButtonComponent={() => <FavoriteBtn organization={selectedProposal} />}
-                />
-                {/* <ProposalStatus status={selectedProposal?.status}>
-                  {selectedProposal?.status === 'UNREAD' && '미열람'}
-                  {selectedProposal?.status === 'READ' && '열람'}
-                  {selectedProposal?.status === 'PARTNERSHIP' && '제휴체결'}
-                  {selectedProposal?.status === 'REJECTED' && '거절'}
-                  {selectedProposal?.status === 'DRAFT' && '작성중'}
-                </ProposalStatus> */}
-              </SelectedCardWrapper>        
+          <CardSection 
+            cardType={"proposal"} 
+            organization={senderInfo} 
+            ButtonComponent={() => <FavoriteBtn organization={senderInfo} />} 
+          />
           <ButtonWrapper>
-            <StatusBtn>현재 {selectedProposal?.status}된 제안서입니다.</StatusBtn>
-            <CloseBtn onClick={handleBack}>닫기</CloseBtn>
+         
           </ButtonWrapper>
         </ReceiverWrapper>
       </ReceiverSection>
@@ -382,44 +320,7 @@ const OwnerSentProposalDetail = () => {
   )
 }
 
-export default OwnerSentProposalDetail
-
-const StatusBtn = styled.button`
-width: 100%;
-position: relative;
-border-radius: 5px;
-border: 1px solid #bcbcbc;
-box-sizing: border-box;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 81px;
-text-align: left;
-font-size: 16px;
-color: #bcbcbc;
-font-family: Pretendard;
-`;
-
-const CloseBtn = styled.button`
-width: 100%;
-position: relative;
-border-radius: 5px;
-background-color: #70af19;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 81px;
-box-sizing: border-box;
-text-align: left;
-font-size: 16px;
-color: #e9f4d0;
-font-family: Pretendard;
-border-none;
-`;
+export default GroupSendSuggestDetail
 
 const Container = styled.div`
   display: flex;
@@ -430,14 +331,15 @@ const Container = styled.div`
   gap: 20px;
 `;
 
-const LoadingMessage = styled.div`
-  font-size: 18px;
-  color: #70AF19;
-`;
-
 const ErrorMessage = styled.div`
   font-size: 18px;
   color: #666;
+`;
+
+const LoadingMessage = styled.div`
+  font-size: 18px;
+  color: #70AF19;
+  font-weight: 600;
 `;
 
 const BackButton = styled.button`
@@ -452,36 +354,6 @@ const BackButton = styled.button`
   &:hover {
     background-color: #5a8f15;
   }
-`;
-
-const ProposalListTitle = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a2d06;
-  margin: 0 0 15px 0;
-  padding: 0 20px;
-`;
-
-const SelectedCardWrapper = styled.div`
-  border: 1px solid #e7e7e7;
-  border-radius: 5px;
-  background-color: transparent;
-  transition: all 0.2s ease;
-  position: relative;
-  
-`;
-
-const ProposalStatus = styled.div`
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: white;
- 
-  z-index: 2;
 `;
 
 const ProposalContainer= styled.div`
@@ -551,7 +423,6 @@ color: #1a2d06;
 font-family: Pretendard;
 height: fit-content;
 transition: top 0.3s ease-out;
-max-height: calc(100vh - 100px);
 `;
 
 const ReceiverWrapper = styled.div`
@@ -565,8 +436,6 @@ display: flex;
 flex-direction: column;
 position: relative;
 gap: 10px;
-max-height: 80vh;
-overflow-y: auto;
 `;
 
 const SectionWrapper = styled.div`
@@ -611,9 +480,6 @@ const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   margin-top: 4px;
-  flex-direction: column;
-  border: none;
-  gap: 10px;
 `;
 
 const LineDiv = styled.div`
@@ -768,3 +634,4 @@ const ConditionContent = styled.div`
     margin: 0;
   }
 `;
+

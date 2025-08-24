@@ -24,6 +24,8 @@ import AIGroupProposalDetail from './pages/suggest/AIGroupProposalDetail';
 import GroupWishlist from './pages/studentGroup/GroupWishlist';
 import GroupReceiveSuggest from './pages/studentGroup/GroupReceiveSuggest';
 import GroupSendSuggest from './pages/studentGroup/GroupSendSuggest';
+import GroupSendSuggestDetail from './pages/studentGroup/GroupSendSuggestDetail';
+import GroupReceiveProposalDetail from './pages/studentGroup/GroupReceiveProposalDetail';
 
 function App() {
   return (
@@ -39,8 +41,8 @@ function App() {
         <Route path="owner/student-group-profile/:id" element={<StudentGroupProfile/>} />
         <Route path="owner/student-group-profile" element={<StudentGroupProfile/>} />
 
-        <Route path="/student_group" element={<GroupHome />}/>
-        <Route path="/student_group/store-profile/:id" element={<OwnerMyPage />} />
+        <Route path="/student-group" element={<GroupHome />}/>
+        <Route path="/student-group/store-profile/:id" element={<OwnerMyPage />} />
 
         {/* <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
         <Route path="/student_group/mypage/wishlist" element={<GroupWishlist />} />
@@ -64,11 +66,11 @@ function App() {
         <Route path="/owner/mypage/received-proposal/:id" element={<OwnerReceivedProposalDetail />}/>
         <Route path="/owner/mypage" element={<OwnerMyPage />}/>
         <Route path="/owner/mypage/wishlist" element={<OwnerWishlist />}/>
-        <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
-        <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
-        <Route path="/student_group/mypage/received-suggest" element={<GroupReceiveSuggest />} />
-        <Route path="/student_group/mypage/sent-suggest" element={<GroupSendSuggest />} />
-        <Route path="/student_group/mypage/wishlist" element={<GroupWishlist />} />
+        <Route path='/student-group/mypage' element={<StudentGroupProfile/>} />
+        <Route path="/student-group/mypage/edit" element={<GroupEditMyPage />} />
+        <Route path="/student-group/mypage/received-suggest" element={<GroupReceiveSuggest />} />
+        <Route path="/student-group/mypage/sent-suggest" element={<GroupSendSuggest />} />
+        <Route path="/student-group/mypage/wishlist" element={<GroupWishlist />} />
       </Route>
       
       </Routes>

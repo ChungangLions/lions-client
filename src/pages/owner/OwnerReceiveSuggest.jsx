@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import OrgCardSection from '../../components/common/cards/OrgCardSection'
+import GroupCard from '../../components/common/cards/GroupCard'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
@@ -10,10 +12,12 @@ import { getOwnerProfile } from '../../services/apis/ownerAPI'
 import ProposalCard from '../../components/common/cards/ProposalCard'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 
+
 const OwnerReceiveSuggest = () => {
   const navigate = useNavigate();
   const [receivedProposals, setReceivedProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState(null); // 선택된 상태 필터
   const [summaryStats, setSummaryStats] = useState({
     read: 0,
     unread: 0,
@@ -34,8 +38,9 @@ const OwnerReceiveSuggest = () => {
         console.log('API 응답 전체:', response);
         console.log('받은 제안서 목록:', response.results || response);
         
-        setReceivedProposals(response.results || response || []); // receivedProposals가 받은 제안서
-        
+
+        setReceivedProposals(response.results || response || []); // receivedProposals가 받은 제안서들
+
         // 상태별 통계 계산
         const stats = {
           read: 0,
@@ -76,6 +81,7 @@ const OwnerReceiveSuggest = () => {
     fetchReceivedProposals();
   }, []);
 
+
   const [proposalGroups, setProposalGroups] = useState([]);
 
   // 제안서 데이터를 student_group 형태로 변환 (비동기 처리)
@@ -111,6 +117,11 @@ const OwnerReceiveSuggest = () => {
 
   console.log("받은 제안서 데이터", proposalGroups); // proposalGroups가 학생단체 프로필 + 제안서 데이터 합친 배열
 
+  // 상태별 필터링된 제안서 목록
+  const filteredProposalGroups = selectedStatus 
+    ? proposalGroups.filter(group => group.status === selectedStatus)
+    : proposalGroups;
+
   const STATUS_MAP = {
     UNREAD: "미열람",
     READ: "열람",
@@ -119,12 +130,16 @@ const OwnerReceiveSuggest = () => {
   };
 
   const summaryItems = [
-    { count: summaryStats.read, label: '열람' },
-    { count: summaryStats.unread, label: '미열람' },
-    { count: summaryStats.partnership, label: '제휴 체결' },
-    { count: summaryStats.rejected, label: '거절' }
-    
+    { count: summaryStats.read, label: '열람', status: 'READ' },
+    { count: summaryStats.unread, label: '미열람', status: 'UNREAD' },
+    { count: summaryStats.partnership, label: '제휴 체결', status: 'PARTNERSHIP' },
+    { count: summaryStats.rejected, label: '거절', status: 'REJECTED' }
   ];
+
+  // 상태별 아이템 클릭 핸들러
+  const handleStatusClick = (status) => {
+    setSelectedStatus(selectedStatus === status ? null : status);
+  };
 
   if (loading) {
     return (
@@ -201,25 +216,37 @@ const OwnerReceiveSuggest = () => {
   // }
 
 
+
   return (
     <PageContainer>
       <Menu />
       <ContentContainer>
-        <SuggestSummaryBox items={summaryItems} />
+        // <SuggestSummaryBox items={summaryItems} />
+        <SuggestSummaryBox 
+          items={summaryItems} 
+          onItemClick={handleStatusClick}
+          selectedStatus={selectedStatus}
+        />
  
-        {proposalGroups.length > 0 ? (
+        {filteredProposalGroups.length > 0 ? (
           <CardListGrid> 
-          {proposalGroups.map((group) => (
+          {filteredProposalGroups.map((group) => (
             <ProposalCard
               key={group.id}
               proposalGroup={group}
               onClick={handleProposalClick}
+
             />
           ))
         }
          </CardListGrid>
          ) : (
-          <EmptyMessage>받은 제안서가 없습니다.</EmptyMessage>
+          <EmptyMessage>
+            {selectedStatus 
+              ? `${STATUS_MAP[selectedStatus]} 상태의 제안서가 없습니다.` 
+              : '받은 제안서가 없습니다.'
+            }
+          </EmptyMessage>
         )}
       </ContentContainer>
     </PageContainer>

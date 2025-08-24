@@ -364,7 +364,7 @@ const GroupEditMyPage = () => {
       try {
         await handleProfileUpdate();
         // setShowModal(true);
-        navigate('/student_group/mypage');
+        navigate('/student-group/mypage');
       } catch (error) {
         console.error("프로필 수정 실패 :", error);
       }
