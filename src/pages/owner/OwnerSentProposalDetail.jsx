@@ -227,7 +227,7 @@ const OwnerSentProposalDetail = () => {
  
     return maxTop;
   };
-  console.log(selectedProposal);
+  console.log("제안서+프로필 데이터",selectedProposal);
 
   // 뒤로가기
   const handleBack = () => {
@@ -348,7 +348,7 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                       <p>{selectedProposal.period_start || '(입력되지 않음)'} ~ {selectedProposal.period_end || '(입력되지 않음)'}</p>
+                       <p>{selectedProposal.partnership_start || '(입력되지 않음)'} ~ {selectedProposal.partnership_end || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
