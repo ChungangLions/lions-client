@@ -40,6 +40,7 @@ const OwnerWishlist = () => {
       <Menu />
       <ContentContainer>
           <NumText>총 {likedOrganizations.length}개</NumText>
+          <CardWrapper>
         <CardListGrid> 
           {likedOrganizations.map((organization) => (
             <OrgCardSection
@@ -55,8 +56,9 @@ const OwnerWishlist = () => {
               organization={organization}
               userId={userId}
             />
-          ))}
-        </CardListGrid>
+            ))}
+          </CardListGrid>
+          </CardWrapper>
         <EmptyRow />
       </ContentContainer>
     </PageConatainer>
@@ -78,7 +80,7 @@ min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 
 
 const ContentContainer = styled.div`
 display: flex;
-width: 1379px;
+width: 100%;
 flex-direction: column;
 align-items: flex-start;
 gap: 15px;
@@ -92,6 +94,12 @@ font-size: 20px;
 leading-trim: NONE;
 line-height: 100%;
 letter-spacing: 0%;
+`;
+
+const CardWrapper = styled.div`
+display: flex;
+width: 100%;
+align-items: center;
 `;
 
 const CardListGrid = styled.div`

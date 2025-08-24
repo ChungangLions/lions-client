@@ -90,7 +90,7 @@ useEffect(() => {
               </DropdownMenu>
               )}
           </UserContainer>
-          <StyledLink to={userRole ? `/${userRole.toLowerCase()}/mypage` : "/"} aria-label="마이페이지">
+          <StyledLink to={userRole === 'STUDENT_GROUP' ? '/student-group/mypage' : (userRole ? `/${userRole.toLowerCase()}/mypage` : "/")} aria-label="마이페이지">
             <ProfileIcon isActive={isActive}/> 
             <ProfileText isActive={isActive}>MY</ProfileText>
           </StyledLink>
