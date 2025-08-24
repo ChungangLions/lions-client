@@ -17,7 +17,7 @@ const OwnerWishlist = () => {
   const userType = "owner";
 
   const handleCardClick = (organization) => {
-    navigate(`/owner/student-group-profile/${organization.id}`, { state: { organization, userType }});
+    navigate(`/owner/mypage/wishlist/student-group-profile/${organization.id}`, { state: { organization, userType }});
   };
 
   console.log("userType", userType);
