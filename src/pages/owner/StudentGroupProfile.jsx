@@ -37,12 +37,15 @@ const StudentGroupProfile = () => {
         { title: '희망 제휴 기간', content: `${partnershipStart} ~ ${partnershipEnd}`},
     ];
 
-    // api 연결 필요
-    const dealHistories = [
-        { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
-        { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
-        { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
-    ];
+
+    const dealHistories = [];
+
+    // // api 연결 필요
+    // const dealHistories = [
+    //     { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
+    //     { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
+    //     { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
+    // ];
   
     //console.log(organization);
 
