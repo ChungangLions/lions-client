@@ -10,13 +10,25 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+import { getProposal } from '../../services/apis/proposalAPI';
 
-const OwnerReceivedProposalDetail = () => {
+const GroupSendSuggestDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [newGroupProposal, setNewGroupProposal] = useState([]);
   const { proposal } = location.state || {};
+  console.log("받아온 proposal 데이터: ", proposal);
   
   const { storeName } = useOwnerProfile();
+
+  useEffect(() => {
+    const fetchProposal = async () => {
+      const response = await getProposal(proposal.id);
+      console.log("새로운 proposal 데이터: ", response);
+      setNewGroupProposal(response);
+    };
+    fetchProposal();
+  }, [proposal.id]);
 
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
@@ -31,11 +43,11 @@ const OwnerReceivedProposalDetail = () => {
 
   // 제휴 유형을 배열로 변환
   const getPartnershipTypes = () => {
-    if (!proposal?.partnership_type) return [];
-    if (Array.isArray(proposal.partnership_type)) {
-      return proposal.partnership_type.map(type => mapPartnershipType(type));
+    if (!newGroupProposal?.partnership_type) return [];
+    if (Array.isArray(newGroupProposal.partnership_type)) {
+      return newGroupProposal.partnership_type.map(type => mapPartnershipType(type));
     }
-    return [mapPartnershipType(proposal.partnership_type)];
+    return [mapPartnershipType(newGroupProposal.partnership_type)];
   };
 
   // 제휴 유형 데이터
@@ -83,10 +95,10 @@ const OwnerReceivedProposalDetail = () => {
 
   // 뒤로가기
   const handleBack = () => {
-    navigate('/owner/mypage/received-suggest');
+    navigate('/student-group/mypage/sent-suggest');
   };
 
-  if (!proposal) {
+  if (!newGroupProposal) {
     return (
       <Container>
         <ErrorMessage>제안서 정보를 찾을 수 없습니다.</ErrorMessage>
@@ -94,8 +106,32 @@ const OwnerReceivedProposalDetail = () => {
       </Container>
     );
   }
+
+  const formattedTimeWindows = Array.isArray(newGroupProposal.time_windows)
+  ? newGroupProposal.time_windows
+      .map(
+        (time) =>
+          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+      )
+      .join(" / ")
+  : '';
   
- 
+
+  // 발신자 정보: 학생 단체
+  const senderInfo = {
+    id: proposal.id || null,
+    name: newGroupProposal.author?.username || null,
+    university: proposal.universtiy_name || '중앙대학교',
+    department: proposal.department || '',
+    council_name: proposal.council_name || newGroupProposal.sender?.name || '',
+    student_size: proposal.student_size || 0,
+    partnership_start: proposal.partnership_start || '',
+    partnership_end: proposal.partnership_end || '',
+    period: newGroupProposal.sender?.period || 0,     // 고쳐야할 부분!
+    record: proposal.partnership_count || 0,
+    is_liked: newGroupProposal.sender?.is_liked || false,     // 고쳐야할 부분!
+    user: proposal.id || null,
+  };
 
   return (
     <ProposalContainer>
@@ -108,8 +144,9 @@ const OwnerReceivedProposalDetail = () => {
             </HeaderTitle>
             <HeaderContent>
               <p>안녕하세요.</p>
-              <p>귀 학생회의 적극적인 학생 복지 및 교내 활동 지원에 항상 감사드립니다.</p>
-              <p>저희 '{storeName}'는 학생들에게 더 나은 혜택을 제공하고자, 아래와 같이 제휴를 제안드립니다.</p>
+              <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
+              <p>'{}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에,</p>
+              <p>가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
@@ -139,7 +176,7 @@ const OwnerReceivedProposalDetail = () => {
                   <TypeList>
                     <TypeItem>
                       <ItemTitle>할인형)</ItemTitle>
-                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 방식의 제휴</ItemDescription>
+                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 제휴 방식</ItemDescription>
                     </TypeItem>
                     <TypeItem>
                       <ItemTitle>타임형)</ItemTitle>
@@ -165,13 +202,13 @@ const OwnerReceivedProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.apply_target || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.apply_target || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>혜택 내용</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.benefit_description || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.benefit_description || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -179,13 +216,13 @@ const OwnerReceivedProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.time_windows || '(입력되지 않음)'}</p>
+                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.partnership_period || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.period_start || '(입력되지 않음)'} ~ {newGroupProposal.period_end || '(입력되지 않음)'}</p> 
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -196,7 +233,7 @@ const OwnerReceivedProposalDetail = () => {
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
                 <ConditionContent>
-                  <p>{proposal.contact_info || '(입력되지 않음)'}</p>
+                  <p>{newGroupProposal.contact_info || '(입력되지 않음)'}</p>
                 </ConditionContent>
               </DetailBox>
             </DetailSection>
@@ -222,7 +259,7 @@ const OwnerReceivedProposalDetail = () => {
   )
 }
 
-export default OwnerReceivedProposalDetail
+export default GroupSendSuggestDetail
 
 const Container = styled.div`
   display: flex;
