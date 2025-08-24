@@ -84,7 +84,7 @@ const OwnerReceiveSuggest = () => {
 
   const [proposalGroups, setProposalGroups] = useState([]);
 
-  // 제안서 데이터를 student_group 형태로 변환 (비동기 처리)
+  // 제안서 데이터를 student-group 형태로 변환 (비동기 처리)
   useEffect(() => {
     const fetchProposalGroups = async () => {
       if (receivedProposals.length === 0) return;

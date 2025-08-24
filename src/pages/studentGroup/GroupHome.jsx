@@ -16,7 +16,7 @@ const GroupHome = () => {
   const [storeLikeCounts, setStoreLikeCounts] = useState({});
   const navigate = useNavigate();
   const handleCardClick = (id) => {
-    navigate(`/student_group/store-profile/${id}`, {
+    navigate(`/student-group/store-profile/${id}`, {
       state: { userType: "studentOrganization" }
     });
   };
