@@ -219,18 +219,18 @@ const formatDate = (dateString) => {
               >
                 <ContentWrapper>
                   <TextWrapper>
-                    
+                    <DateWrapper>
+                      <SendText>수신일</SendText>
+                      <DateText>{formatDate(proposal.created_at)}</DateText>
+                    </DateWrapper>
                     <NameWrapper>
                       <NameText>
                         {profile?.profile_name || proposal.recipient?.name || '알 수 없음'}
                         
                       </NameText>
-                      {profile?.comment && `${profile.comment}`}
+                      {/* {profile?.comment && `${profile.comment}`} */}
                     </NameWrapper>
-                    <DateWrapper>
-                      <SendText>수신일</SendText>
-                      <DateText>{formatDate(proposal.created_at)}</DateText>
-                    </DateWrapper>
+                 
                   </TextWrapper>
                   <ButtonWrapper>
                     {STATUS_MAP[proposal.status] || proposal.status}
@@ -356,7 +356,7 @@ line-height: normal;
 `;
 
 const SendText = styled.div`
-color: var(--main-main950, #1A2D06);
+color:  #1A2D06;
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
@@ -365,7 +365,7 @@ line-height: normal;
 `;
 
 const DateText = styled.div`
-color: var(--main-main950, #1A2D06);
+color:  #1A2D06;
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
@@ -380,8 +380,8 @@ justify-content: flex-end;
 align-items: center;
 gap: 10px;
 border-radius: 500px;
-border: 1px solid var(--main-main600, #70AF19);
-color: var(--main-main600, #70AF19);
+border: 1px solid  #70AF19;
+color:  #70AF19;
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;

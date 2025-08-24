@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import OwnerInfo from '../../components/common/cards/OwnerInfo';
-import CardSection from '../../components/common/cards/OrgCardSection';
+import OrgCardSection from '../../components/common/cards/OrgCardSection';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
@@ -74,11 +74,11 @@ const OwnerReceivedProposalDetail = () => {
 
   const getProposalContainerTop = () => {
     const minTop = 0;
-    const midTop = 300;
-    const maxTop = 600;
+    const midTop = 400;
+    const maxTop = 800;
     
     const stage1Threshold = 200;
-    const stage2Threshold = 600;
+    const stage2Threshold = 800;
 
     if (scrollY <= stage1Threshold) {
       const progress = scrollY / stage1Threshold;
@@ -117,13 +117,13 @@ const OwnerReceivedProposalDetail = () => {
       )
       .join(" / ")
   : '';
-  
+
 
   // 발신자 정보: 학생 단체
   const senderInfo = {
     id: proposalGroups.id || null,
     name: newGroupProposal.author?.username || null,
-    university: proposalGroups.universtiy_name || '중앙대학교',
+    university_name: proposalGroups.universtiy_name || '중앙대학교',
     department: proposalGroups.department || '',
     council_name: proposalGroups.council_name || newGroupProposal.sender?.name || '',
     student_size: proposalGroups.student_size || 0,
@@ -133,6 +133,7 @@ const OwnerReceivedProposalDetail = () => {
     record: proposalGroups.partnership_count || 0,
     is_liked: newGroupProposal.sender?.is_liked || false,     // 고쳐야할 부분!
     user: proposalGroups.id || null,
+    photos : proposalGroups.photos,
   };
 
   return (
@@ -141,7 +142,7 @@ const OwnerReceivedProposalDetail = () => {
         <ProposalWrapper>
           <ProposalHeader>
             <HeaderTitle>
-              <p>{senderInfo.university} {senderInfo.department} {senderInfo.council_name}</p>
+              <p>{senderInfo.university_name} {senderInfo.department} {senderInfo.council_name}</p>
               <p>제휴 요청 제안서</p>
             </HeaderTitle>
             <HeaderContent>
@@ -239,14 +240,14 @@ const OwnerReceivedProposalDetail = () => {
               </DetailBox>
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{senderInfo.council_name}' 드림</Signature>
+          <Signature>'{senderInfo.university_name} {senderInfo.department}{senderInfo.council_name}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
       {/* 오른쪽 섹션 */}
       <ReceiverSection style={{ top: getProposalContainerTop() }}>
         <ReceiverWrapper>
-          <CardSection 
+          <OrgCardSection 
             cardType={"proposal"} 
             organization={senderInfo} 
             ButtonComponent={() => <FavoriteBtn organization={senderInfo} />} 
