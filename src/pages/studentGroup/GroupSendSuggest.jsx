@@ -189,7 +189,7 @@ const formatDate = (dateString) => {
   
   const handleProposalClick = (proposal) => {
     // 클릭 시 제안서 상세 페이지로 이동
-    navigate(`/student_group/mypage/sent-proposal/${proposal.id}`, { 
+    navigate(`/student-group/mypage/sent-proposal/${proposal.id}`, { 
       state: { proposal } 
     });
   }
