@@ -15,7 +15,7 @@ const GroupWishlist = () => {
   const { stores, fetchStores } = useVenueStore();
 
   const handleCardClick = (id) => {
-    navigate(`/student_group/store-profile/${id}`, { state: { userType: "studentOrganization" } });
+    navigate(`/student-group/store-profile/${id}`, { state: { userType: "studentOrganization" } });
   };
 
   const [likeStores, setLikeStores] = useState([]);
