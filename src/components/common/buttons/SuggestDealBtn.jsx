@@ -11,10 +11,35 @@ import Loading from '../../../layout/Loading';
 const SuggestDealBtn = ({organization}) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasExistingProposal, setHasExistingProposal] = useState(false);
+  const [isCheckingProposal, setIsCheckingProposal] = useState(false);
 
  
   const [isLoading, setIsLoading] = useState(false);
   const [loadingVariant, setLoadingVariant] = useState('form');
+
+  // 모달 열 때 기존 제안서 확인
+  const handleModalOpen = async () => {
+    setIsCheckingProposal(true);
+    
+    try {
+      const recipient = organization.user;
+      const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
+      const proposals = list.results || list || [];
+      const existingDraft = proposals.find(p => {
+        const r = p.recipient || {};
+        return (r.id != null ? r.id === recipient : r === recipient);
+      }) || null;
+      
+      setHasExistingProposal(!!existingDraft);
+    } catch (e) {
+      console.warn('기존 제안서 조회 실패:', e);
+      setHasExistingProposal(false);
+    } finally {
+      setIsCheckingProposal(false);
+      setIsModalOpen(true);
+    }
+  };
 
   // '예'를 누르면 바로 ai 제안서 생성  : 사장 -> 학생회
   const handleProposal = async () => {
@@ -33,7 +58,7 @@ const SuggestDealBtn = ({organization}) => {
       // 제안서 없으면 -> 원래 모달창 띄우기 
       let existingDraft = null;
       try {
-        const list = await fetchProposal({ box: 'sent', ordering: '-created_at' });
+        const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
         const proposals = list.results || list || [];
         existingDraft = proposals.find(p => {
           const r = p.recipient || {};
@@ -53,15 +78,6 @@ const SuggestDealBtn = ({organization}) => {
           if (ownerProfile) {
             const proposalCreatedAt = new Date(existingDraft.created_at);
             const profileUpdatedAt = new Date(ownerProfile.updated_at);
-
-            console.log('=== 시간 비교 정보 ===');
-            console.log('제안서 생성 시간 (created_at):', existingDraft.created_at);
-            console.log('제안서 생성 시간 (Date 객체):', proposalCreatedAt);
-            console.log('프로필 수정 시간 (modified_at):', ownerProfile.modified_at);
-            console.log('프로필 수정 시간 (Date 객체):', profileUpdatedAt);
-            console.log('프로필이 더 최근인가?:', profileUpdatedAt > proposalCreatedAt);
-            console.log('========================');
-
             
             // 프로필 수정 시간이 제안서 생성 시간보다 최근이면 새로 생성
             if (profileUpdatedAt > proposalCreatedAt) {
@@ -118,16 +134,25 @@ const SuggestDealBtn = ({organization}) => {
 
   return (
     <>
-      <SuggestButton onClick={() => setIsModalOpen(true)}>
-        제휴 제안하기
+      <SuggestButton onClick={handleModalOpen} disabled={isCheckingProposal}>
+        {isCheckingProposal ? '확인 중...' : '제휴 제안하기'}
       </SuggestButton>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalContentWrapper>
           <TextWrapper>
             <ModalTitle>
-              <p>우리 가게에 딱 맞는 제휴 조건, AI가 분석 완료!</p>
-              <p>AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?</p>
+              {hasExistingProposal ? (
+                <>
+                  <p>기존에 작성했던 제안서가 있어요</p>
+                  <p>기존에 작성했던 제안서를 불러올게요.</p>
+                </>
+              ) : (
+                <>
+                  <p>우리 가게에 딱 맞는 제휴 조건, AI가 분석 완료!</p>
+                  <p>AI가 작성한 맞춤형 제안서를 확인하러 가 볼까요?</p>
+                </>
+              )}
             </ModalTitle>
             <ButtonGroup>
               <OptionButton onClick={goToProposalPage}>
