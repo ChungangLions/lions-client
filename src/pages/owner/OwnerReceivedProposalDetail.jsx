@@ -10,13 +10,38 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
+import { getProposal } from '../../services/apis/proposalAPI';
+import { fetchLikes } from '../../services/apis/likesapi';
 
 const OwnerReceivedProposalDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { proposal } = location.state || {};
+  const [newGroupProposal, setNewGroupProposal] = useState([]);
+  const { proposalId, proposalGroups } = location.state || {};
+  console.log("받아온 proposal 데이터: ", proposalGroups);
   
   const { storeName } = useOwnerProfile();
+
+  const [likeStores, setLikeStores] = useState([]);
+
+    useEffect(() => {
+      const fetchUserLikes = async () => {
+        const list = await fetchLikes('given');
+        setLikeStores(list.map(item => item.target.id));
+        console.log("좋아요한 학생회 리스트:", list);
+        console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
+      };
+      fetchUserLikes();
+    }, []);
+
+  useEffect(() => {
+    const fetchProposal = async () => {
+      const response = await getProposal(proposalId);
+      console.log("새로운 proposal 데이터: ", response);
+      setNewGroupProposal(response);
+    };
+    fetchProposal();
+  }, [proposalId]);
 
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
@@ -31,11 +56,11 @@ const OwnerReceivedProposalDetail = () => {
 
   // 제휴 유형을 배열로 변환
   const getPartnershipTypes = () => {
-    if (!proposal?.partnership_type) return [];
-    if (Array.isArray(proposal.partnership_type)) {
-      return proposal.partnership_type.map(type => mapPartnershipType(type));
+    if (!newGroupProposal?.partnership_type) return [];
+    if (Array.isArray(newGroupProposal.partnership_type)) {
+      return newGroupProposal.partnership_type.map(type => mapPartnershipType(type));
     }
-    return [mapPartnershipType(proposal.partnership_type)];
+    return [mapPartnershipType(newGroupProposal.partnership_type)];
   };
 
   // 제휴 유형 데이터
@@ -86,7 +111,7 @@ const OwnerReceivedProposalDetail = () => {
     navigate('/owner/mypage/received-suggest');
   };
 
-  if (!proposal) {
+  if (!newGroupProposal) {
     return (
       <Container>
         <ErrorMessage>제안서 정보를 찾을 수 없습니다.</ErrorMessage>
@@ -95,22 +120,29 @@ const OwnerReceivedProposalDetail = () => {
     );
   }
 
+  const formattedTimeWindows = Array.isArray(newGroupProposal.time_windows)
+  ? newGroupProposal.time_windows
+      .map(
+        (time) =>
+          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+      )
+      .join(" / ")
+  : '';
   
 
-  // 발신자 정보 (proposal.sender에서 추출)
+  // 발신자 정보: 학생 단체
   const senderInfo = {
-    id: proposal.sender?.id || proposal.sender,
-    name: proposal.sender?.name || proposal.sender,
-    university: proposal.sender?.university || '중앙대학교',
-    department: proposal.sender?.department || '',
-    council_name: proposal.sender?.council_name || proposal.sender?.name || '',
-    student_size: proposal.sender?.student_size || 0,
-    partnership_start: proposal.sender?.partnership_start || '',
-    partnership_end: proposal.sender?.partnership_end || '',
-    period: proposal.sender?.period || 0,
-    record: proposal.sender?.record || 0,
-    is_liked: proposal.sender?.is_liked || false,
-    user: proposal.sender?.id || proposal.sender
+    id: proposalGroups.id || null,
+    name: newGroupProposal.author?.username || null,
+    university: proposalGroups.universtiy_name || '중앙대학교',
+    department: proposalGroups.department || '',
+    council_name: proposalGroups.council_name || newGroupProposal.sender?.name || '',
+    student_size: proposalGroups.student_size || 0,
+    partnership_start: proposalGroups.partnership_start || '',
+    partnership_end: proposalGroups.partnership_end || '',
+    record: proposalGroups.partnership_count || 0,
+    user: proposalGroups.id || null,
+    photos: proposalGroups.photos || [],
   };
 
   return (
@@ -181,13 +213,13 @@ const OwnerReceivedProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.apply_target || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.apply_target || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>혜택 내용</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.benefit_description || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.benefit_description || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -195,13 +227,13 @@ const OwnerReceivedProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.time_windows || '(입력되지 않음)'}</p>
+                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposal.partnership_period || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.period_start || '(입력되지 않음)'} ~ {newGroupProposal.period_end || '(입력되지 않음)'}</p> 
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -212,7 +244,7 @@ const OwnerReceivedProposalDetail = () => {
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
                 <ConditionContent>
-                  <p>{proposal.contact_info || '(입력되지 않음)'}</p>
+                  <p>{newGroupProposal.contact_info || '(입력되지 않음)'}</p>
                 </ConditionContent>
               </DetailBox>
             </DetailSection>
@@ -227,7 +259,12 @@ const OwnerReceivedProposalDetail = () => {
           <CardSection 
             cardType={"proposal"} 
             organization={senderInfo} 
-            ButtonComponent={() => <FavoriteBtn organization={senderInfo} />} 
+            // ButtonComponent={() => (
+            //   <FavoriteBtn 
+            //     userId={senderInfo.user} 
+            //     isLikeActive={likeStores.includes(senderInfo.user)} // 추가!
+            //   />
+            // )}
           />
           <ButtonWrapper>
          
