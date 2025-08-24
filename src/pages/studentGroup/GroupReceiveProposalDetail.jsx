@@ -15,6 +15,8 @@ import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import useUserStore from '../../stores/userStore';
+import AcceptBtn from '../../components/common/buttons/proposal/AcceptBtn';
+import RejectBtn from '../../components/common/buttons/proposal/RejectBtn';
 
 const GroupReceiveProposalDetail = () => {
   const location = useLocation();
@@ -184,6 +186,15 @@ const GroupReceiveProposalDetail = () => {
     );
   }
 
+    const formattedTimeWindows = Array.isArray(proposalData.time_windows )
+  ? proposalData.time_windows 
+      .map(
+        (time) =>
+          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+      )
+      .join(" / ")
+  : '';
+
   return (
     <ProposalContainer>
       <ProposalSection>
@@ -269,7 +280,7 @@ const GroupReceiveProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposalData.time_windows || '(입력되지 않음)'}</p>
+                        <p>{formattedTimeWindows|| '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
@@ -291,29 +302,22 @@ const GroupReceiveProposalDetail = () => {
       <ReceiverSection style={{ top: getProposalContainerTop() }}>
         <ReceiverWrapper>
           <SelectedCardWrapper $isSelected={true}>
-            <CardSection 
-              cardType={"proposal"} 
-              organization={{
-                ...proposalData,
-                name: ownerProfile?.profile_name || proposalData.author?.name,
-                description: proposalData.title,
-                photo: ownerProfile?.photo
-              }} 
-              ButtonComponent={() => <FavoriteBtn organization={{
-                ...proposalData,
-                name: ownerProfile?.profile_name || proposalData.author?.name,
-                user: proposalData.author?.id
-              }} />}
-            />
+            {/* ownerProfile 띄우기 */}
           </SelectedCardWrapper>        
           <ButtonWrapper>
-            <StatusBtn>
-              {proposalData.current_status === 'UNREAD' && '미열람'}
-              {proposalData.current_status === 'READ' && '열람'}
-              {proposalData.current_status === 'PARTNERSHIP' && '제휴체결'}
-              {proposalData.current_status === 'REJECTED' && '거절'}
-              {proposalData.current_status === 'DRAFT' && '작성중'}
-            </StatusBtn>
+              <AcceptBtn 
+              proposalId={id} 
+              onAccept={() => {
+                alert('제휴가 체결되었습니다.');
+              }} 
+            />
+            <RejectBtn 
+              proposalId={id} 
+              onReject={() => {
+
+                alert('제안서가 거절되었습니다.');
+              }} 
+            />
             <CloseBtn onClick={handleBack}>닫기</CloseBtn>
           </ButtonWrapper>
         </ReceiverWrapper>
