@@ -27,6 +27,17 @@ const OwnerSentProposalDetail = () => {
 
   console.log("넘어온데이터", proposalOrganizations);
 
+  
+  const formattedTimeWindows = Array.isArray(proposalOrganizations.time_windows)
+  ? proposalOrganizations.time_windows
+      .map(
+        (time) =>
+          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
+      )
+      .join(" / ")
+  : '';
+
+
 
 
   // 제휴 유형 매핑
@@ -90,8 +101,9 @@ const OwnerSentProposalDetail = () => {
             partnership_type: proposalOrganizations.partnership_type,
             apply_target: proposalOrganizations.apply_target,
             benefit_description: proposalOrganizations.benefit_description,
-            time_windows: proposalOrganizations.time_windows,
-            partnership_period: proposalOrganizations.partnership_period,
+            time_windows: formattedTimeWindows,
+            partnership_start: proposalOrganizations.partnership_start,
+            partnership_end: proposalOrganizations.partnership_end,
             contact_info: proposalOrganizations.contact_info,
             created_at: proposalOrganizations.created_at,
           };
@@ -215,6 +227,7 @@ const OwnerSentProposalDetail = () => {
  
     return maxTop;
   };
+  console.log(selectedProposal);
 
   // 뒤로가기
   const handleBack = () => {
@@ -329,13 +342,13 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{selectedProposal.time_windows || '(입력되지 않음)'}</p>
+                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{selectedProposal.partnership_period || '(입력되지 않음)'}</p>
+                       <p>{selectedProposal.period_start || '(입력되지 않음)'} ~ {selectedProposal.period_end || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
