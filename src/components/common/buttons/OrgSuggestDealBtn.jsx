@@ -43,19 +43,25 @@ const OrgSuggestDealBtn = ({profileData}) => {
       if (existingDraft) {
         console.log('기존 작성중 제안서 발견:', existingDraft);
         
-        
         // 1. 사장님 프로필 수정 시간과 제안서 생성 시간 비교
         try {
           const ownerProfile = await getOwnerProfile(recipient);
-          console.log('사장님 프로필 데이터:', ownerProfile);
-          
           if (ownerProfile) {
             const proposalCreatedAt = new Date(existingDraft.created_at); // 제안서 생성한 시간
             const profileUpdatedAt = new Date(ownerProfile.modified_at); // 프로필 수정한 시간
-      
+            
+                
+            console.log('=== 시간 비교 정보 ===');
+            console.log('제안서 생성 시간 (created_at):', existingDraft.created_at);
+            console.log('제안서 생성 시간 (Date 객체):', proposalCreatedAt);
+            console.log('프로필 수정 시간 (modified_at):', ownerProfile.modified_at);
+            console.log('프로필 수정 시간 (Date 객체):', profileUpdatedAt);
+            console.log('프로필이 더 최근인가?:', profileUpdatedAt > proposalCreatedAt);
+            console.log('========================');
+
             // 프로필 수정 시간이 제안서 생성 시간보다 최근이면 새로 생성
             if (profileUpdatedAt > proposalCreatedAt) {
-              console.log('최근에 프로필을 수정하셨네요! 새로 제안서를 생성합니다.');
+              console.log('최근에 프로필을 수정하셨네요!');
               setLoadingVariant('ai');
               setIsLoading(true);
               
@@ -64,8 +70,6 @@ const OrgSuggestDealBtn = ({profileData}) => {
               
               navigate('/student-group/ai-proposal', { state: {profileData, isAI: true, proposalData } });
               return;
-            } else {
-              console.log('프로필이 오래되어 기존 제안서를 사용합니다.');
             }
           }
         } catch (profileError) {
@@ -104,6 +108,7 @@ const OrgSuggestDealBtn = ({profileData}) => {
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
       navigate('/student-group/proposal', { state: { profileData, isAI: false } });
+
     } finally {
       setIsLoading(false);
       setIsModalOpen(false);

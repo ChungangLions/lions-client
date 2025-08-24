@@ -33,7 +33,7 @@ const SuggestDealBtn = ({organization}) => {
       // 제안서 없으면 -> 원래 모달창 띄우기 
       let existingDraft = null;
       try {
-        const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
+        const list = await fetchProposal({ box: 'sent', ordering: '-created_at' });
         const proposals = list.results || list || [];
         existingDraft = proposals.find(p => {
           const r = p.recipient || {};
@@ -50,12 +50,10 @@ const SuggestDealBtn = ({organization}) => {
         // 사장님 프로필 수정 시간과 제안서 생성 시간 비교
         try {
           const ownerProfile = await getOwnerProfile(recipient);
-          console.log('사장님 프로필 데이터:', ownerProfile);
-          
           if (ownerProfile) {
-            const proposalCreatedAt = new Date(existingDraft.created_at); // 제안서 생성한 시간
-            const profileUpdatedAt = new Date(ownerProfile.modified_at); // 프로필 수정한 시간
-            
+            const proposalCreatedAt = new Date(existingDraft.created_at);
+            const profileUpdatedAt = new Date(ownerProfile.updated_at);
+
             console.log('=== 시간 비교 정보 ===');
             console.log('제안서 생성 시간 (created_at):', existingDraft.created_at);
             console.log('제안서 생성 시간 (Date 객체):', proposalCreatedAt);
@@ -63,10 +61,11 @@ const SuggestDealBtn = ({organization}) => {
             console.log('프로필 수정 시간 (Date 객체):', profileUpdatedAt);
             console.log('프로필이 더 최근인가?:', profileUpdatedAt > proposalCreatedAt);
             console.log('========================');
+
             
             // 프로필 수정 시간이 제안서 생성 시간보다 최근이면 새로 생성
             if (profileUpdatedAt > proposalCreatedAt) {
-              console.log('최근에 프로필을 수정하셨네요! 새로 제안서를 생성합니다.');
+              console.log('프로필이 최근에 수정되어 새로 제안서를 생성합니다.');
               setLoadingVariant('ai');
               setIsLoading(true);
               
@@ -75,8 +74,6 @@ const SuggestDealBtn = ({organization}) => {
               
               navigate('/owner/ai-proposal', { state: { organization, isAI: true, proposalData } });
               return;
-            } else {
-              console.log('프로필이 오래되어 기존 제안서를 사용합니다.');
             }
           }
         } catch (profileError) {
