@@ -72,7 +72,7 @@ function App() {
 
         <Route path='/student-group/mypage' element={<StudentGroupProfile/>} />
         <Route path="/student-group/mypage/edit" element={<GroupEditMyPage />} />
-        <Route path="/student-grsoup/mypage/wishlist" element={<GroupWishlist />} />
+        <Route path="/student-group/mypage/wishlist" element={<GroupWishlist />} />
       </Route>
       
       </Routes>
