@@ -9,10 +9,10 @@ import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
 const MENU_ITEMS = [
-    { label: '프로필', to: '/student_group/mypage' },
-    { label: '받은 제안', to: '/student_group/mypage/received-suggest' },
-    { label: '보낸 제안', to: '/student_group/mypage/sent-suggest' },
-    { label: '찜 목록', to: '/student_group/mypage/wishlist' },
+    { label: '프로필', to: '/student-group/mypage' },
+    { label: '받은 제안', to: '/student-group/mypage/received-suggest' },
+    { label: '보낸 제안', to: '/student-group/mypage/sent-suggest' },
+    { label: '찜 목록', to: '/student-group/mypage/wishlist' },
 ];
 
 const Menu = () => {
@@ -25,8 +25,8 @@ const Menu = () => {
         key={item.to}
         to={item.to}
         $active={
-          item.to === '/student_group/mypage'
-            ? pathname === '/student_group/mypage' || pathname === '/student_group/mypage/edit'
+          item.to === '/student-group/mypage'
+            ? pathname === '/student-group/mypage' || pathname === '/student-group/mypage/edit'
             : pathname === item.to
         }
       >

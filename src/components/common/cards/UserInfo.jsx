@@ -8,6 +8,7 @@ const UserInfo = ({organization}) => {
   // 두 가지 데이터 구조를 모두 지원
   const getProfileImage = () => {
     if (!organization?.photos || organization.photos.length === 0) {
+      console.log("사진 없음");
       return null;
     }
     
@@ -34,10 +35,10 @@ const UserInfo = ({organization}) => {
       <UserSection>
         <ProfileImage profileImage={profileImage} />
         <NameWrapper>
-          {/*<p>{organization?.university}</p>*/}
-          <p>중앙대학교 서울캠퍼스</p>
+          <p>{organization?.university_name}</p>
+           <p>{organization?.department}</p>
           <p>{organization?.council_name}</p> 
-          <p>{organization?.department}</p>
+         
         </NameWrapper>
         </UserSection>
     </UserInfoWrapper>

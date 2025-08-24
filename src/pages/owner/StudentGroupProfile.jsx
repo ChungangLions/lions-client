@@ -9,7 +9,7 @@ import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
-import { fetchLikes } from '../../services/apis/likesapi'
+import { fetchLikes, toggleLikes } from '../../services/apis/likesapi'
 import MenuGroup from '../../layout/MenuGroup'
 
 const StudentGroupProfile = () => {
@@ -65,12 +65,16 @@ const StudentGroupProfile = () => {
     fetchData();
   }, [groupId, isLikeActive]);
   
-  const handleHeartClick = async() => {
-    const newState = !isLikeActive;
-    setIsLikeActive(newState);
-
-    // API 연결
-  }
+  const handleHeartClick = async (event) => {
+    event.stopPropagation();
+    setIsLikeActive(!isLikeActive);
+    try {
+      await toggleLikes(groupId);
+    } catch (error) {
+      console.error("좋아요 토글 실패:", error);
+      setIsLikeActive(isLikeActive);
+    }
+  };
 
 
   return (

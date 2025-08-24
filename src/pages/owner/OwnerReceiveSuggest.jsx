@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import OrgCardSection from '../../components/common/cards/OrgCardSection'
+import GroupCard from '../../components/common/cards/GroupCard'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
-import { fetchProposal } from '../../services/apis/proposalAPI'
+import { fetchProposal, editProposalStatus } from '../../services/apis/proposalAPI'
+import { getOwnerProfile } from '../../services/apis/ownerAPI'
+import ProposalCard from '../../components/common/cards/ProposalCard'
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
+
 
 const OwnerReceiveSuggest = () => {
   const navigate = useNavigate();
   const [receivedProposals, setReceivedProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState(null); // 선택된 상태 필터
   const [summaryStats, setSummaryStats] = useState({
     read: 0,
     unread: 0,
@@ -24,14 +30,17 @@ const OwnerReceiveSuggest = () => {
     const fetchReceivedProposals = async () => {
       try {
         setLoading(true);
-        // box=received로 설정
         const response = await fetchProposal({
           box: 'inbox',
           ordering: '-created_at'
         });
         
-        setReceivedProposals(response.results || response || []);
+        console.log('API 응답 전체:', response);
+        console.log('받은 제안서 목록:', response.results || response);
         
+
+        setReceivedProposals(response.results || response || []); // receivedProposals가 받은 제안서들
+
         // 상태별 통계 계산
         const stats = {
           read: 0,
@@ -42,6 +51,7 @@ const OwnerReceiveSuggest = () => {
         
         (response.results || response || []).forEach(proposal => {
           console.log('받은 제안서 상태:', proposal.current_status, proposal); 
+          console.log('제안서 recipient 정보:', proposal.recipient);
           switch(proposal.current_status) {
             case 'UNREAD':
               stats.unread++;
@@ -71,22 +81,46 @@ const OwnerReceiveSuggest = () => {
     fetchReceivedProposals();
   }, []);
 
-  // 제안서 데이터를 organization 형태로 변환
-  const proposalOrganizations = receivedProposals.map(proposal => ({
-    id: proposal.id,
-    name: proposal.sender?.name || proposal.sender,
-    description: proposal.title,
-    status: proposal.current_status,
-    created_at: proposal.created_at,
-    receivedDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
-    council_name: proposal.sender?.council_name || proposal.sender?.name,
-    department: proposal.sender?.department,
-    ...proposal
-  }));
 
-  console.log("받은 제안서 데이터", proposalOrganizations);
+  const [proposalGroups, setProposalGroups] = useState([]);
 
+  // 제안서 데이터를 student_group 형태로 변환 (비동기 처리)
+  useEffect(() => {
+    const fetchProposalGroups = async () => {
+      if (receivedProposals.length === 0) return;
 
+      const groupsWithProfiles = await Promise.all(
+        receivedProposals.map(async (proposal) => {
+          const groupId = proposal.author.id;
+          
+          console.log('제안서 ID:', proposal.id, '학생단체 정보:', groupId);
+
+          const groupProfile = await fetchGroupProfile(groupId);
+
+          console.log('학생 단체 정보', groupProfile);
+          
+          return {
+            proposalId: proposal.id,
+            status: proposal.current_status,
+            created_at: proposal.created_at,
+            receivedDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
+            ...(groupProfile || {}) // groupProfile이 null인 경우 빈 객체로 처리
+          };
+        })
+      );
+
+      setProposalGroups(groupsWithProfiles);
+    };
+
+    fetchProposalGroups();
+  }, [receivedProposals]);
+
+  console.log("받은 제안서 데이터", proposalGroups); // proposalGroups가 학생단체 프로필 + 제안서 데이터 합친 배열
+
+  // 상태별 필터링된 제안서 목록
+  const filteredProposalGroups = selectedStatus 
+    ? proposalGroups.filter(group => group.status === selectedStatus)
+    : proposalGroups;
 
   const STATUS_MAP = {
     UNREAD: "미열람",
@@ -96,12 +130,16 @@ const OwnerReceiveSuggest = () => {
   };
 
   const summaryItems = [
-    { count: summaryStats.read, label: '열람' },
-    { count: summaryStats.unread, label: '미열람' },
-    { count: summaryStats.partnership, label: '제휴 체결' },
-    { count: summaryStats.rejected, label: '거절' }
-    
+    { count: summaryStats.read, label: '열람', status: 'READ' },
+    { count: summaryStats.unread, label: '미열람', status: 'UNREAD' },
+    { count: summaryStats.partnership, label: '제휴 체결', status: 'PARTNERSHIP' },
+    { count: summaryStats.rejected, label: '거절', status: 'REJECTED' }
   ];
+
+  // 상태별 아이템 클릭 핸들러
+  const handleStatusClick = (status) => {
+    setSelectedStatus(selectedStatus === status ? null : status);
+  };
 
   if (loading) {
     return (
@@ -112,33 +150,102 @@ const OwnerReceiveSuggest = () => {
     );
   }
 
-   const handleProposalClick = (proposal) => {
-    navigate(`/owner/mypage/received-proposal/${proposal.id}`, { 
-      state: { proposal } 
+
+  const handleProposalClick = async (proposalGroups) => {
+    console.log("클릭된 organization:", proposalGroups);
+    
+    try {
+      // 제안서 상태를 READ로 변경
+      if (proposalGroups.status === 'UNREAD') {
+        await editProposalStatus(proposalGroups.proposalId, { status: 'READ', comment: '' });
+  
+        // 로컬 상태도 업데이트
+        setReceivedProposals(prevProposals => 
+          prevProposals.map(proposal => 
+            proposal.id === proposalGroups.proposalId 
+              ? { ...proposal, current_status: 'READ' }
+              : proposal
+          )
+        );
+      }
+    } catch (error) {
+      console.error('제안서 상태 변경 실패:', error);
+    }
+    
+    // 클릭 시 제안서 상세 페이지로 이동
+    navigate(`/owner/mypage/received-proposal/${proposalGroups.proposalId}`, { 
+      state: { proposalId: proposalGroups.proposalId, proposalGroups } 
     });
   }
+
+  // const handleProposalClick = async (proposalGroup) => {
+  //   try {
+  //     // UNREAD 상태인 경우 READ로 변경
+  //     if (proposalGroup.status === 'UNREAD') {
+  //       // API 호출하여 상태 업데이트
+  //       await editProposalStatus(proposalGroup.id, { status: 'READ' });
+        
+  //       // 로컬 상태 업데이트
+  //       setProposalGroups(prevGroups => 
+  //         prevGroups.map(group => 
+  //           group.id === proposalGroup.id 
+  //             ? { ...group, status: 'READ' }
+  //             : group
+  //         )
+  //       );
+        
+  //       // summaryStats 업데이트
+  //       setSummaryStats(prevStats => ({
+  //         ...prevStats,
+  //         unread: prevStats.unread - 1,
+  //         read: prevStats.read + 1
+  //       }));
+  //     }
+      
+  //     // 네비게이션
+  //     navigate(`/owner/mypage/received-proposal/${proposal.id}`, { 
+  //       state: { proposal, proposalGroups } 
+  //     });
+  //   } catch (error) {
+  //     console.error('제안서 상태 업데이트 실패:', error);
+  //     // 에러가 발생해도 네비게이션은 진행
+  //     // navigate(`/owner/mypage/received-proposal/${proposalGroup.id}`, { 
+  //     //   state: { proposal: proposalGroup, proposalGroups } 
+  //     // });
+  //   }
+  // }
+
+
 
   return (
     <ScrollSection>
       <ContentContainer>
       <Menu />
-        <SuggestSummaryBox items={summaryItems} />
+        <SuggestSummaryBox 
+          items={summaryItems} 
+          onItemClick={handleStatusClick}
+          selectedStatus={selectedStatus}
+        />
  
-        {proposalOrganizations.length > 0 ? (
+        {filteredProposalGroups.length > 0 ? (
           <CardListGrid> 
-          {proposalOrganizations.map((organization) => (
-            <OrgCardSection 
-              key={organization.id} 
-              onClick={handleProposalClick} 
-              cardType={'suggest-received'} 
-              ButtonComponent= { () => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
-              organization={organization} 
+          {filteredProposalGroups.map((group) => (
+            <ProposalCard
+              key={group.id}
+              proposalGroup={group}
+              onClick={handleProposalClick}
+
             />
           ))
         }
          </CardListGrid>
          ) : (
-          <EmptyMessage>받은 제안서가 없습니다.</EmptyMessage>
+          <EmptyMessage>
+            {selectedStatus 
+              ? `${STATUS_MAP[selectedStatus]} 상태의 제안서가 없습니다.` 
+              : '받은 제안서가 없습니다.'
+            }
+          </EmptyMessage>
         )}
       </ContentContainer>
     </ScrollSection>

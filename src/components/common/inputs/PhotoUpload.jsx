@@ -26,6 +26,10 @@ const PhotoUpload = ({ value = [], onChange, onDelete, maxCount = 10 }) => {
       if (item instanceof File || item instanceof Blob) {
           return URL.createObjectURL(item);
       }
+      // item이 객체이고 image 속성을 가지고 있는 경우 (예: { id: 1, image: "url" })
+      else if (item && typeof item === 'object' && item.image) {
+          return item.image;
+      }
       // File 객체가 아니면 이미 URL 문자열로 간주
       else if (typeof item === 'string') {
           return item;
