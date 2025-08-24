@@ -221,7 +221,7 @@ const OwnerReceiveSuggest = () => {
     <PageContainer>
       <Menu />
       <ContentContainer>
-        // <SuggestSummaryBox items={summaryItems} />
+        {/* // <SuggestSummaryBox items={summaryItems} /> */}
         <SuggestSummaryBox 
           items={summaryItems} 
           onItemClick={handleStatusClick}
@@ -260,12 +260,11 @@ const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: ;
   grid-template-columns: repeat(3, 447px); 
-  justify-content: start;
-  align-content: start;
+  justify-content: center;
+  align-content: center;
   column-gap: 20px;
-  row-gap: 20px;
+  row-gap: 13px;
   text-align: left;
   font-size: 18px;
   color: #000;
