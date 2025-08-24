@@ -7,6 +7,7 @@ import MenuGroup from '../../layout/MenuGroup'
 import { fetchProposal } from '../../services/apis/proposalAPI'
 
 import { getOwnerProfile } from '../../services/apis/ownerAPI'
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 
 const GroupSendSuggest = () => {
   const navigate = useNavigate();
@@ -125,9 +126,6 @@ const formatDate = (dateString) => {
     return dateString; // 파싱 실패 시 원본 문자열 반환
   }
 };
-
-
-
 
   // 제안서 데이터를 organization 형태로 변환
   const proposalOrganizations = sentProposals.map(proposal => {

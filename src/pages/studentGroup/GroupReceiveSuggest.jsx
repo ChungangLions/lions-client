@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import OrgCardSection from '../../components/common/cards/OrgCardSection'
 import { useNavigate } from 'react-router-dom'
 import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
-import StatusBtn from '../../components/common/buttons/StatusBtn'
-import { fetchProposal } from '../../services/apis/proposalAPI'
 import MenuGroup from '../../layout/MenuGroup'
+import { fetchProposal, editProposalStatus } from '../../services/apis/proposalAPI'
+import { getOwnerProfile } from '../../services/apis/ownerAPI'
 
 const GroupReceiveSuggest = () => {
   const navigate = useNavigate();
@@ -17,20 +16,23 @@ const GroupReceiveSuggest = () => {
     partnership: 0,
     rejected: 0
   });
+  const [ownerProfiles, setOwnerProfiles] = useState({});
 
   // 받은 제안서 목록 가져오기
   useEffect(() => {
     const fetchReceivedProposals = async () => {
       try {
         setLoading(true);
-        // box=received로 설정
         const response = await fetchProposal({
-          box: 'received',
+          box: 'inbox',
           ordering: '-created_at'
         });
         
-        setReceivedProposals(response.results || response || []);
+        console.log('API 응답 전체:', response);
+        console.log('받은 제안서 목록:', response.results || response);
         
+        setReceivedProposals(response.results || response || []);
+
         // 상태별 통계 계산
         const stats = {
           read: 0,
@@ -69,18 +71,72 @@ const GroupReceiveSuggest = () => {
     fetchReceivedProposals();
   }, []);
 
+  // 프로필 정보 가져오기
+  useEffect(() => {
+    const fetchAllOwnerProfiles = async () => {
+      if (receivedProposals.length === 0) return;
+
+      const profileIds = receivedProposals.map(proposal => proposal.author?.id);
+      const uniqueIds = [...new Set(profileIds)].filter(id => id);
+      
+      console.log("고유한 아이디들:", uniqueIds);
+
+      const profiles = {};
+      
+      for (const id of uniqueIds) {
+        try {
+          const profile = await getOwnerProfile(id);
+          if (profile) {
+            profiles[id] = profile;
+            console.log(`아이디 ${id}의 전체 프로필 데이터:`, profile);
+            console.log(`아이디 ${id}의 프로필:`, profile.profile_name, profile.comment);
+          }
+        } catch (error) {
+          console.error(`아이디 ${id}의 프로필 가져오기 실패:`, error);
+        }
+      }
+      
+      setOwnerProfiles(profiles);
+    };
+
+    fetchAllOwnerProfiles();
+  }, [receivedProposals]);
+
+  // 날짜 파싱 함수
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      return `${year}. ${month}. ${day}`;
+    } catch (error) {
+      console.error('날짜 파싱 오류:', error);
+      return dateString; // 파싱 실패 시 원본 문자열 반환
+    }
+  };
+
   // 제안서 데이터를 organization 형태로 변환
-  const proposalOrganizations = receivedProposals.map(proposal => ({
-    id: proposal.id,
-    name: proposal.sender?.name || proposal.sender,
-    description: proposal.title,
-    status: proposal.current_status,
-    created_at: proposal.created_at,
-    receivedDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
-    council_name: proposal.sender?.council_name || proposal.sender?.name,
-    department: proposal.sender?.department,
-    ...proposal
-  }));
+  const proposalOrganizations = receivedProposals.map(proposal => {
+    const authorId = proposal.author?.id;
+    const profile = ownerProfiles[authorId];
+    
+    return {
+      id: proposal.id,
+      name: proposal.author?.name || proposal.author,
+      description: proposal.title,
+      status: proposal.current_status,
+      created_at: proposal.created_at,
+      writtenDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
+      council_name: proposal.author?.council_name || proposal.author?.name,
+      department: proposal.author?.department,
+      photo: profile?.photo || null, // 프로필에서 photo 정보 추가
+      ...proposal
+    };
+  });
 
   console.log("받은 제안서 데이터", proposalOrganizations);
 
@@ -107,34 +163,76 @@ const GroupReceiveSuggest = () => {
     );
   }
 
-   const handleProposalClick = (proposal) => {
+  const handleProposalClick = async (proposal) => {
+    console.log("클릭된 proposal:", proposal);
+    
+    try {
+      // 제안서 상태를 READ로 변경
+      if (proposal.status === 'UNREAD') {
+        await editProposalStatus(proposal.id, { status: 'READ', comment: '' });
+  
+        // 로컬 상태도 업데이트
+        setReceivedProposals(prevProposals => 
+          prevProposals.map(p => 
+            p.id === proposal.id 
+              ? { ...p, current_status: 'READ' }
+              : p
+          )
+        );
+      }
+    } catch (error) {
+      console.error('제안서 상태 변경 실패:', error);
+    }
+    
+    // 클릭 시 제안서 상세 페이지로 이동
     navigate(`/student-group/mypage/received-proposal/${proposal.id}`, { 
-      state: { proposal } 
+      state: { proposalId: proposal.id, proposal} 
     });
   }
 
   return (
     <ScrollSection>
-      <MenuGroup />
-      <SuggestSummaryBox items={summaryItems} />
- 
+      <ContentContainer>
+        <MenuGroup />
+        <SuggestSummaryBox items={summaryItems} />
+        
         {proposalOrganizations.length > 0 ? (
-          <CardListGrid> 
-          {proposalOrganizations.map((organization) => (
-            <OrgCardSection 
-              key={organization.id} 
-              onClick={handleProposalClick} 
-              cardType={'suggest-received'} 
-              ButtonComponent= { () => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
-              organization={organization} 
-            />
-          ))
-        }
-         </CardListGrid>
-         ) : (
+          <CardListGrid>
+            {proposalOrganizations.map((proposal) => {
+              const authorId = proposal.author?.id;
+              const profile = ownerProfiles[authorId];
+              
+              return (
+                <Cardwrapper 
+                  key={proposal.id} 
+                  onClick={() => handleProposalClick(proposal)} 
+                  style={{ cursor: 'pointer' }}
+                >
+                  <ContentWrapper>
+                    <TextWrapper>
+                      <NameWrapper>
+                        <NameText>
+                          {profile?.profile_name || proposal.author?.name || '알 수 없음'}
+                        </NameText>
+                        {profile?.comment && `${profile.comment}`}
+                      </NameWrapper>
+                      <DateWrapper>
+                        <SendText>수신일</SendText>
+                        <DateText>{formatDate(proposal.created_at)}</DateText>
+                      </DateWrapper>
+                    </TextWrapper>
+                    <ButtonWrapper>
+                      {STATUS_MAP[proposal.status] || proposal.status}
+                    </ButtonWrapper>
+                  </ContentWrapper>
+                </Cardwrapper>
+              );
+            })}
+          </CardListGrid>
+        ) : (
           <EmptyMessage>받은 제안서가 없습니다.</EmptyMessage>
         )}
-     
+      </ContentContainer>
     </ScrollSection>
   )
 }
@@ -146,15 +244,14 @@ const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: ;
-  grid-template-columns: repeat(3, 447px); 
+  grid-template-columns: repeat(3, 1fr);
   justify-content: start;
   align-content: start;
   column-gap: 20px;
   row-gap: 20px;
   text-align: left;
   font-size: 18px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 
@@ -165,20 +262,19 @@ align-items: flex-start;
 width: 100%;
 position: relative;
 justify-content: flex-start; 
-min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
+min-height: 100vh;
 `;
 
 const EmptyMessage = styled.div`
 width: 100%;
 text-align: center;
 color: #C9C9C9;
-  font-size: 16px;
-  font-weight: 600;
-    justify-content: center;
-  align-content: center;
-  margin-top: 30px;
+font-size: 16px;
+font-weight: 600;
+justify-content: center;
+align-content: center;
+margin-top: 30px;
 `;
-
 
 const Loading = styled.div`
 width: 100%;
@@ -189,5 +285,100 @@ font-size: 16px;
 justify-content: center;
 align-content: center;
 padding : 100px;
- 
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1;
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
+`;
+
+const Cardwrapper = styled.div`
+display: flex;
+width: 400px;
+height: 173px;
+padding: 25px 18px 25px 30px;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+gap: 10px;
+flex-shrink: 0;
+border-radius: 5px;
+border: 1px solid #E7E7E7;
+box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+`;
+
+const ContentWrapper = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 30px;
+`;
+
+const TextWrapper = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 10px;
+align-self: stretch;
+`;
+
+const DateWrapper = styled.div`
+display: flex;
+width: 198.903px;
+align-items: center;
+gap: 30px;
+color: #1A2D06;
+`;
+
+const NameWrapper = styled.div`
+align-self: stretch;
+`;
+
+const NameText = styled.div`
+color: var(--main-main950, #1A2D06);
+font-family: Pretendard;
+font-size: 18px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+`;
+
+const SendText = styled.div`
+color: var(--main-main950, #1A2D06);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+`;
+
+const DateText = styled.div`
+color: var(--main-main950, #1A2D06);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+`;
+
+const ButtonWrapper = styled.div`
+display: flex;
+padding: 10px;
+justify-content: flex-end;
+align-items: center;
+gap: 10px;
+border-radius: 500px;
+border: 1px solid var(--main-main600, #70AF19);
+color: var(--main-main600, #70AF19);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
 `;
