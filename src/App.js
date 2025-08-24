@@ -38,7 +38,6 @@ function App() {
         <Route path="/owner" element={<OwnerHome />} />
         <Route path="/owner/ai-proposal" element={<AIProposalDetail/>} />
         <Route path="/owner/proposal" element={<ProposalDetail/>} />
-        <Route path="owner/student-group-profile/:id" element={<StudentGroupProfile/>} />
         <Route path="owner/student-group-profile" element={<StudentGroupProfile/>} />
 
         <Route path="/student-group" element={<GroupHome />}/>
@@ -66,6 +65,8 @@ function App() {
         <Route path="/owner/mypage/received-proposal/:id" element={<OwnerReceivedProposalDetail />}/>
         <Route path="/owner/mypage" element={<OwnerMyPage />}/>
         <Route path="/owner/mypage/wishlist" element={<OwnerWishlist />}/>
+        <Route path="owner/student-group-profile/:id" element={<StudentGroupProfile/>} />
+
         <Route path='/student-group/mypage' element={<StudentGroupProfile/>} />
         <Route path="/student-group/mypage/edit" element={<GroupEditMyPage />} />
         <Route path="/student-group/mypage/received-suggest" element={<GroupReceiveSuggest />} />

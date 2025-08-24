@@ -982,6 +982,7 @@ transition: background-color 0.1s;
 const ColumnLayout = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 `;
 
 const ProgressContainer = styled.div`

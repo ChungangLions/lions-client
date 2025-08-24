@@ -182,7 +182,7 @@ const RecommendList = styled.div`
 const ProfileImg = styled.div`
   width: 180px;
   height: 180px;
-  background: #C9C9C9;
+  background: transparent;
   border-radius: 50%;
   overflow: hidden;
   display: flex;

@@ -66,7 +66,7 @@ const InputUnit = styled.span`
   width: 14px;
   position: absolute;
   right: 15px;
-  top: 60%;
+  top: 50%;
   transform: translateY(-50%);
   color: var(--main-main600, #70AF19);
   font-family: Pretendard;
