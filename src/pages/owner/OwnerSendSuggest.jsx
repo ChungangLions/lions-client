@@ -164,10 +164,10 @@ console.log(proposalOrganizations);
 
   if (loading) {
     return (
-      <ScrollSection>
+      <ContentContainer>
         <Menu />
         <Loading>로딩 중...</Loading>
-      </ScrollSection>
+      </ContentContainer>
     );
   }
 
@@ -194,8 +194,8 @@ console.log(proposalOrganizations);
 
 
   return (
-    <ScrollSection>
-      <Menu />     
+    <PageContainer>
+      <Menu />   
       <ContentContainer>
         <SuggestSummaryBox items={summaryItems} />
       
@@ -215,11 +215,32 @@ console.log(proposalOrganizations);
           <EmptyMessage>보낸 제안서가 없습니다.</EmptyMessage>
         )}
       </ContentContainer>
-    </ScrollSection>
+    </PageContainer>
   )
 }
 
 export default OwnerSendSuggest
+
+const PageContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  margin: 0 auto;
+  min-height: 100vh;
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: start;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
+`;
 
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`
@@ -237,14 +258,14 @@ const CardListGrid = styled.div`
   font-family: Pretendard;
 `;
 
-const ScrollSection = styled.div`
-display: flex;
-flex-direction: column;
-width: 100%;
-position: relative;
-justify-content: flex-start; 
-min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
-`;
+// const ScrollSection = styled.div`
+// display: flex;
+// flex-direction: column;
+// width: 100%;
+// position: relative;
+// justify-content: flex-start; 
+// min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
+// `;
 
 const Loading = styled.div`
 width: 100%;
@@ -267,15 +288,4 @@ text-align: center;
     justify-content: center;
   align-content: center;
   margin-top: 30px;
-`;
-
-const ContentContainer = styled.div`
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-  box-sizing: border-box; 
-  align-items: center; 
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 40px;
 `;

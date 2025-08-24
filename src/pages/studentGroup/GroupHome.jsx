@@ -245,7 +245,7 @@ align-items: center;
 justify-content: center;
 padding: 10px 0px;
 gap: 10px;
-min-width: 28px;
+min-width: 40px;
 max-width: 90px;
 `;
 
