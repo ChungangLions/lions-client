@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import { fetchUserList, filterStudentGroup } from '../services/apis/userListApi';
-import { fetchAllGroupProfile, mappedOrg } from '../services/apis/groupProfileAPI';
+import { fetchAllGroupProfile, mappedOrg, getGroupLikes } from '../services/apis/groupProfileAPI';
 
 // 학생단체 프로필 목록 가져오기
 // const fetchAndMapOrganizations = async () => {
@@ -169,14 +169,34 @@ const useStudentOrgStore = create(
         fetchAndSetOrganizations: async () => {
             try {
                 const data = await fetchAllGroupProfile();
-                const orgList = data.map(mappedOrg);
-                // profileId 저장
+                const orgList = data.map(mappedOrg); // profileId 저장
+                
+                // 각 조직의 좋아요 수를 가져와서 추가
+                const orgListWithLikes = await Promise.all(
+                    orgList.map(async (org) => {
+                        try {
+                            const likesData = await getGroupLikes(org.id);
+                            return {
+                                ...org,
+                                likes: likesData.likes_received_count || 0
+                            };
+                        } catch (error) {
+                            console.error(`조직 ${org.id}의 좋아요 수 가져오기 실패:`, error);
+                            return {
+                                ...org,
+                                likes: 0
+                            };
+                        }
+                    })
+                );
 
+                console.log("좋아요 수가 추가된 orgList:", orgListWithLikes);
                 
                 set ({
-                    originalOrganizations : orgList,
-                    organizations: orgList,
+                    originalOrganizations : orgListWithLikes,
+                    organizations: orgListWithLikes,
                 });
+
             } catch (err) {
                 console.error("학생단체 데이터 불러오기 실패:", err);
             }
