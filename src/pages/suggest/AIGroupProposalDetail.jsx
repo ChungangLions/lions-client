@@ -651,7 +651,7 @@ align-items: center;
 gap: 25px;
 text-align: left;
 font-size: 20px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 `;
 
@@ -671,7 +671,7 @@ padding: 10px;
 box-sizing: border-box;
 justify-content: center;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 text-align: left;
 font-family: Pretendard;
 
@@ -720,7 +720,7 @@ padding: 10px;
 box-sizing: border-box;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 `;
 

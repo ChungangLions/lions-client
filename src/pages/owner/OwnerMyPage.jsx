@@ -444,7 +444,7 @@ const TypeCardList = styled.div`
 const TypeCard = styled.div`
   width: 122px;
   height: 122.04px;
-  border: 0.46px solid #000000;
+  border: 0.46px solid #1A2D06000;
   border-radius: 4.55px;
   display: flex;
   align-items: center;

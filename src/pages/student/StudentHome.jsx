@@ -282,7 +282,7 @@ align-items: center;
 justify-content: center;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 background-color: white;
 `;

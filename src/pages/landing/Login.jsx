@@ -98,7 +98,7 @@ const PageContainer = styled.div`
   overflow: hidden;
   text-align: left;
   font-size: 36px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 

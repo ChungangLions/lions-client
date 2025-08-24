@@ -301,7 +301,7 @@ const CardListGrid = styled.div`
   row-gap: 13px;
   text-align: left;
   font-size: 18px;
-  color: #000;
+  color: #1A2D06;
   font-family: Pretendard;
 `;
 

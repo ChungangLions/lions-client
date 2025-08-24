@@ -191,7 +191,7 @@ const ProfileImg = styled.div`
 `;
 
 const Name = styled.div`
-    color: #000;
+    color: #1A2D06;
     text-align: center;
     font-family: Pretendard;
     font-size: 24px;
@@ -201,7 +201,7 @@ const Name = styled.div`
 `;
 
 const School = styled.div`
-    color: #000;
+    color: #1A2D06;
     text-align: center;
     font-family: Pretendard;
     font-size: 16px;
@@ -263,7 +263,7 @@ const ShopImg = styled.img`
 `;
 
 const ShopName = styled.div`
-    color: #000;
+    color: #1A2D06;
     font-family: Pretendard;
     font-size: 16px;
     font-style: normal;
