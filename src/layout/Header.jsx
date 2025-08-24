@@ -46,8 +46,9 @@ const Header = ({hasMenu}) => {
 const navigateToMyPage = () => {
   navigate(userRole ? `/${userRole.toLowerCase()}/mypage` : "/");
 };
+
 const navigateToHome = () => {
-  navigate(userRole ? `/${userRole.toLowerCase()}/` : "/");
+  navigate(userRole === 'STUDENT_GROUP' ? '/student-group' : (userRole ? `/${userRole.toLowerCase()}/` : "/"));
 };
 
 // 바깥쪽 클릭시 없어짐
