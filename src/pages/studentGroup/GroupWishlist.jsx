@@ -42,20 +42,26 @@ const GroupWishlist = () => {
           <NumText>총 {filteredLikeStores.length}개</NumText>
           <CardWrapper>
         <CardListGrid> 
-          {filteredLikeStores.map((store) => (
-             <GroupCard
-               key={store.id}
-               imageUrl={store.photo}
-               onClick={() => handleCardClick(store.id)}
-              ButtonComponent={() => (
-                  <FavoriteBtn 
-                    userId={store.id} 
-                    isLikeActive={likeStores.includes(store.id)}
-                  />
-                )}
-               store={store}
-             />
-           ))}
+          {filteredLikeStores.length === 0 ? (
+            <EmptyResultContainer>
+              <EmptyResultText>찜한 항목이 없습니다.</EmptyResultText>
+            </EmptyResultContainer>
+          ) : (
+            filteredLikeStores.map((store) => (
+               <GroupCard
+                 key={store.id}
+                 imageUrl={store.photo}
+                 onClick={() => handleCardClick(store.id)}
+                ButtonComponent={() => (
+                    <FavoriteBtn 
+                      userId={store.id} 
+                      isLikeActive={likeStores.includes(store.id)}
+                    />
+                  )}
+                 store={store}
+               />
+             ))
+          )}
         </CardListGrid>
         </CardWrapper>
         <EmptyRow />
@@ -138,4 +144,20 @@ max-width: 60px;
 const EmptyRow = styled.div` // 여백 주기 위한 임시방편
 display: flex;
 height: 50px;
+`;
+
+const EmptyResultContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+  grid-column: 1 / -1;
+`;
+
+const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;

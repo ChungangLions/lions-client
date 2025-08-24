@@ -164,22 +164,28 @@ const GroupHome = () => {
         </SortSection> */}
       </SelectContainer>
       <GridContainer>
-        {stores.map((store) => (
-          <GroupCard 
-            key={store.id}
-            imageUrl={store.photo}
-            onClick={() => handleCardClick(store.id)}
-            isBest={store.isBest}
-            likeCount={storeLikeCounts[store.id] || store.likes || 0}
-            ButtonComponent={() => (
-              <FavoriteBtn 
-                userId={store.id} 
-                isLikeActive={likeStores.includes(store.id)}
-                onLikeChange={handleLikeChange}
-              />
-            )}
-            store={store} />
-        ))}
+        {stores.length === 0 ? (
+          <EmptyResultContainer>
+            <EmptyResultText>검색 결과가 없습니다.</EmptyResultText>
+          </EmptyResultContainer>
+        ) : (
+          stores.map((store) => (
+            <GroupCard 
+              key={store.id}
+              imageUrl={store.photo}
+              onClick={() => handleCardClick(store.id)}
+              isBest={store.isBest}
+              likeCount={storeLikeCounts[store.id] || store.likes || 0}
+              ButtonComponent={() => (
+                <FavoriteBtn 
+                  userId={store.id} 
+                  isLikeActive={likeStores.includes(store.id)}
+                  onLikeChange={handleLikeChange}
+                />
+              )}
+              store={store} />
+          ))
+        )}
       </GridContainer>
       <EmptyRow />
     </PageContainer>
@@ -269,4 +275,20 @@ gap: 5px;
 const EmptyRow = styled.div` // 여백 주기 위한 임시방편
 display: flex;
 height: 50px;
+`;
+
+const EmptyResultContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+  grid-column: 1 / -1;
+`;
+
+const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;
