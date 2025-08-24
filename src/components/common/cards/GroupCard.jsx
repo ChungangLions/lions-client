@@ -76,7 +76,7 @@ export default GroupCard;
 
 const CardWrapper = styled.div`
   display: flex;
-  width: 100%;
+  width: 330px;
   height: auto;
   flex-direction: column;
   align-items: flex-start;
