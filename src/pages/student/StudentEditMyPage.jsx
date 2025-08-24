@@ -225,8 +225,8 @@ const StudentEditMyPage = () => {
     <PageContainer>
 
       <TitleContainer>
-        <Title> 제휴 프로필 설정 </Title>
-        <SubTitle> 우리 가게에 딱 맞는 제휴 조건을 찾기 위해 정보를 입력해주세요. </SubTitle>
+        <Title> 프로필 수정정 </Title>
+        <SubTitle> 프로필필 정보를 입력해주세요. </SubTitle>
       </TitleContainer>
 
       <MainContainer>
@@ -235,7 +235,7 @@ const StudentEditMyPage = () => {
 
           <TitleContainer ref={sectionRefs.photo}>
             <Title> 프로필 사진 </Title>
-            <SubTitle> 학생단체 대표 사진(로고, 단체사진 등)을 자유롭게 등록해주세요. (최대 1장) </SubTitle>
+            <SubTitle> 프로필 사진을 자유롭게 등록해주세요. (최대 1장) </SubTitle>
           </TitleContainer>
           <PhotoUpload 
             value={photoState} 
@@ -246,14 +246,14 @@ const StudentEditMyPage = () => {
 
           <TitleContainer ref={sectionRefs.name}>
             <Title> 이름 </Title>
-            <SubTitle> 어쩌구저쩌구어쩌저자ㅓ이ㅏ저ㅣㅏㅓ이ㅏㅉㅈ </SubTitle>
+            <SubTitle> 이름을 입력해 주세요. </SubTitle>
           </TitleContainer>
           <InputBox defaultText="텍스트 입력" value={nameValue} onChange={e => setNameValue(e.target.value)} />
 
           {/* 주변 캠퍼스 */}
           <TitleContainer ref={sectionRefs.campus}>
-            <Title> 주변 캠퍼스 </Title>
-             <SubTitle>가게 근처 캠퍼스를 검색하여 입력해 주세요.</SubTitle>
+            <Title> 학교 </Title>
+             <SubTitle>소속 대학을 입력해 주세요.</SubTitle>
           </TitleContainer>
           <SearchCampusButton 
             onClick={() => setShowCampusModal(true)}

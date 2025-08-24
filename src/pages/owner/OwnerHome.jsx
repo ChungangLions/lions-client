@@ -53,6 +53,16 @@ const OwnerHome = () => {
 
   console.log(organizations);
 
+    useEffect(() => {
+      fetchAndSetOrganizations();
+      const fetchUserLikes = async () => {
+        const list = await fetchLikes('given');
+        setLikeStores(list.map(item => item.target.id));
+        console.log("좋아요한 학생회 리스트:", list);
+        console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
+      };
+      fetchUserLikes();
+    }, []);
 
   // useEffect(() => {
   //   fetchAndSetOrganizations();
@@ -67,17 +77,6 @@ const OwnerHome = () => {
   //   };
   //   fetchUserLikes();
   // }, []);
-
-    useEffect(() => {
-      fetchAndSetOrganizations();
-      const fetchUserLikes = async () => {
-        const list = await fetchLikes('given');
-        setLikeStores(list.map(item => item.target.id));
-        console.log("좋아요한 학생회 리스트:", list);
-        console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
-      };
-      fetchUserLikes();
-    }, []);
 
 
       {/* 사장님 프로필 상 학교와 같은 학교들만 표시 */}

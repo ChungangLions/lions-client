@@ -7,9 +7,11 @@ import SuggestSummaryBox from '../../components/common/cards/SuggestSummaryBox'
 import useStudentOrgStore from '../../stores/studentOrgStore'
 import Menu from '../../layout/Menu'
 import StatusBtn from '../../components/common/buttons/StatusBtn'
-import { fetchProposal } from '../../services/apis/proposalAPI'
+import { fetchProposal, editProposalStatus } from '../../services/apis/proposalAPI'
 import { getOwnerProfile } from '../../services/apis/ownerAPI'
-import ProposalCard from '../../layout/ProposalCard'
+import ProposalCard from '../../components/common/cards/ProposalCard'
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
+
 
 const OwnerReceiveSuggest = () => {
   const navigate = useNavigate();
@@ -35,8 +37,9 @@ const OwnerReceiveSuggest = () => {
         console.log('API 응답 전체:', response);
         console.log('받은 제안서 목록:', response.results || response);
         
+
         setReceivedProposals(response.results || response || []); // receivedProposals가 받은 제안서들
-        
+
         // 상태별 통계 계산
         const stats = {
           read: 0,
@@ -77,40 +80,42 @@ const OwnerReceiveSuggest = () => {
     fetchReceivedProposals();
   }, []);
 
-  const [proposalStores, setProposalStores] = useState([]);
 
-  // 제안서 데이터를 owner 형태로 변환 (비동기 처리)
+  const [proposalGroups, setProposalGroups] = useState([]);
+
+  // 제안서 데이터를 student_group 형태로 변환 (비동기 처리)
   useEffect(() => {
-    const fetchProposalStores = async () => {
+    const fetchProposalGroups = async () => {
       if (receivedProposals.length === 0) return;
 
-      const storesWithProfiles = await Promise.all(
+      const groupsWithProfiles = await Promise.all(
         receivedProposals.map(async (proposal) => {
-          const ownerId = proposal.recipient.id;
+          const groupId = proposal.author.id;
           
-          console.log('제안서 ID:', proposal.id, '사장님 정보:', ownerId);
+          console.log('제안서 ID:', proposal.id, '학생단체 정보:', groupId);
 
-          const ownerProfile = await getOwnerProfile(ownerId);
+          const groupProfile = await fetchGroupProfile(groupId);
 
-          console.log('가게 정보', ownerProfile);
+          console.log('학생 단체 정보', groupProfile);
           
           return {
-            id: proposal.id,
+            proposalId: proposal.id,
             status: proposal.current_status,
             created_at: proposal.created_at,
             receivedDate: new Date(proposal.created_at).toLocaleDateString('ko-KR'),
-            ...(ownerProfile || {}) // ownerProfile이 null인 경우 빈 객체로 처리
+            ...(groupProfile || {}) // groupProfile이 null인 경우 빈 객체로 처리
           };
         })
       );
 
-      setProposalStores(storesWithProfiles);
+      setProposalGroups(groupsWithProfiles);
     };
 
-    fetchProposalStores();
+    fetchProposalGroups();
   }, [receivedProposals]);
 
-  console.log("받은 제안서 데이터", proposalStores); // proposalStores가 사장님 프로필 + 제안서 데이터 합친 배열
+  console.log("받은 제안서 데이터", proposalGroups); // proposalGroups가 학생단체 프로필 + 제안서 데이터 합친 배열
+
 
   const STATUS_MAP = {
     UNREAD: "미열람",
@@ -136,11 +141,71 @@ const OwnerReceiveSuggest = () => {
     );
   }
 
-  const handleProposalClick = (proposal) => {
-    navigate(`/owner/mypage/received-proposal/${proposal.id}`, { 
-      state: { proposal, proposalStores } 
+
+  const handleProposalClick = async (proposalGroups) => {
+    console.log("클릭된 organization:", proposalGroups);
+    
+    try {
+      // 제안서 상태를 READ로 변경
+      if (proposalGroups.status === 'UNREAD') {
+        await editProposalStatus(proposalGroups.proposalId, { status: 'READ', comment: '' });
+  
+        // 로컬 상태도 업데이트
+        setReceivedProposals(prevProposals => 
+          prevProposals.map(proposal => 
+            proposal.id === proposalGroups.proposalId 
+              ? { ...proposal, current_status: 'READ' }
+              : proposal
+          )
+        );
+      }
+    } catch (error) {
+      console.error('제안서 상태 변경 실패:', error);
+    }
+    
+    // 클릭 시 제안서 상세 페이지로 이동
+    navigate(`/owner/mypage/received-proposal/${proposalGroups.proposalId}`, { 
+      state: { proposalId: proposalGroups.proposalId, proposalGroups } 
     });
   }
+
+  // const handleProposalClick = async (proposalGroup) => {
+  //   try {
+  //     // UNREAD 상태인 경우 READ로 변경
+  //     if (proposalGroup.status === 'UNREAD') {
+  //       // API 호출하여 상태 업데이트
+  //       await editProposalStatus(proposalGroup.id, { status: 'READ' });
+        
+  //       // 로컬 상태 업데이트
+  //       setProposalGroups(prevGroups => 
+  //         prevGroups.map(group => 
+  //           group.id === proposalGroup.id 
+  //             ? { ...group, status: 'READ' }
+  //             : group
+  //         )
+  //       );
+        
+  //       // summaryStats 업데이트
+  //       setSummaryStats(prevStats => ({
+  //         ...prevStats,
+  //         unread: prevStats.unread - 1,
+  //         read: prevStats.read + 1
+  //       }));
+  //     }
+      
+  //     // 네비게이션
+  //     navigate(`/owner/mypage/received-proposal/${proposal.id}`, { 
+  //       state: { proposal, proposalGroups } 
+  //     });
+  //   } catch (error) {
+  //     console.error('제안서 상태 업데이트 실패:', error);
+  //     // 에러가 발생해도 네비게이션은 진행
+  //     // navigate(`/owner/mypage/received-proposal/${proposalGroup.id}`, { 
+  //     //   state: { proposal: proposalGroup, proposalGroups } 
+  //     // });
+  //   }
+  // }
+
 
 
   return (
@@ -149,16 +214,15 @@ const OwnerReceiveSuggest = () => {
       <Menu />
         <SuggestSummaryBox items={summaryItems} />
  
-        {proposalStores.length > 0 ? (
+
+        {proposalGroups.length > 0 ? (
           <CardListGrid> 
-          {proposalStores.map((store) => (
+          {proposalGroups.map((group) => (
             <ProposalCard
-              key={store.id}
-              imageUrl={store.photos[0].image}
+              key={group.id}
+              proposalGroup={group}
               onClick={handleProposalClick}
-    
-              store={store}
-     
+
             />
           ))
         }
