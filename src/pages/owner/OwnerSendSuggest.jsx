@@ -11,7 +11,7 @@ import StatusBtn from '../../components/common/buttons/StatusBtn'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import { fetchGroupProfile, getGroupProfile } from '../../services/apis/groupProfileAPI'
 import ProposalCard from '../../components/common/cards/ProposalCard'
-import Loading from '../../layout/Loading'
+
 
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
@@ -112,8 +112,6 @@ useEffect(() => {
 
       setGroupProfiles(profiles);
       console.log("학생단체프로필", profiles);
-      console.log("profiles 길이:", profiles.length);
-      console.log("sentProposals 길이:", sentProposals.length);
     } catch (err) {
       console.error("학생 단체 프로필 가져오기 실패:", err);
     } finally {
@@ -185,9 +183,9 @@ const filteredProposalOrganizations = selectedStatus
     return (
       <PageContainer>
         <Menu />
-        <ContentContainer>
-          <Loading situation="form" message="제안서 정보를 불러오는 중이에요." fullscreen={false} />
-        </ContentContainer>
+        <Loading>
+          로딩중 ...
+        </Loading>
       </PageContainer>
     );
   }
@@ -325,4 +323,16 @@ text-align: center;
     justify-content: center;
   align-content: center;
   margin-top: 30px;
+`;
+
+const Loading = styled.div`
+width: 100%;
+text-align: center;
+color: #1A2D06;
+font-weight: 600;
+font-size: 16px;
+justify-content: center;
+align-content: center;
+padding : 100px;
+ 
 `;

@@ -148,14 +148,12 @@ const AIProposalDetail = () => {
       [field]: value
     }));
   };
-
-  // 모달 열기 함수
+  
   const openModal = (message) => {
     setModalMessage(message);
     setIsModalOpen(true);
   };
 
-  // 모달 닫기 함수
   const closeModal = () => {
     setIsModalOpen(false);
     setModalMessage('');
@@ -181,7 +179,7 @@ const AIProposalDetail = () => {
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
    const handleSend = async () => {
       try {
-        // 제안서 상태가 DRAFT가 아닌 경우 모달 표시 (이미 전송된 상태)
+        // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
         if (proposalStatus !== 'DRAFT') {
           openModal('이미 전송된 제안서이에요');
           return;
@@ -262,7 +260,7 @@ const AIProposalDetail = () => {
     try {
       const response = await editProposal(proposalId, createData); // "DRAFT"인 상태로 생성됨
       setIsEditMode(false);
-      openModal('제안서가 저장되었어요. MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+      openModal('제안서가 저장되었어요. <br />MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
