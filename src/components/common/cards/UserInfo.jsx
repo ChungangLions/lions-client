@@ -8,6 +8,7 @@ const UserInfo = ({organization}) => {
   // 두 가지 데이터 구조를 모두 지원
   const getProfileImage = () => {
     if (!organization?.photos || organization.photos.length === 0) {
+      console.log("사진 없음");
       return null;
     }
     

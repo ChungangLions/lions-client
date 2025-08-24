@@ -1,197 +1,139 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import FavoriteBtn from '../buttons/FavoriteBtn';
-import TypeLabel from '../labels/TypeLabel';
-import ShowNum from '../labels/ShowNum';
-import { getOwnerLikes, getOwnerRecommends } from '../../../services/apis/ownerAPI'
 
+// 날짜 파싱 함수
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}. ${month}. ${day}`;
+  } catch (error) {
+    console.error('날짜 파싱 오류:', error);
+    return dateString; // 파싱 실패 시 원본 문자열 반환
+  }
+};
 
-function ProposalCard({ imageUrl, onClick, ButtonComponent, store, likes = true, recommends = true, isBest = false, recommendCount, likeCount }) {
-  const [userLikes, setUserLikes] = useState(likeCount || 0);
-  const [userRecommends, setUserRecommends] = useState(recommendCount || 0);
+const STATUS_MAP = {
+    UNREAD: "미열람",
+    READ: "열람",
+    PARTNERSHIP: "제휴체결",
+    REJECTED: "거절"
+  };
 
-  useEffect(() => {
-    const fetchProfile = async () => { 
-      try {
-        const storeId = store.id;
-
-        const likesData = await getOwnerLikes(storeId);
-        // console.log(likesData.likes_received_count);
-        setUserLikes(likesData.likes_received_count);
-
-        const recommendsData = await getOwnerRecommends(storeId);
-        // console.log(recommendsData.recommendations_received_count);
-        setUserRecommends(recommendsData.recommendations_received_count);
-
-      } catch (error) {
-        console.error("프로필 데이터 조회 실패:", error);
-      }
+function ProposalCard({ proposalGroup, onClick }) {
+    const handleClick = () => {
+        if (onClick) {
+            onClick(proposalGroup);
+        }
     };
-    fetchProfile();
-  }, []);
-
-  // recommendCount prop이 변경될 때 userRecommends 업데이트
-  useEffect(() => {
-    if (recommendCount !== undefined) {
-      setUserRecommends(recommendCount);
-    }
-  }, [recommendCount]);
-
-  // likeCount prop이 변경될 때 userLikes 업데이트
-  useEffect(() => {
-    if (likeCount !== undefined) {
-      setUserLikes(likeCount);
-    }
-  }, [likeCount]); 
 
     return (
-    <CardWrapper onClick={onClick}>
-      <ImageWrapper>
-        <CardImage src={imageUrl || '/default.png'} alt={store.name} />
-      </ImageWrapper>
-      <DetailSection>
-        <CardTitleRow>
-          <Row>
-            <CardTitle>{store.profile_name}</CardTitle>
-            {isBest && <BestText>best</BestText>}
-          </Row>
-          <CardSubtitle>{store.comment}</CardSubtitle>
-        </CardTitleRow>
-        <TypeWrapper>
-          <TypeLabel storeType={store.business_type} background='#E9F4D0'/>
-        </TypeWrapper>
-      </DetailSection>
-    </CardWrapper>
+        <Cardwrapper onClick={handleClick} style={{ cursor: 'pointer' }}>
+            <ContentWrapper>
+                <TextWrapper>
+                    <DateWrapper>
+                        <SendText>발신일</SendText>
+                        <DateText>{formatDate(proposalGroup.created_at)}</DateText>
+                    </DateWrapper>
+                    <NameWrapper>
+                        <NameText>{proposalGroup.university_name} {proposalGroup.department} '{proposalGroup.council_name}' </NameText>
+                    </NameWrapper>
+                </TextWrapper>
+                <ButtonWrapper>{STATUS_MAP[proposalGroup.status]}</ButtonWrapper>
+            </ContentWrapper>
+        </Cardwrapper>
   );
 }
 
 export default ProposalCard;
 
-const CardWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  height: auto;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-`;
-
-const ImageWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  // height: 100%;
-  aspect-ratio: 10/7.5;
-  position: relative;
-  min-height: 247px;
-  // margin-bottom: 10px;
-  border-radius: 5px;
-  // border: 1px solid black
-`;
-
-const CardImage = styled.img`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  align-self: stretch;
-  object-fit: cover;
-  background: ${({ src }) =>
-    src && src.includes('/default.png') ? '#D9D9D9' : '#fff'};
-  border-radius: 5px;
-`;
-
-const HeartBtnBox = styled.div`
-  position: absolute;
-  right: 12px;
-  top: 12px;
-
-  display: flex;
-  width: 20px;
-  height: 20px;
-  padding: 10px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 100px;
-  background: #FFF;
-`;
-
-const BestText = styled.div`
+const Cardwrapper = styled.div`
 display: flex;
-padding: 0 5px;
+width: 400px;
+height: 173px;
+padding: 25px 18px 25px 30px;
+flex-direction: column;
 justify-content: center;
-align-items: center;
+align-items: flex-start;
 gap: 10px;
-border-radius: 30px;
-border: 1px solid #70AF19;
-color: #70AF19;
+flex-shrink: 0;
+border-radius: 5px;
+border: 1px solid #E7E7E7;
+box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+`;
+
+const ContentWrapper = styled.div`
+display: flex;
+// width: 281px;
+flex-direction: column;
+align-items: flex-start;
+gap: 30px;
+`;
+
+const TextWrapper = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 10px;
+align-self: stretch;
+`;
+
+const DateWrapper = styled.div`
+display: flex;
+width: 198.903px;
+align-items: center;
+gap: 30px;
+color: #1A2D06;
+`;
+
+const NameWrapper = styled.div`
+align-self: stretch;
+`;
+
+const NameText = styled.div`
+color: var(--main-main950, #1A2D06);
+font-family: Pretendard;
+font-size: 18px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+`;
+
+const SendText = styled.div`
+color: var(--main-main950, #1A2D06);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+`;
+
+const DateText = styled.div`
+color: var(--main-main950, #1A2D06);
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
 font-weight: 400;
 line-height: normal;
-margin-top: 5px;
 `;
 
-const CardTitleRow = styled.div`
-  display: flex;
-  flex-direction: column; 
-  width: 100%;
-  align-items: flex-start;
-  justify-content: start;
-  margin-right: 5px;
-`;
-
-const CardTitle = styled.div`
-    color: #000;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-    max-width: 120px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-`;
-
-const ButtonNumbers = styled.div`
-    display: flex;
-    gap: 10px;
-    align-items:center;
-`;
-
-const CardSubtitle = styled.div`
-    color: #000;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-`;
-
-const Row = styled.div`
+const ButtonWrapper = styled.div`
 display: flex;
-gap: 7px;
-justify-content: start;
-align-items: flex-start;
-`;
-
-const DetailSection = styled.div`
-display: flex;
-width: 100%;
-align-items: start;
-justify-content: space-between;
-align-self: stretch;
-`;
-
-const TypeWrapper = styled.div`
-// min-width: 50px;
-// width: 150px;
-// max-width: 200px;
+padding: 10px;
+justify-content: flex-end;
+align-items: center;
+gap: 10px;
+border-radius: 500px;
+border: 1px solid var(--main-main600, #70AF19);
+color: var(--main-main600, #70AF19);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
 `;
