@@ -42,11 +42,10 @@ function App() {
         <Route path="/student_group" element={<GroupHome />}/>
         <Route path="/student_group/store-profile/:id" element={<OwnerMyPage />} />
 
-        <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
-        <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
+        {/* <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
         <Route path="/student_group/mypage/wishlist" element={<GroupWishlist />} />
         <Route path="/student_group/mypage/received-suggest" element={<GroupReceiveSuggest />} />
-        <Route path="/student_group/mypage/sent-suggest" element={<GroupSendSuggest />} />
+        <Route path="/student_group/mypage/sent-suggest" element={<GroupSendSuggest />} /> */}
 
         <Route path="/student-group/proposal" element={<GroupProposalDetail/>} />
         <Route path="/student-group/ai-proposal" element={<AIGroupProposalDetail/>} />
@@ -65,9 +64,10 @@ function App() {
         <Route path="/owner/mypage/received-proposal/:id" element={<OwnerReceivedProposalDetail />}/>
         <Route path="/owner/mypage" element={<OwnerMyPage />}/>
         <Route path="/owner/mypage/wishlist" element={<OwnerWishlist />}/>
-
         <Route path='/student_group/mypage' element={<StudentGroupProfile/>} />
         <Route path="/student_group/mypage/edit" element={<GroupEditMyPage />} />
+        <Route path="/student_group/mypage/received-suggest" element={<GroupReceiveSuggest />} />
+        <Route path="/student_group/mypage/sent-suggest" element={<GroupSendSuggest />} />
         <Route path="/student_group/mypage/wishlist" element={<GroupWishlist />} />
       </Route>
       

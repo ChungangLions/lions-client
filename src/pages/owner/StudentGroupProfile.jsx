@@ -166,6 +166,17 @@ const PageContainer = styled.div`
   margin: 0 auto;
 `;
 
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
+`;
+
 const PageWrapper = styled.div`
   gap: 59px;
   display: flex;
@@ -353,15 +364,4 @@ gap: 10px;
   &:hover {
     background-color: ${({ $active }) => ($active ? "#70AF19" : "#E9F4D0")};
     color: ${({ $active }) => ($active ? "#E9F4D0" : "#70AF19")};
-`;
-
-const ContentContainer = styled.div`
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-  box-sizing: border-box; 
-  align-items: center; 
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 40px;
 `;
