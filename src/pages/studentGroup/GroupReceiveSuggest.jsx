@@ -25,7 +25,7 @@ const GroupReceiveSuggest = () => {
         setLoading(true);
         // box=received로 설정
         const response = await fetchProposal({
-          box: 'inbox',
+          box: 'received',
           ordering: '-created_at'
         });
         
