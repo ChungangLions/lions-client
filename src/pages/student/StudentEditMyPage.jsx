@@ -320,7 +320,8 @@ const TitleContainer = styled.div`
   margin-top: 30px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 5px; 
+  margin-bottom: 10px;
 `;
 
 const Title = styled.div`
