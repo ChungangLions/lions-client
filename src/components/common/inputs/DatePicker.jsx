@@ -26,6 +26,7 @@ const DatePicker = ({
   timeData
 }) => {
   return (
+    <DatePickerGroup>
     <DropdownGroup>
         {/* 요일 */}
         <Dropdown
@@ -56,29 +57,39 @@ const DatePicker = ({
           placeholder="00:00"
         />
 
-      {/* 제거 버튼 */}
-      {total > 1 && idx !== total - 1 && (
+              {/* 제거 버튼 또는 플레이스홀더 */}
+      {total > 1 && idx !== total - 1 ? (
         <DeleteBtn onClick={() => onRemove(idx)} />
+      ) : (
+        <DeleteBtnPlaceholder />
       )}
 
-      {/* 추가 버튼 (마지막 아이템에서만 보임) */}
-      {idx === total - 1 && <AddBtn onClick={onAdd} />}
+      {/* 추가 버튼 (마지막 아이템에서만 보임)
+      {idx === total - 1 && <AddBtn onClick={onAdd} />} */}
     </DropdownGroup>
+    {idx === total - 1 && <AddTextBtn onClick={onAdd}> <FiPlus /> 시간 추가</AddTextBtn>}
+    </DatePickerGroup>
   );
 };
 
 export default DatePicker;
 
 
+const DatePickerGroup = styled.div`
+display: flex;
+flex-direction: column;
+gap: 10px;
+`;
+
 const DropdownGroup = styled.div`
 display: flex;
 align-items: center;
-align-self: stretch;
+// align-self: stretch;
 justify-content: center;
 gap: 10px;
   font-size: 16px;
   font-weight: 400;
-  max-width: 351px;
+  width: 351px;
   color: #1A2D06
 `;
 
@@ -105,6 +116,13 @@ margin-left: 10px;
 color: #1A2D06;
 `;
 
+const DeleteBtnPlaceholder = styled.div`
+margin-top: 10px;
+width: 24px;
+height: 24px;
+margin-left: 10px;
+`;
+
 const AddBtn = styled(FiPlus)`
 margin-top: 10px;
 width: 24px;
@@ -117,4 +135,37 @@ margin-left: 10px;
   &:hover {
     color: ${({ $active }) => ($active ? "#365215" : "#70AF19")};
   }
+`;
+
+const AddTextBtn = styled.button`
+display: flex;
+padding: 4px 7px;
+align-items: center;
+gap: 2px;
+border-radius: 5px;
+background: var(--, #E7E7E7);
+color: var(--, #898989);
+font-family: Pretendard;
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+border: none;
+
+
+// display: flex;
+// align-items: center;
+// gap: 10px;
+// color: #1A2D06;
+// background-color: #E9F4D0;
+// border-radius: 5px;
+// border: none;
+// font-family: Pretendard;
+// font-size: 16px;
+// font-style: normal;
+// font-weight: 400;
+// line-height: normal;
+// width: 150px;
+// padding: 5px;
+// justify-content: center;
 `;

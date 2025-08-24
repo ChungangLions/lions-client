@@ -11,6 +11,7 @@ import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 import { fetchLikes, toggleLikes } from '../../services/apis/likesapi'
 import MenuGroup from '../../layout/MenuGroup'
+import Menu from '../../layout/Menu'
 
 const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
@@ -19,8 +20,8 @@ const StudentGroupProfile = () => {
   const userType = location.state?.userType || "student-group";
   const [isLikeActive, setIsLikeActive] = useState(false);
   const { organization } = location.state || {};
-  console.log(location.state);
-
+  console.log("location.state", location.state);
+  console.log("userType", userType);
 
   const groupId = organization?.user || userId
 
@@ -79,7 +80,7 @@ const StudentGroupProfile = () => {
 
   return (
     <PageContainer>
-      
+      {userType === "owner" && <Menu />}
       {userType === "student-group" && <MenuGroup />}
       <ContentContainer>
         <PageWrapper>
@@ -158,23 +159,21 @@ text-align: center;
 `;
 
 const PageContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content:center;
-  margin: 0 auto;
+display: flex;
+flex-direction: column;
+gap: 15px;
+width: 100%;
+position: relative;
+justify-content: flex-start; 
+min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
 `;
 
 const ContentContainer = styled.div`
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-  box-sizing: border-box; 
-  align-items: center; 
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 40px;
+display: flex;
+width: 100%;
+flex-direction: column;
+align-items: flex-start;
+gap: 15px;
 `;
 
 const PageWrapper = styled.div`

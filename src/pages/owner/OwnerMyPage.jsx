@@ -83,7 +83,9 @@ const OwnerMyPage = () => {
         setUserRecommends(recommendsData.recommendations_received_count);
 
         const send = await getOwnerPartnershipType(ownerId);
-        const receive = await getOwnerPartnershipType(ownerId);
+        console.log("send data(사장님이 보낸 제안 데이터): ", send);
+        const receive = await getOwnerPartnershipType(ownerId, 'received');
+        console.log("receive data(사장님이 보낸 제안 데이터): ", receive);
         const record = (send || []).filter(p => p.status === "PARTNERSHIP").length + (receive|| []).filter(p => p.status === "PARTNERSHIP").length;
         setPartnershipType(send[0].partnership_type);
         setUserRecord(record);

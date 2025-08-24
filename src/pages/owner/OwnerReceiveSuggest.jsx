@@ -221,7 +221,6 @@ const OwnerReceiveSuggest = () => {
     <PageContainer>
       <Menu />
       <ContentContainer>
-        {/* // <SuggestSummaryBox items={summaryItems} /> */}
         <SuggestSummaryBox 
           items={summaryItems} 
           onItemClick={handleStatusClick}

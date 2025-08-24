@@ -14,10 +14,13 @@ const OwnerWishlist = () => {
   const navigate = useNavigate();
   const { userId } = useUserStore();
   const { organizations, fetchAndSetOrganizations } = useStudentOrgStore();
+  const userType = "owner";
 
   const handleCardClick = (organization) => {
-    navigate(`/owner/student-group-profile/${organization.id}`, { state: { organization } });
+    navigate(`/owner/mypage/wishlist/student-group-profile/${organization.id}`, { state: { organization, userType }});
   };
+
+  console.log("userType", userType);
 
   const [likeStores, setLikeStores] = useState([]);
   
