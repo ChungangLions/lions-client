@@ -16,7 +16,7 @@ const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore(); // 
   const location = useLocation();
-  const userType = location.state?.userType || "student_group";
+  const userType = location.state?.userType || "student-group";
   const [isLikeActive, setIsLikeActive] = useState(false);
   const { organization } = location.state || {};
   console.log(location.state);
@@ -80,7 +80,7 @@ const StudentGroupProfile = () => {
   return (
     <PageContainer>
       
-      {userType === "student_group" && <MenuGroup />}
+      {userType === "student-group" && <MenuGroup />}
       <ContentContainer>
         <PageWrapper>
       <ProfileSection>
