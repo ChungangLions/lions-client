@@ -319,7 +319,7 @@ const ProposalDetail = () => {
                   <TypeList>
                     <TypeItem>
                       <ItemTitle>할인형)</ItemTitle>
-                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 방식의 제휴</ItemDescription>
+                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 제휴 방식</ItemDescription>
                     </TypeItem>
                     <TypeItem>
                       <ItemTitle>타임형)</ItemTitle>

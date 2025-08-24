@@ -11,6 +11,8 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
 import { getProposal } from '../../services/apis/proposalAPI';
+import AcceptBtn from '../../components/common/buttons/proposal/AcceptBtn';
+import RejectBtn from '../../components/common/buttons/proposal/RejectBtn';
 
 const OwnerReceivedProposalDetail = () => {
   const location = useLocation();
@@ -175,7 +177,7 @@ const OwnerReceivedProposalDetail = () => {
                   <TypeList>
                     <TypeItem>
                       <ItemTitle>할인형)</ItemTitle>
-                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 방식의 제휴</ItemDescription>
+                      <ItemDescription>학생증 제시 또는 특정 조건 충족 시, 메뉴 가격을 일정 비율 할인하여 제공하는 제휴 방식</ItemDescription>
                     </TypeItem>
                     <TypeItem>
                       <ItemTitle>타임형)</ItemTitle>
@@ -250,8 +252,21 @@ const OwnerReceivedProposalDetail = () => {
             ButtonComponent={() => <FavoriteBtn organization={senderInfo} />} 
           />
           <ButtonWrapper>
-         
-          </ButtonWrapper>
+                        <AcceptBtn
+                        proposalId={proposalId} 
+                        onAccept={() => {
+                          alert('제휴가 체결되었습니다.');
+                        }} 
+                      />
+                      <RejectBtn 
+                        proposalId={proposalId} 
+                        onReject={() => {
+          
+                          alert('제안서가 거절되었습니다.');
+                        }} 
+                      />
+                      <CloseBtn onClick={handleBack}>닫기</CloseBtn>
+                    </ButtonWrapper>
         </ReceiverWrapper>
       </ReceiverSection>
     </ProposalContainer>
@@ -567,3 +582,22 @@ const ConditionContent = styled.div`
   }
 `;
 
+const CloseBtn = styled.button`
+width: 100%;
+position: relative;
+border-radius: 5px;
+background-color: #70af19;
+height: 45px;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+padding: 13px 81px;
+box-sizing: border-box;
+text-align: left;
+font-size: 16px;
+color: #e9f4d0;
+font-family: Pretendard;
+border: none;
+cursor: pointer;
+`;
