@@ -9,6 +9,7 @@ import { fetchProposal, editProposalStatus } from '../../services/apis/proposalA
 import StatusBtn from '../../components/common/buttons/StatusBtn'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import { fetchGroupProfile, getGroupProfile } from '../../services/apis/groupProfileAPI'
+import ProposalCard from '../../components/common/cards/ProposalCard'
 
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
@@ -235,12 +236,11 @@ const filteredProposalOrganizations = selectedStatus
         {filteredProposalOrganizations.length > 0 ? (
           <CardListGrid> 
           {filteredProposalOrganizations.map((organization) => (
-            <OrgCardSection 
+            <ProposalCard
               key={organization.id} 
               onClick={() => handleProposalClick(organization)} 
               cardType={'suggest-sent'} 
-              ButtonComponent= {() => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
-              organization={organization} 
+              proposalGroup={organization} 
             />
           ))} 
           </CardListGrid>
@@ -285,14 +285,14 @@ const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(447px, 1fr));
-  justify-content: start;
-  align-content: start;
+  grid-template-columns: repeat(3, 447px); 
+  justify-content: center;
+  align-content: center;
   column-gap: 20px;
-  row-gap: 20px;
+  row-gap: 13px;
   text-align: left;
   font-size: 18px;
-  color: #1A2D06;
+  color: #000;
   font-family: Pretendard;
 `;
 
