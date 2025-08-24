@@ -7,11 +7,13 @@ import MenuGroup from '../../layout/MenuGroup'
 import { fetchProposal } from '../../services/apis/proposalAPI'
 
 import { getOwnerProfile } from '../../services/apis/ownerAPI'
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
 
 const GroupSendSuggest = () => {
   const navigate = useNavigate();
   const [sentProposals, setSentProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState(null); // 선택된 상태 필터
   const [summaryStats, setSummaryStats] = useState({
     draft: 0,
     read: 0,
@@ -126,9 +128,6 @@ const formatDate = (dateString) => {
   }
 };
 
-
-
-
   // 제안서 데이터를 organization 형태로 변환
   const proposalOrganizations = sentProposals.map(proposal => {
     const recipientId = proposal.recipient?.id || proposal.recipient;
@@ -148,18 +147,28 @@ const formatDate = (dateString) => {
     };
   });
 
+  // 상태별 필터링된 제안서 목록
+  const filteredProposalOrganizations = selectedStatus 
+    ? proposalOrganizations.filter(proposal => proposal.status === selectedStatus)
+    : proposalOrganizations;
+
   console.log("데이터", proposalOrganizations);
 
   const profileId = proposalOrganizations.map((org) => org.name.id);
   console.log("아이디", profileId);
 
   const summaryItems = [
-    { count: summaryStats.draft, label: '작성중'},
-    { count: summaryStats.read, label: '열람' },
-    { count: summaryStats.unread, label: '미열람' },
-    { count: summaryStats.partnership, label: '제휴 체결' },
-    { count: summaryStats.rejected, label: '거절' }
+    { count: summaryStats.draft, label: '작성중', status: 'DRAFT'},
+    { count: summaryStats.read, label: '열람', status: 'READ' },
+    { count: summaryStats.unread, label: '미열람', status: 'UNREAD' },
+    { count: summaryStats.partnership, label: '제휴 체결', status: 'PARTNERSHIP' },
+    { count: summaryStats.rejected, label: '거절', status: 'REJECTED' }
   ];
+
+  // 상태별 아이템 클릭 핸들러
+  const handleStatusClick = (status) => {
+    setSelectedStatus(selectedStatus === status ? null : status);
+  };
 
   if (loading) {
     return (
@@ -191,10 +200,14 @@ const formatDate = (dateString) => {
   return (
     <ScrollSection>
       <MenuGroup />
-      <SuggestSummaryBox items={summaryItems} />
-      {proposalOrganizations.length > 0 ? (
+      <SuggestSummaryBox 
+        items={summaryItems} 
+        onItemClick={handleStatusClick}
+        selectedStatus={selectedStatus}
+      />
+      {filteredProposalOrganizations.length > 0 ? (
         <CardListGrid>
-          {proposalOrganizations.map((proposal) => {
+          {filteredProposalOrganizations.map((proposal) => {
             const recipientId = proposal.recipient?.id || proposal.recipient;
             const profile = ownerProfiles[recipientId];
             
@@ -228,7 +241,12 @@ const formatDate = (dateString) => {
           })}
         </CardListGrid>
       ) : (
-        <EmptyMessage>보낸 제안서가 없습니다.</EmptyMessage>
+        <EmptyMessage>
+          {selectedStatus 
+            ? `${STATUS_MAP[selectedStatus]} 상태의 제안서가 없습니다.` 
+            : '보낸 제안서가 없습니다.'
+          }
+        </EmptyMessage>
       )}
     </ScrollSection>
   )

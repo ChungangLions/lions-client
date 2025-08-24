@@ -14,6 +14,7 @@ const OwnerSendSuggest = () => {
   const navigate = useNavigate();
   const [sentProposals, setSentProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState(null); // 선택된 상태 필터
   const [summaryStats, setSummaryStats] = useState({
     draft: 0,
     read: 0,
@@ -152,17 +153,23 @@ const proposalOrganizations = useMemo(() => {
 
 console.log(proposalOrganizations);
 
-
-
+// 상태별 필터링된 제안서 목록
+const filteredProposalOrganizations = selectedStatus 
+  ? proposalOrganizations.filter(org => org.status === selectedStatus)
+  : proposalOrganizations;
 
   const summaryItems = [
-    { count: summaryStats.draft, label: '작성중'},
-    { count: summaryStats.read, label: '열람' },
-    { count: summaryStats.unread, label: '미열람' },
-    { count: summaryStats.partnership, label: '제휴 체결' },
-    { count: summaryStats.rejected, label: '거절' },
-
+    { count: summaryStats.draft, label: '작성중', status: 'DRAFT'},
+    { count: summaryStats.read, label: '열람', status: 'READ' },
+    { count: summaryStats.unread, label: '미열람', status: 'UNREAD' },
+    { count: summaryStats.partnership, label: '제휴 체결', status: 'PARTNERSHIP' },
+    { count: summaryStats.rejected, label: '거절', status: 'REJECTED' },
   ];
+
+  // 상태별 아이템 클릭 핸들러
+  const handleStatusClick = (status) => {
+    setSelectedStatus(selectedStatus === status ? null : status);
+  };
 
   if (loading) {
     return (
@@ -219,11 +226,15 @@ console.log(proposalOrganizations);
     <ScrollSection>
       <Menu />     
       <ContentContainer>
-        <SuggestSummaryBox items={summaryItems} />
+        <SuggestSummaryBox 
+          items={summaryItems} 
+          onItemClick={handleStatusClick}
+          selectedStatus={selectedStatus}
+        />
       
-        {proposalOrganizations.length > 0 ? (
+        {filteredProposalOrganizations.length > 0 ? (
           <CardListGrid> 
-          {proposalOrganizations.map((organization) => (
+          {filteredProposalOrganizations.map((organization) => (
             <OrgCardSection 
               key={organization.id} 
               onClick={() => handleProposalClick(organization)} 
@@ -234,7 +245,12 @@ console.log(proposalOrganizations);
           ))} 
           </CardListGrid>
         ) : (
-          <EmptyMessage>보낸 제안서가 없습니다.</EmptyMessage>
+          <EmptyMessage>
+            {selectedStatus 
+              ? `${STATUS_MAP[selectedStatus]} 상태의 제안서가 없습니다.` 
+              : '보낸 제안서가 없습니다.'
+            }
+          </EmptyMessage>
         )}
       </ContentContainer>
     </ScrollSection>

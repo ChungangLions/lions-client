@@ -11,24 +11,76 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
 import { getProposal } from '../../services/apis/proposalAPI';
+import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
+import useUserStore from '../../stores/userStore';
+import { fetchOwnerProfiles } from '../../services/apis/studentProfileApi';
 
 const GroupSendSuggestDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [newGroupProposal, setNewGroupProposal] = useState([]);
+  const [newGroupProposal, setNewGroupProposal] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { proposal } = location.state || {};
   console.log("받아온 proposal 데이터: ", proposal);
-  
-  const { storeName } = useOwnerProfile();
+
+  const { userId} = useUserStore();
+
+  const [profile, setProfile] = useState();
+  const { ownerProfile, setOwnerProfile} = useState();
+
+  const getGroupProfile = async (userId) => {
+    try {
+      const groupProfile = await fetchGroupProfile(userId);
+      console.log("그룹 프로필:", groupProfile);
+      setProfile(groupProfile);
+    } catch (error) {
+      console.error("프로필 가져오기 실패:", error);
+      setProfile(null);
+    }
+  };
+
+//     const getOwnerProfile = async (proposal.name.id) => {
+//     try {
+//       const ownerProfile = await fetchOwnerProfiles(userId);
+//       console.log("사장님 프로필:", ownerProfile);
+//       setOwnerProfile(ownerProfile);
+//     } catch (error) {
+//       console.error("프로필 가져오기 실패:", error);
+//       setProfile(null);
+//     }
+//   };
+
+
+
+
 
   useEffect(() => {
     const fetchProposal = async () => {
-      const response = await getProposal(proposal.id);
-      console.log("새로운 proposal 데이터: ", response);
-      setNewGroupProposal(response);
+      try {
+        setLoading(true);
+        const response = await getProposal(proposal.id);
+        console.log("새로운 proposal 데이터: ", response);
+        setNewGroupProposal(response);
+      } catch (error) {
+        console.error("제안서 데이터 가져오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchProposal();
-  }, [proposal.id]);
+    
+    if (proposal?.id) {
+      fetchProposal();
+    } else {
+      setLoading(false);
+    }
+  }, [proposal?.id]);
+
+  // 그룹 프로필 가져오기
+  useEffect(() => {
+    if (userId) {
+      getGroupProfile(userId);
+    }
+  }, [userId]);
 
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
@@ -95,10 +147,18 @@ const GroupSendSuggestDetail = () => {
 
   // 뒤로가기
   const handleBack = () => {
-    navigate('/student-group/mypage/sent-suggest');
+    navigate('/student_group/mypage/sent-suggest');
   };
 
-  if (!newGroupProposal) {
+//   if (loading) {
+//     return (
+//       <Container>
+//         <LoadingMessage>로딩 중...</LoadingMessage>
+//       </Container>
+//     );
+//   }
+
+  if (!proposal || !newGroupProposal) {
     return (
       <Container>
         <ErrorMessage>제안서 정보를 찾을 수 없습니다.</ErrorMessage>
@@ -107,7 +167,8 @@ const GroupSendSuggestDetail = () => {
     );
   }
 
-  const formattedTimeWindows = Array.isArray(newGroupProposal.time_windows)
+  
+  const formattedTimeWindows = newGroupProposal?.time_windows && Array.isArray(newGroupProposal.time_windows)
   ? newGroupProposal.time_windows
       .map(
         (time) =>
@@ -121,10 +182,10 @@ const GroupSendSuggestDetail = () => {
   const senderInfo = {
     id: proposal.id || null,
     name: newGroupProposal.author?.username || null,
-    university: proposal.universtiy_name || '중앙대학교',
-    department: proposal.department || '',
-    council_name: proposal.council_name || newGroupProposal.sender?.name || '',
-    student_size: proposal.student_size || 0,
+    university: profile?.university_name || '중앙대학교',
+    department: profile?.department || '',
+    council_name: profile?.council_name || newGroupProposal.sender?.name || '',
+    student_size: profile?.student_size || 0,
     partnership_start: proposal.partnership_start || '',
     partnership_end: proposal.partnership_end || '',
     period: newGroupProposal.sender?.period || 0,     // 고쳐야할 부분!
@@ -273,6 +334,12 @@ const Container = styled.div`
 const ErrorMessage = styled.div`
   font-size: 18px;
   color: #666;
+`;
+
+const LoadingMessage = styled.div`
+  font-size: 18px;
+  color: #70AF19;
+  font-weight: 600;
 `;
 
 const BackButton = styled.button`

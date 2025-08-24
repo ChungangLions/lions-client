@@ -17,6 +17,7 @@ const OwnerReceiveSuggest = () => {
   const navigate = useNavigate();
   const [receivedProposals, setReceivedProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState(null); // 선택된 상태 필터
   const [summaryStats, setSummaryStats] = useState({
     read: 0,
     unread: 0,
@@ -116,6 +117,10 @@ const OwnerReceiveSuggest = () => {
 
   console.log("받은 제안서 데이터", proposalGroups); // proposalGroups가 학생단체 프로필 + 제안서 데이터 합친 배열
 
+  // 상태별 필터링된 제안서 목록
+  const filteredProposalGroups = selectedStatus 
+    ? proposalGroups.filter(group => group.status === selectedStatus)
+    : proposalGroups;
 
   const STATUS_MAP = {
     UNREAD: "미열람",
@@ -125,12 +130,16 @@ const OwnerReceiveSuggest = () => {
   };
 
   const summaryItems = [
-    { count: summaryStats.read, label: '열람' },
-    { count: summaryStats.unread, label: '미열람' },
-    { count: summaryStats.partnership, label: '제휴 체결' },
-    { count: summaryStats.rejected, label: '거절' }
-    
+    { count: summaryStats.read, label: '열람', status: 'READ' },
+    { count: summaryStats.unread, label: '미열람', status: 'UNREAD' },
+    { count: summaryStats.partnership, label: '제휴 체결', status: 'PARTNERSHIP' },
+    { count: summaryStats.rejected, label: '거절', status: 'REJECTED' }
   ];
+
+  // 상태별 아이템 클릭 핸들러
+  const handleStatusClick = (status) => {
+    setSelectedStatus(selectedStatus === status ? null : status);
+  };
 
   if (loading) {
     return (
@@ -212,12 +221,15 @@ const OwnerReceiveSuggest = () => {
     <ScrollSection>
       <ContentContainer>
       <Menu />
-        <SuggestSummaryBox items={summaryItems} />
+        <SuggestSummaryBox 
+          items={summaryItems} 
+          onItemClick={handleStatusClick}
+          selectedStatus={selectedStatus}
+        />
  
-
-        {proposalGroups.length > 0 ? (
+        {filteredProposalGroups.length > 0 ? (
           <CardListGrid> 
-          {proposalGroups.map((group) => (
+          {filteredProposalGroups.map((group) => (
             <ProposalCard
               key={group.id}
               proposalGroup={group}
@@ -228,7 +240,12 @@ const OwnerReceiveSuggest = () => {
         }
          </CardListGrid>
          ) : (
-          <EmptyMessage>받은 제안서가 없습니다.</EmptyMessage>
+          <EmptyMessage>
+            {selectedStatus 
+              ? `${STATUS_MAP[selectedStatus]} 상태의 제안서가 없습니다.` 
+              : '받은 제안서가 없습니다.'
+            }
+          </EmptyMessage>
         )}
       </ContentContainer>
     </ScrollSection>
