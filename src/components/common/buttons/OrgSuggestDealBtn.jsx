@@ -1,3 +1,4 @@
+// 학생단체 로그인, 제안하기 to 사장님의 경우 사용하는 Btn
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -26,22 +27,52 @@ const OrgSuggestDealBtn = ({profileData}) => {
       const contact_info = profileData.contact;
 
       let existingDraft = null;
-            try {
-              const list = await fetchProposal({ box: 'sent', ordering: '-updated_at' });
-              const proposals = list.results || list || [];
-              existingDraft = proposals.find(p => {
-                const r = p.recipient || {};
-                // recipient가 객체일 때 id로 매칭, 아니면 값 자체 비교
-                return (r.id != null ? r.id === recipient : r === recipient);
-              }) || null;
-            } catch (e) {
-              console.warn('기존 제안서 조회 실패:', e);
-            }
-                if (existingDraft) {
+      try {
+        const list = await fetchProposal({ box: 'sent', ordering: '-modified_at' });
+        const proposals = list.results || list || [];
+        existingDraft = proposals.find(p => {
+          const r = p.recipient || {};
+          // recipient가 객체일 때 id로 매칭, 아니면 값 자체 비교
+          return (r.id != null ? r.id === recipient : r === recipient);
+        }) || null;
+      } catch (e) {
+        console.warn('기존 제안서 조회 실패:', e);
+      }
+
+      // 기존 작성한 제안서가 있는 경우
+      if (existingDraft) {
         console.log('기존 작성중 제안서 발견:', existingDraft);
+        
+        // 1. 사장님 프로필 수정 시간과 제안서 생성 시간 비교
+        try {
+          const ownerProfile = await getOwnerProfile(recipient);
+          if (ownerProfile) {
+            const proposalCreatedAt = new Date(existingDraft.created_at); // 제안서 생성한 시간
+            const profileUpdatedAt = new Date(ownerProfile.modified_at); // 프로필 수정한 시간
+            
+            // 프로필 수정 시간이 제안서 생성 시간보다 최근이면 새로 생성
+            if (profileUpdatedAt > proposalCreatedAt) {
+              console.log('최근에 프로필을 수정하셨네요!');
+              setLoadingVariant('ai');
+              setIsLoading(true);
+              
+              const proposalData = await getAutoAIDraftProposal(recipient, contact_info);
+              console.log("새로 생성된 제안서 내용", proposalData);
+              
+              navigate('/student-group/ai-proposal', { state: {profileData, isAI: true, proposalData } });
+              return;
+            }
+          }
+        } catch (profileError) {
+          console.warn('사장님 프로필 조회 실패:', profileError);
+          // 프로필 조회 실패 시 기존 제안서 사용
+        }
+        
+        // 제안서 생성이 더 최근이거나 프로필 조회 실패 시 기존 제안서 사용
         navigate('/student-group/ai-proposal', { state: {profileData, isAI: true, proposalData: existingDraft } });
         return;
       }
+      
       // 2) 없으면 AI로 생성 후 이동
       // 로딩이 기존 제안서 있을 땐 X, 없을 때 로딩화면 뜸 
 
@@ -61,7 +92,6 @@ const OrgSuggestDealBtn = ({profileData}) => {
       setIsLoading(false);
     }
   }
-  
   
   const goToProposalPage = async() => {
     setLoadingVariant('form');
