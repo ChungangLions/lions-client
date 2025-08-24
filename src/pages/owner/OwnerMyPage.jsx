@@ -324,6 +324,18 @@ const PageContainer = styled.div`
   margin: 0 auto;
 `;
 
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
+`;
+
+
 const TitleContainer = styled.div`
 width: 100%;
 position: relative;
@@ -606,15 +618,4 @@ text-align: left;
 font-size: 16px;
 color: #70AF19;
 font-family: Pretendard;
-`;
-
-const ContentContainer = styled.div`
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-  box-sizing: border-box; 
-  align-items: center; 
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 40px;
 `;

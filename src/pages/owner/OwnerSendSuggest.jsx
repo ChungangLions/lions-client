@@ -9,6 +9,7 @@ import { fetchProposal, editProposalStatus } from '../../services/apis/proposalA
 import StatusBtn from '../../components/common/buttons/StatusBtn'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import { fetchGroupProfile, getGroupProfile } from '../../services/apis/groupProfileAPI'
+import ProposalCard from '../../components/common/cards/ProposalCard'
 
 const OwnerSendSuggest = () => {
   const navigate = useNavigate();
@@ -173,10 +174,10 @@ const filteredProposalOrganizations = selectedStatus
 
   if (loading) {
     return (
-      <ScrollSection>
+      <ContentContainer>
         <Menu />
         <Loading>로딩 중...</Loading>
-      </ScrollSection>
+      </ContentContainer>
     );
   }
 
@@ -223,8 +224,8 @@ const filteredProposalOrganizations = selectedStatus
 
 
   return (
-    <ScrollSection>
-      <Menu />     
+    <PageContainer>
+      <Menu />   
       <ContentContainer>
         <SuggestSummaryBox 
           items={summaryItems} 
@@ -235,12 +236,11 @@ const filteredProposalOrganizations = selectedStatus
         {filteredProposalOrganizations.length > 0 ? (
           <CardListGrid> 
           {filteredProposalOrganizations.map((organization) => (
-            <OrgCardSection 
+            <ProposalCard
               key={organization.id} 
               onClick={() => handleProposalClick(organization)} 
               cardType={'suggest-sent'} 
-              ButtonComponent= {() => <StatusBtn> {STATUS_MAP[organization.status]} </StatusBtn>} 
-              organization={organization} 
+              proposalGroup={organization} 
             />
           ))} 
           </CardListGrid>
@@ -253,36 +253,57 @@ const filteredProposalOrganizations = selectedStatus
           </EmptyMessage>
         )}
       </ContentContainer>
-    </ScrollSection>
+    </PageContainer>
   )
 }
 
 export default OwnerSendSuggest
+
+const PageContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  margin: 0 auto;
+  min-height: 100vh;
+`;
+
+const ContentContainer = styled.div`
+  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  box-sizing: border-box; 
+  align-items: center; 
+  justify-content: start;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 40px;
+`;
 
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`
   width: 100%;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(447px, 1fr));
-  justify-content: start;
-  align-content: start;
+  grid-template-columns: repeat(3, 447px); 
+  justify-content: center;
+  align-content: center;
   column-gap: 20px;
-  row-gap: 20px;
+  row-gap: 13px;
   text-align: left;
   font-size: 18px;
-  color: #1A2D06;
+  color: #000;
   font-family: Pretendard;
 `;
 
-const ScrollSection = styled.div`
-display: flex;
-flex-direction: column;
-width: 100%;
-position: relative;
-justify-content: flex-start; 
-min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
-`;
+// const ScrollSection = styled.div`
+// display: flex;
+// flex-direction: column;
+// width: 100%;
+// position: relative;
+// justify-content: flex-start; 
+// min-height: 100vh; /* 화면 높이 채워야 위에서 시작할 수 있구나 .. ㅠ */
+// `;
 
 const Loading = styled.div`
 width: 100%;
@@ -305,15 +326,4 @@ text-align: center;
     justify-content: center;
   align-content: center;
   margin-top: 30px;
-`;
-
-const ContentContainer = styled.div`
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-  box-sizing: border-box; 
-  align-items: center; 
-  justify-content: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 40px;
 `;

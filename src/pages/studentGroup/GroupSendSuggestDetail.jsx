@@ -147,7 +147,7 @@ const GroupSendSuggestDetail = () => {
 
   // 뒤로가기
   const handleBack = () => {
-    navigate('/student_group/mypage/sent-suggest');
+    navigate('/student-group/mypage/sent-suggest');
   };
 
 //   if (loading) {

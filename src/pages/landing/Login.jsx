@@ -32,7 +32,7 @@ const Login = () => {
       await useStudentStore.getState().setProfileInfo(res.id);
       navigate('/student'); 
     }else if(res.user_role === "STUDENT_GROUP") {
-      navigate('/student_group');  
+      navigate('/student-group');  
     } else {
       navigateToHome(); 
     }

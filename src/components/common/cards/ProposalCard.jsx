@@ -25,19 +25,24 @@ const STATUS_MAP = {
     REJECTED: "거절"
   };
 
-function ProposalCard({ proposalGroup, onClick }) {
+function ProposalCard({ proposalGroup, onClick, cardType}) {
     const handleClick = () => {
         if (onClick) {
             onClick(proposalGroup);
         }
     };
 
+    const cardData =
+    cardType === "suggest-received"
+      ? { label: "수신일", value: proposalGroup?.receivedDate }
+      : { label: "작성일", value: proposalGroup?.created_at };
+
     return (
         <Cardwrapper onClick={handleClick} style={{ cursor: 'pointer' }}>
             <ContentWrapper>
                 <TextWrapper>
                     <DateWrapper>
-                        <SendText>발신일</SendText>
+                        <SendText>{cardData.label}</SendText>
                         <DateText>{formatDate(proposalGroup.created_at)}</DateText>
                     </DateWrapper>
                     <NameWrapper>
