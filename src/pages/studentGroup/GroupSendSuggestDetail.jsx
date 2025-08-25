@@ -10,6 +10,7 @@ import SaveBtn from '../../components/common/buttons/SaveBtn';
 import Modal from '../../components/common/buttons/Modal';
 import InputBox from '../../components/common/inputs/InputBox';
 import PeriodPicker from '../../components/common/inputs/PeriodPicker';
+import DatePicker from '../../components/common/inputs/DatePicker';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 // import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -36,6 +37,15 @@ const GroupSendSuggestDetail = () => {
 
   const { userId} = useUserStore();
 
+  const Week = {data: ['월', '화', '수', '목', '금', '토', '일']};
+  const Time = {
+    data: Array.from({ length: 48 }, (_, i) => {
+      const hour = String(Math.floor(i / 2)).padStart(2, "0");
+      const min = i % 2 === 0 ? "00" : "30";
+      return `${hour}:${min}`;
+    }), 
+  };
+
   const [profile, setProfile] = useState();
   const [ownerProfile, setOwnerProfile] = useState();
   const [profileLoading, setProfileLoading] = useState(true);
@@ -54,6 +64,9 @@ const GroupSendSuggestDetail = () => {
     time_windows: [],
     partnership_type: []
   });
+
+  // 시간대 상태 관리
+  const [busyHours, setBusyHours] = useState([]);
 
   // Period picker state
   const [partnershipPeriod, setPartnershipPeriod] = useState({
@@ -145,8 +158,17 @@ const GroupSendSuggestDetail = () => {
           period_start: response.period_start || '',
           period_end: response.period_end || '',
           time_windows: response.time_windows || [],
-          partnership_type: response.partnership_type || []
+          partnership_type: response.partnership_type ? (Array.isArray(response.partnership_type) ? response.partnership_type : [response.partnership_type]) : []
         });
+
+        // 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
+        if (response.time_windows && response.time_windows.length > 0) {
+          const parsedTimeWindows = parseTimeWindowsToDatePicker(response.time_windows);
+          setBusyHours(parsedTimeWindows);
+        } else {
+          // 기존 데이터가 없으면 기본 행 추가
+          setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
+        }
 
         // Initialize period picker with current data
         if (response.partnership_period) {
@@ -183,6 +205,7 @@ const GroupSendSuggestDetail = () => {
     }
   }, [userId]);
 
+
   // 그룹 프로필이 로드되면 연락처 정보 업데이트
   useEffect(() => {
     if (profile?.contact && editableForm.contact_info !== profile.contact) {
@@ -192,6 +215,14 @@ const GroupSendSuggestDetail = () => {
       }));
     }
   }, [profile?.contact]);
+
+  // 기본 시간대 행 추가 (컴포넌트 마운트 시 한 번만 실행)
+  useEffect(() => {
+    if (busyHours.length === 0) {
+      setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
+    }
+  }, []);
+
 
   useEffect(() => {
     if (ownerId) {
@@ -289,7 +320,12 @@ const GroupSendSuggestDetail = () => {
 
   // 수정/전송 버튼 핸들러
   const handleEdit = () => {
-    setIsEditMode(!isEditMode);
+    setIsEditMode(true);
+  };
+
+  // 수정 모드 토글 함수
+  const toggleEditMode = () => {
+    setIsEditMode(true);
   };
 
   const mapPartnership = (selected) => {
@@ -309,16 +345,22 @@ const GroupSendSuggestDetail = () => {
   const handleSend = async () => {
     try {
       // Validation
-      if (editableForm.partnership_type.length === 0) {
+      if (!editableForm.partnership_type || editableForm.partnership_type.length === 0) {
         openModal('제휴 유형을 선택해주세요.');
         return;
       }
 
       if (!editableForm.apply_target || 
           !editableForm.benefit_description || 
-          !editableForm.time_windows_text || 
           !formatPartnershipPeriod()) {
         openModal('제휴 조건을 모두 입력해주세요.');
+        return;
+      }
+
+      // 시간대 데이터 검증
+      const validTimeWindows = parseDatePickerToTimeWindows(busyHours);
+      if (validTimeWindows.length === 0) {
+        openModal('적용 시간대를 입력해주세요.');
         return;
       }
 
@@ -349,14 +391,23 @@ const GroupSendSuggestDetail = () => {
 
   const handleSave = async () => {
     try {
+      console.log('저장할 partnership_type:', editableForm.partnership_type);
+      
       const updateData = {
-        partnership_type: mapPartnership(editableForm.partnership_type),
+        partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
+          ? mapPartnership(editableForm.partnership_type) 
+          : [],
         apply_target: editableForm.apply_target,
-        time_windows: editableForm.time_windows || '',
+        time_windows: parseDatePickerToTimeWindows(busyHours),
         benefit_description: editableForm.benefit_description,
-        partnership_period: formatPartnershipPeriod(),
+        period_start: formatPeriodStart() || null,
+        period_end: formatPeriodEnd() || null,
         contact_info: editableForm.contact_info,
       };
+
+      console.log('busyHours 원본 데이터:', busyHours);
+      console.log('파싱된 time_windows:', parseDatePickerToTimeWindows(busyHours));
+      console.log('제안서 데이터:', updateData);
 
       const response = await editProposal(newGroupProposal.id, updateData);
       console.log('제안서 수정 완료:', response);
@@ -385,7 +436,7 @@ const GroupSendSuggestDetail = () => {
       period_start: newGroupProposal?.period_start || '',
       period_end: newGroupProposal?.period_end || '',
       time_windows: newGroupProposal?.time_windows || [],
-      partnership_type: newGroupProposal?.partnership_type || []
+      partnership_type: newGroupProposal?.partnership_type ? (Array.isArray(newGroupProposal.partnership_type) ? newGroupProposal.partnership_type : [newGroupProposal.partnership_type]) : []
     });
   };
 
@@ -413,6 +464,28 @@ const GroupSendSuggestDetail = () => {
     return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
   };
 
+    // 제휴 기간 시작일을 파싱하는 함수
+    const formatPeriodStart = () => {
+      const { startYear, startMonth, startDay } = partnershipPeriod;
+      
+      if (!startYear || !startMonth || !startDay) {
+        return '';
+      }
+      
+      return `${startYear}-${startMonth}-${startDay}`;
+    };
+  
+    // 제휴 기간 종료일을 파싱하는 함수
+    const formatPeriodEnd = () => {
+      const { endYear, endMonth, endDay } = partnershipPeriod;
+      
+      if (!endYear || !endMonth || !endDay) {
+        return '';
+      }
+      
+      return `${endYear}-${endMonth}-${endDay}`;
+    };
+
   const handlePartnershipTypeToggle = (type) => {
     setEditableForm(prev => {
       const currentTypes = prev.partnership_type || [];
@@ -433,6 +506,52 @@ const GroupSendSuggestDetail = () => {
         };
       }
     });
+  };
+
+  // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
+  const parseTimeWindowsToDatePicker = (timeWindows) => {
+    if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
+      return [];
+    }
+
+    return timeWindows.map((window, index) => ({
+      id: index,
+      day: window.days && window.days.length > 0 ? window.days[0] : '', // 첫 번째 요일만 사용
+      start: window.start || '',
+      end: window.end || ''
+    }));
+  };
+
+  // DatePicker 형식을 시간대 데이터로 파싱하는 함수
+  const parseDatePickerToTimeWindows = (datePickerData) => {
+    if (!Array.isArray(datePickerData) || datePickerData.length === 0) {
+      return [];
+    }
+
+    return datePickerData
+      .filter(item => item.day && item.start && item.end)
+      .map(item => ({
+        days: [item.day], // 단일 요일을 배열로 변환
+        start: item.start,
+        end: item.end
+      }));
+  };
+
+  // 시간대 변경 핸들러
+  const handleDropdownChange = (index, field, value, setter) => {
+    setter(prev => prev.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // 시간대 행 추가 핸들러
+  const handleAddRow = (setter) => {
+    setter(prev => [...prev, { id: Date.now(), day: '', start: '', end: '' }]);
+  };
+
+  // 시간대 행 제거 핸들러
+  const handleRemoveRow = (index, setter) => {
+    setter(prev => prev.filter((_, i) => i !== index));
   };
 
 //   if (loading) {
@@ -599,14 +718,20 @@ const GroupSendSuggestDetail = () => {
                   </ConditionItem>
                   <ConditionItem>
                     <ConditionLabel>적용 시간대</ConditionLabel>
-                    <InputBox 
-                      defaultText="(예시) 평일 13:00 - 15:00" 
-                      width="100%"
-                      border="1px solid #E9E9E9"
-                      value={editableForm.time_windows_text || ''}
-                      onChange={(e) => handleInputChange('time_windows_text', e.target.value)}
-                      disabled={!isEditMode}
-                    />
+                    {busyHours.map((schedule, idx) => (
+                      <DatePicker
+                        key={schedule.id || idx}
+                        idx={idx}
+                        schedule={schedule}
+                        total={busyHours.length}
+                        onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                        onAdd={() => handleAddRow(setBusyHours)}
+                        onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                        dateData={Week}
+                        timeData={Time}
+                        disabled={!isEditMode}
+                      />
+                    ))}
                   </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
@@ -658,8 +783,11 @@ const GroupSendSuggestDetail = () => {
           <ButtonWrapper>
             {newGroupProposal?.current_status === 'DRAFT' || newGroupProposal?.current_status === 'READ' ? (
               <>
-                <EditBtn onClick={handleEdit} isEditMode={isEditMode} />
-                <SaveBtn onClick={handleSave} />
+                                 {!isEditMode ? (
+                   <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
+                 ) : (
+                   <SaveBtn onClick={handleSave} />
+                 )}
                 <SendProposalBtn onClick={handleSend}/>
               </>
             ) : (
@@ -832,10 +960,17 @@ p {
   }
 `;
 
+
 const ButtonWrapper = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
   width: 100%;
   margin-top: 4px;
+
+  & > *:nth-child(3) {
+    grid-column: 1 / -1;
+  }
 `;
 
 

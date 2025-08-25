@@ -208,7 +208,7 @@ const GroupProposalDetail = () => {
 
   // 수정 모드 토글 함수
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+    setIsEditMode(true);
   };
 
   // 제휴 조건 입력 
@@ -428,8 +428,8 @@ const GroupProposalDetail = () => {
   };
 
 
-    // 저장하기는 일부 필드 비워져있어도 가능 
-  const handleSave = async () => {
+         // 저장하기는 일부 필드 비워져있어도 가능 
+   const handleSave = async () => {
 
           const createData = {
           recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
@@ -437,26 +437,28 @@ const GroupProposalDetail = () => {
           apply_target: partnershipConditions.applyTarget, // 적용 대상
           time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
           benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-          period_start: formatPeriodStart(),
-          period_end: formatPeriodEnd(),
+          period_start: formatPeriodStart() || null,
+          period_end: formatPeriodEnd() || null,
           contact_info: contact || '', // 연락처
           
         };
 
 
-       console.log('busyHours 원본 데이터:', busyHours);
-       console.log('파싱된 time_windows:', parseDatePickerToTimeWindows(busyHours));
-       console.log('제안서 데이터:', createData);
+        console.log('busyHours 원본 데이터:', busyHours);
+        console.log('파싱된 time_windows:', parseDatePickerToTimeWindows(busyHours));
+        console.log('제안서 데이터:', createData);
 
     try {
       const response = await createProposal(createData);
       setProposalId(response.id);
 
-
+      console.log('제안서 저장 완료:', response);
+      setIsEditMode(false);
       openModal('제안서가 저장되었어요.\n 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
 
     } catch (error) {
-      console.error('제안서 전송 오류:', error);
+      console.error('제안서 저장 오류:', error);
+      openModal('제안서 저장에 실패했습니다.');
     }
   };
 
@@ -716,9 +718,12 @@ const GroupProposalDetail = () => {
                                               store={mappedOwnerProfile} />
             <ButtonWrapper>
                 <>
-                    <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
-                    <SaveBtn onClick={handleSave} />
-                    <SendProposalBtn onClick={handleSend}/>
+                {!isEditMode ? (
+                  <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
+                ) : (
+                  <SaveBtn onClick={handleSave} />
+                )}
+                <SendProposalBtn onClick={handleSend}/>
                 </>
                       
             </ButtonWrapper>
@@ -855,7 +860,7 @@ p {
 
 const ButtonWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 8px;
   width: 100%;
   margin-top: 4px;
