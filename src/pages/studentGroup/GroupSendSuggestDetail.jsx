@@ -395,7 +395,7 @@ const GroupSendSuggestDetail = () => {
       
       const updateData = {
         partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
-          ? mapPartnership(editableForm.partnership_type) 
+          ? editableForm.partnership_type 
           : [],
         apply_target: editableForm.apply_target,
         time_windows: parseDatePickerToTimeWindows(busyHours),
@@ -647,6 +647,7 @@ const GroupSendSuggestDetail = () => {
                     const isSelected = isEditMode 
                       ? (editableForm.partnership_type || []).includes(typeKey)
                       : (newGroupProposal?.partnership_type || []).includes(typeKey);
+                    
                     
                     return (
                       <PartnershipTypeBox 
