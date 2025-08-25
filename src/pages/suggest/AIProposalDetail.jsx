@@ -66,7 +66,7 @@ const AIProposalDetail = () => {
       if (proposalData?.id) {
         try {
           const proposal = await getProposal(proposalData.id);
-          setProposalStatus(proposal.status);
+          setProposalStatus(proposal.current_status);
         } catch (error) {
           console.error('제안서 상태 조회 실패:', error);
         }
@@ -114,12 +114,39 @@ const AIProposalDetail = () => {
     setPartnershipConditions({
       applyTarget: proposalData.apply_target || '',
       benefitDescription: proposalData.benefit_description || '',
-      timeWindows: formattedTimeWindows,
-      partnershipPeriod:
-        proposalData.period_start && proposalData.period_end
-          ? `${proposalData.period_start} ~ ${proposalData.period_end}`
-          : '',
+      timeWindows: formattedTimeWindows
     });
+
+    // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
+    if (proposalData.period_start && proposalData.period_end) {
+      // "2025-08-25" 형식을 파싱
+      const startDate = new Date(proposalData.period_start);
+      const endDate = new Date(proposalData.period_end);
+      
+      if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+        setPartnershipPeriod({
+          startYear: startDate.getFullYear().toString(),
+          startMonth: (startDate.getMonth() + 1).toString(),
+          startDay: startDate.getDate().toString(),
+          endYear: endDate.getFullYear().toString(),
+          endMonth: (endDate.getMonth() + 1).toString(),
+          endDay: endDate.getDate().toString()
+        });
+      }
+    } else if (proposalData.partnership_period) {
+      // 기존 "2025년 8월 25일 ~ 2025년 8월 25일" 형식 파싱
+      const periodMatch = proposalData.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
+      if (periodMatch) {
+        setPartnershipPeriod({
+          startYear: periodMatch[1],
+          startMonth: periodMatch[2],
+          startDay: periodMatch[3],
+          endYear: periodMatch[4],
+          endMonth: periodMatch[5],
+          endDay: periodMatch[6]
+        });
+      }
+    }
 
     setExpectedEffects(proposalData.expected_effects || '');
     if (contactInfo) setContact(contactInfo);
@@ -209,6 +236,7 @@ const AIProposalDetail = () => {
    const handleSend = async () => {
       try {
         // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
+        // 처음 눌러도 이미 전송된 제안서라고 뜨고 보내지지 않는 문제 
         if (proposalStatus !== 'DRAFT') {
           openModal('이미 전송된 제안서이에요');
           return;
@@ -289,7 +317,7 @@ const AIProposalDetail = () => {
     try {
       const response = await editProposal(proposalId, createData); // "DRAFT"인 상태로 생성됨
       setIsEditMode(false);
-      openModal('제안서가 저장되었어요. <br />MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+      openModal('제안서가 저장되었어요.\nMY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -416,52 +444,48 @@ const AIProposalDetail = () => {
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 대상</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.applyTarget}
-                        onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>혜택 내용</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 아메리카노 10% 할인" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.benefitDescription}
-                        onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 평일 13:00 - 15:00" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.timeWindows}
-                        onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>제휴 기간</ConditionLabel>
-                      <PeriodPicker 
-                        value={partnershipPeriod}
-                        onChange={handlePeriodChange}
-                        withDay={true}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
+                  <ConditionItem>
+                    <ConditionLabel>적용 대상</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.applyTarget}
+                      onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>혜택 내용</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 아메리카노 10% 할인" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.benefitDescription}
+                      onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>제휴 기간</ConditionLabel>
+                    <PeriodPicker 
+                      value={partnershipPeriod}
+                      onChange={handlePeriodChange}
+                      withDay={true}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>적용 시간대</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 평일 13:00 - 15:00" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.timeWindows}
+                      onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
 
@@ -480,7 +504,7 @@ const AIProposalDetail = () => {
                 </DetailBox>
               )}
 
-              <DetailBox>
+              <DetailBox style={{ marginTop: '10px' }}>
                 <Title> <div>연락처</div> </Title>
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
@@ -779,21 +803,12 @@ align-self: stretch;
 border-radius: 5px;
 background-color: #fff;
 display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: space-between;
-padding: 15px 20px;
-gap: 40px;
-font-size: 16px;
-`;
-
-const ConditionGroup = styled.div`
-width: 50%;
-display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-gap: 39px;
+padding: 20px;
+gap: 25px;
+font-size: 16px;
 `;
 
 const ConditionItem = styled.div`
@@ -801,7 +816,7 @@ const ConditionItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 `;
 
@@ -816,6 +831,7 @@ color: #1a2d06;
 font-family: Pretendard;
 font-weight: 600;
 white-space: nowrap;
+margin-bottom: 4px;
 `;
 
 const ConditionTitle = styled.div`
