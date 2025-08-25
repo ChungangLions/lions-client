@@ -196,7 +196,7 @@ const OwnerEditMyPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [showCampusModal, setShowCampusModal] = useState(false);
 
-  const [scrollY, setScrollY] = useState(0);
+
 
   const [profileId, setProfileId] = useState(null);
   const navigate = useNavigate();
@@ -495,62 +495,9 @@ const OwnerEditMyPage = () => {
     }
   };
 
-  // ---- 우측 리스트 스크롤 구현 ----
-  useEffect(() => {       // 스크롤 위치 감지
-    const handleScroll = () => {
-      const newScrollY = window.scrollY;
-      setScrollY(newScrollY);
-      console.log('🔄 Scroll Y Updated:', newScrollY); // 디버깅용
-    };
 
-    // 초기 스크롤 위치 설정
-    setScrollY(window.scrollY);
-    console.log('🚀 Initial Scroll Y:', window.scrollY); // 초기값 확인
-    
-    // 스크롤 이벤트 리스너 추가 (passive 제거하여 더 확실하게)
-    window.addEventListener('scroll', handleScroll, { passive: false });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
-  const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    console.log('🎯 getProgressContainerTop 함수 호출됨!'); // 함수 호출 확인
-    
-    const maxTop = 235;   // 초기 위치 (스크롤 0일 때)
-    const minTop = 80;    // 헤더 바로 아래 위치 (스크롤 시)
-    
-    // scrollY가 undefined나 null인 경우 기본값 사용
-    const currentScrollY = scrollY || 0;
-    
-    // 실시간 디버깅용 로그 - minTop 반영 여부 확인
-    console.log('=== SCROLL DEBUG ===');
-    console.log('Current Scroll Y:', currentScrollY);
-    console.log('MaxTop:', maxTop, 'MinTop:', minTop);
-    console.log('Scroll threshold (200px):', currentScrollY >= 200 ? 'OVER' : 'UNDER');
-    console.log('Type of currentScrollY:', typeof currentScrollY);
-    console.log('Is currentScrollY >= 200?', currentScrollY >= 200);
-    
-    // 스크롤이 0일 때는 maxTop 위치에 고정
-    if (currentScrollY <= 0) {
-      console.log('✅ Condition: Scroll <= 0, Returning maxTop:', maxTop);
-      return maxTop;
-    }
-    
-    // 스크롤이 200px 이상일 때는 minTop 위치에 고정 (헤더 바로 아래)
-    if (currentScrollY >= 200) {
-      console.log('🎯 Condition: Scroll >= 200, Returning minTop:', minTop);
-      console.log('🔍 minTop이 실제로 반영되는지 확인:', minTop);
-      return minTop;
-    }
-    
-    // 0~200px 사이에서는 선형적으로 이동
-    const progress = currentScrollY / 200;
-    const calculatedTop = maxTop - (progress * (maxTop - minTop));
-    console.log('📊 Condition: 0 < Scroll < 200');
-    console.log('Progress:', progress.toFixed(3));
-    console.log('Calculated Top:', calculatedTop.toFixed(2));
-    console.log('==================');
-    return calculatedTop;
-  };
+
 
   // 각 섹션별 ref (리스트 아이템 클릭했을 때 이동값값)
   const sectionRefs = {
@@ -892,14 +839,9 @@ const OwnerEditMyPage = () => {
           value={otherServiceValue} 
           onChange={e => setOtherServiceValue(e.target.value)}  />}
         </EditContainer>
-      </MainContainer>
-
-                    {/* 우측 진행상황/저장 - MainContainer 밖으로 이동 */}
-        <ProgressContainer 
-          style={{ 
-            top: `${getProgressContainerTop()}px`, // 원래 로직으로 복원
-          }}
-        >
+        
+        {/* 우측 진행상황/저장 */}
+        <ProgressContainer>
         <SaveButton onClick={handleSave}>
           저장하기
         </SaveButton>
@@ -921,6 +863,7 @@ const OwnerEditMyPage = () => {
           ))}
         </ProgressList>
       </ProgressContainer>
+      </MainContainer>
       </ContentSection>
         {/* {showModal && (
             <ModalOverlay>
@@ -975,16 +918,11 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 10px;
+  display: flex;
+  gap: 40px;
   margin-top: 10px;
   position: relative;
-// background-color: #F4F4F4;
-  // gap: 10px;
-  // margin-top: 10px;
-  // width: 100%;
-  // position: relative;
+  align-items: flex-start;
 `;
 
 const EditContainer = styled.div`
@@ -993,9 +931,8 @@ const EditContainer = styled.div`
   padding: 50px 117px;
   align-items: start;
   background: #F4F4F4;
-  top: 148px;
-  left: 30px;
   border-radius: 5px;
+  flex: 1;
 `;
 
 const EditTitle = styled.div`
@@ -1056,16 +993,16 @@ const ColumnLayout = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: fixed;
-  right: 35px;
+  position: sticky;
+  top: 80px;
   width: 350px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   z-index: 999;
-  transition: top 0.2s ease-out; // 부드러운 움직임을 위한 transition
-  will-change: top; // 성능 최적화
+  max-height: calc(100vh - 100px);
+  flex-shrink: 0;
 `;
 
 const ProgressList = styled.ul`

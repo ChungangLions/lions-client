@@ -441,6 +441,7 @@ const ProposalDetail = () => {
     try {
       const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
+
       setIsEditMode(false);
       openModal('제안서가 저장되었어요.\n 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {

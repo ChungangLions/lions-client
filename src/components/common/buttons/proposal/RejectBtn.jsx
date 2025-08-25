@@ -1,18 +1,36 @@
 // 제안서 상태 변경: "REJECTED"
 import React from 'react'
 import styled from 'styled-components';
-import { editProposalStatus } from '../../../../services/apis/proposalAPI';
+import { editProposalStatus, getProposal } from '../../../../services/apis/proposalAPI';
 
 
-const RejectBtn = ({ proposalId, onReject }) => {
+const RejectBtn = ({ proposalId, onReject, onShowModal }) => {
      const handleReject = async () => {
          try {
+             // 현재 제안서 상태 확인
+             const proposal = await getProposal(proposalId);
+             
+             // 이미 제휴가 체결된 상태라면 모달 표시
+             if (proposal.current_status === 'PARTNERSHIP') {
+                 if (onShowModal) {
+                     onShowModal('이미 제휴 체결된 제안서입니다.');
+                 } else {
+                     alert('이미 제휴 체결된 제안서입니다.');
+                 }
+                 return;
+             }
+             
              await editProposalStatus(proposalId, { status: 'REJECTED', comment: '' });
              if (onReject) {
                  onReject();
              }
          } catch (error) {
              console.error('제안서 거절 실패:', error);
+             if (onShowModal) {
+                 onShowModal('제안서 거절에 실패했습니다.');
+             } else {
+                 alert('제안서 거절 실패');
+             }
          }
      }
      

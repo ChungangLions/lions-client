@@ -1,12 +1,25 @@
 // 제안서 상태 변경 : "DRAFT"
 import React from 'react'
 import styled from 'styled-components';
-import { editProposalStatus } from '../../../../services/apis/proposalAPI';
+import { editProposalStatus, getProposal } from '../../../../services/apis/proposalAPI';
 
 
-const AcceptBtn = ({ proposalId, onAccept }) => {
+const AcceptBtn = ({ proposalId, onAccept, currentStatus, onShowModal }) => {
      const handleAccept = async () => {
          try {
+             // 현재 제안서 상태 확인
+             const proposal = await getProposal(proposalId);
+             
+             // 이미 제휴가 체결된 상태라면 모달 표시
+             if (proposal.current_status === 'PARTNERSHIP') {
+                 if (onShowModal) {
+                     onShowModal('이미 제휴 체결된 제안서입니다.');
+                 } else {
+                     alert('이미 제휴 체결된 제안서입니다.');
+                 }
+                 return;
+             }
+             
              await editProposalStatus(proposalId, { status: 'PARTNERSHIP', comment: '' });
              
              if (onAccept) {
@@ -15,7 +28,11 @@ const AcceptBtn = ({ proposalId, onAccept }) => {
              
          } catch (error) {
              console.error('제휴 체결 실패:', error);
-             alert('제휴체결실패');
+             if (onShowModal) {
+                 onShowModal('제휴 체결에 실패했습니다.');
+             } else {
+                 alert('제휴체결실패');
+             }
          }
      }
      
