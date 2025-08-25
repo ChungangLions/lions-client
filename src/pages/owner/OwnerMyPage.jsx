@@ -287,6 +287,7 @@ const OwnerMyPage = () => {
                   children={type} 
                   IconComponent={IconComponent}
                   disabled={true}
+                  customColor="#1A2D06"
                 />
               ))
             ) : (
