@@ -31,7 +31,7 @@ const ButtonWrapper = styled.div`
 width: 100%;
 position: relative;
 border-radius: 5px;
-border: 1px solid #898989;
+border: 1px solid none;
 box-sizing: border-box;
 height: 45px;
 display: flex;
@@ -41,7 +41,8 @@ justify-content: center;
 padding: 13px 81px;
 text-align: left;
 font-size: 16px;
-color: #898989;
+color: #e9f4d0;
 font-family: Pretendard;
 cursor: pointer;
+background-color: #70af19;
 `;
