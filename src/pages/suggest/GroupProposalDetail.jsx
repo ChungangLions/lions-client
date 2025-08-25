@@ -111,7 +111,9 @@ const GroupProposalDetail = () => {
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
-  const [contact, setContact] = useState(profileData.contact);
+  const [contact, setContact] = useState(profileData?.contact);
+
+  console.log("연락처", groupProfile?.contact);
 
   const [isEditMode, setIsEditMode] = useState(false);
 

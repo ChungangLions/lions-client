@@ -111,14 +111,6 @@ const OwnerReceivedProposalDetail = () => {
     );
   }
 
-  const formattedTimeWindows = Array.isArray(newGroupProposal.time_windows)
-  ? newGroupProposal.time_windows
-      .map(
-        (time) =>
-          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-      )
-      .join(" / ")
-  : '';
 
 
   // 발신자 정보: 학생 단체

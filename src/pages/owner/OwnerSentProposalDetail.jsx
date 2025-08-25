@@ -28,15 +28,37 @@ const OwnerSentProposalDetail = () => {
 
   console.log("넘어온데이터", proposalOrganizations);
 
-  
-  const formattedTimeWindows = Array.isArray(proposalOrganizations.time_windows)
-  ? proposalOrganizations.time_windows
-      .map(
-        (time) =>
-          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-      )
-      .join(" / ")
-  : '';
+  // time_windows 객체를 문자열로 변환하는 함수
+  const formatTimeWindows = (timeWindows) => {
+    if (!timeWindows) return '(입력되지 않음)';
+    
+    if (typeof timeWindows === 'string') {
+      return timeWindows;
+    }
+    
+    if (Array.isArray(timeWindows)) {
+      return timeWindows.map(time => {
+        if (typeof time === 'string') return time;
+        if (typeof time === 'object') {
+          const days = Array.isArray(time.days) 
+            ? time.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+            : typeof time.days === 'string' ? time.days : '';
+          return `${days} ${time.start || ''} ~ ${time.end || ''}`;
+        }
+        return '';
+      }).join(" / ");
+    }
+    
+    if (typeof timeWindows === 'object') {
+      const days = Array.isArray(timeWindows.days) 
+        ? timeWindows.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+        : typeof timeWindows.days === 'string' ? timeWindows.days : '';
+      return `${days} ${timeWindows.start || ''} ~ ${timeWindows.end || ''}`;
+    }
+    
+    return '(입력되지 않음)';
+  };
+
 
 
 
@@ -102,7 +124,7 @@ const OwnerSentProposalDetail = () => {
             partnership_type: proposalOrganizations.partnership_type,
             apply_target: proposalOrganizations.apply_target,
             benefit_description: proposalOrganizations.benefit_description,
-            time_windows: formattedTimeWindows,
+            time_windows: proposalOrganizations?.time_windows,
             partnership_start: proposalOrganizations.partnership_start,
             partnership_end: proposalOrganizations.partnership_end,
             contact_info: proposalOrganizations.contact_info,
@@ -379,7 +401,7 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposalOrganizations.time_windows || '(입력되지 않음)'}</p>
+                        <p>{formatTimeWindows(proposalOrganizations.time_windows)}</p>
                       </ConditionContent>
                     </ConditionItem>
                     </ConditionGroup>

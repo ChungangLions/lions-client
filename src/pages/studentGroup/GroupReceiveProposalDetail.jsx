@@ -18,6 +18,8 @@ import useUserStore from '../../stores/userStore';
 import AcceptBtn from '../../components/common/buttons/proposal/AcceptBtn';
 import RejectBtn from '../../components/common/buttons/proposal/RejectBtn';
 import GroupCard from '../../components/common/cards/GroupCard';
+import EditBtn from '../../components/common/buttons/EditBtn';
+import SendProposalBtn from '../../components/common/buttons/SendProposalBtn';
 
 const GroupReceiveProposalDetail = () => {
   const location = useLocation();
@@ -167,6 +169,21 @@ const GroupReceiveProposalDetail = () => {
 
   // 뒤로가기
   const handleBack = () => {
+    navigate('/student-group/mypage/received-suggest');
+  };
+
+  // 수정하기 버튼 클릭 핸들러
+  const handleEdit = () => {
+    // 제안서 수정 페이지로 이동
+    navigate(`/suggest/group-proposal/${id}`, {
+      state: { proposal: proposalData, isEdit: true }
+    });
+  };
+
+  // 전송하기 버튼 클릭 핸들러
+  const handleSend = () => {
+    // 제안서 전송 로직
+    alert('제안서가 전송되었습니다.');
     navigate('/student-group/mypage/received-suggest');
   };
 
@@ -341,20 +358,28 @@ const GroupReceiveProposalDetail = () => {
                         store={mappedOwnerProfile} />
           </SelectedCardWrapper>        
           <ButtonWrapper>
-            <RejectBtn 
-              proposalId={id} 
-              onReject={() => {
-
-                alert('제안서가 거절되었습니다.');
-              }} 
-            />
-              <AcceptBtn 
-              proposalId={id} 
-              onAccept={() => {
-                alert('제휴가 체결되었습니다.');
-              }} 
-            />
-            </ButtonWrapper>
+            {proposalData?.status === 'DRAFT' ? (
+              <>
+                <EditBtn onClick={handleEdit} />
+                <SendProposalBtn onClick={handleSend} />
+              </>
+            ) : (
+              <>
+                <RejectBtn 
+                  proposalId={id} 
+                  onReject={() => {
+                    alert('제안서가 거절되었습니다.');
+                  }} 
+                />
+                <AcceptBtn 
+                  proposalId={id} 
+                  onAccept={() => {
+                    alert('제휴가 체결되었습니다.');
+                  }} 
+                />
+              </>
+            )}
+          </ButtonWrapper>
             <CloseBtn onClick={handleBack}>닫기</CloseBtn>
           
         </ReceiverWrapper>
