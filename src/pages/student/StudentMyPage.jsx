@@ -182,7 +182,7 @@ const RecommendList = styled.div`
 const ProfileImg = styled.div`
   width: 180px;
   height: 180px;
-  background: #C9C9C9;
+  background: transparent;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
@@ -191,7 +191,7 @@ const ProfileImg = styled.div`
 `;
 
 const Name = styled.div`
-    color: #000;
+    color: #1A2D06;
     text-align: center;
     font-family: Pretendard;
     font-size: 24px;
@@ -201,7 +201,7 @@ const Name = styled.div`
 `;
 
 const School = styled.div`
-    color: #000;
+    color: #1A2D06;
     text-align: center;
     font-family: Pretendard;
     font-size: 16px;
@@ -252,6 +252,7 @@ const ShopCard = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+    cursor: pointer;
 `;
 
 const ShopImg = styled.img`
@@ -263,7 +264,7 @@ const ShopImg = styled.img`
 `;
 
 const ShopName = styled.div`
-    color: #000;
+    color: #1A2D06;
     font-family: Pretendard;
     font-size: 16px;
     font-style: normal;

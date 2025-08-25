@@ -138,21 +138,27 @@ const OwnerHome = () => {
         </SelectWrapper>
       </SelectContainer>
       <CardListGrid> 
-        {filteredOrganizations.map((organization) => (
-          <OrgCardSection
-            key={organization.id}
-            onClick={handleCardClick}
-            cardType={'home'}
-            ButtonComponent={() => (
-              <FavoriteBtn 
-                userId={organization.user} 
-                isLikeActive={likeStores.includes(organization.user)} // 추가!
-              />
-            )}
-            organization={organization}
-            userId={userId}
-          />
-        ))}
+        {filteredOrganizations.length === 0 ? (
+          <EmptyResultContainer>
+            <EmptyResultText>검색 결과가 없습니다.</EmptyResultText>
+          </EmptyResultContainer>
+        ) : (
+          filteredOrganizations.map((organization) => (
+            <OrgCardSection
+              key={organization.id}
+              onClick={handleCardClick}
+              cardType={'home'}
+              ButtonComponent={() => (
+                <FavoriteBtn 
+                  userId={organization.user} 
+                  isLikeActive={likeStores.includes(organization.user)} // 추가!
+                />
+              )}
+              organization={organization}
+              userId={userId}
+            />
+          ))
+        )}
       </CardListGrid>
       <EmptyRow />
     </PageConatainer>
@@ -231,4 +237,20 @@ max-width: 60px;
 const EmptyRow = styled.div` // 여백 주기 위한 임시방편
 display: flex;
 height: 50px;
+`;
+
+const EmptyResultContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+  grid-column: 1 / -1;
+`;
+
+const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;

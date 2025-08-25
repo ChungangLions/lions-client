@@ -187,20 +187,21 @@ const GroupReceiveProposalDetail = () => {
     );
   }
 
-    const formattedTimeWindows = Array.isArray(proposalData.time_windows )
-  ? proposalData.time_windows 
-      .map(
-        (time) =>
-          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-      )
-      .join(" / ")
-  : '';
-
     const handleCardClick = (id) => {
     navigate(`/student-group/store-profile/${id}`, {
       state: { userType: "studentOrganization" }
     });
   };
+
+
+  // GroupCard props 맞추기
+  const mappedOwnerProfile = ownerProfile ? {
+    name: ownerProfile.profile_name,
+    caption: ownerProfile.comment,
+    storeType: ownerProfile.business_type
+  } : null;
+
+
 
   return (
     <ProposalContainer>
@@ -287,13 +288,18 @@ const GroupReceiveProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{formattedTimeWindows|| '(입력되지 않음)'}</p>
+                        <p>{proposalData.time_windows|| '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposalData.partnership_period || '(입력되지 않음)'}</p>
+                         <p>
+                          {proposalData.period_start && proposalData.period_end
+                            ? `${proposalData.period_start} ~ ${proposalData.period_end}`
+                            : "(입력되지 않음)"}
+                        </p>
+
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -301,9 +307,11 @@ const GroupReceiveProposalDetail = () => {
               </DetailBox>
               <DetailBox>
                 <Title> <div>연락처</div> </Title>
+                <ConditionsBox>
                 <ConditionContent>
                   <p>{proposalData.contact_info || '(입력되지 않음)'}</p>
                 </ConditionContent>
+                </ConditionsBox>
               </DetailBox>
             </DetailSection>
           </SectionWrapper>
@@ -318,9 +326,9 @@ const GroupReceiveProposalDetail = () => {
           <SelectedCardWrapper $isSelected={true}>
             {/* ownerProfile 띄우기 */}
             <GroupCard 
-                        key={ownerProfile.id}
-                        imageUrl={ownerProfile.photo}
-                        onClick={() => handleCardClick(ownerProfile.id)}
+                        key={ownerProfile?.id}
+                        imageUrl={ownerProfile?.photos?.[0]?.image}
+                        onClick={() => ownerProfile?.user && handleCardClick(ownerProfile.user)} // userId
                         // isBest={ownerProfile.isBest}
                         // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
                         // ButtonComponent={() => (
@@ -330,7 +338,7 @@ const GroupReceiveProposalDetail = () => {
                         //   //   onLikeChange={handleLikeChange}
                         //   // />
                         // )}
-                        store={ownerProfile} />
+                        store={mappedOwnerProfile} />
           </SelectedCardWrapper>        
           <ButtonWrapper>
               <AcceptBtn 
@@ -529,7 +537,7 @@ align-items: center;
 gap: 25px;
 text-align: left;
 font-size: 20px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 `;
 
@@ -549,7 +557,7 @@ padding: 10px;
 box-sizing: border-box;
 justify-content: center;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 text-align: left;
 font-family: Pretendard;
 
@@ -594,7 +602,7 @@ padding: 10px;
 box-sizing: border-box;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 `;
 

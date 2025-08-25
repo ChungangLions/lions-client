@@ -14,10 +14,13 @@ const OwnerWishlist = () => {
   const navigate = useNavigate();
   const { userId } = useUserStore();
   const { organizations, fetchAndSetOrganizations } = useStudentOrgStore();
+  const userType = "owner";
 
   const handleCardClick = (organization) => {
-    navigate(`/owner/student-group-profile/${organization.id}`, { state: { organization } });
+    navigate(`/owner/mypage/wishlist/student-group-profile/${organization.id}`, { state: { organization, userType }});
   };
+
+  console.log("userType", userType);
 
   const [likeStores, setLikeStores] = useState([]);
   
@@ -42,22 +45,28 @@ const OwnerWishlist = () => {
           <NumText>총 {likedOrganizations.length}개</NumText>
           <CardWrapper>
         <CardListGrid> 
-          {likedOrganizations.map((organization) => (
-            <OrgCardSection
-              key={organization.id}
-              onClick={handleCardClick}
-              cardType={'home'}
-              ButtonComponent={() => (
-                <FavoriteBtn 
-                  userId={organization.user} 
-                  isLikeActive={likeStores.includes(organization.user)} // 추가!
-                />
-              )}
-              organization={organization}
-              userId={userId}
-            />
-            ))}
-          </CardListGrid>
+          {likedOrganizations.length === 0 ? (
+            <EmptyResultContainer>
+              <EmptyResultText>찜한 항목이 없습니다.</EmptyResultText>
+            </EmptyResultContainer>
+          ) : (
+            likedOrganizations.map((organization) => (
+              <OrgCardSection
+                key={organization.id}
+                onClick={handleCardClick}
+                cardType={'home'}
+                ButtonComponent={() => (
+                  <FavoriteBtn 
+                    userId={organization.user} 
+                    isLikeActive={likeStores.includes(organization.user)} // 추가!
+                  />
+                )}
+                organization={organization}
+                userId={userId}
+              />
+            ))
+          )}
+        </CardListGrid>
           </CardWrapper>
         <EmptyRow />
       </ContentContainer>
@@ -84,6 +93,7 @@ width: 100%;
 flex-direction: column;
 align-items: flex-start;
 gap: 15px;
+padding: 0 40px;
 `;
 
 const NumText = styled.div`
@@ -139,4 +149,20 @@ max-width: 60px;
 const EmptyRow = styled.div` // 여백 주기 위한 임시방편
 display: flex;
 height: 50px;
+`;
+
+const EmptyResultContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+  grid-column: 1 / -1;
+`;
+
+const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;

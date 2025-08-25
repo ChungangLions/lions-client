@@ -83,7 +83,9 @@ const OwnerMyPage = () => {
         setUserRecommends(recommendsData.recommendations_received_count);
 
         const send = await getOwnerPartnershipType(ownerId);
-        const receive = await getOwnerPartnershipType(ownerId);
+        console.log("send data(사장님이 보낸 제안 데이터): ", send);
+        const receive = await getOwnerPartnershipType(ownerId, 'received');
+        console.log("receive data(사장님이 보낸 제안 데이터): ", receive);
         const record = (send || []).filter(p => p.status === "PARTNERSHIP").length + (receive|| []).filter(p => p.status === "PARTNERSHIP").length;
         setPartnershipType(send[0].partnership_type);
         setUserRecord(record);
@@ -98,8 +100,9 @@ const OwnerMyPage = () => {
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
-  CAFE: '카페',
-  BAR: '술집',
+  CAFE: '카페 및 디저트',
+  BAR: '주점',
+  OTHER: '기타',
   };
 
   const formattedPhotos = (profileData?.photos || []).map(photo => ({
@@ -442,7 +445,7 @@ const TypeCardList = styled.div`
 const TypeCard = styled.div`
   width: 122px;
   height: 122.04px;
-  border: 0.46px solid #000000;
+  border: 0.46px solid #1A2D06000;
   border-radius: 4.55px;
   display: flex;
   align-items: center;

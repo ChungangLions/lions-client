@@ -8,15 +8,17 @@ import CardSection from '../../components/common/cards/OrgCardSection';
 import EditBtn from '../../components/common/buttons/EditBtn';
 import SaveBtn from '../../components/common/buttons/SaveBtn';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import Modal from '../../components/common/buttons/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
+import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import createProposal, { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
+import createProposal, { editProposal, editProposalStatus, getProposal } from '../../services/apis/proposalAPI';
 import useUserStore from '../../stores/userStore';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import GroupCard from '../../components/common/cards/GroupCard';
@@ -34,6 +36,11 @@ const GroupProposalDetail = () => {
   console.log(userId);
 
   //const { storeName, contactInfo } = useOwnerProfile();
+
+  // 모달 상태 관리
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [proposalStatus, setProposalStatus] = useState('');
 
   // 현재 로그인된 사용자 정보 불러오기
   const [ groupProfile, setGroupProfile] = useState(null);
@@ -62,6 +69,21 @@ const GroupProposalDetail = () => {
     }
   }, [userId]);
 
+  // 제안서 상태 가져오기
+  useEffect(() => {
+    const fetchProposalStatus = async () => {
+      if (proposal?.id) {
+        try {
+          const proposalData = await getProposal(proposal.id);
+          setProposalStatus(proposalData.status);
+        } catch (error) {
+          console.error('제안서 상태 조회 실패:', error);
+        }
+      }
+    };
+    fetchProposalStatus();
+  }, [proposal?.id]);
+
   const navigate = useNavigate();
   const handleCardClick = (organization, id) => {
     navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
@@ -75,8 +97,17 @@ const GroupProposalDetail = () => {
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
     benefitDescription: '',
-    timeWindows: '',
-    partnershipPeriod: ''
+    timeWindows: ''
+  });
+
+  // 제휴 기간 (PeriodPicker용)
+  const [partnershipPeriod, setPartnershipPeriod] = useState({
+    startYear: '',
+    startMonth: '',
+    startDay: '',
+    endYear: '',
+    endMonth: '',
+    endDay: ''
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
@@ -85,6 +116,16 @@ const GroupProposalDetail = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [proposalId, setProposalId] = useState(proposal?.id || null);
+
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
 
   // 제안서 데이터가 있으면 초기값 설정
   useEffect(() => {
@@ -106,7 +147,18 @@ const GroupProposalDetail = () => {
         setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
       }
       if (proposal.partnership_period) {
-        setPartnershipConditions(prev => ({ ...prev, partnershipPeriod: proposal.partnership_period }));
+        // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
+        const periodMatch = proposal.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
+        if (periodMatch) {
+          setPartnershipPeriod({
+            startYear: periodMatch[1],
+            startMonth: periodMatch[2],
+            startDay: periodMatch[3],
+            endYear: periodMatch[4],
+            endMonth: periodMatch[5],
+            endDay: periodMatch[6]
+          });
+        }
       }
       if (proposal.contact_info) {
         setContact(proposal.contact_info);
@@ -143,6 +195,25 @@ const GroupProposalDetail = () => {
     }));
   };
 
+  // 제휴 기간 변경 핸들러
+  const handlePeriodChange = (field, value) => {
+    setPartnershipPeriod(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // 제휴 기간을 문자열로 변환하는 함수
+  const formatPartnershipPeriod = () => {
+    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
+  };
+
   // 수정하기
   const handleEdit = async () => {
     
@@ -152,7 +223,7 @@ const GroupProposalDetail = () => {
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
+      partnership_period: formatPartnershipPeriod(),
       contact_info: contact,
       title: '제안서',
       contents: '제휴 내용',
@@ -172,6 +243,12 @@ const GroupProposalDetail = () => {
   // 전송하기 누르면 필드 다 채워졌는지 확인 후 제안서 생성
   const handleSend = async () => {
     try {
+      // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
+      if (proposalStatus && proposalStatus !== 'DRAFT') {
+        openModal('이미 전송된 제안서이에요');
+        return;
+      }
+
       // **저장하기는 필드 검증 필요 없음 
       if (selectedPartnershipTypes.length === 0) {
         alert('제휴 유형을 선택해주세요.');
@@ -181,7 +258,7 @@ const GroupProposalDetail = () => {
       if (!partnershipConditions.applyTarget || 
           !partnershipConditions.benefitDescription || 
           !partnershipConditions.timeWindows || 
-          !partnershipConditions.partnershipPeriod) {
+          !formatPartnershipPeriod()) {
         alert('제휴 조건을 모두 입력해주세요.');
         return;
       }
@@ -197,7 +274,7 @@ const GroupProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
         contact_info: contact || "", // 연락처
 
       };
@@ -209,13 +286,15 @@ const GroupProposalDetail = () => {
               // 제안서 생성이 안된 상태라면 제안서 생성 api 호출
               const response = await createProposal(createData); // 제안서 생성
               setProposalId(response.id)
-              alert('제안서가 전송되었습니다.');
+              openModal('제안서가 전송되었습니다.');
               const statusData = {
                 status: "UNREAD",
                 comment: ""
               };
               const status = await editProposalStatus(response.id, statusData);
               console.log("제안서아이디", response.id);
+              // 제안서 상태 업데이트
+              setProposalStatus('UNREAD');
             } else {
               // 제안서 생성이 된 상태라면 제안서 상태 변경 api 호출
               const statusData = {
@@ -223,8 +302,10 @@ const GroupProposalDetail = () => {
                 comment: ""
               };
               const response = await editProposalStatus(proposalId, statusData);
-              alert('제안서가 전송되었습니다.');
+              openModal('제안서가 전송되었습니다.');
               console.log("제안서 상태 변경 완료", response);
+              // 제안서 상태 업데이트
+              setProposalStatus('UNREAD');
             }  
     } catch (error) {
       console.error('제안서 생성 오류:', error);
@@ -256,7 +337,7 @@ const GroupProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
         contact_info: contact || '', // 연락처
         
       };
@@ -267,6 +348,7 @@ const GroupProposalDetail = () => {
     try {
       const response = await createProposal(createData);
       setProposalId(response.id);
+      openModal('제안서가 저장되었어요. <br /> MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -422,60 +504,54 @@ console.log(groupProfile);
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 대상</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.applyTarget}
-                        onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>혜택 내용</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 아메리카노 10% 할인" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.benefitDescription}
-                        onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 평일 13:00 - 15:00" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.timeWindows}
-                        onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>제휴 기간</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.partnershipPeriod}
-                        onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
+                  <ConditionItem>
+                    <ConditionLabel>적용 대상</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.applyTarget}
+                      onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>혜택 내용</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 아메리카노 10% 할인" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.benefitDescription}
+                      onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>제휴 기간</ConditionLabel>
+                    <PeriodPicker 
+                      value={partnershipPeriod}
+                      onChange={handlePeriodChange}
+                      withDay={true}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>적용 시간대</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 평일 13:00 - 15:00" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.timeWindows}
+                      onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
 
       
 
-              <DetailBox>
+              <DetailBox style={{ marginTop: '10px' }}>
                 <Title> <div>연락처</div> </Title>
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
@@ -512,6 +588,7 @@ console.log(groupProfile);
                       
             </ButtonWrapper>
         </ReceiverSection>
+        <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
 
   )
@@ -611,7 +688,7 @@ align-items: center;
 gap: 25px;
 text-align: left;
 font-size: 20px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 `;
 
@@ -631,7 +708,7 @@ padding: 10px;
 box-sizing: border-box;
 justify-content: center;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 text-align: left;
 font-family: Pretendard;
 
@@ -680,7 +757,7 @@ padding: 10px;
 box-sizing: border-box;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 `;
 
@@ -776,21 +853,12 @@ align-self: stretch;
 border-radius: 5px;
 background-color: #fff;
 display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: space-between;
-padding: 15px 20px;
-gap: 40px;
-font-size: 16px;
-`;
-
-const ConditionGroup = styled.div`
-width: 50%;
-display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-gap: 39px;
+padding: 20px;
+gap: 25px;
+font-size: 16px;
 `;
 
 const ConditionItem = styled.div`
@@ -798,7 +866,7 @@ const ConditionItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 `;
 
@@ -813,6 +881,7 @@ color: #1a2d06;
 font-family: Pretendard;
 font-weight: 600;
 white-space: nowrap;
+margin-bottom: 4px;
 `;
 
 const ConditionTitle = styled.div`

@@ -671,7 +671,7 @@ const ModalBtn = styled.button`
     justify-content: center;
     align-items: center;
     gap: 10px;
-    border: 1px solid #000;
+    border: 1px solid #1A2D06;
     cursor: pointer;
     background: #F8F8F8;
 `;
@@ -731,7 +731,7 @@ const ModalContainer = styled.div`
 const ModalHeader = styled.div`
   font-size: 24px;
   font-weight: 600;
-  color: #000;
+  color: #1A2D06;
   margin-bottom: 10px;
 `;
 

@@ -87,7 +87,7 @@ export function mappedOrg(user, idx) {
       partnership_end: user?.partnership_end ? user.partnership_end.slice(0, 10) : (user?.modified_at?.slice(0, 7) || ""),
       term_start : user?.term_start,
       term_end : user?.term_end,
-      record: user?.partnership_count || 0, // 제휴 이력 추가
+      record: user?.partnership_count ?? 0, // 제휴 이력 추가
       photos: user?.photos?.map(photo => photo.image) // url 배열
     };
 }
@@ -99,4 +99,23 @@ export const editGroupProfile = async(id, data) => {
     const response = await authAxios.patch(`/api/profiles/student-groups/${id}/`, data);
     return response.data
     
+}
+
+export const getGroupLikes = async(id) => {
+  const token = localStorage.getItem("accessToken");
+  const authAxios = getAuthAxios(token); 
+
+  const response = await authAxios.get(`/api/accounts/users/${id}/likes-received-count`);
+  console.log(response.data);
+  return response.data;
+}
+
+
+export const getGroupPartnership = async(id, mode='send') => {
+  const token = localStorage.getItem("accessToken");
+  const authAxios = getAuthAxios(token); 
+
+  const response = await authAxios.get(`/api/proposals/${mode}/${id}`);
+  console.log(response.data);
+  return response.data;
 }

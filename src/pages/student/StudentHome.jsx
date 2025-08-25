@@ -206,8 +206,13 @@ const StudentHome = () => {
         </SortSection> */}
       </SelectContainer>
       <GridContainer>
-        {filterdStores.map((store) => (
-                      <GroupCard 
+        {filterdStores.length === 0 ? (
+          <EmptyResultContainer>
+            <EmptyResultText>검색 결과가 없습니다.</EmptyResultText>
+          </EmptyResultContainer>
+        ) : (
+          filterdStores.map((store) => (
+            <GroupCard 
               key={store.id}
               imageUrl={store.photo}
               onClick={() => handleCardClick(store.id)}
@@ -222,7 +227,8 @@ const StudentHome = () => {
                 />
               )}
               store={store} />
-        ))}
+          ))
+        )}
       </GridContainer>
       <EmptyRow />
     </PageContainer>
@@ -276,7 +282,7 @@ align-items: center;
 justify-content: center;
 text-align: left;
 font-size: 16px;
-color: #000;
+color: #1A2D06;
 font-family: Pretendard;
 background-color: white;
 `;
@@ -288,7 +294,7 @@ align-items: center;
 justify-content: center;
 padding: 10px 0px;
 gap: 10px;
-min-width: 28px;
+min-width: 48px;
 max-width: 90px;
 `;
 
@@ -312,4 +318,20 @@ gap: 5px;
 const EmptyRow = styled.div` // 여백 주기 위한 임시방편
 display: flex;
 height: 50px;
+`;
+
+const EmptyResultContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+  grid-column: 1 / -1;
+`;
+
+const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;

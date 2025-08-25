@@ -2,13 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, children, message }) => {
   if (!isOpen) return null;
 
   const modalContent = (
     <Overlay onClick={onClose}>
       <ModalContainer>
         <ModalWrapper onClick={e => e.stopPropagation()}>
+          {message && (
+            <ModalContent>
+              <ModalMessage>{message}</ModalMessage>
+              <ModalButton onClick={onClose}>확인</ModalButton>
+            </ModalContent>
+          )}
           {children}
         </ModalWrapper>
       </ModalContainer>
@@ -26,7 +32,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(103, 103, 103, 0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,8 +52,8 @@ width: 100%;
 `;
 
 const ModalWrapper = styled.div`
- width: 546px; 
-  height: 280px; 
+ width: 500px; 
+  height: 250px; 
   background-color: #fff;
   border-radius: 5px;
   position: relative;
@@ -55,5 +61,37 @@ const ModalWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+`;
+
+const ModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 40px;
+`;
+
+const ModalMessage = styled.div`
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a2d06;
+  text-align: center;
+  line-height: 1.5;
+   white-space: pre-line;
+`;
+
+const ModalButton = styled.button`
+  width: 120px;
+  height: 40px;
+  background-color:#64a10f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
 `;

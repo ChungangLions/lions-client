@@ -153,7 +153,7 @@ const CardTitleRow = styled.div`
 `;
 
 const CardTitle = styled.div`
-    color: #000;
+    color: #1A2D06;
     font-size: 20px;
     font-style: normal;
     font-weight: 600;
@@ -171,7 +171,7 @@ const ButtonNumbers = styled.div`
 `;
 
 const CardSubtitle = styled.div`
-    color: #000;
+    color: #1A2D06;
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
