@@ -232,7 +232,7 @@ const formatDate = (dateString) => {
                     </NameWrapper>
                  
                   </TextWrapper>
-                  <ButtonWrapper>
+                  <ButtonWrapper status={proposal.status}>
                     {STATUS_MAP[proposal.status] || proposal.status}
                   </ButtonWrapper>
                 </ContentWrapper>
@@ -256,18 +256,19 @@ export default GroupSendSuggest
 
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`
-  width: 100%;
+
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  justify-content: start;
-  align-content: start;
-  column-gap: 20px;
-  row-gap: 20px;
+  justify-content: center;
+  align-content: center;
+  column-gap: 15px;
+  row-gap: 15px;
   text-align: left;
   font-size: 18px;
   color: #1A2D06;
   font-family: Pretendard;
+
 `;
 
 const ScrollSection = styled.div`
@@ -387,4 +388,39 @@ font-size: 16px;
 font-style: normal;
 font-weight: 400;
 line-height: normal;
+
+background-color: ${({ status }) => {
+    switch (status) {
+      case "PARTNERSHIP":
+        return "#70AF19"; 
+      case "REJECTED":
+        return "#E7E7E7"; 
+
+
+    }
+  }};
+
+  border: ${({ status }) => {
+    switch (status) {
+      case "PARTNERSHIP":
+        return "#70AF19"; 
+      case "REJECTED":
+        return "#E7E7E7"; 
+
+
+    }
+  }};
+
+color: ${({ status }) => {
+    switch (status) {
+      case "PARTNERSHIP":
+        return "#E9F4D0";
+        case "REJECTED":
+        return "white"; 
+
+      default:
+        return "#70AF19"; 
+    }
+  }};
+
 `;
