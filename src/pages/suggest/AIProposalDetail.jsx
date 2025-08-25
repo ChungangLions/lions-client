@@ -14,6 +14,7 @@ import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
+import DatePicker from '../../components/common/inputs/DatePicker';
 
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
@@ -30,6 +31,15 @@ const AIProposalDetail = () => {
   const { organization, proposalData, isAI: isAIFromState } = location.state || {};
   const isAI = typeof isAIFromState === 'boolean' ? isAIFromState : Boolean(proposalData); // proposalData 있으면 ai 돌렸다는거니까 isAI = true
   console.log(location.state);
+
+  const Week = {data: ['월', '화', '수', '목', '금', '토', '일']};
+  const Time = {
+    data: Array.from({ length: 48 }, (_, i) => {
+      const hour = String(Math.floor(i / 2)).padStart(2, "0");
+      const min = i % 2 === 0 ? "00" : "30";
+      return `${hour}:${min}`;
+    }), 
+  };
 
   const { storeName, contactInfo } = useOwnerProfile();
   console.log(contactInfo);
@@ -79,8 +89,11 @@ const AIProposalDetail = () => {
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
     benefitDescription: '',
-    timeWindows: ''
+    timeWindows: []
   });
+
+  // 시간대 상태 관리
+  const [busyHours, setBusyHours] = useState([]);
 
   // 제휴 기간 (PeriodPicker용)
   const [partnershipPeriod, setPartnershipPeriod] = useState({
@@ -101,21 +114,20 @@ const AIProposalDetail = () => {
   useEffect(() => {
     if (!proposalData) return;
 
-    // 제휴기간 형식 포맷팅
-    const formattedTimeWindows = Array.isArray(proposalData.time_windows)
-      ? proposalData.time_windows
-          .map(
-            (time) =>
-              `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-          )
-          .join(" / ")
-      : '';
-
     setPartnershipConditions({
       applyTarget: proposalData.apply_target || '',
       benefitDescription: proposalData.benefit_description || '',
-      timeWindows: formattedTimeWindows
+      timeWindows: proposalData.time_windows || []
     });
+
+    // 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
+    if (proposalData.time_windows && proposalData.time_windows.length > 0) {
+      const parsedTimeWindows = parseTimeWindowsToDatePicker(proposalData.time_windows);
+      setBusyHours(parsedTimeWindows);
+    } else {
+      // 기존 데이터가 없으면 기본 행 추가
+      setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
+    }
 
     // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
     if (proposalData.period_start && proposalData.period_end) {
@@ -152,6 +164,13 @@ const AIProposalDetail = () => {
     if (contactInfo) setContact(contactInfo);
   }, [proposalData, isAI]);
 
+  // 기본 시간대 행 추가 (컴포넌트 마운트 시 한 번만 실행)
+  useEffect(() => {
+    if (busyHours.length === 0) {
+      setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
+    }
+  }, []);
+
   // 수정모드 On/ off 
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -175,7 +194,7 @@ const AIProposalDetail = () => {
 
   // 수정 모드 토글 함수
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+    setIsEditMode(true);
   };
 
   // 제휴 조건 입력 
@@ -203,6 +222,115 @@ const AIProposalDetail = () => {
     }
     
     return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
+  };
+
+  // 제휴 기간 시작일을 파싱하는 함수
+  const formatPeriodStart = () => {
+    const { startYear, startMonth, startDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay) {
+      return '';
+    }
+    
+    return `${startYear}-${startMonth}-${startDay}`;
+  };
+
+  // 제휴 기간 종료일을 파싱하는 함수
+  const formatPeriodEnd = () => {
+    const { endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${endYear}-${endMonth}-${endDay}`;
+  };
+
+  // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
+  const parseTimeWindowsToDatePicker = (timeWindows) => {
+    if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
+      return [];
+    }
+
+    // 요일 매핑 함수
+    const mapDayToShort = (day) => {
+      const dayMap = {
+        '월요일': '월',
+        '화요일': '화',
+        '수요일': '수',
+        '목요일': '목',
+        '금요일': '금',
+        '토요일': '토',
+        '일요일': '일',
+        '월': '월',
+        '화': '화',
+        '수': '수',
+        '목': '목',
+        '금': '금',
+        '토': '토',
+        '일': '일'
+      };
+      return dayMap[day] || day;
+    };
+
+    let result = [];
+    let idCounter = 0;
+
+    timeWindows.forEach((window) => {
+      if (window.days && Array.isArray(window.days)) {
+        // 각 요일을 별도의 행으로 생성
+        window.days.forEach((day) => {
+          result.push({
+            id: idCounter++,
+            day: mapDayToShort(day),
+            start: window.start || '',
+            end: window.end || ''
+          });
+        });
+      } else if (window.days && window.days.length > 0) {
+        // 단일 요일인 경우
+        result.push({
+          id: idCounter++,
+          day: mapDayToShort(window.days[0]),
+          start: window.start || '',
+          end: window.end || ''
+        });
+      }
+    });
+
+    return result;
+  };
+
+  // DatePicker 형식을 시간대 데이터로 파싱하는 함수
+  const parseDatePickerToTimeWindows = (datePickerData) => {
+    if (!Array.isArray(datePickerData) || datePickerData.length === 0) {
+      return [];
+    }
+
+    return datePickerData
+      .filter(item => item.day && item.start && item.end)
+      .map(item => ({
+        days: [item.day], // 단일 요일을 배열로 변환
+        start: item.start,
+        end: item.end
+      }));
+  };
+
+  // 시간대 변경 핸들러
+  const handleDropdownChange = (index, field, value, setter) => {
+    setter(prev => prev.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // 시간대 행 추가 핸들러
+  const handleAddRow = (setter) => {
+    setter(prev => [...prev, { id: Date.now(), day: '', start: '', end: '' }]);
+  };
+
+  // 시간대 행 제거 핸들러
+  const handleRemoveRow = (index, setter) => {
+    setter(prev => prev.filter((_, i) => i !== index));
   };
   
   const openModal = (message) => {
@@ -250,9 +378,15 @@ const AIProposalDetail = () => {
   
         if (!partnershipConditions.applyTarget || 
             !partnershipConditions.benefitDescription || 
-            !partnershipConditions.timeWindows || 
             !formatPartnershipPeriod()) {
           alert('제휴 조건을 모두 입력해주세요.');
+          return;
+        }
+
+        // 시간대 데이터 검증
+        const validTimeWindows = parseDatePickerToTimeWindows(busyHours);
+        if (validTimeWindows.length === 0) {
+          alert('적용 시간대를 입력해주세요.');
           return;
         }
   
@@ -265,9 +399,10 @@ const AIProposalDetail = () => {
           recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
           partnership_type: selectedPartnershipTypes, // 제휴 유형 
           apply_target: partnershipConditions.applyTarget, // 적용 대상
-          time_windows: partnershipConditions.timeWindows, // 적용 시간대
+          time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
           benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-          partnership_period: formatPartnershipPeriod(), // 제휴 기간
+          period_start: formatPeriodStart(), // 제휴 기간 시작일
+          period_end: formatPeriodEnd(), // 제휴 기간 종료일
           contact_info: contact || contactInfo, // 연락처
         };
 
@@ -302,9 +437,10 @@ const AIProposalDetail = () => {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
-        time_windows: partnershipConditions.timeWindows, // 적용 시간대
+        time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: formatPartnershipPeriod(), // 제휴 기간
+        period_start: formatPeriodStart() || null,
+        period_end: formatPeriodEnd() || null,
         contact_info: contact || contactInfo, // 연락처
         title: "제안서",
         contents: "제휴 내용",
@@ -317,7 +453,7 @@ const AIProposalDetail = () => {
     try {
       const response = await editProposal(proposalId, createData); // "DRAFT"인 상태로 생성됨
       setIsEditMode(false);
-      openModal('제안서가 저장되었어요.\nMY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+      openModal('제안서가 저장되었어요.\n 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -477,14 +613,20 @@ const AIProposalDetail = () => {
                   </ConditionItem>
                   <ConditionItem>
                     <ConditionLabel>적용 시간대</ConditionLabel>
-                    <InputBox 
-                      defaultText="(예시) 평일 13:00 - 15:00" 
-                      width="100%"
-                      border="1px solid #E9E9E9"
-                      value={partnershipConditions.timeWindows}
-                      onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                      disabled={!isEditMode}
-                    />
+                    {busyHours.map((schedule, idx) => (
+                      <DatePicker
+                        key={schedule.id || idx}
+                        idx={idx}
+                        schedule={schedule}
+                        total={busyHours.length}
+                        onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                        onAdd={() => handleAddRow(setBusyHours)}
+                        onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                        dateData={Week}
+                        timeData={Time}
+                        disabled={!isEditMode}
+                      />
+                    ))}
                   </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
@@ -533,8 +675,11 @@ const AIProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
             />
             <ButtonWrapper>
-              <EditBtn onClick={() => {toggleEditMode(); }} isEditMode={isEditMode} />
-              <SaveBtn onClick={handleSave} />
+              {!isEditMode ? (
+                <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
+              ) : (
+                <SaveBtn onClick={handleSave} />
+              )}
               <SendProposalBtn onClick={handleSend}/>
             </ButtonWrapper>
           </ReceiverWrapper>

@@ -443,7 +443,7 @@ const SumContainer = styled.div`
   padding: 20px;
   // gap: 150px;
   border-radius: 5px;
-  border: 1px solid #898989;
+  border: 1px solid #BCBCBC;
 `;
 
 const SumBox = styled.div`
@@ -525,7 +525,7 @@ const StyledBtn = styled.button`
 
 const ButtonGroup = styled.div`
   position: absolute;
-  right: -5px;
+  right: 0px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
