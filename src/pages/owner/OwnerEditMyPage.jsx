@@ -20,6 +20,7 @@ import { IoIosClose } from "react-icons/io";
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["일반 음식점", "카페 및 디저트", "주점", "기타"] };
 const Day = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
+const Week = {data: ['주말', '평일']}
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
     const hour = String(Math.floor(i / 2)).padStart(2, "0");
@@ -259,7 +260,12 @@ const OwnerEditMyPage = () => {
 
     return data.reduce((acc, cur) => {
       const shortDay = shortDayMap[cur.day] || cur.day;
-      acc[shortDay] = `${cur.start}-${cur.end}`;
+      // start나 end가 비어있으면 null로 처리
+      if (!cur.start || !cur.end) {
+        acc[shortDay] = null;
+      } else {
+        acc[shortDay] = `${cur.start}-${cur.end}`;
+      }
       return acc;
     }, {});
   };
@@ -490,33 +496,77 @@ const OwnerEditMyPage = () => {
   };
 
   // ---- 우측 리스트 스크롤 구현 ----
-  useEffect(() => {       // 스크롤 위치 감지
-    const handleScroll = () => {
-      const newScrollY = window.scrollY;
-      setScrollY(newScrollY);
-      console.log('Scroll Y:', newScrollY); // 디버깅용
-    };
-
-    // 초기 스크롤 위치 설정
-    setScrollY(window.scrollY);
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = -130;  // 스크롤 시 화면 위로 올라갈 최대 거리
-    const maxTop = 250;   // 초기 위치
+  // useEffect(() => {       // 스크롤 위치 감지
+  //   const handleScroll = () => {
+  //     const newScrollY = window.scrollY;
+  //     setScrollY(newScrollY);
+  //     console.log('🔄 Scroll Y Updated:', newScrollY); // 디버깅용
+  //   };
+
+  //   // 초기 스크롤 위치 설정
+  //   setScrollY(window.scrollY);
+  //   console.log('🚀 Initial Scroll Y:', window.scrollY); // 초기값 확인
     
-    // scrollY가 undefined나 null인 경우 기본값 사용
-    const currentScrollY = scrollY || 0;
+  //   // 스크롤 이벤트 리스너 추가 (passive 제거하여 더 확실하게)
+  //   window.addEventListener('scroll', handleScroll, { passive: false });
+  //   return () => window.removeEventListener('scroll', handleScroll);
+  // }, []);
+
+  const getProgressContainerTop = React.useCallback(() => {
+    const maxTop = 235;
+    const minTop = 80;
+    if (scrollY <= 0) return maxTop;
+    if (scrollY >= 50) return minTop;
+    const progress = scrollY / 50;
+    return maxTop - progress * (maxTop - minTop);
+    console.log("ScrollY", scrollY);
+  }, [scrollY]);
+
+  // const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
+  //   console.log('🎯 getProgressContainerTop 함수 호출됨!'); // 함수 호출 확인
     
-    if (currentScrollY <= 0) return maxTop;
-    if (currentScrollY >= 500) return minTop;
+  //   const maxTop = 235;   // 초기 위치 (스크롤 0일 때)
+  //   const minTop = 80;    // 헤더 바로 아래 위치 (스크롤 시)
     
-    const progress = Math.min(currentScrollY / 500, 1);
-    return maxTop - (progress * (maxTop - minTop));
-  };
+  //   // scrollY가 undefined나 null인 경우 기본값 사용
+  //   const currentScrollY = scrollY || 0;
+    
+  //   // 실시간 디버깅용 로그 - minTop 반영 여부 확인
+  //   console.log('=== SCROLL DEBUG ===');
+  //   console.log('Current Scroll Y:', currentScrollY);
+  //   console.log('MaxTop:', maxTop, 'MinTop:', minTop);
+  //   console.log('Scroll threshold (200px):', currentScrollY >= 200 ? 'OVER' : 'UNDER');
+  //   console.log('Type of currentScrollY:', typeof currentScrollY);
+  //   console.log('Is currentScrollY >= 200?', currentScrollY >= 200);
+    
+  //   // 스크롤이 0일 때는 maxTop 위치에 고정
+  //   if (currentScrollY <= 0) {
+  //     console.log('✅ Condition: Scroll <= 0, Returning maxTop:', maxTop);
+  //     return maxTop;
+  //   }
+    
+  //   // 스크롤이 200px 이상일 때는 minTop 위치에 고정 (헤더 바로 아래)
+  //   if (currentScrollY >= 200) {
+  //     console.log('🎯 Condition: Scroll >= 200, Returning minTop:', minTop);
+  //     console.log('🔍 minTop이 실제로 반영되는지 확인:', minTop);
+  //     return minTop;
+  //   }
+    
+  //   // 0~200px 사이에서는 선형적으로 이동
+  //   const progress = currentScrollY / 200;
+  //   const calculatedTop = maxTop - (progress * (maxTop - minTop));
+  //   console.log('📊 Condition: 0 < Scroll < 200');
+  //   console.log('Progress:', progress.toFixed(3));
+  //   console.log('Calculated Top:', calculatedTop.toFixed(2));
+  //   console.log('==================');
+  //   return calculatedTop;
+  // };
 
   // 각 섹션별 ref (리스트 아이템 클릭했을 때 이동값값)
   const sectionRefs = {
@@ -546,6 +596,8 @@ const OwnerEditMyPage = () => {
   const isFilledButtons = obj => obj && Object.values(obj).some(Boolean);
   const isFilledCampus = val => typeof val === "string" && val.trim() !== "";  
   const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
+  // 한산한 시간대와 바쁜 시간대는 null 값이어도 허용
+  const isFilledOptionalSchedule = arr => Array.isArray(arr) && (arr.length === 0 || arr.some(v => v.day && v.start && v.end));
 
   const isSectionFilled = {
     photo: isFilledList(photoState),
@@ -559,8 +611,8 @@ const OwnerEditMyPage = () => {
     goal: isFilledButtons(goalButtons),
     revenue: isFilledNum(revenueValue),
     margin: isFilledText(marginValue),
-    busy: isFilledSchedule(busyHours),
-    free: isFilledSchedule(freeHours),
+    busy: isFilledOptionalSchedule(busyHours),
+    free: isFilledOptionalSchedule(freeHours),
     extra: isFilledButtons(serviceButtons),
   };
   const allFilled = Object.values(isSectionFilled).every(Boolean);
@@ -700,7 +752,7 @@ const OwnerEditMyPage = () => {
             <PhotoUploadWithInput
               maxCount={50}
               inputPlaceholder1="메뉴명"
-              inputPlaceholder2="0,000원"
+              inputPlaceholder2="0원"
               value={menuList}
               onChange={setMenuList}
               onDelete={handleMenuDelete}
@@ -734,7 +786,7 @@ const OwnerEditMyPage = () => {
 
           {/* 평균 인당 매출 & 마진율 */}
           <SubColumn>
-            <ColumnLayout>
+            <ColumnLayout style={{justifyContent: 'space-between'}}>
               <TitleContainer ref={sectionRefs.revenue}>
                 <Title> 평균 인당 매출 </Title>
                 <SubTitle> 고객 한 명당 평균 매출액을 입력해 주세요.</SubTitle>
@@ -748,7 +800,7 @@ const OwnerEditMyPage = () => {
                 width="351px"
               />
             </ColumnLayout>
-            <ColumnLayout>
+            <ColumnLayout style={{justifyContent: 'space-between'}}>
               <TitleContainer ref={sectionRefs.margin}>
                 <Title> 마진율 </Title>
                 <SubTitle>
@@ -774,38 +826,66 @@ const OwnerEditMyPage = () => {
                 <Title> 바쁜 시간대 </Title>
                 <SubTitle> 가게가 가장 바쁜 시간대를 입력해 주세요. </SubTitle>
               </TitleContainer>
-              {busyHours.map((schedule, idx) => (
+              {busyHours.length > 0 ? (
+                busyHours.map((schedule, idx) => (
+                  <DatePicker
+                    key={idx}
+                    idx={idx}
+                    schedule={schedule}
+                    total={busyHours.length}
+                    onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                    onAdd={() => handleAddRow(setBusyHours)}
+                    onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                    dateData={Week}
+                    timeData={Time}
+                  />
+                ))
+              ) : (
                 <DatePicker
-                  key={idx}
-                  idx={idx}
-                  schedule={schedule}
-                  total={busyHours.length}
+                  key={0}
+                  idx={0}
+                  schedule={null}
+                  total={1}
                   onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
                   onAdd={() => handleAddRow(setBusyHours)}
                   onRemove={(i) => handleRemoveRow(i, setBusyHours)}
-                  dateData={Day}
+                  dateData={Week}
                   timeData={Time}
                 />
-              ))}
+              )}
             </ColumnLayout>
             <ColumnLayout>
               <TitleContainer ref={sectionRefs.free}>
                 <Title> 한산한 시간대 </Title>
                 <SubTitle> 가게가 가장 한산한 시간대를 입력해 주세요.</SubTitle>
               </TitleContainer>
-              {freeHours.map((schedule, idx) => (
+              {freeHours.length > 0 ? (
+                freeHours.map((schedule, idx) => (
+                  <DatePicker
+                    key={idx}
+                    idx={idx}
+                    schedule={schedule}
+                    total={freeHours.length}
+                    onChange={(i, f, v) => handleDropdownChange(i, f, v, setFreeHours)}
+                    onAdd={() => handleAddRow(setFreeHours)}
+                    onRemove={(i) => handleRemoveRow(i, setFreeHours)}
+                    dateData={Week}
+                    timeData={Time}
+                  />
+                ))
+              ) : (
                 <DatePicker
-                  key={idx}
-                  idx={idx}
-                  schedule={schedule}
-                  total={freeHours.length}
+                  key={0}
+                  idx={0}
+                  schedule={null}
+                  total={1}
                   onChange={(i, f, v) => handleDropdownChange(i, f, v, setFreeHours)}
                   onAdd={() => handleAddRow(setFreeHours)}
                   onRemove={(i) => handleRemoveRow(i, setFreeHours)}
-                  dateData={Day}
+                  dateData={Week}
                   timeData={Time}
                 />
-              ))}
+              )}
             </ColumnLayout>
           </SubColumn>
 
@@ -830,8 +910,12 @@ const OwnerEditMyPage = () => {
         </EditContainer>
       </MainContainer>
 
-      {/* 우측 진행상황/저장 - MainContainer 밖으로 이동 */}
-      <ProgressContainer style={{ top: getProgressContainerTop() }}>
+                    {/* 우측 진행상황/저장 - MainContainer 밖으로 이동 */}
+        <ProgressContainer 
+          style={{ 
+            top: `${getProgressContainerTop()}px`, // 원래 로직으로 복원
+          }}
+        >
         <SaveButton onClick={handleSave}>
           저장하기
         </SaveButton>
@@ -984,13 +1068,13 @@ transition: background-color 0.1s;
 const ColumnLayout = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  // justify-content: space-between;
 `;
 
 const ProgressContainer = styled.div`
   position: fixed;
-  right: 45px;
-  width: 327px;
+  right: 35px;
+  width: 350px;
   height: 587px;
   display: flex;
   flex-direction: column;
@@ -1007,8 +1091,11 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-//   width: 197px;
   align-self: stretch;
+  position: relative;
+  // overflow-y: auto;
+  width: 100%;
+  height: 100%;
 //   display: flex;
 //   flex-direction: column;
 //   align-items: flex-start;
