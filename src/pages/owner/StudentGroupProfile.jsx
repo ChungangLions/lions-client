@@ -8,20 +8,26 @@ import DealHistoryCard from '../../components/common/cards/GroupProfile/DealHist
 import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
-import { fetchGroupProfile } from '../../services/apis/groupProfileAPI'
+import { fetchGroupProfile, getGroupPartnership } from '../../services/apis/groupProfileAPI'
+import { fetchProposal } from '../../services/apis/proposalAPI'
 import { fetchLikes, toggleLikes } from '../../services/apis/likesapi'
 import MenuGroup from '../../layout/MenuGroup'
 import Menu from '../../layout/Menu'
+import useVenueStore from '../../stores/venueStore'
 
 const StudentGroupProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const {userId} = useUserStore(); // 
   const location = useLocation();
   const userType = location.state?.userType || "student-group";
+  const previousPage = location.state?.previousPage || "";
   const [isLikeActive, setIsLikeActive] = useState(false);
   const { organization } = location.state || {};
-  console.log("location.state", location.state);
-  console.log("userType", userType);
+  const [partnershipData, setPartnershipData] = useState([]);
+  const [dealHistories, setDealHistories] = useState([]);
+  const { stores } = useVenueStore();
+  // console.log("location.state", location.state);
+  // console.log("userType", userType);
 
   const groupId = organization?.user || userId
 
@@ -37,15 +43,135 @@ const StudentGroupProfile = () => {
         { title: '희망 제휴 기간', content: `${partnershipStart} ~ ${partnershipEnd}`},
     ];
 
+    useEffect(() => {
+      const fetchPartnership = async () => { 
+        try {
+          const send = await getGroupPartnership(groupId);
+          const receive = await getGroupPartnership(groupId, 'received');
 
-    const dealHistories = [];
+          console.log("send data(단체가 보낸 제안 데이터): ", send);
+          console.log("receive data(단체가 보낸 제안 데이터): ", receive);
+          
+          // send와 receive 데이터를 합치고 PARTNERSHIP 상태인 것만 필터링
+          const sendPartnership = (send || []).filter(p => p.status === "PARTNERSHIP");
+          const receivePartnership = (receive || []).filter(p => p.status === "PARTNERSHIP");
+          
+          // 두 배열을 합쳐서 partnershipData에 저장
+          const combinedPartnership = [...sendPartnership, ...receivePartnership];
+          
+          console.log("제휴 체결된 데이터:", combinedPartnership);
+          setPartnershipData(combinedPartnership);
+        } catch (error) {
+          console.error("프로필 데이터 조회 실패:", error);
+        }
+      };
+      fetchPartnership();
+         }, [groupId]); 
 
-    // // api 연결 필요
-    // const dealHistories = [
-    //     { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
-    //     { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
-    //     { storeName: '가게명', period: '20nn.nn.nn~20nn.nn.nn' },
-    // ];
+           // 제휴 이력 데이터 처리 로직
+      useEffect(() => {
+        const processDealHistories = async () => {
+          try {
+            // 1. getGroupPartnership을 이용해서 send와 receive 데이터 가져오기
+            const sendData = await getGroupPartnership(groupId, 'send');
+            const receiveData = await getGroupPartnership(groupId, 'received');
+            
+            console.log("send 데이터:", sendData);
+            console.log("receive 데이터:", receiveData);
+            
+            // PARTNERSHIP 상태인 것만 필터링하여 proposalIds 리스트 생성
+            const sendPartnership = (sendData || []).filter(p => p.status === "PARTNERSHIP");
+            const receivePartnership = (receiveData || []).filter(p => p.status === "PARTNERSHIP");
+            
+            // proposalIds 리스트 생성 (id 값들만 추출)
+            const proposalIds = [
+              ...sendPartnership.map(p => p.id),
+              ...receivePartnership.map(p => p.id)
+            ].filter(id => id); // null/undefined 제거
+            
+            console.log("proposalIds:", proposalIds);
+            
+            if (proposalIds.length === 0) {
+              setDealHistories([]);
+              return;
+            }
+            
+            // 2. getProposal(id)를 이용해서 각 제안서의 상세 정보 가져오기
+            const proposalDetails = await Promise.all(
+              proposalIds.map(id => fetchProposal(id))
+            );
+            
+            console.log("proposalDetails:", proposalDetails);
+            
+                         // 3. 모든 proposal을 유지하고, STUDENT_GROUP이 아닌 쪽의 id를 추출
+             console.log("모든 proposalDetails:", proposalDetails);
+             
+                           // storeId 리스트 생성 (STUDENT_GROUP이 아닌 쪽의 id)
+              const storeIds = proposalDetails.map(proposal => {
+                const authorRole = proposal[0].author?.user_role;
+                const recipientRole = proposal[0].recipient?.user_role;
+                
+                // STUDENT_GROUP이 아닌 쪽의 id를 반환
+                if (authorRole === 'STUDENT_GROUP') {
+                  return proposal[0].recipient?.id;
+                } else if (recipientRole === 'STUDENT_GROUP') {
+                  return proposal[0].author?.id;
+                }
+                return null;
+              }).filter(id => id) // null 제거
+                .filter((id, index, self) => self.indexOf(id) === index); // 중복 제거
+            
+            console.log("storeIds:", storeIds);
+            
+            // 4. venueStore에서 일치하는 가게 정보 가져오기
+            const storeInfo = storeIds.map(storeId => {
+              const matchingStore = stores.find(store => store.id === storeId);
+              return {
+                storeId: storeId,
+                name: matchingStore?.name || '알 수 없는 가게',
+                photo: matchingStore?.photo || null
+              };
+            });
+            
+            console.log("storeInfo:", storeInfo);
+            
+                         // 5. 최종 dealHistories 리스트 생성
+             const finalDealHistories = proposalDetails.map(proposal => {
+               // 해당 proposal의 storeId 찾기 (STUDENT_GROUP이 아닌 쪽)
+               let storeId;
+               const authorRole = proposal[0].author?.user_role;
+               const recipientRole = proposal[0].recipient?.user_role;
+               const length = proposal.length || 0;
+               
+               if (authorRole === 'STUDENT_GROUP') {  
+                 storeId = proposal[0].recipient?.id;
+               } else if (recipientRole === 'STUDENT_GROUP') {
+                 storeId = proposal[0].author?.id;
+               }
+               
+               // storeInfo에서 해당 가게 정보 찾기
+               const store = storeInfo.find(s => s.storeId === storeId);
+               
+               return {
+                 storeName: store?.name || '알 수 없는 가게',
+                 period: `${proposal[length-1].period_start} ~ ${proposal[length-1].period_end}`,
+                 photo: store?.photo || null
+               };
+             });
+            
+            console.log("최종 dealHistories:", finalDealHistories);
+            setDealHistories(finalDealHistories);
+            
+          } catch (error) {
+            console.error("제휴 이력 처리 실패:", error);
+            setDealHistories([]);
+          }
+        };
+        
+        if (stores.length > 0) {
+          processDealHistories();
+        }
+      }, [stores, groupId]);
   
     //console.log(organization);
 
@@ -83,7 +209,7 @@ const StudentGroupProfile = () => {
 
   return (
     <PageContainer>
-      {userType === "owner" && <Menu />}
+      {userType === "owner" && previousPage === 'wishlist' && <Menu />}
       {userType === "student-group" && <MenuGroup />}
       <ContentContainer>
         <PageWrapper>
@@ -129,7 +255,7 @@ const StudentGroupProfile = () => {
             ) : (
               <StoreSection>
               {dealHistories.map((deal, index) => (
-                <DealHistoryCard key={index} storeName={deal.storeName} period={deal.period} />
+                <DealHistoryCard key={index} storeName={deal.storeName} period={deal.period} storeImage={deal.photo} />
               ))}
               </StoreSection>
             )}
@@ -177,6 +303,7 @@ width: 100%;
 flex-direction: column;
 align-items: flex-start;
 gap: 15px;
+padding: 0 40px;
 `;
 
 const PageWrapper = styled.div`
