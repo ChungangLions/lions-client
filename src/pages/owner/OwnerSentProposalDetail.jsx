@@ -27,14 +27,14 @@ const OwnerSentProposalDetail = () => {
   const navigate = useNavigate();
   const { proposalOrganizations } = location.state || {};
   
-  const Week = {data: ['월', '화', '수', '목', '금', '토', '일']};
-  const Time = {
-    data: Array.from({ length: 48 }, (_, i) => {
-      const hour = String(Math.floor(i / 2)).padStart(2, "0");
-      const min = i % 2 === 0 ? "00" : "30";
-      return `${hour}:${min}`;
-    }), 
-  };
+  // const Week = {data: ['월', '화', '수', '목', '금', '토', '일']};
+  // const Time = {
+  //   data: Array.from({ length: 48 }, (_, i) => {
+  //     const hour = String(Math.floor(i / 2)).padStart(2, "0");
+  //     const min = i % 2 === 0 ? "00" : "30";
+  //     return `${hour}:${min}`;
+  //   }), 
+  // };
 
   const { storeName } = useOwnerProfile();
   
@@ -43,7 +43,7 @@ const OwnerSentProposalDetail = () => {
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [busyHours, setBusyHours] = useState([]);
+  // const [busyHours, setBusyHours] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Modal state
@@ -504,165 +504,160 @@ const OwnerSentProposalDetail = () => {
     }
   };
 
-  // 수정 모드 토글 함수
-  const toggleEditMode = () => {
-    setIsEditMode(true);
-  };
+  // const mapPartnership = (selected) => {
+  //   const typeMap = {
+  //     '할인형': 'DISCOUNT',
+  //     '타임형': 'TIME',
+  //     '리뷰형': 'REVIEW',
+  //     '서비스제공형': 'SERVICE',
+  //   };
 
-  const mapPartnership = (selected) => {
-    const typeMap = {
-      '할인형': 'DISCOUNT',
-      '타임형': 'TIME',
-      '리뷰형': 'REVIEW',
-      '서비스제공형': 'SERVICE',
-    };
+  //   if (Array.isArray(selected)) {
+  //     return selected.map((label) => typeMap[label]).filter(Boolean);
+  //   }
+  //   return typeMap[selected] || null;
+  // };
 
-    if (Array.isArray(selected)) {
-      return selected.map((label) => typeMap[label]).filter(Boolean);
-    }
-    return typeMap[selected] || null;
-  };
+  // const handleInputChange = (field, value) => {
+  //   setEditableForm(prev => ({
+  //     ...prev,
+  //     [field]: value
+  //   }));
+  // };
 
-  const handleInputChange = (field, value) => {
-    setEditableForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  // const handlePeriodChange = (field, value) => {
+  //   setPartnershipPeriod(prev => ({
+  //     ...prev,
+  //     [field]: value
+  //   }));
+  // };
 
-  const handlePeriodChange = (field, value) => {
-    setPartnershipPeriod(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const formatPartnershipPeriod = () => {
-    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
+  // const formatPartnershipPeriod = () => {
+  //   const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
     
-    if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
-      return '';
-    }
+  //   if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
+  //     return '';
+  //   }
     
-    return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
-  };
+  //   return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
+  // };
 
-  // 제휴 기간 시작일을 파싱하는 함수
-  const formatPeriodStart = () => {
-    const { startYear, startMonth, startDay } = partnershipPeriod;
+  // // 제휴 기간 시작일을 파싱하는 함수
+  // const formatPeriodStart = () => {
+  //   const { startYear, startMonth, startDay } = partnershipPeriod;
     
-    if (!startYear || !startMonth || !startDay) {
-      return '';
-    }
+  //   if (!startYear || !startMonth || !startDay) {
+  //     return '';
+  //   }
     
-    return `${startYear}-${startMonth}-${startDay}`;
-  };
+  //   return `${startYear}-${startMonth}-${startDay}`;
+  // };
 
-  // 제휴 기간 종료일을 파싱하는 함수
-  const formatPeriodEnd = () => {
-    const { endYear, endMonth, endDay } = partnershipPeriod;
+  // // 제휴 기간 종료일을 파싱하는 함수
+  // const formatPeriodEnd = () => {
+  //   const { endYear, endMonth, endDay } = partnershipPeriod;
     
-    if (!endYear || !endMonth || !endDay) {
-      return '';
-    }
+  //   if (!endYear || !endMonth || !endDay) {
+  //     return '';
+  //   }
     
-    return `${endYear}-${endMonth}-${endDay}`;
-  };
+  //   return `${endYear}-${endMonth}-${endDay}`;
+  // };
 
-  const handlePartnershipTypeToggle = (type) => {
-    setEditableForm(prev => {
-      const currentTypes = prev.partnership_type || [];
-      const typeKey = type === '할인형' ? 'DISCOUNT' : 
-                     type === '타임형' ? 'TIME' : 
-                     type === '리뷰형' ? 'REVIEW' : 
-                     type === '서비스제공형' ? 'SERVICE' : type;
+//   const handlePartnershipTypeToggle = (type) => {
+//     setEditableForm(prev => {
+//       const currentTypes = prev.partnership_type || [];
+//       const typeKey = type === '할인형' ? 'DISCOUNT' : 
+//                      type === '타임형' ? 'TIME' : 
+//                      type === '리뷰형' ? 'REVIEW' : 
+//                      type === '서비스제공형' ? 'SERVICE' : type;
       
-      if (currentTypes.includes(typeKey)) {
-        return {
-          ...prev,
-          partnership_type: currentTypes.filter(t => t !== typeKey)
-        };
-      } else {
-        return {
-          ...prev,
-          partnership_type: [...currentTypes, typeKey]
-        };
-      }
-    });
-  };
+//       if (currentTypes.includes(typeKey)) {
+//         return {
+//           ...prev,
+//           partnership_type: currentTypes.filter(t => t !== typeKey)
+//         };
+//       } else {
+//         return {
+//           ...prev,
+//           partnership_type: [...currentTypes, typeKey]
+//         };
+//       }
+//     });
+//   };
 
-  const handleDropdownChange = (idx, field, value, setter) => {
-    setter(prev => prev.map((item, i) => 
-      i === idx ? { ...item, [field]: value } : item
-    ));
-  };
+//   const handleDropdownChange = (idx, field, value, setter) => {
+//     setter(prev => prev.map((item, i) => 
+//       i === idx ? { ...item, [field]: value } : item
+//     ));
+//   };
 
-  const handleAddRow = (setter) => {
-    setter(prev => [...prev, { id: Date.now(), day: '', start: '', end: '' }]);
-  };
+//   const handleAddRow = (setter) => {
+//     setter(prev => [...prev, { id: Date.now(), day: '', start: '', end: '' }]);
+//   };
 
-  const handleRemoveRow = (idx, setter) => {
-    setter(prev => prev.filter((_, i) => i !== idx));
-  };
+//   const handleRemoveRow = (idx, setter) => {
+//     setter(prev => prev.filter((_, i) => i !== idx));
+//   };
 
-  // DatePicker 형식을 API 형식으로 변환하는 함수
-  const parseDatePickerToTimeWindows = (datePickerData) => {
-    return datePickerData
-      .filter(item => item.day && item.start && item.end)
-      .map(item => ({
-        days: [item.day],
-        start: item.start,
-        end: item.end
-      }));
-  };
+//   // DatePicker 형식을 API 형식으로 변환하는 함수
+//   const parseDatePickerToTimeWindows = (datePickerData) => {
+//     return datePickerData
+//       .filter(item => item.day && item.start && item.end)
+//       .map(item => ({
+//         days: [item.day],
+//         start: item.start,
+//         end: item.end
+//       }));
+//   };
 
-  // 저장하기 함수
-  const handleSave = async () => {
-    try {
-      const updateData = {
-        partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
-          ? mapPartnership(editableForm.partnership_type) 
-          : [],
-        apply_target: editableForm.apply_target,
-        time_windows: parseDatePickerToTimeWindows(busyHours),
-        benefit_description: editableForm.benefit_description,
-        period_start: formatPeriodStart() || null,
-        period_end: formatPeriodEnd() || null,
-        contact_info: editableForm.contact_info,
-        status: "DRAFT"
-      };
+//   // 저장하기 함수
+//   const handleSave = async () => {
+//     try {
+//       const updateData = {
+//         partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
+//           ? mapPartnership(editableForm.partnership_type) 
+//           : [],
+//         apply_target: editableForm.apply_target,
+//         time_windows: parseDatePickerToTimeWindows(busyHours),
+//         benefit_description: editableForm.benefit_description,
+//         period_start: formatPeriodStart() || null,
+//         period_end: formatPeriodEnd() || null,
+//         contact_info: editableForm.contact_info,
+//         status: "DRAFT"
+//       };
       
-      await editProposal(selectedProposal.proposal_id, updateData);
-      setIsEditMode(false);
-      openModal('제안서가 저장되었습니다.');
-    } catch (error) {
-      console.error('제안서 저장 실패:', error);
-      openModal('제안서 저장에 실패했습니다.');
-    }
-  };
+//       await editProposal(selectedProposal.proposal_id, updateData);
+//       setIsEditMode(false);
+//       openModal('제안서가 저장되었습니다.');
+//     } catch (error) {
+//       console.error('제안서 저장 실패:', error);
+//       openModal('제안서 저장에 실패했습니다.');
+//     }
+//   };
 
-  // 전송하기 함수
-  const handleSend = async () => {
-    try {
-      const statusData = {
-        status: "UNREAD",
-        comment: ""
-      };
+//   // 전송하기 함수
+//   const handleSend = async () => {
+//     try {
+//       const statusData = {
+//         status: "UNREAD",
+//         comment: ""
+//       };
       
-      await editProposalStatus(selectedProposal.proposal_id, statusData);
-      openModal('제안서가 전송되었습니다.');
-    } catch (error) {
-      console.error('제안서 전송 실패:', error);
-      openModal('제안서 전송에 실패했습니다.');
+//       await editProposalStatus(selectedProposal.proposal_id, statusData);
+//       openModal('제안서가 전송되었습니다.');
+//     } catch (error) {
+//       console.error('제안서 전송 실패:', error);
+//       openModal('제안서 전송에 실패했습니다.');
 
-//     // 읽기 모드 토글 상태 초기화
-//     if (proposal?.partnership_type) {
-//       const types = Array.isArray(proposal.partnership_type) ? proposal.partnership_type : [proposal.partnership_type];
-//       setReadModePartnershipTypes(types);
-//     } else {
-//       setReadModePartnershipTypes([]);
-    }
-  };
+// //     // 읽기 모드 토글 상태 초기화
+// //     if (proposal?.partnership_type) {
+// //       const types = Array.isArray(proposal.partnership_type) ? proposal.partnership_type : [proposal.partnership_type];
+// //       setReadModePartnershipTypes(types);
+// //     } else {
+// //       setReadModePartnershipTypes([]);
+//     }
+//   };
 
   const getProposalContainerTop = () => {
     const minTop = 0;
@@ -1013,19 +1008,19 @@ const OwnerSentProposalDetail = () => {
     }
   };
 
-  // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
-  const parseTimeWindowsToDatePicker = (timeWindows) => {
-    if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
-      return [];
-    }
+  // // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
+  // const parseTimeWindowsToDatePicker = (timeWindows) => {
+  //   if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
+  //     return [];
+  //   }
 
-    return timeWindows.map((window, index) => ({
-      id: index,
-      day: window.days && window.days.length > 0 ? window.days[0] : '', // 첫 번째 요일만 사용
-      start: window.start || '',
-      end: window.end || ''
-    }));
-  };
+  //   return timeWindows.map((window, index) => ({
+  //     id: index,
+  //     day: window.days && window.days.length > 0 ? window.days[0] : '', // 첫 번째 요일만 사용
+  //     start: window.start || '',
+  //     end: window.end || ''
+  //   }));
+  // };
 
   // DatePicker 형식을 시간대 데이터로 파싱하는 함수
   const parseDatePickerToTimeWindows = (datePickerData) => {
@@ -1317,14 +1312,13 @@ const OwnerSentProposalDetail = () => {
                 {BTN_STATUS_MAP(selectedProposal?.status)}된 제안서입니다.
               </StatusBtn>
             )}
-                         {/* <CloseBtn onClick={handleBack}>닫기</CloseBtn> */}
-           </ButtonWrapper>
-        
-       </ReceiverSection>
-       <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
-     </ProposalContainer>
-   )
- }
+            <CloseBtn onClick={handleBack}>닫기</CloseBtn>
+          </ButtonWrapper>
+       
+      </ReceiverSection>
+    </ProposalContainer>
+  )
+}
 
 export default OwnerSentProposalDetail
 
@@ -1543,7 +1537,9 @@ p {
 `;
 
 const ButtonWrapper = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   width: 100%;
   flex-direction: row;
   gap: 8px;
