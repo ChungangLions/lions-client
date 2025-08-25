@@ -53,6 +53,44 @@ const GroupReceiveProposalDetail = () => {
     return [mapPartnershipType(proposal.partnership_type)];
   };
 
+  // time_windows 객체를 문자열로 변환하는 함수
+  const formatTimeWindows = (timeWindows) => {
+    try {
+      if (!timeWindows) return '(입력되지 않음)';
+      
+      if (typeof timeWindows === 'string') {
+        return timeWindows;
+      }
+      
+      if (Array.isArray(timeWindows)) {
+        const formattedTimes = timeWindows.map(time => {
+          if (typeof time === 'string') return time;
+          if (typeof time === 'object' && time !== null) {
+            const days = Array.isArray(time.days) 
+              ? time.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+              : typeof time.days === 'string' ? time.days : '';
+            return `${days} ${time.start || ''} ~ ${time.end || ''}`;
+          }
+          return '';
+        }).filter(time => time !== '');
+        return formattedTimes.length > 0 ? formattedTimes.join(" / ") : '(입력되지 않음)';
+      }
+      
+      if (typeof timeWindows === 'object' && timeWindows !== null) {
+        const days = Array.isArray(timeWindows.days) 
+          ? timeWindows.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+          : typeof timeWindows.days === 'string' ? timeWindows.days : '';
+        const result = `${days} ${timeWindows.start || ''} ~ ${timeWindows.end || ''}`;
+        return result.trim() ? result : '(입력되지 않음)';
+      }
+      
+      return '(입력되지 않음)';
+    } catch (error) {
+      console.error('Error formatting time windows:', error);
+      return '(입력되지 않음)';
+    }
+  };
+
   // 제휴 유형 데이터
   const partnershipTypes = [
     { type: '할인형', icon: AiOutlineDollar },
@@ -288,7 +326,7 @@ const GroupReceiveProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{proposalData.time_windows|| '(입력되지 않음)'}</p>
+                        <p>{formatTimeWindows(proposalData?.time_windows)}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>

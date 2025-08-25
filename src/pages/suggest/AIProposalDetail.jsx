@@ -123,6 +123,7 @@ const AIProposalDetail = () => {
     // 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
     if (proposalData.time_windows && proposalData.time_windows.length > 0) {
       const parsedTimeWindows = parseTimeWindowsToDatePicker(proposalData.time_windows);
+      console.log('기존 시간대 데이터:', proposalData.time_windows, '파싱 결과:', parsedTimeWindows);
       setBusyHours(parsedTimeWindows);
     } else {
       // 기존 데이터가 없으면 기본 행 추가
@@ -307,20 +308,31 @@ const AIProposalDetail = () => {
       return [];
     }
 
-    return datePickerData
-      .filter(item => item.day && item.start && item.end)
-      .map(item => ({
-        days: [item.day], // 단일 요일을 배열로 변환
-        start: item.start,
-        end: item.end
-      }));
+    // 유효한 데이터만 필터링 (요일, 시작시간, 종료시간이 모두 있는 경우)
+    const validData = datePickerData.filter(item => 
+      item.day && item.start && item.end && 
+      item.day.trim() !== '' && 
+      item.start.trim() !== '' && 
+      item.end.trim() !== ''
+    );
+
+    return validData.map(item => ({
+      days: [item.day], // 단일 요일을 배열로 변환
+      start: item.start,
+      end: item.end
+    }));
   };
 
   // 시간대 변경 핸들러
   const handleDropdownChange = (index, field, value, setter) => {
-    setter(prev => prev.map((item, i) => 
-      i === index ? { ...item, [field]: value } : item
-    ));
+    console.log('시간대 변경:', index, field, value);
+    setter(prev => {
+      const newData = prev.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      );
+      console.log('변경된 시간대 데이터:', newData);
+      return newData;
+    });
   };
 
   // 시간대 행 추가 핸들러
@@ -385,8 +397,9 @@ const AIProposalDetail = () => {
 
         // 시간대 데이터 검증
         const validTimeWindows = parseDatePickerToTimeWindows(busyHours);
+        console.log('시간대 검증:', busyHours, validTimeWindows);
         if (validTimeWindows.length === 0) {
-          alert('적용 시간대를 입력해주세요.');
+          alert('적용 시간대를 입력해주세요. (요일, 시작시간, 종료시간을 모두 선택해주세요)');
           return;
         }
   
@@ -395,11 +408,12 @@ const AIProposalDetail = () => {
           return;
         }
   
+        const timeWindowsData = parseDatePickerToTimeWindows(busyHours);
         const createData = {
           recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
           partnership_type: selectedPartnershipTypes, // 제휴 유형 
           apply_target: partnershipConditions.applyTarget, // 적용 대상
-          time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
+          time_windows: timeWindowsData, // 적용 시간대
           benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
           period_start: formatPeriodStart(), // 제휴 기간 시작일
           period_end: formatPeriodEnd(), // 제휴 기간 종료일
@@ -433,11 +447,12 @@ const AIProposalDetail = () => {
   // 제안서 생성하기 api 호출 지금 O 
   const handleSave = async () => {
 
+    const timeWindowsData = parseDatePickerToTimeWindows(busyHours);
     const createData = {
         recipient: organization?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
         partnership_type: selectedPartnershipTypes, // 제휴 유형 
         apply_target: partnershipConditions.applyTarget, // 적용 대상
-        time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
+        time_windows: timeWindowsData, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         period_start: formatPeriodStart() || null,
         period_end: formatPeriodEnd() || null,
