@@ -157,7 +157,7 @@ const GroupEditMyPage = () => {
     };
 
   const [showCampusModal, setShowCampusModal] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+
   const [profileId, setProfileId] = useState(null);
   const navigate = useNavigate();
   const { userId } = useUserStore();
@@ -293,26 +293,7 @@ const GroupEditMyPage = () => {
     }
   };
 
-  // ---- 우측 리스트 스크롤 구현 ----
-  useEffect(() => {       // 스크롤 위치 감지
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = 20;
-    const maxTop = 215;
-    
-    if (scrollY <= 0) return maxTop;
-    if (scrollY >= 500) return minTop;
-    
-    const progress = Math.min(scrollY / 500, 1);
-    return maxTop - (progress * (maxTop - minTop));
-  };
 
   // 각 섹션별 ref (리스트 아이템 클릭했을 때 이동값값)
   const sectionRefs = {
@@ -465,10 +446,9 @@ const GroupEditMyPage = () => {
             withDay={true}
           />
         </EditContainer>
-      </MainContainer>
-
-      {/* 우측 진행상황/저장 - MainContainer 밖으로 이동 */}
-      <ProgressContainer style={{ top: getProgressContainerTop() }}>
+        
+        {/* 우측 진행상황/저장 */}
+        <ProgressContainer>
         <SaveButton onClick={handleSave}>
           저장하기
         </SaveButton>
@@ -490,6 +470,7 @@ const GroupEditMyPage = () => {
           ))}
         </ProgressList>
       </ProgressContainer>
+      </MainContainer>
       </ContentSection>
     </PageContainer>
   );
@@ -526,17 +507,11 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 10px;
+  display: flex;
+  gap: 40px;
   margin-top: 10px;
   position: relative;
-
-// background-color: #F4F4F4;
-  // gap: 10px;
-  // margin-top: 10px;
-  // width: 100%;
-  // position: relative;
+  align-items: flex-start;
 `;
 
 const EditContainer = styled.div`
@@ -545,9 +520,8 @@ const EditContainer = styled.div`
   padding: 50px 180px 50px 117px;
   align-items: start;
   background: #F4F4F4;
-  top: 148px;
-  left: 30px;
   border-radius: 5px;
+  flex: 1;
 `;
 
 const EditTitle = styled.div`
@@ -560,30 +534,16 @@ const EditTitle = styled.div`
 `;
 
 const ProgressContainer = styled.div`
-  position: fixed;
-  right: 45px;
+  position: sticky;
+  top: 80px;
   width: 327px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   z-index: 999;
-  transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-
-// position: sticky;
-  // width: 100%;
-  // height: 587px;
-  // display: flex;
-  // flex-direction: column;
-  // align-items: flex-start;
-  // transition: top 0.1s ease-out; // 부드러운 움직임을 위한 transition
-  // justify-content: flex-start;
-  // gap: 10px;
-  // text-align: left;
-  // font-size: 20px;
-  // color: #e9f4d0;
-  // font-family: Pretendard;
-  // box-sizing: border-box;
+  max-height: calc(100vh - 100px);
+  flex-shrink: 0;
 `;
 
 const ProgressList = styled.ul`

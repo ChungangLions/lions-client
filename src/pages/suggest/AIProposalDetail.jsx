@@ -238,7 +238,7 @@ const AIProposalDetail = () => {
         // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
         // 처음 눌러도 이미 전송된 제안서라고 뜨고 보내지지 않는 문제 
         if (proposalStatus !== 'DRAFT') {
-          openModal('이미 전송된 제안서이에요');
+          openModal('이미 전송된 제안서예요');
           return;
         }
 
@@ -497,7 +497,7 @@ const AIProposalDetail = () => {
                     defaultText="텍스트를 입력해주세요."
                     width="100%"
                     border="1px solid #E9E9E9"
-                    value={expectedEffects}
+                    value={expectedEffects?.split('.').filter(sentence => sentence.trim()).join('\n')}
                     onChange={(e) => setExpectedEffects(e.target.value)}
                     disabled={!isEditMode}
                   />

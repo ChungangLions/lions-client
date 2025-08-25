@@ -9,7 +9,7 @@ import DetailCard from '../../components/common/cards/GroupProfile/DetailCard'
 import useGroupProfile from '../../hooks/useOrgProfile'
 import useUserStore from '../../stores/userStore'
 import { fetchGroupProfile, getGroupPartnership } from '../../services/apis/groupProfileAPI'
-import { fetchProposal } from '../../services/apis/proposalAPI'
+import { fetchProposal, getProposal } from '../../services/apis/proposalAPI'
 import { fetchLikes, toggleLikes } from '../../services/apis/likesapi'
 import MenuGroup from '../../layout/MenuGroup'
 import Menu from '../../layout/Menu'
@@ -25,6 +25,7 @@ const StudentGroupProfile = () => {
   const { organization } = location.state || {};
   const [partnershipData, setPartnershipData] = useState([]);
   const [dealHistories, setDealHistories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { stores } = useVenueStore();
   // console.log("location.state", location.state);
   // console.log("userType", userType);
@@ -45,6 +46,7 @@ const StudentGroupProfile = () => {
 
     useEffect(() => {
       const fetchPartnership = async () => { 
+        setLoading(true);
         try {
           const send = await getGroupPartnership(groupId);
           const receive = await getGroupPartnership(groupId, 'received');
@@ -63,6 +65,8 @@ const StudentGroupProfile = () => {
           setPartnershipData(combinedPartnership);
         } catch (error) {
           console.error("프로필 데이터 조회 실패:", error);
+        } finally {
+          setLoading(false);
         }
       };
       fetchPartnership();
@@ -98,7 +102,7 @@ const StudentGroupProfile = () => {
             
             // 2. getProposal(id)를 이용해서 각 제안서의 상세 정보 가져오기
             const proposalDetails = await Promise.all(
-              proposalIds.map(id => fetchProposal(id))
+              proposalIds.map(id => getProposal(id))
             );
             
             console.log("proposalDetails:", proposalDetails);
@@ -108,18 +112,18 @@ const StudentGroupProfile = () => {
              
                            // storeId 리스트 생성 (STUDENT_GROUP이 아닌 쪽의 id)
               const storeIds = proposalDetails.map(proposal => {
-                const authorRole = proposal[0].author?.user_role;
-                const recipientRole = proposal[0].recipient?.user_role;
+                const authorRole = proposal.author?.user_role;
+                const recipientRole = proposal.recipient?.user_role;
                 
                 // STUDENT_GROUP이 아닌 쪽의 id를 반환
                 if (authorRole === 'STUDENT_GROUP') {
-                  return proposal[0].recipient?.id;
+                  return proposal.recipient?.id;
                 } else if (recipientRole === 'STUDENT_GROUP') {
-                  return proposal[0].author?.id;
+                  return proposal.author?.id;
                 }
                 return null;
               }).filter(id => id) // null 제거
-                .filter((id, index, self) => self.indexOf(id) === index); // 중복 제거
+                // .filter((id, index, self) => self.indexOf(id) === index); // 중복 제거
             
             console.log("storeIds:", storeIds);
             
@@ -135,18 +139,18 @@ const StudentGroupProfile = () => {
             
             console.log("storeInfo:", storeInfo);
             
-                         // 5. 최종 dealHistories 리스트 생성
+            // 5. 최종 dealHistories 리스트 생성
              const finalDealHistories = proposalDetails.map(proposal => {
                // 해당 proposal의 storeId 찾기 (STUDENT_GROUP이 아닌 쪽)
                let storeId;
-               const authorRole = proposal[0].author?.user_role;
-               const recipientRole = proposal[0].recipient?.user_role;
+               const authorRole = proposal.author?.user_role;
+               const recipientRole = proposal.recipient?.user_role;
                const length = proposal.length || 0;
                
                if (authorRole === 'STUDENT_GROUP') {  
-                 storeId = proposal[0].recipient?.id;
+                 storeId = proposal.recipient?.id;
                } else if (recipientRole === 'STUDENT_GROUP') {
-                 storeId = proposal[0].author?.id;
+                 storeId = proposal.author?.id;
                }
                
                // storeInfo에서 해당 가게 정보 찾기
@@ -154,7 +158,7 @@ const StudentGroupProfile = () => {
                
                return {
                  storeName: store?.name || '알 수 없는 가게',
-                 period: `${proposal[length-1].period_start} ~ ${proposal[length-1].period_end}`,
+                 period: `${proposal?.period_start} ~ ${proposal?.period_end}` || '알 수 없는 기간',
                  photo: store?.photo || null
                };
              });
@@ -206,6 +210,18 @@ const StudentGroupProfile = () => {
     }
   };
 
+
+  if (loading) {
+    return (
+      <PageContainer>
+        {userType === "owner" && previousPage === 'wishlist' && <Menu />}
+        {userType === "student-group" && <MenuGroup />}
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -466,6 +482,21 @@ const EmptyNotice = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 140px;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;
 
 const StyledBtn = styled.button`

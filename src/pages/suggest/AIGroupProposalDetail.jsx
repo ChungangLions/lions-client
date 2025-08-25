@@ -110,8 +110,8 @@ const AIGroupProposalDetail = () => {
   }, [userId]);
     
     const navigate = useNavigate();
-    const handleCardClick = (organization, id) => {
-      navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+    const handleCardClick = (ownerId) => {
+      navigate(`/student-group/store-profile/${ownerId}`);
     }; 
   
   // 제휴 조건 입력 
@@ -307,7 +307,7 @@ const AIGroupProposalDetail = () => {
     try {
       // 제안서 상태가 DRAFT가 아닌 경우가 전송상태
       if (proposalStatus && proposalStatus !== 'DRAFT') {
-        openModal('이미 전송된 제안서이에요');
+        openModal('이미 전송된 제안서예요');
         return;
       }
 
@@ -716,6 +716,7 @@ color: #1a2d06;
 font-family: Pretendard;
 height: fit-content;
 transition: top 0.3s ease-out;
+border:none;
 `;
 
 const ReceiverWrapper = styled.div`
@@ -729,6 +730,7 @@ display: flex;
 flex-direction: column;
 position: relative;
 gap: 10px;
+border:none;
 `;
 
 const SectionWrapper = styled.div`

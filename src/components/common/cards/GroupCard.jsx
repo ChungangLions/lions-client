@@ -48,9 +48,9 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, re
     <CardWrapper onClick={onClick}>
       <ImageWrapper>
         <CardImage src={imageUrl || '/default.png'} alt={store.name} />
-        <HeartBtnBox>
-            {ButtonComponent && <ButtonComponent userId={store.id} />}
-        </HeartBtnBox>
+        { ButtonComponent && <HeartBtnBox>
+          <ButtonComponent userId={store.id} />
+        </HeartBtnBox>}
       </ImageWrapper>
       <DetailSection>
         <CardTitleRow>
@@ -81,6 +81,8 @@ const CardWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
+  min-width: 0; /* 그리드 아이템 내에서 오버플로우 방지 */
+  box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
 `;
 
 const ImageWrapper = styled.div`

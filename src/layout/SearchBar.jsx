@@ -91,6 +91,7 @@ const SearchInput = styled.input`
   &::placeholder {
     color: #bcbcbc;
   }
+    margin-left: -10px;
 `;
 
 const SearchIcon = styled(FiSearch)`

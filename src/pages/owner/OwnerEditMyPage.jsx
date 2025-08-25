@@ -20,6 +20,7 @@ import { IoIosClose } from "react-icons/io";
 // ---- 샘플 데이터 ----
 const sampleType = { data: ["일반 음식점", "카페 및 디저트", "주점", "기타"] };
 const Day = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
+const Week = {data: ['주말', '평일']}
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
     const hour = String(Math.floor(i / 2)).padStart(2, "0");
@@ -195,7 +196,7 @@ const OwnerEditMyPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [showCampusModal, setShowCampusModal] = useState(false);
 
-  const [scrollY, setScrollY] = useState(0);
+
 
   const [profileId, setProfileId] = useState(null);
   const navigate = useNavigate();
@@ -259,7 +260,12 @@ const OwnerEditMyPage = () => {
 
     return data.reduce((acc, cur) => {
       const shortDay = shortDayMap[cur.day] || cur.day;
-      acc[shortDay] = `${cur.start}-${cur.end}`;
+      // start나 end가 비어있으면 null로 처리
+      if (!cur.start || !cur.end) {
+        acc[shortDay] = null;
+      } else {
+        acc[shortDay] = `${cur.start}-${cur.end}`;
+      }
       return acc;
     }, {});
   };
@@ -272,7 +278,6 @@ const OwnerEditMyPage = () => {
       '일반 음식점': "RESTAURANT",
       '주점': "BAR",
       '기타': "OTHER",
-
     };
 
     return toBusinessType[data] || data;
@@ -490,34 +495,9 @@ const OwnerEditMyPage = () => {
     }
   };
 
-  // ---- 우측 리스트 스크롤 구현 ----
-  useEffect(() => {       // 스크롤 위치 감지
-    const handleScroll = () => {
-      const newScrollY = window.scrollY;
-      setScrollY(newScrollY);
-      console.log('Scroll Y:', newScrollY); // 디버깅용
-    };
 
-    // 초기 스크롤 위치 설정
-    setScrollY(window.scrollY);
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
-  const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-    const minTop = -130;  // 스크롤 시 화면 위로 올라갈 최대 거리
-    const maxTop = 250;   // 초기 위치
-    
-    // scrollY가 undefined나 null인 경우 기본값 사용
-    const currentScrollY = scrollY || 0;
-    
-    if (currentScrollY <= 0) return maxTop;
-    if (currentScrollY >= 500) return minTop;
-    
-    const progress = Math.min(currentScrollY / 500, 1);
-    return maxTop - (progress * (maxTop - minTop));
-  };
+
 
   // 각 섹션별 ref (리스트 아이템 클릭했을 때 이동값값)
   const sectionRefs = {
@@ -547,6 +527,8 @@ const OwnerEditMyPage = () => {
   const isFilledButtons = obj => obj && Object.values(obj).some(Boolean);
   const isFilledCampus = val => typeof val === "string" && val.trim() !== "";  
   const isFilledNum = val => typeof val === "number" && !isNaN(val) && val > 0;
+  // 한산한 시간대와 바쁜 시간대는 null 값이어도 허용
+  const isFilledOptionalSchedule = arr => Array.isArray(arr) && (arr.length === 0 || arr.some(v => v.day && v.start && v.end));
 
   const isSectionFilled = {
     photo: isFilledList(photoState),
@@ -560,8 +542,8 @@ const OwnerEditMyPage = () => {
     goal: isFilledButtons(goalButtons),
     revenue: isFilledNum(revenueValue),
     margin: isFilledText(marginValue),
-    busy: isFilledSchedule(busyHours),
-    free: isFilledSchedule(freeHours),
+    busy: isFilledOptionalSchedule(busyHours),
+    free: isFilledOptionalSchedule(freeHours),
     extra: isFilledButtons(serviceButtons),
   };
   const allFilled = Object.values(isSectionFilled).every(Boolean);
@@ -701,7 +683,7 @@ const OwnerEditMyPage = () => {
             <PhotoUploadWithInput
               maxCount={50}
               inputPlaceholder1="메뉴명"
-              inputPlaceholder2="0,000원"
+              inputPlaceholder2="0원"
               value={menuList}
               onChange={setMenuList}
               onDelete={handleMenuDelete}
@@ -735,7 +717,7 @@ const OwnerEditMyPage = () => {
 
           {/* 평균 인당 매출 & 마진율 */}
           <SubColumn>
-            <ColumnLayout>
+            <ColumnLayout style={{justifyContent: 'space-between'}}>
               <TitleContainer ref={sectionRefs.revenue}>
                 <Title> 평균 인당 매출 </Title>
                 <SubTitle> 고객 한 명당 평균 매출액을 입력해 주세요.</SubTitle>
@@ -749,7 +731,7 @@ const OwnerEditMyPage = () => {
                 width="351px"
               />
             </ColumnLayout>
-            <ColumnLayout>
+            <ColumnLayout style={{justifyContent: 'space-between'}}>
               <TitleContainer ref={sectionRefs.margin}>
                 <Title> 마진율 </Title>
                 <SubTitle>
@@ -775,38 +757,66 @@ const OwnerEditMyPage = () => {
                 <Title> 바쁜 시간대 </Title>
                 <SubTitle> 가게가 가장 바쁜 시간대를 입력해 주세요. </SubTitle>
               </TitleContainer>
-              {busyHours.map((schedule, idx) => (
+              {busyHours.length > 0 ? (
+                busyHours.map((schedule, idx) => (
+                  <DatePicker
+                    key={idx}
+                    idx={idx}
+                    schedule={schedule}
+                    total={busyHours.length}
+                    onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                    onAdd={() => handleAddRow(setBusyHours)}
+                    onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                    dateData={Week}
+                    timeData={Time}
+                  />
+                ))
+              ) : (
                 <DatePicker
-                  key={idx}
-                  idx={idx}
-                  schedule={schedule}
-                  total={busyHours.length}
+                  key={0}
+                  idx={0}
+                  schedule={null}
+                  total={1}
                   onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
                   onAdd={() => handleAddRow(setBusyHours)}
                   onRemove={(i) => handleRemoveRow(i, setBusyHours)}
-                  dateData={Day}
+                  dateData={Week}
                   timeData={Time}
                 />
-              ))}
+              )}
             </ColumnLayout>
             <ColumnLayout>
               <TitleContainer ref={sectionRefs.free}>
                 <Title> 한산한 시간대 </Title>
                 <SubTitle> 가게가 가장 한산한 시간대를 입력해 주세요.</SubTitle>
               </TitleContainer>
-              {freeHours.map((schedule, idx) => (
+              {freeHours.length > 0 ? (
+                freeHours.map((schedule, idx) => (
+                  <DatePicker
+                    key={idx}
+                    idx={idx}
+                    schedule={schedule}
+                    total={freeHours.length}
+                    onChange={(i, f, v) => handleDropdownChange(i, f, v, setFreeHours)}
+                    onAdd={() => handleAddRow(setFreeHours)}
+                    onRemove={(i) => handleRemoveRow(i, setFreeHours)}
+                    dateData={Week}
+                    timeData={Time}
+                  />
+                ))
+              ) : (
                 <DatePicker
-                  key={idx}
-                  idx={idx}
-                  schedule={schedule}
-                  total={freeHours.length}
+                  key={0}
+                  idx={0}
+                  schedule={null}
+                  total={1}
                   onChange={(i, f, v) => handleDropdownChange(i, f, v, setFreeHours)}
                   onAdd={() => handleAddRow(setFreeHours)}
                   onRemove={(i) => handleRemoveRow(i, setFreeHours)}
-                  dateData={Day}
+                  dateData={Week}
                   timeData={Time}
                 />
-              ))}
+              )}
             </ColumnLayout>
           </SubColumn>
 
@@ -829,10 +839,9 @@ const OwnerEditMyPage = () => {
           value={otherServiceValue} 
           onChange={e => setOtherServiceValue(e.target.value)}  />}
         </EditContainer>
-      </MainContainer>
-
-      {/* 우측 진행상황/저장 - MainContainer 밖으로 이동 */}
-      <ProgressContainer style={{ top: getProgressContainerTop() }}>
+        
+        {/* 우측 진행상황/저장 */}
+        <ProgressContainer>
         <SaveButton onClick={handleSave}>
           저장하기
         </SaveButton>
@@ -854,6 +863,7 @@ const OwnerEditMyPage = () => {
           ))}
         </ProgressList>
       </ProgressContainer>
+      </MainContainer>
       </ContentSection>
         {/* {showModal && (
             <ModalOverlay>
@@ -908,16 +918,11 @@ const SubTitle = styled.div`
 `;
 
 const MainContainer = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 10px;
+  display: flex;
+  gap: 40px;
   margin-top: 10px;
   position: relative;
-// background-color: #F4F4F4;
-  // gap: 10px;
-  // margin-top: 10px;
-  // width: 100%;
-  // position: relative;
+  align-items: flex-start;
 `;
 
 const EditContainer = styled.div`
@@ -926,9 +931,8 @@ const EditContainer = styled.div`
   padding: 50px 117px;
   align-items: start;
   background: #F4F4F4;
-  top: 148px;
-  left: 30px;
   border-radius: 5px;
+  flex: 1;
 `;
 
 const EditTitle = styled.div`
@@ -985,20 +989,20 @@ transition: background-color 0.1s;
 const ColumnLayout = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  // justify-content: space-between;
 `;
 
 const ProgressContainer = styled.div`
-  position: fixed;
-  right: 45px;
-  width: 327px;
+  position: sticky;
+  top: 80px;
+  width: 350px;
   height: 587px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   z-index: 999;
-  transition: top 0.2s ease-out; // 부드러운 움직임을 위한 transition
-  will-change: top; // 성능 최적화
+  max-height: calc(100vh - 100px);
+  flex-shrink: 0;
 `;
 
 const ProgressList = styled.ul`
@@ -1008,8 +1012,11 @@ const ProgressList = styled.ul`
   gap: 15px;          // 아이템 간격
   margin: 0;          // 기본 여백 제거!
   padding: 0;
-//   width: 197px;
   align-self: stretch;
+  position: relative;
+  // overflow-y: auto;
+  width: 100%;
+  height: 100%;
 //   display: flex;
 //   flex-direction: column;
 //   align-items: flex-start;
