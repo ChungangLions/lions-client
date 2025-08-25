@@ -399,7 +399,7 @@ const GroupSendSuggestDetail = () => {
       
       const updateData = {
         partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
-          ? mapPartnership(editableForm.partnership_type) 
+          ? editableForm.partnership_type 
           : [],
         apply_target: editableForm.apply_target,
         time_windows: parseDatePickerToTimeWindows(busyHours),
@@ -677,9 +677,11 @@ const GroupSendSuggestDetail = () => {
                                    type === '리뷰형' ? 'REVIEW' : 
                                    type === '서비스제공형' ? 'SERVICE' : type;
                     
+                    // 편집 모드에서는 editableForm의 데이터를 사용하고, 읽기 모드에서는 newGroupProposal의 데이터를 사용
                     const isSelected = isEditMode 
                       ? (editableForm.partnership_type || []).includes(typeKey)
-                      : getPartnershipTypes().includes(type);
+                      : (newGroupProposal?.partnership_type || []).includes(typeKey);
+                    
                     
                     return (
                       <PartnershipTypeBox 
@@ -796,6 +798,8 @@ const GroupSendSuggestDetail = () => {
                  key={ownerProfile.id}
                  imageUrl={ownerProfile?.photos?.[0]?.image}
                  onClick={() => ownerProfile?.user && handleCardClick(ownerProfile.user)} // userId
+                 likes={false}
+                 recommends={false}
                  // isBest={ownerProfile.isBest}
                  // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
                  // ButtonComponent={() => (
@@ -1007,6 +1011,19 @@ const ButtonWrapper = styled.div`
 `;
 
 
+// const ButtonWrapper = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 2fr;
+//   gap: 8px;
+//   width: 100%;
+//   margin-top: 4px;
+
+//   & > *:nth-child(3) {
+//     grid-column: 1 / -1;
+//   }
+// `;
+
+
 
 const LineDiv = styled.div`
 width: 100%;
@@ -1163,8 +1180,9 @@ const LoadingContainer = styled.div`
 const LoadingText = styled.div`
   font-family: Pretendard;
   font-size: 18px;
-  color: #898989;
+  color: #70AF19;
   text-align: center;
+  font-weight: 600;
 `;
 
 const AIProposalBtn = styled.button`
