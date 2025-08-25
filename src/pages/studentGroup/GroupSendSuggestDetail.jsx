@@ -962,15 +962,11 @@ p {
 
 
 const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   width: 100%;
   margin-top: 4px;
-
-  & > *:nth-child(3) {
-    grid-column: 1 / -1;
-  }
 `;
 
 
