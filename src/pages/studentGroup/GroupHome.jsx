@@ -206,6 +206,12 @@ const GridContainer = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-top: 15px; // 필터 ~ container 사이 여백 (필터 아직 구현 X)
+  
+  /* 그리드 아이템들이 동일한 크기를 가지도록 설정 */
+  & > * {
+    width: 100%;
+    min-width: 0; /* 그리드 아이템이 부모 컨테이너를 넘어가지 않도록 */
+  }
 `;
 
 const SelectContainer = styled.div`
