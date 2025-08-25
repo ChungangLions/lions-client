@@ -419,7 +419,10 @@ const GroupProposalDetail = () => {
         console.log("likeStores 내 데이터 출력:", likeStores);
       }, [likeStores]);
     
-console.log(groupProfile);
+      console.log("데이터 확인", groupProfile, profileData);
+
+      
+
 
   // 로딩 중일 때 표시
   if (isLoading) {
@@ -556,7 +559,7 @@ console.log(groupProfile);
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={contact}
+                  value={groupProfile.contact}
                   onChange={(e) => setContact(e.target.value)}
                   disabled={!isEditMode}
                 />
