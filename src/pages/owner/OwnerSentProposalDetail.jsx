@@ -306,6 +306,70 @@ const OwnerSentProposalDetail = () => {
 //           setProposalData([enrichedProposal]);
 //           setSelectedProposal(enrichedProposal);
           
+
+          // 읽기 모드 토글 상태 초기화
+          if (enrichedProposal?.partnership_type) {
+            const types = Array.isArray(enrichedProposal.partnership_type) ? enrichedProposal.partnership_type : [enrichedProposal.partnership_type];
+            const normalizedTypes = types.map(type => {
+              const reverseMap = {
+                'DISCOUNT': '할인형',
+                'TIME': '타임형',
+                'REVIEW': '리뷰형',
+                'SERVICE': '서비스제공형',
+              };
+              return reverseMap[type] || type;
+            });
+            setReadModePartnershipTypes(normalizedTypes);
+          } else {
+            setReadModePartnershipTypes([]);
+          }
+          
+          // Initialize editable form with current data
+          const normalizedPartnershipTypes = enrichedProposal.partnership_type ? 
+            (Array.isArray(enrichedProposal.partnership_type) ? enrichedProposal.partnership_type : [enrichedProposal.partnership_type])
+              .map(type => {
+                const reverseMap = {
+                  'DISCOUNT': '할인형',
+                  'TIME': '타임형',
+                  'REVIEW': '리뷰형',
+                  'SERVICE': '서비스제공형',
+                };
+                return reverseMap[type] || type;
+              }) : [];
+          
+          setEditableForm({
+            apply_target: enrichedProposal.apply_target || '',
+            benefit_description: enrichedProposal.benefit_description || '',
+            contact_info: enrichedProposal.contact_info || '',
+            period_start: enrichedProposal.partnership_start || '',
+            period_end: enrichedProposal.partnership_end || '',
+            time_windows: enrichedProposal.time_windows || [],
+            partnership_type: normalizedPartnershipTypes
+          });
+
+          // 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
+          if (enrichedProposal.time_windows && enrichedProposal.time_windows.length > 0) {
+            const parsedTimeWindows = parseTimeWindowsToDatePicker(enrichedProposal.time_windows);
+            setBusyHours(parsedTimeWindows);
+          } else {
+            // 기존 데이터가 없으면 기본 행 추가
+            setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
+          }
+
+          // Initialize period picker with current data
+          if (enrichedProposal.partnership_start && enrichedProposal.partnership_end) {
+            const startDate = new Date(enrichedProposal.partnership_start);
+            const endDate = new Date(enrichedProposal.partnership_end);
+            setPartnershipPeriod({
+              startYear: startDate.getFullYear().toString(),
+              startMonth: (startDate.getMonth() + 1).toString().padStart(2, '0'),
+              startDay: startDate.getDate().toString().padStart(2, '0'),
+              endYear: endDate.getFullYear().toString(),
+              endMonth: (endDate.getMonth() + 1).toString().padStart(2, '0'),
+              endDay: endDate.getDate().toString().padStart(2, '0')
+            });
+          }
+
 //           // 읽기 모드 토글 상태 초기화
 //           if (enrichedProposal?.partnership_type) {
 //             const types = Array.isArray(enrichedProposal.partnership_type) ? enrichedProposal.partnership_type : [enrichedProposal.partnership_type];
@@ -347,6 +411,7 @@ const OwnerSentProposalDetail = () => {
 //               endDay: endDate.getDate().toString().padStart(2, '0')
 //             });
 //           }
+
         } else {
           // 전달받은 데이터가 없는 경우 API에서 가져오기
           const proposalsResponse = await fetchProposal();
@@ -467,6 +532,25 @@ const OwnerSentProposalDetail = () => {
 //           if (enrichedProposals.length > 0) {
 //             setSelectedProposal(enrichedProposals[0]);
             
+
+            // 읽기 모드 토글 상태 초기화
+            if (enrichedProposals[0]?.partnership_type) {
+              const types = Array.isArray(enrichedProposals[0].partnership_type) ? enrichedProposals[0].partnership_type : [enrichedProposals[0].partnership_type];
+              const normalizedTypes = types.map(type => {
+                const reverseMap = {
+                  'DISCOUNT': '할인형',
+                  'TIME': '타임형',
+                  'REVIEW': '리뷰형',
+                  'SERVICE': '서비스제공형',
+                };
+                return reverseMap[type] || type;
+              });
+              setReadModePartnershipTypes(normalizedTypes);
+            } else {
+              setReadModePartnershipTypes([]);
+            }
+          }
+
 //             // 읽기 모드 토글 상태 초기화
 //             if (enrichedProposals[0]?.partnership_type) {
 //               const types = Array.isArray(enrichedProposals[0].partnership_type) ? enrichedProposals[0].partnership_type : [enrichedProposals[0].partnership_type];
@@ -475,6 +559,7 @@ const OwnerSentProposalDetail = () => {
 //               setReadModePartnershipTypes([]);
 //             }
 //           }
+
 
         }
         
@@ -498,6 +583,22 @@ const OwnerSentProposalDetail = () => {
   // 카드 클릭 핸들러
   const handleCardClick = (proposal) => {
     setSelectedProposal(proposal);
+
+    // 읽기 모드 토글 상태 초기화
+    if (proposal?.partnership_type) {
+      const types = Array.isArray(proposal.partnership_type) ? proposal.partnership_type : [proposal.partnership_type];
+      const normalizedTypes = types.map(type => {
+        const reverseMap = {
+          'DISCOUNT': '할인형',
+          'TIME': '타임형',
+          'REVIEW': '리뷰형',
+          'SERVICE': '서비스제공형',
+        };
+        return reverseMap[type] || type;
+      });
+      setReadModePartnershipTypes(normalizedTypes);
+    } else {
+      setReadModePartnershipTypes([]);
 
     // 선택된 제안서의 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
     if (proposal?.time_windows) {
@@ -663,6 +764,7 @@ const OwnerSentProposalDetail = () => {
 //       setReadModePartnershipTypes(types);
 //     } else {
 //       setReadModePartnershipTypes([]);
+
     }
   };
 
@@ -792,19 +894,7 @@ const OwnerSentProposalDetail = () => {
     setIsEditMode(true);
   };
 
-  const mapPartnership = (selected) => {
-    const typeMap = {
-      '할인형': 'DISCOUNT',
-      '타임형': 'TIME',
-      '리뷰형': 'REVIEW',
-      '서비스제공형': 'SERVICE',
-    };
 
-    if (Array.isArray(selected)) {
-      return selected.map((label) => typeMap[label]).filter(Boolean);
-    }
-    return typeMap[selected] || null;
-  };
 
   const handleSend = async () => {
     try {
@@ -859,7 +949,7 @@ const OwnerSentProposalDetail = () => {
       
       const updateData = {
         partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
-          ? mapPartnership(editableForm.partnership_type) 
+          ? editableForm.partnership_type 
           : [],
         apply_target: editableForm.apply_target,
         time_windows: parseDatePickerToTimeWindows(busyHours),
@@ -892,6 +982,20 @@ const OwnerSentProposalDetail = () => {
 
   const handleCancel = () => {
     setIsEditMode(false);
+    
+    // Normalize partnership types for form reset
+    const normalizedPartnershipTypes = selectedProposal?.partnership_type ? 
+      (Array.isArray(selectedProposal.partnership_type) ? selectedProposal.partnership_type : [selectedProposal.partnership_type])
+        .map(type => {
+          const reverseMap = {
+            'DISCOUNT': '할인형',
+            'TIME': '타임형',
+            'REVIEW': '리뷰형',
+            'SERVICE': '서비스제공형',
+          };
+          return reverseMap[type] || type;
+        }) : [];
+    
     // Reset form to original values
     setEditableForm({
       apply_target: selectedProposal?.apply_target || '',
@@ -900,13 +1004,22 @@ const OwnerSentProposalDetail = () => {
       period_start: selectedProposal?.partnership_start || '',
       period_end: selectedProposal?.partnership_end || '',
       time_windows: selectedProposal?.time_windows || [],
-      partnership_type: selectedProposal?.partnership_type ? (Array.isArray(selectedProposal.partnership_type) ? selectedProposal.partnership_type : [selectedProposal.partnership_type]) : []
+      partnership_type: normalizedPartnershipTypes
     });
     
     // 읽기 모드 토글 상태도 원래대로 복원
     if (selectedProposal?.partnership_type) {
       const types = Array.isArray(selectedProposal.partnership_type) ? selectedProposal.partnership_type : [selectedProposal.partnership_type];
-      setReadModePartnershipTypes(types);
+      const normalizedTypes = types.map(type => {
+        const reverseMap = {
+          'DISCOUNT': '할인형',
+          'TIME': '타임형',
+          'REVIEW': '리뷰형',
+          'SERVICE': '서비스제공형',
+        };
+        return reverseMap[type] || type;
+      });
+      setReadModePartnershipTypes(normalizedTypes);
     } else {
       setReadModePartnershipTypes([]);
     }
@@ -981,35 +1094,30 @@ const OwnerSentProposalDetail = () => {
   };
 
   const handlePartnershipTypeToggle = (type) => {
-    const typeKey = type === '할인형' ? 'DISCOUNT' : 
-                   type === '타임형' ? 'TIME' : 
-                   type === '리뷰형' ? 'REVIEW' : 
-                   type === '서비스제공형' ? 'SERVICE' : type;
-    
     if (isEditMode) {
       // 수정 모드일 때는 editableForm 데이터 변경
       setEditableForm(prev => {
         const currentTypes = prev.partnership_type || [];
         
-        if (currentTypes.includes(typeKey)) {
+        if (currentTypes.includes(type)) {
           return {
             ...prev,
-            partnership_type: currentTypes.filter(t => t !== typeKey)
+            partnership_type: currentTypes.filter(t => t !== type)
           };
         } else {
           return {
             ...prev,
-            partnership_type: [...currentTypes, typeKey]
+            partnership_type: [...currentTypes, type]
           };
         }
       });
     } else {
       // 읽기 모드일 때는 readModePartnershipTypes 상태 변경
       setReadModePartnershipTypes(prev => {
-        if (prev.includes(typeKey)) {
-          return prev.filter(t => t !== typeKey);
+        if (prev.includes(type)) {
+          return prev.filter(t => t !== type);
         } else {
-          return [...prev, typeKey];
+          return [...prev, type];
         }
       });
     }
@@ -1088,6 +1196,19 @@ const OwnerSentProposalDetail = () => {
                   <div>제휴 유형</div>
                 </Title> 
 
+//                 <ContentBox>  
+//                   {partnershipTypes.map(({ type, icon: IconComponent }) => {
+//                     let isSelected = false;
+                    
+//                     if (isEditMode) {
+//                       // 수정 모드에서는 editableForm의 데이터 사용
+//                       isSelected = (editableForm.partnership_type || []).includes(type);
+//                     } else {
+//                       // 읽기 모드에서는 readModePartnershipTypes 상태 사용
+//                       isSelected = readModePartnershipTypes.includes(type);
+//                     }
+
+
                                  <ContentBox>  
                    {partnershipTypes.map(({ type, icon: IconComponent }) => {
                      const typeKey = type === '할인형' ? 'DISCOUNT' : 
@@ -1128,6 +1249,7 @@ const OwnerSentProposalDetail = () => {
 //                       // 읽기 모드에서는 readModePartnershipTypes 상태 사용
 //                       isSelected = readModePartnershipTypes.includes(typeKey);
 //                     }
+
                     
 //                     return (
 //                       <PartnershipTypeBox 
