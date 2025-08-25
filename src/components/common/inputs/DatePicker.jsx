@@ -25,6 +25,15 @@ const DatePicker = ({
   dateData,
   timeData
 }) => {
+  // schedule이 null이면 시간 추가 버튼만 표시
+  if (!schedule) {
+    return (
+      <DatePickerGroup>
+        {idx === total - 1 && <AddTextBtn onClick={onAdd}> <FiPlus /> 시간 추가</AddTextBtn>}
+      </DatePickerGroup>
+    );
+  }
+
   return (
     <DatePickerGroup>
     <DropdownGroup>
@@ -58,11 +67,12 @@ const DatePicker = ({
         />
 
               {/* 제거 버튼 또는 플레이스홀더 */}
-      {total > 1 && idx !== total - 1 ? (
-        <DeleteBtn onClick={() => onRemove(idx)} />
+              <DeleteBtn onClick={() => onRemove(idx)} />
+      {/* {total > 1 && idx !== total ? (
+        
       ) : (
         <DeleteBtnPlaceholder />
-      )}
+      )} */}
 
       {/* 추가 버튼 (마지막 아이템에서만 보임)
       {idx === total - 1 && <AddBtn onClick={onAdd} />} */}
@@ -139,11 +149,12 @@ margin-left: 10px;
 
 const AddTextBtn = styled.button`
 display: flex;
-padding: 4px 7px;
+padding: 6px 10px;
 align-items: center;
+justify-content: center;
 gap: 2px;
 border-radius: 5px;
-background: var(--, #E7E7E7);
+background:  #E7E7E7;
 color: var(--, #898989);
 font-family: Pretendard;
 font-size: 16px;
@@ -151,6 +162,7 @@ font-style: normal;
 font-weight: 400;
 line-height: normal;
 border: none;
+width: 100px;
 
 
 // display: flex;
