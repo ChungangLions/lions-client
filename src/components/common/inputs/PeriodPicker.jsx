@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Dropdown } from "./Dropdown";
 
 // 연, 월, 일 선택용 데이터 예시
-const yearData = { data: Array.from({ length: 10 }, (_, i) => `${2020 + i}년`) };
+const yearData = { data: Array.from({ length: 10 }, (_, i) => `${2025 + i}년`) };
 const monthData = { data: Array.from({ length: 12 }, (_, i) => `${i + 1}월`) };
 const dayData = { data: Array.from({ length: 31 }, (_, i) => `${i + 1}일`) };
 
