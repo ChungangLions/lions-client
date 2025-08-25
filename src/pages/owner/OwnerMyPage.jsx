@@ -525,7 +525,7 @@ const StyledBtn = styled.button`
 
 const ButtonGroup = styled.div`
   position: absolute;
-  right: 40px;
+  right: -5px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
