@@ -87,6 +87,7 @@ width: 100%;
 flex-direction: column;
 align-items: flex-start;
 gap: 15px;
+padding: 0 40px;
 `;
 
 const NumText = styled.div`

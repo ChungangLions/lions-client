@@ -100,8 +100,9 @@ const OwnerMyPage = () => {
 
   const businessTypeMap = {
   RESTAURANT: '일반 음식점',
-  CAFE: '카페',
-  BAR: '술집',
+  CAFE: '카페 및 디저트',
+  BAR: '주점',
+  OTHER: '기타',
   };
 
   const formattedPhotos = (profileData?.photos || []).map(photo => ({

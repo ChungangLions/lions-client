@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-const DealHistoryCard = ({ storeName, period }) => {
+const DealHistoryCard = ({ storeName, period, storeImage }) => {
 //      const { id: groupProfileId } = useParams();
 //     const navigate = useNavigate();
 //   const handleCardClick = (id) => {
@@ -21,7 +21,7 @@ const DealHistoryCard = ({ storeName, period }) => {
     return (
         //<HistoryWrapper key={store.id} onClick={() => handleCardClick(store.id)} >
         <HistoryWrapper >
-            <StoreImage />
+            <StoreImage src={storeImage} />
             <TextContainer>
                 <NameWrapper>
                  {storeName}
@@ -37,7 +37,7 @@ const DealHistoryCard = ({ storeName, period }) => {
 export default DealHistoryCard;
 
 const HistoryWrapper = styled.div`
-width: calc((100% - 3 * 24px) / 4);
+width: 203px;
 position: relative;
 display: flex;
 flex-direction: row;
@@ -45,7 +45,7 @@ align-items: flex-start;
 justify-content: flex-start;
 flex-wrap: wrap;
 align-content: flex-start;
-gap: 18px 24px;
+gap: 15px;
 text-align: left;
 font-size: 16px;
 color: #1a2d06;
@@ -61,7 +61,8 @@ justify-content: flex-start;
 gap: 5px;
 `;
 
-const StoreImage = styled.div`
+const StoreImage = styled.img`
+width: 100%;
     height: 137px;
     align-self: stretch;
     background: ${({ src }) =>

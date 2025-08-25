@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import styled from "styled-components";
 
 const DropDown = ({ options, onClick}) => {
   const [selected, setSelected] = useState("기본 순");
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleSelect = (option) => {
     setSelected(option.label);
@@ -12,8 +13,22 @@ const DropDown = ({ options, onClick}) => {
     if (onClick) onClick(option);
   };
 
+  // 바깥쪽 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <DropDownContainer>
+    <DropDownContainer ref={dropdownRef}>
       <DropDownBtn onClick = {() => setOpen(!open)}>
         {selected} 
         <IoIosArrowDown />

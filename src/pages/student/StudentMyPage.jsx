@@ -252,6 +252,7 @@ const ShopCard = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+    cursor: pointer;
 `;
 
 const ShopImg = styled.img`
