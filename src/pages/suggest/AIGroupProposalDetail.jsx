@@ -1,5 +1,5 @@
-// 이거 하나에 다하려니까 함수 너무 길어져서 나중에 리팩토링 해야댐 ㅠ 
-
+// profileData : 가게 프로필 
+// groupProfile : 학생회 정보
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import SendProposalBtn from '../../components/common/buttons/SendProposalBtn';
@@ -23,6 +23,7 @@ import createProposal, { editProposal, editProposalStatus, getProposal } from '.
 import useUserStore from '../../stores/userStore';
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
 import OrgCardSection from '../../components/common/cards/OrgCardSection';
+import GroupCard from '../../components/common/cards/GroupCard';
 
 
 const AIGroupProposalDetail = () => {
@@ -93,6 +94,7 @@ const AIGroupProposalDetail = () => {
         const groupProfile = await fetchGroupProfile(userId);
         setGroupProfile(groupProfile);
         console.log("학생단체 데이터", groupProfile);
+        console.log("제휴이력 데이터:", groupProfile?.record, groupProfile?.partnership_count);
       } catch(error) {
         console.error("학생 단체 프로필 조회 실패:", error);
       } finally {
@@ -130,25 +132,27 @@ const AIGroupProposalDetail = () => {
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
-  const [contact, setContact] = useState(profileData?.contact);
+  const [contact, setContact] = useState('');
 
   const [ proposalId, setProposalId] = useState(proposalData.id); // 이미 생성됐는지 확인
 
-  // 사장님 프로필 가져오기 -> 유저 아이디로 API 호출
-  const { profileId, setProfileId } = useState(profileData?.id); // 이 profileId로 제안서 불러오기 
+  // 사장님 프로필 가져오기 -> proposalData.recipient.id로 API 호출
+  const [profileId, setProfileId] = useState(proposalData?.recipient?.id); // 이 profileId로 제안서 불러오기 
 
   useEffect(() => {
   const fetchProfile = async () => { 
     try {
-      const ownerId = profileData?.id;
-      const data = await getOwnerProfile(ownerId);
-      setProfileId(data.id);
+      const ownerId = proposalData?.recipient?.id;
+      if (ownerId) {
+        const data = await getOwnerProfile(ownerId);
+        setProfileId(data.id);
+      }
     } catch(error){
-      console.error(error);
+      console.error('사장님 프로필 조회 실패:', error);
     }
   } 
   fetchProfile();
-}, []); 
+}, [proposalData?.recipient?.id]); 
 
   
   // 제안서가 있다면 proposalData 가져오기
@@ -170,9 +174,9 @@ const AIGroupProposalDetail = () => {
       timeWindows: formattedTimeWindows
     });
 
-    // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
+    // 제휴 기간 문자열을 파싱
     if (proposalData.period_start && proposalData.period_end) {
-      // "2025-08-25" 형식을 파싱
+      // "2025-08-25" 형식
       const startDate = new Date(proposalData.period_start);
       const endDate = new Date(proposalData.period_end);
       
@@ -187,7 +191,7 @@ const AIGroupProposalDetail = () => {
         });
       }
     } else if (proposalData.partnership_period) {
-      // 기존 "2025년 8월 25일 ~ 2025년 8월 25일" 형식 파싱
+      //  형식 맞추기
       const periodMatch = proposalData.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
       if (periodMatch) {
         setPartnershipPeriod({
@@ -204,6 +208,13 @@ const AIGroupProposalDetail = () => {
     setExpectedEffects(proposalData.expected_effects || '');
     if (contactInfo) setContact(contactInfo);
   }, [proposalData, contactInfo]);
+
+  // groupProfile이 로드되면 contact 정보 업데이트
+  useEffect(() => {
+    if (groupProfile?.contact && !contact) {
+      setContact(`직책: ${groupProfile.position || ''}\n연락처: ${groupProfile.contact}`);
+    }
+  }, [groupProfile, contact]);
 
 
   // 
@@ -269,7 +280,7 @@ const AIGroupProposalDetail = () => {
   const handleEdit = async () => {
     
     const updateData = {
-      recipient: profileData?.user,
+      recipient: proposalData?.recipient,
       partnership_type: selectedPartnershipTypes,
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
@@ -438,6 +449,14 @@ const AIGroupProposalDetail = () => {
 //     });
 //   };
 
+console.log("데이터확인:", proposalData, profileData, groupProfile);
+
+const mappedOwnerProfile = profileData ? {
+    name: profileData.profile_name,
+    caption: profileData.comment,
+    storeType: profileData.business_type
+  } : null;
+
   
   return (
     <ProposalContainer>
@@ -556,9 +575,10 @@ const AIGroupProposalDetail = () => {
                     defaultText="텍스트를 입력해주세요."
                     width="100%"
                     border="1px solid #E9E9E9"
-                    value={expectedEffects}
+                    value={expectedEffects?.split('.').filter(sentence => sentence.trim()).join('\n')}
                     onChange={(e) => setExpectedEffects(e.target.value)}
                     disabled={!isEditMode}
+                    multiline={true}
                   />
                 </DetailBox>
               )}
@@ -568,9 +588,10 @@ const AIGroupProposalDetail = () => {
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={profileData?.contact}
+                  value={`직책: ${groupProfile?.position || ''}\n연락처: ${groupProfile?.contact || ''}`}
                   onChange={(e) => setContact(e.target.value)}
                   disabled={!isEditMode}
+                  multiline={true}
                 />
               </DetailBox>
               
@@ -578,7 +599,7 @@ const AIGroupProposalDetail = () => {
               
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{profileData?.profile_name}' 드림</Signature>
+          <Signature> {groupProfile?.university_name} {groupProfile?.department} {groupProfile?.council_name} 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
@@ -589,13 +610,29 @@ const AIGroupProposalDetail = () => {
             {/* 사장님 프로필 카드 불러오기 profileData 불러오면 사장님 프로필 정보 볼 수 있음*/}
             
 
-          {groupProfile && (
-             <OrgCardSection
-               cardType={'proposal'}
+          {/* {profileData && (
+             <GroupCard
+               
                organization={groupProfile}
                onClick={() => handleCardClick(groupProfile, groupProfile.id)}
              />
-           )}
+           )} */}
+
+            {/* ownerProfile 띄우기 */}
+                       <GroupCard 
+                                   key={profileData?.id}
+                                   imageUrl={profileData?.photos?.[0]?.image}
+                                   onClick={() => profileData?.user && handleCardClick(profileData.user)} // userId
+                                   // isBest={ownerProfile.isBest}
+                                   // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
+                                   // ButtonComponent={() => (
+                                   //   // <FavoriteBtn 
+                                   //   //   userId={ownerProfile.id} 
+                                   //   //   isLikeActive={likeStores.includes(store.id)}
+                                   //   //   onLikeChange={handleLikeChange}
+                                   //   // />
+                                   // )}
+                                   store={mappedOwnerProfile} />
 
             <ButtonWrapper>
               <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
