@@ -24,8 +24,34 @@ const STATUS_MAP = {
     PARTNERSHIP: "제휴체결",
     REJECTED: "거절",
     DRAFT: "작성중",
+};
 
-  };
+// 상태별 스타일 정의
+const STATUS_STYLES = {
+    READ: {
+        backgroundColor: 'white',
+        borderColor: '#70af19',
+        textColor: '#70af19',
+        label: '열람'
+    },
+    PARTNERSHIP: {
+        backgroundColor: '#70af19',
+        textColor: '#E9F4D0',
+        label: '제휴체결'
+    },
+    REJECTED: {
+        backgroundColor: 'white',
+        borderColor: '#E7E7E7',
+        textColor: '#E7E7E7',
+        label: '거절'
+    },
+    DRAFT: {
+        backgroundColor: 'white',
+        borderColor: '#70af19',
+        textColor: '#70af19',
+        label: '작성중'
+    }
+};
 
 function ProposalCard({ proposalGroup, onClick, cardType}) {
     const handleClick = () => {
@@ -51,7 +77,12 @@ function ProposalCard({ proposalGroup, onClick, cardType}) {
                         <NameText>{proposalGroup.university_name} {proposalGroup.department} '{proposalGroup.council_name}' </NameText>
                     </NameWrapper>
                 </TextWrapper>
-                <ButtonWrapper>{STATUS_MAP[proposalGroup.status]}</ButtonWrapper>
+                <ButtonWrapper 
+                    $status={proposalGroup.status}
+                    $style={STATUS_STYLES[proposalGroup.status]}
+                >
+                    {STATUS_MAP[proposalGroup.status]}
+                </ButtonWrapper>
             </ContentWrapper>
         </Cardwrapper>
   );
@@ -112,7 +143,7 @@ line-height: normal;
 `;
 
 const SendText = styled.div`
-color: var(--main-main950, #1A2D06);
+color: #898989;
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
@@ -136,11 +167,12 @@ justify-content: flex-end;
 align-items: center;
 gap: 10px;
 border-radius: 500px;
-border: 1px solid var(--main-main600, #70AF19);
-color: var(--main-main600, #70AF19);
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
 font-weight: 400;
 line-height: normal;
+border: 1px solid ${props => props.$style?.borderColor || '#70AF19'};
+color: ${props => props.$style?.textColor || '#70AF19'};
+background-color: ${props => props.$style?.backgroundColor || 'transparent'};
 `;

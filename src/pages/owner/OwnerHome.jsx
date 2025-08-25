@@ -205,8 +205,8 @@ const CardListGrid = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  justify-content: start;
-  align-content: start;
+  justify-content: center;
+  align-content: center;
   column-gap: 20px;
   row-gap: 20px;
   text-align: left;
