@@ -300,7 +300,7 @@ const ProposalDetail = () => {
     try {
       const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
-      openModal('제안서가 저장되었어요. <br /> MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+      openModal('제안서가 저장되었어요. MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -503,6 +503,7 @@ const ProposalDetail = () => {
               ButtonComponent={() => <FavoriteBtn organization={organization} />} 
               onClick={handleCardClick}
             />
+            </ReceiverWrapper>
             <ButtonWrapper>
 
                   <StyledEditBtn isEditMode={isEditMode}  />
@@ -510,7 +511,7 @@ const ProposalDetail = () => {
                   <SendProposalBtn onClick={handleSend}/>
            
             </ButtonWrapper>
-          </ReceiverWrapper>
+          
         </ReceiverSection>
         <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
