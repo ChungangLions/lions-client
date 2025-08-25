@@ -13,6 +13,7 @@ import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-i
 import { getProposal } from '../../services/apis/proposalAPI';
 import AcceptBtn from '../../components/common/buttons/proposal/AcceptBtn';
 import RejectBtn from '../../components/common/buttons/proposal/RejectBtn';
+import Modal from '../../components/common/buttons/Modal';
 
 const OwnerReceivedProposalDetail = () => {
   const location = useLocation();
@@ -22,6 +23,20 @@ const OwnerReceivedProposalDetail = () => {
   console.log("받아온 proposal 데이터: ", proposalGroups);
   
   const { storeName } = useOwnerProfile();
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -251,20 +266,22 @@ const OwnerReceivedProposalDetail = () => {
                         <AcceptBtn
                         proposalId={proposalId} 
                         onAccept={() => {
-                          alert('제휴가 체결되었습니다.');
-                        }} 
+                          openModal('제휴가 체결되었습니다.');
+                        }}
+                        onShowModal={openModal}
                       />
                       <RejectBtn 
                         proposalId={proposalId} 
                         onReject={() => {
-          
-                          alert('제안서가 거절되었습니다.');
-                        }} 
+                          openModal('제안서가 거절되었습니다.');
+                        }}
+                        onShowModal={openModal}
                       />
           </ButtonWrapper>
           <CloseBtn onClick={handleBack}>닫기</CloseBtn>      
     
       </ReceiverSection>
+      <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
   )
 }
