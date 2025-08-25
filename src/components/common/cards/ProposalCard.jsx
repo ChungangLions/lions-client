@@ -143,7 +143,7 @@ line-height: normal;
 `;
 
 const SendText = styled.div`
-color: var(--main-main950, #1A2D06);
+color: #898989;
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
