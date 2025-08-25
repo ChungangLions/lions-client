@@ -111,7 +111,7 @@ const AIGroupProposalDetail = () => {
     
     const navigate = useNavigate();
     const handleCardClick = (ownerId) => {
-      navigate(`/student-group/store-profile/${ownerId}`, { state: { userType: "owner", organization } });
+      navigate(`/student-group/store-profile/${ownerId}`);
     }; 
   
   // 제휴 조건 입력 
