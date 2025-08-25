@@ -497,7 +497,7 @@ const AIProposalDetail = () => {
                     defaultText="텍스트를 입력해주세요."
                     width="100%"
                     border="1px solid #E9E9E9"
-                    value={expectedEffects}
+                    value={expectedEffects?.split('.').filter(sentence => sentence.trim()).join('\n')}
                     onChange={(e) => setExpectedEffects(e.target.value)}
                     disabled={!isEditMode}
                   />

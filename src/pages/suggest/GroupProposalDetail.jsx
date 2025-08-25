@@ -85,9 +85,9 @@ const GroupProposalDetail = () => {
   }, [proposal?.id]);
 
   const navigate = useNavigate();
-  const handleCardClick = (organization, id) => {
-    navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
-  }; 
+   const handleCardClick = (ownerId) => {
+      navigate(`/student-group/store-profile/${ownerId}`);
+    }; 
 
   // 제휴 유형 선택
   const [selectedPartnershipTypes, setSelectedPartnershipTypes] = useState([]);
@@ -419,7 +419,16 @@ const GroupProposalDetail = () => {
         console.log("likeStores 내 데이터 출력:", likeStores);
       }, [likeStores]);
     
-console.log(groupProfile);
+      console.log("데이터 확인", groupProfile, profileData);
+
+      const mappedOwnerProfile = profileData ? {
+    name: profileData.profile_name,
+    caption: profileData.comment,
+    storeType: profileData.business_type
+  } : null;
+
+      
+
 
   // 로딩 중일 때 표시
   if (isLoading) {
@@ -556,7 +565,7 @@ console.log(groupProfile);
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={contact}
+                  value={groupProfile.contact}
                   onChange={(e) => setContact(e.target.value)}
                   disabled={!isEditMode}
                 />
@@ -572,13 +581,27 @@ console.log(groupProfile);
 
       {/* 오른쪽 섹션 */}
         <ReceiverSection style={{ top: getProposalContainerTop() }}>
-          {groupProfile && (
+          {/* {groupProfile && (
              <OrgCardSection
                cardType={'proposal'}
                organization={groupProfile}
                onClick={() => handleCardClick(groupProfile, groupProfile.id)}
              />
-           )}
+           )} */}
+           <GroupCard 
+                                              key={profileData?.id}
+                                              imageUrl={profileData?.photos?.[0]?.image}
+                                              onClick={() => profileData?.user && handleCardClick(profileData.user)} // userId
+                                              // isBest={ownerProfile.isBest}
+                                              // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
+                                              // ButtonComponent={() => (
+                                              //   // <FavoriteBtn 
+                                              //   //   userId={ownerProfile.id} 
+                                              //   //   isLikeActive={likeStores.includes(store.id)}
+                                              //   //   onLikeChange={handleLikeChange}
+                                              //   // />
+                                              // )}
+                                              store={mappedOwnerProfile} />
             <ButtonWrapper>
                 <>
                     <EditBtn onClick={toggleEditMode} isEditMode={isEditMode} />
