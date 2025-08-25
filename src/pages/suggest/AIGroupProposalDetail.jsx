@@ -110,8 +110,8 @@ const AIGroupProposalDetail = () => {
   }, [userId]);
     
     const navigate = useNavigate();
-    const handleCardClick = (organization, id) => {
-      navigate(`/owner/student-group-profile/${organization.id}`, { state: { userType: "owner", organization } });
+    const handleCardClick = (ownerId) => {
+      navigate(`/student-group/store-profile/${ownerId}`, { state: { userType: "owner", organization } });
     }; 
   
   // 제휴 조건 입력 
@@ -716,6 +716,7 @@ color: #1a2d06;
 font-family: Pretendard;
 height: fit-content;
 transition: top 0.3s ease-out;
+border:none;
 `;
 
 const ReceiverWrapper = styled.div`
@@ -729,6 +730,7 @@ display: flex;
 flex-direction: column;
 position: relative;
 gap: 10px;
+border:none;
 `;
 
 const SectionWrapper = styled.div`
