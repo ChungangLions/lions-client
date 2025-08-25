@@ -377,7 +377,8 @@ const GroupReceiveProposalDetail = () => {
                         //   // />
                         // )}
                         store={mappedOwnerProfile} />
-          </SelectedCardWrapper>        
+          </SelectedCardWrapper>  
+                  </ReceiverWrapper>
           <ButtonWrapper>
             <RejectBtn 
               proposalId={id} 
@@ -393,9 +394,9 @@ const GroupReceiveProposalDetail = () => {
               }} 
             />
             </ButtonWrapper>
-            <CloseBtn onClick={handleBack}>닫기</CloseBtn>
+        
           
-        </ReceiverWrapper>
+      
       </ReceiverSection>
     </ProposalContainer>
   )

@@ -63,6 +63,7 @@ gap: 5px;
 
 const StoreImage = styled.img`
 width: 100%;
+border-radius:5px;
     height: 137px;
     align-self: stretch;
     background: ${({ src }) =>
