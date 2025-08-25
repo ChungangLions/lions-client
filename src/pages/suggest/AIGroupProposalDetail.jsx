@@ -12,6 +12,7 @@ import Modal from '../../components/common/buttons/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
+import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 
@@ -113,8 +114,17 @@ const AIGroupProposalDetail = () => {
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
     benefitDescription: '',
-    timeWindows: '',
-    partnershipPeriod: ''
+    timeWindows: ''
+  });
+
+  // 제휴 기간 (PeriodPicker용)
+  const [partnershipPeriod, setPartnershipPeriod] = useState({
+    startYear: '',
+    startMonth: '',
+    startDay: '',
+    endYear: '',
+    endMonth: '',
+    endDay: ''
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
@@ -155,12 +165,23 @@ const AIGroupProposalDetail = () => {
     setPartnershipConditions({
       applyTarget: proposalData.apply_target || '',
       benefitDescription: proposalData.benefit_description || '',
-      timeWindows: formattedTimeWindows,
-      partnershipPeriod:
-        proposalData.period_start && proposalData.period_end
-          ? `${proposalData.period_start} ~ ${proposalData.period_end}`
-          : '',
+      timeWindows: formattedTimeWindows
     });
+
+    // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
+    if (proposalData.partnership_period) {
+      const periodMatch = proposalData.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
+      if (periodMatch) {
+        setPartnershipPeriod({
+          startYear: periodMatch[1],
+          startMonth: periodMatch[2],
+          startDay: periodMatch[3],
+          endYear: periodMatch[4],
+          endMonth: periodMatch[5],
+          endDay: periodMatch[6]
+        });
+      }
+    }
 
     setExpectedEffects(proposalData.expected_effects || '');
     if (contactInfo) setContact(contactInfo);
@@ -194,6 +215,25 @@ const AIGroupProposalDetail = () => {
     }));
   };
 
+  // 제휴 기간 변경 핸들러
+  const handlePeriodChange = (field, value) => {
+    setPartnershipPeriod(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // 제휴 기간을 문자열로 변환하는 함수
+  const formatPartnershipPeriod = () => {
+    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
+  };
+
 
   const openModal = (message) => {
     setModalMessage(message);
@@ -216,7 +256,7 @@ const AIGroupProposalDetail = () => {
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
+      partnership_period: formatPartnershipPeriod(),
       contact_info: contact || proposalData.contact_info,
       expected_effects : proposalData.expectedEffects,
     };
@@ -251,7 +291,7 @@ const AIGroupProposalDetail = () => {
       if (!partnershipConditions.applyTarget || 
           !partnershipConditions.benefitDescription || 
           !partnershipConditions.timeWindows || 
-          !partnershipConditions.partnershipPeriod) {
+          !formatPartnershipPeriod()) {
         alert('제휴 조건을 모두 입력해주세요.');
         return;
       }
@@ -267,7 +307,7 @@ const AIGroupProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
         contact_info: contact || contactInfo, // 연락처
       };
 
@@ -304,7 +344,7 @@ const AIGroupProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
         contact_info: contact || contactInfo, // 연락처
       };
 
@@ -483,12 +523,10 @@ const AIGroupProposalDetail = () => {
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.partnershipPeriod}
-                        onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
+                      <PeriodPicker 
+                        value={partnershipPeriod}
+                        onChange={handlePeriodChange}
+                        withDay={true}
                         disabled={!isEditMode}
                       />
                     </ConditionItem>

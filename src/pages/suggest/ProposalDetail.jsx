@@ -15,6 +15,7 @@ import Modal from '../../components/common/buttons/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
+import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 
 // 제휴 유형 아이콘
@@ -48,8 +49,17 @@ const ProposalDetail = () => {
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
     benefitDescription: '',
-    timeWindows: '',
-    partnershipPeriod: ''
+    timeWindows: ''
+  });
+
+  // 제휴 기간 (PeriodPicker용)
+  const [partnershipPeriod, setPartnershipPeriod] = useState({
+    startYear: '',
+    startMonth: '',
+    startDay: '',
+    endYear: '',
+    endMonth: '',
+    endDay: ''
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
@@ -94,9 +104,22 @@ const ProposalDetail = () => {
         setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
       }
       if (proposal.partnership_period) {
-        setPartnershipConditions(prev => ({ ...prev, partnershipPeriod: proposal.partnership_period }));
+        // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
+        const periodMatch = proposal.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
+        if (periodMatch) {
+          setPartnershipPeriod({
+            startYear: periodMatch[1],
+            startMonth: periodMatch[2],
+            startDay: periodMatch[3],
+            endYear: periodMatch[4],
+            endMonth: periodMatch[5],
+            endDay: periodMatch[6]
+          });
+        }
       }
-    
+      if (proposal.expected_effects) {
+        setExpectedEffects(proposal.expected_effects);
+      }
       if (proposal.contact_info) {
         setContact(proposal.contact_info);
       }
@@ -130,6 +153,25 @@ const ProposalDetail = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // 제휴 기간 변경 핸들러
+  const handlePeriodChange = (field, value) => {
+    setPartnershipPeriod(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // 제휴 기간을 문자열로 변환하는 함수
+  const formatPartnershipPeriod = () => {
+    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
   };
 
   const openModal = (message) => {
@@ -179,7 +221,7 @@ const ProposalDetail = () => {
       if (!partnershipConditions.applyTarget || 
           !partnershipConditions.benefitDescription || 
           !partnershipConditions.timeWindows || 
-          !partnershipConditions.partnershipPeriod) {
+          !formatPartnershipPeriod()) {
         alert('제휴 조건을 모두 입력해주세요.');
         return;
       }
@@ -195,8 +237,8 @@ const ProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-    
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
+      
         contact_info: contact || contactInfo, // 연락처
       };
 
@@ -245,8 +287,8 @@ const ProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
-  
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
+      
         contact_info: contact || contactInfo, // 연락처
         title: "제안서",
         contents: "제휴 내용",
@@ -258,7 +300,7 @@ const ProposalDetail = () => {
     try {
       const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
-      openModal('제안서가 저장되었어요.\nMY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+      openModal('제안서가 저장되었어요. <br /> MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -409,13 +451,11 @@ const ProposalDetail = () => {
                   </ConditionItem>
                   <ConditionItem>
                     <ConditionLabel>제휴 기간</ConditionLabel>
-                    <InputBox 
-                      defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
-                      width="100%"
-                      border="1px solid #E9E9E9"
-                      value={partnershipConditions.partnershipPeriod}
-                      onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
-                      readOnly={proposal && proposal.status !== 'DRAFT'}
+                    <PeriodPicker 
+                      value={partnershipPeriod}
+                      onChange={handlePeriodChange}
+                      withDay={true}
+                      disabled={proposal && proposal.status !== 'DRAFT'}
                     />
                   </ConditionItem>
                   <ConditionItem>
@@ -429,7 +469,7 @@ const ProposalDetail = () => {
                       readOnly={proposal && proposal.status !== 'DRAFT'}
                     />
                   </ConditionItem>
-   
+                
                 </ConditionsBox>
               </DetailBox>
 
