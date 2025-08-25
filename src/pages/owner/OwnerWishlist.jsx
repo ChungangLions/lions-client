@@ -10,6 +10,8 @@ import FavoriteBtn from '../../components/common/buttons/FavoriteBtn'
 import { fetchLikes, fetchUserLikes } from '../../services/apis/likesapi'
 import useUserStore from '../../stores/userStore'
 
+// 더 이상 필요하지 않으므로 제거
+
 const OwnerWishlist = () => {
   const navigate = useNavigate();
   const { userId } = useUserStore();
@@ -23,20 +25,39 @@ const OwnerWishlist = () => {
   console.log("userType", userType);
 
   const [likeStores, setLikeStores] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    fetchAndSetOrganizations();
-    const fetchUserLikes = async () => {
-      const list = await fetchLikes('given');
-      setLikeStores(list.map(item => item.target.id));
-      console.log("좋아요한 학생회 리스트:", list);
-      console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await fetchAndSetOrganizations();
+        const list = await fetchLikes('given');
+        setLikeStores(list.map(item => item.target.id));
+        console.log("좋아요한 학생회 리스트:", list);
+        console.log("좋아요한 학생회 ID배열:", list.map(item => item.target.id));
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchUserLikes();
+    fetchData();
   }, []);
 
   // 찜한 항목들만 필터링
   const likedOrganizations = organizations.filter(org => likeStores.includes(org.user));
+
+  if (loading) {
+    return (
+      <PageConatainer>
+        <Menu />
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </PageConatainer>
+    );
+  }
 
   return (
     <PageConatainer>
@@ -55,6 +76,7 @@ const OwnerWishlist = () => {
                 key={organization.id}
                 onClick={handleCardClick}
                 cardType={'home'}
+                compact={true}
                 ButtonComponent={() => (
                   <FavoriteBtn 
                     userId={organization.user} 
@@ -161,6 +183,21 @@ const EmptyResultContainer = styled.div`
 `;
 
 const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
   font-family: Pretendard;
   font-size: 18px;
   color: #898989;

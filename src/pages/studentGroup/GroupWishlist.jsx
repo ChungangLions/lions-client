@@ -19,21 +19,42 @@ const GroupWishlist = () => {
   };
 
   const [likeStores, setLikeStores] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    fetchStores();
-    const fetchUserLikes = async () => {
-      const list = await fetchLikes('given');
-      setLikeStores(list.map(item => item.target.id));
-      console.log("좋아요한 가게 리스트:", list);
-      console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await fetchStores();
+        const list = await fetchLikes('given');
+        setLikeStores(list.map(item => item.target.id));
+        console.log("좋아요한 가게 리스트:", list);
+        console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchUserLikes();
+    fetchData();
   }, []);
 
   // 찜한 항목들만 필터링
   const filteredLikeStores = stores.filter(store => likeStores.includes(store.id));
   console.log("filteredLikeStores: ", filteredLikeStores);
+
+  if (loading) {
+    return (
+      <PageConatainer>
+        <ContentContainer>
+          <MenuGroup />
+          <LoadingContainer>
+            <LoadingText>로딩중 ...</LoadingText>
+          </LoadingContainer>
+        </ContentContainer>
+      </PageConatainer>
+    );
+  }
 
   return (
     <PageConatainer>
@@ -156,6 +177,21 @@ const EmptyResultContainer = styled.div`
 `;
 
 const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
   font-family: Pretendard;
   font-size: 18px;
   color: #898989;

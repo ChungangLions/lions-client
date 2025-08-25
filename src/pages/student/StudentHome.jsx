@@ -23,6 +23,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 const StudentHome = () => {
   const [recommendedStores, setRecommendedStores] = useState([]);
   const [storeRecommendCounts, setStoreRecommendCounts] = useState({});
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   
   const handleCardClick = (id) => {
@@ -66,17 +67,21 @@ const StudentHome = () => {
   } = useVenueStore();
 
   useEffect(() => {
-    fetchStores();
-  }, []);
-
-  useEffect(() => {
-    const fetchUserRecommendations = async () => {
-      const list = await fetchRecommendations('given');
-      setRecommendedStores(list.map(item => item.to_user.id));
-      console.log("추천한 가게 리스트:", list);
-      console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await fetchStores();
+        const list = await fetchRecommendations('given');
+        setRecommendedStores(list.map(item => item.to_user.id));
+        console.log("추천한 가게 리스트:", list);
+        console.log("추천한 가게 ID배열:", list.map(item => item.to_user.id));
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchUserRecommendations();
+    fetchData();
   }, []);
 
   const handleSortChange = (e) => {
@@ -123,7 +128,15 @@ const StudentHome = () => {
   }
   },[studentCampus, stores]);
 
- 
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -336,6 +349,21 @@ const EmptyResultContainer = styled.div`
 `;
 
 const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
   font-family: Pretendard;
   font-size: 18px;
   color: #898989;

@@ -278,7 +278,6 @@ const OwnerEditMyPage = () => {
       '일반 음식점': "RESTAURANT",
       '주점': "BAR",
       '기타': "OTHER",
-
     };
 
     return toBusinessType[data] || data;
@@ -497,77 +496,61 @@ const OwnerEditMyPage = () => {
   };
 
   // ---- 우측 리스트 스크롤 구현 ----
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
+  useEffect(() => {       // 스크롤 위치 감지
+    const handleScroll = () => {
+      const newScrollY = window.scrollY;
+      setScrollY(newScrollY);
+      console.log('🔄 Scroll Y Updated:', newScrollY); // 디버깅용
+    };
+
+    // 초기 스크롤 위치 설정
+    setScrollY(window.scrollY);
+    console.log('🚀 Initial Scroll Y:', window.scrollY); // 초기값 확인
+    
+    // 스크롤 이벤트 리스너 추가 (passive 제거하여 더 확실하게)
+    window.addEventListener('scroll', handleScroll, { passive: false });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // useEffect(() => {       // 스크롤 위치 감지
-  //   const handleScroll = () => {
-  //     const newScrollY = window.scrollY;
-  //     setScrollY(newScrollY);
-  //     console.log('🔄 Scroll Y Updated:', newScrollY); // 디버깅용
-  //   };
-
-  //   // 초기 스크롤 위치 설정
-  //   setScrollY(window.scrollY);
-  //   console.log('🚀 Initial Scroll Y:', window.scrollY); // 초기값 확인
+  const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
+    console.log('🎯 getProgressContainerTop 함수 호출됨!'); // 함수 호출 확인
     
-  //   // 스크롤 이벤트 리스너 추가 (passive 제거하여 더 확실하게)
-  //   window.addEventListener('scroll', handleScroll, { passive: false });
-  //   return () => window.removeEventListener('scroll', handleScroll);
-  // }, []);
-
-  const getProgressContainerTop = React.useCallback(() => {
-    const maxTop = 235;
-    const minTop = 80;
-    if (scrollY <= 0) return maxTop;
-    if (scrollY >= 50) return minTop;
-    const progress = scrollY / 50;
-    return maxTop - progress * (maxTop - minTop);
-    console.log("ScrollY", scrollY);
-  }, [scrollY]);
-
-  // const getProgressContainerTop = () => {       // ProgressContainer 위치 계산
-  //   console.log('🎯 getProgressContainerTop 함수 호출됨!'); // 함수 호출 확인
+    const maxTop = 235;   // 초기 위치 (스크롤 0일 때)
+    const minTop = 80;    // 헤더 바로 아래 위치 (스크롤 시)
     
-  //   const maxTop = 235;   // 초기 위치 (스크롤 0일 때)
-  //   const minTop = 80;    // 헤더 바로 아래 위치 (스크롤 시)
+    // scrollY가 undefined나 null인 경우 기본값 사용
+    const currentScrollY = scrollY || 0;
     
-  //   // scrollY가 undefined나 null인 경우 기본값 사용
-  //   const currentScrollY = scrollY || 0;
+    // 실시간 디버깅용 로그 - minTop 반영 여부 확인
+    console.log('=== SCROLL DEBUG ===');
+    console.log('Current Scroll Y:', currentScrollY);
+    console.log('MaxTop:', maxTop, 'MinTop:', minTop);
+    console.log('Scroll threshold (200px):', currentScrollY >= 200 ? 'OVER' : 'UNDER');
+    console.log('Type of currentScrollY:', typeof currentScrollY);
+    console.log('Is currentScrollY >= 200?', currentScrollY >= 200);
     
-  //   // 실시간 디버깅용 로그 - minTop 반영 여부 확인
-  //   console.log('=== SCROLL DEBUG ===');
-  //   console.log('Current Scroll Y:', currentScrollY);
-  //   console.log('MaxTop:', maxTop, 'MinTop:', minTop);
-  //   console.log('Scroll threshold (200px):', currentScrollY >= 200 ? 'OVER' : 'UNDER');
-  //   console.log('Type of currentScrollY:', typeof currentScrollY);
-  //   console.log('Is currentScrollY >= 200?', currentScrollY >= 200);
+    // 스크롤이 0일 때는 maxTop 위치에 고정
+    if (currentScrollY <= 0) {
+      console.log('✅ Condition: Scroll <= 0, Returning maxTop:', maxTop);
+      return maxTop;
+    }
     
-  //   // 스크롤이 0일 때는 maxTop 위치에 고정
-  //   if (currentScrollY <= 0) {
-  //     console.log('✅ Condition: Scroll <= 0, Returning maxTop:', maxTop);
-  //     return maxTop;
-  //   }
+    // 스크롤이 200px 이상일 때는 minTop 위치에 고정 (헤더 바로 아래)
+    if (currentScrollY >= 200) {
+      console.log('🎯 Condition: Scroll >= 200, Returning minTop:', minTop);
+      console.log('🔍 minTop이 실제로 반영되는지 확인:', minTop);
+      return minTop;
+    }
     
-  //   // 스크롤이 200px 이상일 때는 minTop 위치에 고정 (헤더 바로 아래)
-  //   if (currentScrollY >= 200) {
-  //     console.log('🎯 Condition: Scroll >= 200, Returning minTop:', minTop);
-  //     console.log('🔍 minTop이 실제로 반영되는지 확인:', minTop);
-  //     return minTop;
-  //   }
-    
-  //   // 0~200px 사이에서는 선형적으로 이동
-  //   const progress = currentScrollY / 200;
-  //   const calculatedTop = maxTop - (progress * (maxTop - minTop));
-  //   console.log('📊 Condition: 0 < Scroll < 200');
-  //   console.log('Progress:', progress.toFixed(3));
-  //   console.log('Calculated Top:', calculatedTop.toFixed(2));
-  //   console.log('==================');
-  //   return calculatedTop;
-  // };
+    // 0~200px 사이에서는 선형적으로 이동
+    const progress = currentScrollY / 200;
+    const calculatedTop = maxTop - (progress * (maxTop - minTop));
+    console.log('📊 Condition: 0 < Scroll < 200');
+    console.log('Progress:', progress.toFixed(3));
+    console.log('Calculated Top:', calculatedTop.toFixed(2));
+    console.log('==================');
+    return calculatedTop;
+  };
 
   // 각 섹션별 ref (리스트 아이템 클릭했을 때 이동값값)
   const sectionRefs = {
