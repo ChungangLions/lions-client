@@ -181,8 +181,6 @@ const OwnerSentProposalDetail = () => {
 
 
 
-
-
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
     const typeMap = {
@@ -621,6 +619,7 @@ const OwnerSentProposalDetail = () => {
       openModal('AI 제안서 생성에 실패했습니다.');
     } finally {
       setIsAILoading(false);
+
     }
   };
 
@@ -735,16 +734,14 @@ const OwnerSentProposalDetail = () => {
                 <Title> 
                   <div>제휴 유형</div>
                 </Title> 
-                                 <ContentBox>  
+                  <ContentBox>  
                    {partnershipTypes.map(({ type, icon: IconComponent }) => {
                      const typeKey = type === '할인형' ? 'DISCOUNT' : 
                                     type === '타임형' ? 'TIME' : 
                                     type === '리뷰형' ? 'REVIEW' : 
                                     type === '서비스제공형' ? 'SERVICE' : type;
                      
-                     const isSelected = isEditMode 
-                       ? (editableForm.partnership_type || []).includes(typeKey)
-                       : getPartnershipTypes(selectedProposal).includes(type);
+                     const isSelected = getPartnershipTypes(selectedProposal).includes(type);
                      
                      return (
                        <PartnershipTypeBox 
@@ -1171,7 +1168,6 @@ const ActionButtonRow = styled.div`
   flex-direction: row;
   gap: 8px;
 `;
-
 const AIProposalBtn = styled.button`
   width: 100%;
   position: relative;
@@ -1205,6 +1201,7 @@ const AIProposalBtn = styled.button`
     border-color: #ddd;
   }
 `;
+
 
 // const ButtonWrapper = styled.div`
 //   display: grid;

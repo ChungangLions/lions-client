@@ -706,6 +706,8 @@ const GroupProposalDetail = () => {
                                               key={profileData?.id}
                                               imageUrl={profileData?.photos?.[0]?.image}
                                               onClick={() => profileData?.user && handleCardClick(profileData.user)} // userId
+                                              likes={false}
+                                              recommends={false}
                                               // isBest={ownerProfile.isBest}
                                               // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
                                               // ButtonComponent={() => (
@@ -859,16 +861,23 @@ p {
 `;
 
 const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 8px;
+  display: flex;
   width: 100%;
-  margin-top: 4px;
-
-  & > *:nth-child(3) {
-    grid-column: 1 / -1;
-  }
+  flex-direction: row;
+  gap: 8px;
 `;
+
+// const ButtonWrapper = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 2fr;
+//   gap: 8px;
+//   width: 100%;
+//   margin-top: 4px;
+
+//   & > *:nth-child(3) {
+//     grid-column: 1 / -1;
+//   }
+// `;
 
 const LineDiv = styled.div`
 width: 100%;

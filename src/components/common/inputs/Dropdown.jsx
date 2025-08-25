@@ -21,7 +21,9 @@ export const Dropdown = (props) => {
 
   useEffect(() => {
     setCurrentValue(value ?? '');
+  }, [value]);
 
+  useEffect(() => {
     // NOTE: Dropdwon 박스 바깥쪽을 클릭시 옵션이 사라지는 기능
     function handleClickOutside(event) {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
@@ -33,7 +35,7 @@ export const Dropdown = (props) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [value, list, selectRef]);
+  }, [selectRef]);
 
   return (
     <SelectBox 
@@ -43,7 +45,7 @@ export const Dropdown = (props) => {
       $disabled={disabled}
     >
       <Label>
-        {currentValue ? currentValue : (placeholder ?? list[0])} <DropdownArrow />
+        {value ? value : (placeholder ?? list[0])} <DropdownArrow />
       </Label>
       <SelectOptions show={showOptions}>
         {list.map((data) => (

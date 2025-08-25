@@ -316,7 +316,7 @@ const OwnerReceivedProposalDetail = () => {
                         onShowModal={openModal}
                       />
           </ButtonWrapper>
-          <CloseBtn onClick={handleBack}>닫기</CloseBtn>      
+          {/* <CloseBtn onClick={handleBack}>닫기</CloseBtn>       */}
     
       </ReceiverSection>
       <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
