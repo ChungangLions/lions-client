@@ -18,7 +18,7 @@ import { FiSearch } from "react-icons/fi";
 import { IoIosClose } from "react-icons/io";
 
 // ---- 샘플 데이터 ----
-const sampleType = { data: ["일반 음식점", "카페", "술집", "기타"] };
+const sampleType = { data: ["일반 음식점", "카페 및 디저트", "주점", "기타"] };
 const Day = { data: ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"] };
 const Time = {
   data: Array.from({ length: 48 }, (_, i) => {
@@ -208,8 +208,9 @@ const OwnerEditMyPage = () => {
 
   const businessTypeMap = {
     RESTAURANT: '일반 음식점',
-    CAFE: '카페',
-    BAR: '술집',
+    CAFE: '카페 및 디저트',
+    BAR: '주점',
+    OTHER: '기타',
   };
   
   const { userId } = useUserStore();
@@ -267,9 +268,10 @@ const OwnerEditMyPage = () => {
 
   const convertToApiBusiness = (data) => {
     const toBusinessType = {
-      카페: "CAFE",
+      '카페 및 디저트': "CAFE",
       '일반 음식점': "RESTAURANT",
-      술집: "BAR",
+      '주점': "BAR",
+      '기타': "OTHER",
     };
 
     return toBusinessType[data] || data;

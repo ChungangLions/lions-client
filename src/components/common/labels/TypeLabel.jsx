@@ -2,11 +2,13 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import useVenueStore from '../../../stores/venueStore';
 import { PiDropSimple } from 'react-icons/pi';
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const storeTypes = {
   RESTAURANT: { label: '일반 음식점', icon: '🍚' },
   CAFE: { label: '카페 및 디저트', icon: '☕' },
   BAR: { label: '주점', icon: '🍺' },
+  OTHER: { label: '기타', icon: <HiDotsHorizontal /> },
 };
 
 function TypeLabel({ storeType, background }) {
@@ -48,6 +50,8 @@ const LabelBox = styled.div`
       case 'CAFE':
         return '130px';
       case 'BAR':
+        return '70px';
+      case 'OTHER':
         return '70px';
       default:
         return 'auto';
