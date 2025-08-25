@@ -7,7 +7,7 @@ export const Dropdown = (props) => {
   const list = props.props?.data ?? [];
   const selectRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
-  const {value, onChange, width, placeholder} = props;
+  const {value, onChange, width, placeholder, disabled} = props;
   const [currentValue, setCurrentValue] = useState(value || '');
 
   
@@ -36,7 +36,12 @@ export const Dropdown = (props) => {
   }, [value, list, selectRef]);
 
   return (
-    <SelectBox onClick={() => setShowOptions((prev) => !prev)} ref={selectRef} $width={width}>
+    <SelectBox 
+      onClick={() => !disabled && setShowOptions((prev) => !prev)} 
+      ref={selectRef} 
+      $width={width}
+      $disabled={disabled}
+    >
       <Label>
         {currentValue ? currentValue : (placeholder ?? list[0])} <DropdownArrow />
       </Label>
@@ -62,11 +67,12 @@ const SelectBox = styled.div`
   padding: 10px;
   gap: 10px;
   margin-top: 10px;
-  background-color: #FFF;
+  background-color: ${(props) => props.$disabled ? "#F5F5F5" : "#FFF"};
   border-radius: 5px;
 //   align-self: center;
 
-  cursor: pointer;
+  cursor: ${(props) => props.$disabled ? "not-allowed" : "pointer"};
+  opacity: ${(props) => props.$disabled ? 0.6 : 1};
   // &::before {
   //   content: "⌵";
   //   position: absolute;

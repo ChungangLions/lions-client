@@ -12,6 +12,7 @@ import Modal from '../../components/common/buttons/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
+import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 
 // 제휴 유형 아이콘
@@ -96,8 +97,17 @@ const GroupProposalDetail = () => {
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
     benefitDescription: '',
-    timeWindows: '',
-    partnershipPeriod: ''
+    timeWindows: ''
+  });
+
+  // 제휴 기간 (PeriodPicker용)
+  const [partnershipPeriod, setPartnershipPeriod] = useState({
+    startYear: '',
+    startMonth: '',
+    startDay: '',
+    endYear: '',
+    endMonth: '',
+    endDay: ''
   });
 
   const [expectedEffects, setExpectedEffects] = useState('');
@@ -137,7 +147,18 @@ const GroupProposalDetail = () => {
         setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
       }
       if (proposal.partnership_period) {
-        setPartnershipConditions(prev => ({ ...prev, partnershipPeriod: proposal.partnership_period }));
+        // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
+        const periodMatch = proposal.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
+        if (periodMatch) {
+          setPartnershipPeriod({
+            startYear: periodMatch[1],
+            startMonth: periodMatch[2],
+            startDay: periodMatch[3],
+            endYear: periodMatch[4],
+            endMonth: periodMatch[5],
+            endDay: periodMatch[6]
+          });
+        }
       }
       if (proposal.contact_info) {
         setContact(proposal.contact_info);
@@ -174,6 +195,25 @@ const GroupProposalDetail = () => {
     }));
   };
 
+  // 제휴 기간 변경 핸들러
+  const handlePeriodChange = (field, value) => {
+    setPartnershipPeriod(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // 제휴 기간을 문자열로 변환하는 함수
+  const formatPartnershipPeriod = () => {
+    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
+  };
+
   // 수정하기
   const handleEdit = async () => {
     
@@ -183,7 +223,7 @@ const GroupProposalDetail = () => {
       apply_target: partnershipConditions.applyTarget,
       time_windows: partnershipConditions.timeWindows,
       benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: partnershipConditions.partnershipPeriod,
+      partnership_period: formatPartnershipPeriod(),
       contact_info: contact,
       title: '제안서',
       contents: '제휴 내용',
@@ -218,7 +258,7 @@ const GroupProposalDetail = () => {
       if (!partnershipConditions.applyTarget || 
           !partnershipConditions.benefitDescription || 
           !partnershipConditions.timeWindows || 
-          !partnershipConditions.partnershipPeriod) {
+          !formatPartnershipPeriod()) {
         alert('제휴 조건을 모두 입력해주세요.');
         return;
       }
@@ -234,7 +274,7 @@ const GroupProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
         contact_info: contact || "", // 연락처
 
       };
@@ -297,7 +337,7 @@ const GroupProposalDetail = () => {
         apply_target: partnershipConditions.applyTarget, // 적용 대상
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+        partnership_period: formatPartnershipPeriod(), // 제휴 기간
         contact_info: contact || '', // 연락처
         
       };
@@ -464,60 +504,54 @@ console.log(groupProfile);
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 대상</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.applyTarget}
-                        onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>혜택 내용</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 아메리카노 10% 할인" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.benefitDescription}
-                        onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 평일 13:00 - 15:00" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.timeWindows}
-                        onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>제휴 기간</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.partnershipPeriod}
-                        onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
-                        disabled={!isEditMode}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
+                  <ConditionItem>
+                    <ConditionLabel>적용 대상</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.applyTarget}
+                      onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>혜택 내용</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 아메리카노 10% 할인" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.benefitDescription}
+                      onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>제휴 기간</ConditionLabel>
+                    <PeriodPicker 
+                      value={partnershipPeriod}
+                      onChange={handlePeriodChange}
+                      withDay={true}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>적용 시간대</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 평일 13:00 - 15:00" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.timeWindows}
+                      onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
 
       
 
-              <DetailBox>
+              <DetailBox style={{ marginTop: '10px' }}>
                 <Title> <div>연락처</div> </Title>
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
@@ -819,21 +853,12 @@ align-self: stretch;
 border-radius: 5px;
 background-color: #fff;
 display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: space-between;
-padding: 15px 20px;
-gap: 40px;
-font-size: 16px;
-`;
-
-const ConditionGroup = styled.div`
-width: 50%;
-display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-gap: 39px;
+padding: 20px;
+gap: 25px;
+font-size: 16px;
 `;
 
 const ConditionItem = styled.div`
@@ -841,7 +866,7 @@ const ConditionItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 `;
 
@@ -856,6 +881,7 @@ color: #1a2d06;
 font-family: Pretendard;
 font-weight: 600;
 white-space: nowrap;
+margin-bottom: 4px;
 `;
 
 const ConditionTitle = styled.div`

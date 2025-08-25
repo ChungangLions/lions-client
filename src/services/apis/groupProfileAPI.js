@@ -87,7 +87,7 @@ export function mappedOrg(user, idx) {
       partnership_end: user?.partnership_end ? user.partnership_end.slice(0, 10) : (user?.modified_at?.slice(0, 7) || ""),
       term_start : user?.term_start,
       term_end : user?.term_end,
-      record: user?.partnership_count || 0, // 제휴 이력 추가
+      record: user?.partnership_count ?? 0, // 제휴 이력 추가
       photos: user?.photos?.map(photo => photo.image) // url 배열
     };
 }

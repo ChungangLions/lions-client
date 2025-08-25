@@ -52,7 +52,7 @@ width: 100%;
 `;
 
 const ModalWrapper = styled.div`
- width: 450px; 
+ width: 500px; 
   height: 250px; 
   background-color: #fff;
   border-radius: 5px;
@@ -79,6 +79,7 @@ const ModalMessage = styled.div`
   color: #1a2d06;
   text-align: center;
   line-height: 1.5;
+   white-space: pre-line;
 `;
 
 const ModalButton = styled.button`

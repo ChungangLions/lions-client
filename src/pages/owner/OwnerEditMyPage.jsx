@@ -272,6 +272,7 @@ const OwnerEditMyPage = () => {
       '일반 음식점': "RESTAURANT",
       '주점': "BAR",
       '기타': "OTHER",
+
     };
 
     return toBusinessType[data] || data;

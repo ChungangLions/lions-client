@@ -324,7 +324,7 @@ const OwnerSentProposalDetail = () => {
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-                  <ConditionGroup>
+
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
                       <ConditionContent>
@@ -337,21 +337,22 @@ const OwnerSentProposalDetail = () => {
                         <p>{selectedProposal.benefit_description || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
-                  </ConditionGroup>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <ConditionContent>
-                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
-                      </ConditionContent>
-                    </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
                        <p>{selectedProposal.partnership_start || '(입력되지 않음)'} ~ {selectedProposal.partnership_end || '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
-                  </ConditionGroup>
+
+
+                    <ConditionItem>
+                      <ConditionLabel>적용 시간대</ConditionLabel>
+                      <ConditionContent>
+                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
+                      </ConditionContent>
+                    </ConditionItem>
+                  
+
                 </ConditionsBox>
               </DetailBox>
 

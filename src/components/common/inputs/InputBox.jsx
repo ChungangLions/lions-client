@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px", readOnly=false, disabled=false, onClick, onEnter }) => {
+const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, type="text", border="0px", readOnly=false, disabled=false, onClick, onEnter, multiline=false }) => {
   
   const handleEnter = (e) => {
     if (e.key === "Enter") {
@@ -11,19 +11,35 @@ const InputBox = ({ defaultText, unit = "", width = "795px", value, onChange, ty
 
   return (
     <InputWrapper $width={width}>
-      <TextInput
-        type={type}
-        placeholder={defaultText}
-        $withUnit={!!unit}
-        $width={width}
-        $border={border}
-        value={value}
-        onChange={onChange}
-        readOnly={readOnly}
-        disabled={disabled}
-        onClick={onClick}
-        onKeyDown={handleEnter}
-      />
+      {multiline ? (
+        <TextArea
+          placeholder={defaultText}
+          $withUnit={!!unit}
+          $width={width}
+          $border={border}
+          value={value}
+          onChange={onChange}
+          readOnly={readOnly}
+          disabled={disabled}
+          onClick={onClick}
+          onKeyDown={handleEnter}
+          rows={3}
+        />
+      ) : (
+        <TextInput
+          type={type}
+          placeholder={defaultText}
+          $withUnit={!!unit}
+          $width={width}
+          $border={border}
+          value={value}
+          onChange={onChange}
+          readOnly={readOnly}
+          disabled={disabled}
+          onClick={onClick}
+          onKeyDown={handleEnter}
+        />
+      )}
       {unit && <InputUnit>{unit}</InputUnit>}
     </InputWrapper>
   );
@@ -59,6 +75,26 @@ const TextInput = styled.input`
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 15px 20px;
+  background-color:#fff;
+  border: ${(props) => props.$border || "0px"};
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 400;
+  /* 단위 공간 확보 (글자가 input 겹치지 않도록 오른쪽 여백 추가) */
+  padding-right: ${(props) => (props.$withUnit ? "36px" : "20px")};
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+
+  & ::placeholder {
+    color: #898989;
   }
 `;
 
