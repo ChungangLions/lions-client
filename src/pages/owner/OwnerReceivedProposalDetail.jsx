@@ -13,6 +13,7 @@ import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-i
 import { getProposal } from '../../services/apis/proposalAPI';
 import AcceptBtn from '../../components/common/buttons/proposal/AcceptBtn';
 import RejectBtn from '../../components/common/buttons/proposal/RejectBtn';
+import Modal from '../../components/common/buttons/Modal';
 
 const OwnerReceivedProposalDetail = () => {
   const location = useLocation();
@@ -22,6 +23,20 @@ const OwnerReceivedProposalDetail = () => {
   console.log("받아온 proposal 데이터: ", proposalGroups);
   
   const { storeName } = useOwnerProfile();
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -52,6 +67,44 @@ const OwnerReceivedProposalDetail = () => {
       return newGroupProposal.partnership_type.map(type => mapPartnershipType(type));
     }
     return [mapPartnershipType(newGroupProposal.partnership_type)];
+  };
+
+  // time_windows 객체를 문자열로 변환하는 함수
+  const formatTimeWindows = (timeWindows) => {
+    try {
+      if (!timeWindows) return '(입력되지 않음)';
+      
+      if (typeof timeWindows === 'string') {
+        return timeWindows;
+      }
+      
+      if (Array.isArray(timeWindows)) {
+        const formattedTimes = timeWindows.map(time => {
+          if (typeof time === 'string') return time;
+          if (typeof time === 'object' && time !== null) {
+            const days = Array.isArray(time.days) 
+              ? time.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+              : typeof time.days === 'string' ? time.days : '';
+            return `${days} ${time.start || ''} ~ ${time.end || ''}`;
+          }
+          return '';
+        }).filter(time => time !== '');
+        return formattedTimes.length > 0 ? formattedTimes.join(" / ") : '(입력되지 않음)';
+      }
+      
+      if (typeof timeWindows === 'object' && timeWindows !== null) {
+        const days = Array.isArray(timeWindows.days) 
+          ? timeWindows.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+          : typeof timeWindows.days === 'string' ? timeWindows.days : '';
+        const result = `${days} ${timeWindows.start || ''} ~ ${timeWindows.end || ''}`;
+        return result.trim() ? result : '(입력되지 않음)';
+      }
+      
+      return '(입력되지 않음)';
+    } catch (error) {
+      console.error('Error formatting time windows:', error);
+      return '(입력되지 않음)';
+    }
   };
 
   // 제휴 유형 데이터
@@ -212,7 +265,7 @@ const OwnerReceivedProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{newGroupProposal.time_windows|| '(입력되지 않음)'}</p>
+                        <p>{formatTimeWindows(newGroupProposal?.time_windows)}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
@@ -251,20 +304,22 @@ const OwnerReceivedProposalDetail = () => {
                         <AcceptBtn
                         proposalId={proposalId} 
                         onAccept={() => {
-                          alert('제휴가 체결되었습니다.');
-                        }} 
+                          openModal('제휴가 체결되었습니다.');
+                        }}
+                        onShowModal={openModal}
                       />
                       <RejectBtn 
                         proposalId={proposalId} 
                         onReject={() => {
-          
-                          alert('제안서가 거절되었습니다.');
-                        }} 
+                          openModal('제안서가 거절되었습니다.');
+                        }}
+                        onShowModal={openModal}
                       />
           </ButtonWrapper>
           <CloseBtn onClick={handleBack}>닫기</CloseBtn>      
     
       </ReceiverSection>
+      <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
   )
 }

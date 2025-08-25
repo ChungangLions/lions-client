@@ -17,16 +17,19 @@ const StyledStatusBtn = styled.button`
   position: relative;
   border-radius: 5px;
   box-sizing: border-box;
-  height: 45px;
+  min-height: 45px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 13px 81px;
-  text-align: left;
+  padding: 13px 20px;
+  text-align: center;
   font-size: 16px;
   font-family: Pretendard;
   transition: all 0.2s ease;
+  word-wrap: break-word;
+  white-space: normal;
+  line-height: 1.2;
 
   ${props => {
     switch (props.status) {
@@ -35,7 +38,6 @@ const StyledStatusBtn = styled.button`
           border: 1px solid #bcbcbc;
           background-color: transparent;
           color: #bcbcbc;
-    
         `;
       case 'PARTNERSHIP':
         return `
@@ -48,21 +50,18 @@ const StyledStatusBtn = styled.button`
           border: 1px solid #70af19;
           background-color: transparent;
           color: #70af19;
-
         `;
       case 'REJECTED':
         return `
           background-color: #bcbcbc;
           border: 1px solid #898989;
           color: #898989;
-
         `;
       default:
         return `
           border: 1px solid #bcbcbc;
           background-color: transparent;
           color: #bcbcbc;
-          
         `;
     }
   }}

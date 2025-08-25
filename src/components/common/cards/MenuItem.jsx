@@ -45,8 +45,10 @@ const FakeMenuImage = styled.div`
 `;
 
 const MenuName = styled.div`
-  font-weight: 400;
   font-size: 16px;
+  font-weight: 600;
+font-family: Pretendard;
+color: #1a2d06;
 `;
 
 const MenuPrice = styled.div`
