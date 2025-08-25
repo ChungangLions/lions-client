@@ -25,6 +25,7 @@ const StudentGroupProfile = () => {
   const { organization } = location.state || {};
   const [partnershipData, setPartnershipData] = useState([]);
   const [dealHistories, setDealHistories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { stores } = useVenueStore();
   // console.log("location.state", location.state);
   // console.log("userType", userType);
@@ -45,6 +46,7 @@ const StudentGroupProfile = () => {
 
     useEffect(() => {
       const fetchPartnership = async () => { 
+        setLoading(true);
         try {
           const send = await getGroupPartnership(groupId);
           const receive = await getGroupPartnership(groupId, 'received');
@@ -63,6 +65,8 @@ const StudentGroupProfile = () => {
           setPartnershipData(combinedPartnership);
         } catch (error) {
           console.error("프로필 데이터 조회 실패:", error);
+        } finally {
+          setLoading(false);
         }
       };
       fetchPartnership();
@@ -135,7 +139,7 @@ const StudentGroupProfile = () => {
             
             console.log("storeInfo:", storeInfo);
             
-                         // 5. 최종 dealHistories 리스트 생성
+            // 5. 최종 dealHistories 리스트 생성
              const finalDealHistories = proposalDetails.map(proposal => {
                // 해당 proposal의 storeId 찾기 (STUDENT_GROUP이 아닌 쪽)
                let storeId;
@@ -206,6 +210,18 @@ const StudentGroupProfile = () => {
     }
   };
 
+
+  if (loading) {
+    return (
+      <PageContainer>
+        {userType === "owner" && previousPage === 'wishlist' && <Menu />}
+        {userType === "student-group" && <MenuGroup />}
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -466,6 +482,21 @@ const EmptyNotice = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 140px;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;
 
 const StyledBtn = styled.button`

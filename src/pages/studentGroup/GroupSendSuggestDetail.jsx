@@ -186,8 +186,8 @@ const GroupSendSuggestDetail = () => {
     department: profile?.department || '',
     council_name: profile?.council_name || newGroupProposal.sender?.name || '',
     student_size: profile?.student_size || 0,
-    partnership_start: proposal.partnership_start || '',
-    partnership_end: proposal.partnership_end || '',
+    partnership_start: newGroupProposal.partnership_start || '',
+    partnership_end: newGroupProposal.partnership_end || '',
     period: newGroupProposal.sender?.period || 0,     // 고쳐야할 부분!
     record: proposal.partnership_count || 0,
     is_liked: newGroupProposal.sender?.is_liked || false,     // 고쳐야할 부분!

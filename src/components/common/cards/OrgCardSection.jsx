@@ -6,7 +6,7 @@ import useStudentOrgStore from '../../../stores/studentOrgStore'
 import useUserStore from '../../../stores/userStore'
 import { getOwnerProfile } from '../../../services/apis/ownerAPI'
 
-const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, userId}) => {
+const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, userId, compact = false}) => {
   let cardData = [];
 
 
@@ -37,7 +37,7 @@ const OrgCardSection = ({ onClick, cardType, ButtonComponent, organization, user
 
   return (
 
-      <CardGroup onClick={() => onClick && onClick(organization)} $isHome={cardType === 'home'}>
+      <CardGroup onClick={() => onClick && onClick(organization)} $isHome={cardType === 'home'} $compact={compact}>
         <CardContent>
           <UserInfo organization={organization} />
           <DetailInfo cardDetail={cardData} />
@@ -64,11 +64,11 @@ const CardGroup = styled.div`
   position: relative;
   border: 1px solid #e7e7e7;
   border-radius: 5px;
-  width: 100%;
+  width: ${props => props.$compact ? '90%' : '100%'};
 flex-direction: row;
 align-items: flex-start;
 justify-content: center;
-padding: 20px 40px;
+  padding: 20px 40px;
 box-sizing: border-box;
 gap: 24px;
 text-align: left;
@@ -77,6 +77,7 @@ color: #1a2d06;
 font-family: Pretendard;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 cursor: pointer;
+
 `;
 
 const CardContent = styled.div`

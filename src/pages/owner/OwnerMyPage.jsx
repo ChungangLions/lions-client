@@ -37,6 +37,7 @@ const OwnerMyPage = () => {
   const [isLikeActive, setIsLikeActive] = useState(false);
   const [userRecord, setUserRecord] = useState(0);
   const [partnershipType, setPartnershipType] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // 찜 상태 변경 시 호출되는 콜백
   const handleLikeChange = async (storeId, isLiked) => {
@@ -66,6 +67,7 @@ const OwnerMyPage = () => {
     if (!userId && !params.id) return; // 둘다 없을 때 무시
 
     const fetchProfile = async () => { 
+      setLoading(true);
       try {
         // 우선순위: 전달 받은 id (params), 그다음 userId
         const ownerId = params.id || userId;
@@ -92,6 +94,8 @@ const OwnerMyPage = () => {
 
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfile();
@@ -211,6 +215,17 @@ const OwnerMyPage = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <PageContainer>
+        {userType === "owner" && <Menu />}
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </PageContainer>
+    );
+  }
+
   return (
     <PageContainer>
       {userType === "owner" && <Menu />}
@@ -287,6 +302,7 @@ const OwnerMyPage = () => {
                   children={type} 
                   IconComponent={IconComponent}
                   disabled={true}
+                  customColor="#1A2D06"
                 />
               ))
             ) : (
@@ -621,4 +637,19 @@ text-align: left;
 font-size: 16px;
 color: #70AF19;
 font-family: Pretendard;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;

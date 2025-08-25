@@ -14,6 +14,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 const GroupHome = () => {
   const [likeStores, setLikeStores] = useState([]);
   const [storeLikeCounts, setStoreLikeCounts] = useState({});
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const handleCardClick = (id) => {
     navigate(`/student-group/store-profile/${id}`, {
@@ -56,14 +57,21 @@ const GroupHome = () => {
   } = useVenueStore();
 
   useEffect(() => {
-    fetchStores();
-    const fetchUserLikes = async () => {
-      const list = await fetchLikes('given');
-      setLikeStores(list.map(item => item.target.id));
-      // console.log("좋아요한 가게 리스트:", list);
-      console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await fetchStores();
+        const list = await fetchLikes('given');
+        setLikeStores(list.map(item => item.target.id));
+        // console.log("좋아요한 가게 리스트:", list);
+        console.log("좋아요한 가게 ID배열:", list.map(item => item.target.id));
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchUserLikes();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -81,6 +89,16 @@ const GroupHome = () => {
 
   const handleDealFilterChange = (e) => {
       filterByDealType();
+  }
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </PageContainer>
+    );
   }
 
   return (
@@ -206,6 +224,12 @@ const GridContainer = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-top: 15px; // 필터 ~ container 사이 여백 (필터 아직 구현 X)
+  
+  /* 그리드 아이템들이 동일한 크기를 가지도록 설정 */
+  & > * {
+    width: 100%;
+    min-width: 0; /* 그리드 아이템이 부모 컨테이너를 넘어가지 않도록 */
+  }
 `;
 
 const SelectContainer = styled.div`
@@ -287,6 +311,21 @@ const EmptyResultContainer = styled.div`
 `;
 
 const EmptyResultText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
   font-family: Pretendard;
   font-size: 18px;
   color: #898989;
