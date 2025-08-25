@@ -48,9 +48,9 @@ function GroupCard({ imageUrl, onClick, ButtonComponent, store, likes = true, re
     <CardWrapper onClick={onClick}>
       <ImageWrapper>
         <CardImage src={imageUrl || '/default.png'} alt={store.name} />
-        <HeartBtnBox>
-            {ButtonComponent && <ButtonComponent userId={store.id} />}
-        </HeartBtnBox>
+        { ButtonComponent && <HeartBtnBox>
+          <ButtonComponent userId={store.id} />
+        </HeartBtnBox>}
       </ImageWrapper>
       <DetailSection>
         <CardTitleRow>

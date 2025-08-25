@@ -14,6 +14,7 @@ import { FiMinus } from "react-icons/fi";
  * @param {function} onRemove - 삭제 버튼 클릭 핸들러
  * @param {object} dateData - 요일 dropdown data
  * @param {object} timeData - 시간 dropdown data
+ * @param {boolean} disabled - 비활성화 여부
  */
 const DatePicker = ({
   idx,
@@ -23,13 +24,14 @@ const DatePicker = ({
   onAdd,
   onRemove,
   dateData,
-  timeData
+  timeData,
+  disabled = false
 }) => {
   // schedule이 null이면 시간 추가 버튼만 표시
   if (!schedule) {
     return (
       <DatePickerGroup>
-        {idx === total - 1 && <AddTextBtn onClick={onAdd}> <FiPlus /> 시간 추가</AddTextBtn>}
+        {idx === total - 1 && <AddTextBtn onClick={disabled ? undefined : onAdd} disabled={disabled}> <FiPlus /> 시간 추가</AddTextBtn>}
       </DatePickerGroup>
     );
   }
@@ -44,6 +46,7 @@ const DatePicker = ({
           onChange={(val) => onChange(idx, "day", val)}
           value={schedule.day}
           placeholder="요일"
+          disabled={disabled}
         />
 
         {/* 시작시간 */}
@@ -53,6 +56,7 @@ const DatePicker = ({
           onChange={(val) => onChange(idx, "start", val)}
           value={schedule.start}
           placeholder="00:00"
+          disabled={disabled}
         />
 
         <Text>~</Text>
@@ -64,10 +68,11 @@ const DatePicker = ({
           onChange={(val) => onChange(idx, "end", val)}
           value={schedule.end}
           placeholder="00:00"
+          disabled={disabled}
         />
 
               {/* 제거 버튼 또는 플레이스홀더 */}
-              <DeleteBtn onClick={() => onRemove(idx)} />
+              <DeleteBtn onClick={disabled ? undefined : () => onRemove(idx)} disabled={disabled} />
       {/* {total > 1 && idx !== total ? (
         
       ) : (
@@ -77,7 +82,7 @@ const DatePicker = ({
       {/* 추가 버튼 (마지막 아이템에서만 보임)
       {idx === total - 1 && <AddBtn onClick={onAdd} />} */}
     </DropdownGroup>
-    {idx === total - 1 && <AddTextBtn onClick={onAdd}> <FiPlus /> 시간 추가</AddTextBtn>}
+    {idx === total - 1 && <AddTextBtn onClick={disabled ? undefined : onAdd} disabled={disabled}> <FiPlus /> 시간 추가</AddTextBtn>}
     </DatePickerGroup>
   );
 };
@@ -123,7 +128,9 @@ stroke-width: 2;
 stroke-linecap: round;
 stroke-linejoin: round;
 margin-left: 10px;
-color: #1A2D06;
+color: ${({ disabled }) => disabled ? '#C9C9C9' : '#1A2D06'};
+cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
+opacity: ${({ disabled }) => disabled ? 0.6 : 1};
 `;
 
 const DeleteBtnPlaceholder = styled.div`
@@ -154,8 +161,8 @@ align-items: center;
 justify-content: center;
 gap: 2px;
 border-radius: 5px;
-background:  #E7E7E7;
-color: var(--, #898989);
+background: ${({ disabled }) => disabled ? '#F5F5F5' : '#E7E7E7'};
+color: ${({ disabled }) => disabled ? '#C9C9C9' : '#898989'};
 font-family: Pretendard;
 font-size: 16px;
 font-style: normal;
@@ -163,21 +170,10 @@ font-weight: 400;
 line-height: normal;
 border: none;
 width: 100px;
+cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
+opacity: ${({ disabled }) => disabled ? 0.6 : 1};
 
-
-// display: flex;
-// align-items: center;
-// gap: 10px;
-// color: #1A2D06;
-// background-color: #E9F4D0;
-// border-radius: 5px;
-// border: none;
-// font-family: Pretendard;
-// font-size: 16px;
-// font-style: normal;
-// font-weight: 400;
-// line-height: normal;
-// width: 150px;
-// padding: 5px;
-// justify-content: center;
+&:hover {
+  background: ${({ disabled }) => disabled ? '#F5F5F5' : '#D9D9D9'};
+}
 `;
