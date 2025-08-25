@@ -11,7 +11,7 @@ import Modal from '../../components/common/buttons/Modal';
 import InputBox from '../../components/common/inputs/InputBox';
 import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import useOwnerProfile from '../../hooks/useOwnerProfile';
+// import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 
 // 제휴 유형 아이콘
@@ -20,7 +20,8 @@ import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-i
 import { getProposal, editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import useUserStore from '../../stores/userStore';
-import { fetchOwnerProfiles } from '../../services/apis/studentProfileApi';
+import { getOwnerProfile } from '../../services/apis/ownerAPI';
+import GroupCard from '../../components/common/cards/GroupCard';
 
 const GroupSendSuggestDetail = () => {
   const location = useLocation();
@@ -29,12 +30,15 @@ const GroupSendSuggestDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const { proposal } = location.state || {};
+  const ownerId = proposal.recipient.id;
   console.log("받아온 proposal 데이터: ", proposal);
+  console.log("ownerId: ", ownerId);
 
   const { userId} = useUserStore();
 
   const [profile, setProfile] = useState();
-  const { ownerProfile, setOwnerProfile} = useState();
+  const [ownerProfile, setOwnerProfile] = useState();
+  const [profileLoading, setProfileLoading] = useState(true);
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,8 +73,11 @@ const GroupSendSuggestDetail = () => {
     } catch (error) {
       console.error("프로필 가져오기 실패:", error);
       setProfile(null);
+    } finally {
+      setProfileLoading(false);
     }
   };
+
 
   const openModal = (message) => {
     setModalMessage(message);
@@ -94,8 +101,33 @@ const GroupSendSuggestDetail = () => {
 //   };
 
 
+  const fetchOwnerProfile = async (ownerId) => {
+    try {
+      const ownerProfileData = await getOwnerProfile(ownerId);
+      console.log("사장 프로필:", ownerProfileData);
+      setOwnerProfile(ownerProfileData);
+    } catch (error) {
+      console.error("프로필 가져오기 실패:", error);
+      setOwnerProfile(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
 
+  const handleCardClick = (id) => {
+    navigate(`/student-group/store-profile/${id}`, {
+      state: { userType: "studentOrganization" }
+    });
+  };
+
+
+  // GroupCard props 맞추기
+  const mappedOwnerProfile = ownerProfile ? {
+    name: ownerProfile.profile_name,
+    caption: ownerProfile.comment,
+    storeType: ownerProfile.business_type
+  } : null;
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -150,6 +182,12 @@ const GroupSendSuggestDetail = () => {
       getGroupProfile(userId);
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (ownerId) {
+      fetchOwnerProfile(ownerId);
+    }
+  }, [ownerId]);
 
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
@@ -433,6 +471,16 @@ const GroupSendSuggestDetail = () => {
     user: proposal.id || null,
   };
 
+  if (loading || profileLoading) {
+    return (
+      <ProposalContainer>
+        <LoadingContainer>
+          <LoadingText>로딩중 ...</LoadingText>
+        </LoadingContainer>
+      </ProposalContainer>
+    );
+  }
+
   return (
     <ProposalContainer>
       <ProposalSection>
@@ -442,16 +490,16 @@ const GroupSendSuggestDetail = () => {
               <p>{senderInfo.university} {senderInfo.department} {senderInfo.council_name}</p>
               <p>제휴 요청 제안서 </p>
             </HeaderTitle>
-            <HeaderContent>
-              <p>안녕하세요.</p>
-              <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
-              <p>'{}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에,</p>
-              <p>가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
-            </HeaderContent>
+                         <HeaderContent>
+               <p>안녕하세요.</p>
+               <p>저희 학생회는 학생들의 복지 향상과 지역 사회와의 상생을 목표로 제휴 활동을 진행하고 있습니다.</p>
+               <p>'{ownerProfile?.profile_name || '가게'}'와의 협력은 학생들에게 실질적인 혜택을 제공함과 동시에,</p>
+               <p>가게에도 긍정적인 효과를 가져올 수 있을 것이라 확신합니다.</p>
+             </HeaderContent>
           </ProposalHeader>
           <LineDiv />
-          <SectionWrapper>
-            <OwnerInfo/>
+                     <SectionWrapper>
+             {ownerProfile && <OwnerInfo profileData={ownerProfile}/>}
             
             {/* 제휴 유형, 제휴 조건, 연락처 */}
             <DetailSection> 
@@ -574,12 +622,30 @@ const GroupSendSuggestDetail = () => {
 
       {/* 오른쪽 섹션 */}
       <ReceiverSection style={{ top: getProposalContainerTop() }}>
-        <ReceiverWrapper>
-          <CardSection 
+                 <ReceiverWrapper>
+             {/* ownerProfile 띄우기 */}
+             {ownerProfile && (
+               <GroupCard 
+                 key={ownerProfile.id}
+                 imageUrl={ownerProfile?.photos?.[0]?.image}
+                 onClick={() => ownerProfile?.user && handleCardClick(ownerProfile.user)} // userId
+                 // isBest={ownerProfile.isBest}
+                 // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
+                 // ButtonComponent={() => (
+                 //   // <FavoriteBtn 
+                 //   //   userId={ownerProfile.id} 
+                 //   //   isLikeActive={likeStores.includes(store.id)}
+                 //   //   onLikeChange={handleLikeChange}
+                 //   // />
+                 // )}
+                 store={mappedOwnerProfile} 
+               />
+             )}
+          {/* <CardSection 
             cardType={"proposal"} 
-            organization={senderInfo} 
-            ButtonComponent={() => <FavoriteBtn organization={senderInfo} />} 
-          />
+            organization={ownerProfile} 
+            // ButtonComponent={() => <FavoriteBtn organization={profile} />} 
+          /> */}
           <ButtonWrapper>
             {newGroupProposal?.current_status === 'DRAFT' || newGroupProposal?.current_status === 'READ' ? (
               <>
@@ -906,5 +972,20 @@ const ConditionContent = styled.div`
   p {
     margin: 0;
   }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+`;
+
+const LoadingText = styled.div`
+  font-family: Pretendard;
+  font-size: 18px;
+  color: #898989;
+  text-align: center;
 `;
 

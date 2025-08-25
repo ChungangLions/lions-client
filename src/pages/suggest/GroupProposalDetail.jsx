@@ -14,6 +14,7 @@ import useOwnerProfile from '../../hooks/useOwnerProfile';
 import InputBox from '../../components/common/inputs/InputBox';
 import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
+import DatePicker from '../../components/common/inputs/DatePicker';
 
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
@@ -30,7 +31,15 @@ const GroupProposalDetail = () => {
   const location = useLocation();
   const { profileData, proposal } = location.state || {};
   console.log("넘어온 데이터 확인", profileData);
-
+  const Week = {data: ['월', '화', '수', '목', '금', '토', '일']};
+  const Time = {
+    data: Array.from({ length: 48 }, (_, i) => {
+      const hour = String(Math.floor(i / 2)).padStart(2, "0");
+      const min = i % 2 === 0 ? "00" : "30";
+      return `${hour}:${min}`;
+    }), 
+  };
+  
   const {userId } = useUserStore();
 
   console.log(userId);
@@ -97,8 +106,11 @@ const GroupProposalDetail = () => {
   const [partnershipConditions, setPartnershipConditions] = useState({
     applyTarget: '',
     benefitDescription: '',
-    timeWindows: ''
+    timeWindows: []
   });
+
+  // 시간대 상태 관리
+  const [busyHours, setBusyHours] = useState([]);
 
   // 제휴 기간 (PeriodPicker용)
   const [partnershipPeriod, setPartnershipPeriod] = useState({
@@ -145,9 +157,12 @@ const GroupProposalDetail = () => {
       if (proposal.benefit_description) {
         setPartnershipConditions(prev => ({ ...prev, benefitDescription: proposal.benefit_description }));
       }
-      if (proposal.time_windows) {
-        setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
-      }
+             if (proposal.time_windows) {
+         setPartnershipConditions(prev => ({ ...prev, timeWindows: proposal.time_windows }));
+         // 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
+         const parsedTimeWindows = parseTimeWindowsToDatePicker(proposal.time_windows);
+         setBusyHours(parsedTimeWindows);
+       }
       if (proposal.partnership_period) {
         // 제휴 기간 문자열을 파싱하여 PeriodPicker 상태로 설정
         const periodMatch = proposal.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
@@ -172,6 +187,13 @@ const GroupProposalDetail = () => {
     //   }
     }
   }, [proposal]);
+
+  // 기본 시간대 행 추가
+  useEffect(() => {
+    if (busyHours.length === 0) {
+      setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
+    }
+  }, []);
 
   // 제휴 유형 토글 
   const togglePartnershipType = (type) => {
@@ -205,7 +227,7 @@ const GroupProposalDetail = () => {
     }));
   };
 
-  // 제휴 기간을 문자열로 변환하는 함수
+  // 제휴 기간을 문자열로 변환하는 함수 (표시용)
   const formatPartnershipPeriod = () => {
     const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
     
@@ -216,20 +238,89 @@ const GroupProposalDetail = () => {
     return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
   };
 
+  // 제휴 기간 시작일을 파싱하는 함수
+  const formatPeriodStart = () => {
+    const { startYear, startMonth, startDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay) {
+      return '';
+    }
+    
+    return `${startYear}-${startMonth}-${startDay}`;
+  };
+
+  // 제휴 기간 종료일을 파싱하는 함수
+  const formatPeriodEnd = () => {
+    const { endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${endYear}-${endMonth}-${endDay}`;
+  };
+
+  // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
+  const parseTimeWindowsToDatePicker = (timeWindows) => {
+    if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
+      return [];
+    }
+
+    return timeWindows.map((window, index) => ({
+      id: index,
+      day: window.days && window.days.length > 0 ? window.days[0] : '', // 첫 번째 요일만 사용
+      start: window.start || '',
+      end: window.end || ''
+    }));
+  };
+
+  // DatePicker 형식을 시간대 데이터로 파싱하는 함수
+  const parseDatePickerToTimeWindows = (datePickerData) => {
+    if (!Array.isArray(datePickerData) || datePickerData.length === 0) {
+      return [];
+    }
+
+    return datePickerData
+      .filter(item => item.day && item.start && item.end)
+      .map(item => ({
+        days: [item.day], // 단일 요일을 배열로 변환
+        start: item.start,
+        end: item.end
+      }));
+  };
+
+  // 시간대 변경 핸들러
+  const handleDropdownChange = (index, field, value, setter) => {
+    setter(prev => prev.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // 시간대 행 추가 핸들러
+  const handleAddRow = (setter) => {
+    setter(prev => [...prev, { id: Date.now(), day: '', start: '', end: '' }]);
+  };
+
+  // 시간대 행 제거 핸들러
+  const handleRemoveRow = (index, setter) => {
+    setter(prev => prev.filter((_, i) => i !== index));
+  };
+
   // 수정하기
   const handleEdit = async () => {
     
-    const updateData = {
-      recipient: profileData?.user,
-      partnership_type: mapPartnership(selectedPartnershipTypes),
-      apply_target: partnershipConditions.applyTarget,
-      time_windows: partnershipConditions.timeWindows,
-      benefit_description: partnershipConditions.benefitDescription,
-      partnership_period: formatPartnershipPeriod(),
-      contact_info: contact,
-      title: '제안서',
-      contents: '제휴 내용',
-    };
+         const updateData = {
+       recipient: profileData?.user,
+       partnership_type: mapPartnership(selectedPartnershipTypes),
+       apply_target: partnershipConditions.applyTarget,
+       time_windows: parseDatePickerToTimeWindows(busyHours),
+       benefit_description: partnershipConditions.benefitDescription,
+       period_start: formatPeriodStart(),
+       period_end: formatPeriodEnd(),
+       contact_info: contact,
+       title: '제안서',
+       contents: '제휴 내용',
+     };
 
 
     try {
@@ -257,29 +348,36 @@ const GroupProposalDetail = () => {
         return;
       }
 
-      if (!partnershipConditions.applyTarget || 
-          !partnershipConditions.benefitDescription || 
-          !partnershipConditions.timeWindows || 
-          !formatPartnershipPeriod()) {
-        alert('제휴 조건을 모두 입력해주세요.');
-        return;
-      }
+             if (!partnershipConditions.applyTarget || 
+           !partnershipConditions.benefitDescription || 
+           !formatPartnershipPeriod()) {
+         alert('제휴 조건을 모두 입력해주세요.');
+         return;
+       }
+
+       // 시간대 데이터 검증
+       const validTimeWindows = parseDatePickerToTimeWindows(busyHours);
+       if (validTimeWindows.length === 0) {
+         alert('적용 시간대를 입력해주세요.');
+         return;
+       }
 
       if (!((contact  || '').trim())) {
         alert('연락처를 입력해주세요.');
         return;
       }
 
-      const createData = {
-        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
-        apply_target: partnershipConditions.applyTarget, // 적용 대상
-        time_windows: partnershipConditions.timeWindows, // 적용 시간대
-        benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: formatPartnershipPeriod(), // 제휴 기간
-        contact_info: contact || "", // 연락처
+             const createData = {
+         recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+         partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+         apply_target: partnershipConditions.applyTarget, // 적용 대상
+         time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
+         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
+         period_start: formatPeriodStart(), // 제휴 기간 시작일
+         period_end: formatPeriodEnd(), // 제휴 기간 종료일
+         contact_info: contact || "", // 연락처
 
-      };
+       };
 
 
       console.log('제안서 데이터:', createData);
@@ -330,27 +428,33 @@ const GroupProposalDetail = () => {
   };
 
 
-  // 저장하기는 일부 필드 비워져있어도 가능 
+    // 저장하기는 일부 필드 비워져있어도 가능 
   const handleSave = async () => {
 
-    const createData = {
-        recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
-        partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
-        apply_target: partnershipConditions.applyTarget, // 적용 대상
-        time_windows: partnershipConditions.timeWindows, // 적용 시간대
-        benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
-        partnership_period: formatPartnershipPeriod(), // 제휴 기간
-        contact_info: contact || '', // 연락처
-        
-      };
+          const createData = {
+          recipient: profileData?.user, // 전송 대상 여기서는 학생 단체의 프로필 아이디 
+          partnership_type: mapPartnership(selectedPartnershipTypes), // 제휴 유형 
+          apply_target: partnershipConditions.applyTarget, // 적용 대상
+          time_windows: parseDatePickerToTimeWindows(busyHours), // 적용 시간대
+          benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
+          period_start: formatPeriodStart(),
+          period_end: formatPeriodEnd(),
+          contact_info: contact || '', // 연락처
+          
+        };
 
 
-      console.log('제안서 데이터:', createData);
+       console.log('busyHours 원본 데이터:', busyHours);
+       console.log('파싱된 time_windows:', parseDatePickerToTimeWindows(busyHours));
+       console.log('제안서 데이터:', createData);
 
     try {
       const response = await createProposal(createData);
       setProposalId(response.id);
-      openModal('제안서가 저장되었어요. MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+
+
+      openModal('제안서가 저장되었어요.\n 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -546,17 +650,23 @@ const GroupProposalDetail = () => {
                       disabled={!isEditMode}
                     />
                   </ConditionItem>
-                  <ConditionItem>
-                    <ConditionLabel>적용 시간대</ConditionLabel>
-                    <InputBox 
-                      defaultText="(예시) 평일 13:00 - 15:00" 
-                      width="100%"
-                      border="1px solid #E9E9E9"
-                      value={partnershipConditions.timeWindows}
-                      onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                      disabled={!isEditMode}
-                    />
-                  </ConditionItem>
+                                     <ConditionItem>
+                     <ConditionLabel>적용 시간대</ConditionLabel>
+                     {busyHours.map((schedule, idx) => (
+                       <DatePicker
+                         key={schedule.id || idx}
+                         idx={idx}
+                         schedule={schedule}
+                         total={busyHours.length}
+                         onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                         onAdd={() => handleAddRow(setBusyHours)}
+                         onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                         dateData={Week}
+                         timeData={Time}
+                         disabled={!isEditMode}
+                       />
+                     ))}
+                   </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
 
