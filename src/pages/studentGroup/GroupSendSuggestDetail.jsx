@@ -1142,7 +1142,8 @@ const LoadingContainer = styled.div`
 const LoadingText = styled.div`
   font-family: Pretendard;
   font-size: 18px;
-  color: #898989;
+  color: #70AF19;
   text-align: center;
+  font-weight: 600;
 `;
 

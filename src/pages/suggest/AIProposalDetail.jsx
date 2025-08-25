@@ -110,6 +110,72 @@ const AIProposalDetail = () => {
 
   const [ proposalId, setProposalId] = useState(proposalData.id);
 
+  // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
+  const parseTimeWindowsToDatePicker = (timeWindows) => {
+    console.log('parseTimeWindowsToDatePicker 호출됨, 입력:', timeWindows);
+    
+    if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
+      console.log('timeWindows가 배열이 아니거나 비어있음');
+      return [];
+    }
+
+    // 요일 매핑 함수
+    const mapDayToShort = (day) => {
+      const dayMap = {
+        '월요일': '월',
+        '화요일': '화',
+        '수요일': '수',
+        '목요일': '목',
+        '금요일': '금',
+        '토요일': '토',
+        '일요일': '일',
+        '월': '월',
+        '화': '화',
+        '수': '수',
+        '목': '목',
+        '금': '금',
+        '토': '토',
+        '일': '일'
+      };
+      return dayMap[day] || day;
+    };
+
+    let result = [];
+    let idCounter = 0;
+
+    timeWindows.forEach((window, index) => {
+      console.log(`처리 중인 window ${index}:`, window);
+      
+      if (window.days && Array.isArray(window.days)) {
+        console.log(`window ${index}의 days 배열:`, window.days);
+        // 각 요일을 별도의 행으로 생성
+        window.days.forEach((day) => {
+          const mappedDay = mapDayToShort(day);
+          console.log(`요일 매핑: ${day} -> ${mappedDay}`);
+          result.push({
+            id: idCounter++,
+            day: mappedDay,
+            start: window.start || '',
+            end: window.end || ''
+          });
+        });
+      } else if (window.days && window.days.length > 0) {
+        // 단일 요일인 경우
+        const mappedDay = mapDayToShort(window.days[0]);
+        console.log(`단일 요일 매핑: ${window.days[0]} -> ${mappedDay}`);
+        result.push({
+          id: idCounter++,
+          day: mappedDay,
+          start: window.start || '',
+          end: window.end || ''
+        });
+      }
+    });
+
+    console.log('최종 파싱 결과:', result);
+    return result;
+  };
+
   // proposalData 가져오기
   useEffect(() => {
     if (!proposalData) return;
@@ -122,7 +188,9 @@ const AIProposalDetail = () => {
 
     // 시간대 데이터를 DatePicker 형식으로 파싱하여 설정
     if (proposalData.time_windows && proposalData.time_windows.length > 0) {
+      console.log('원본 time_windows:', proposalData.time_windows);
       const parsedTimeWindows = parseTimeWindowsToDatePicker(proposalData.time_windows);
+      console.log('파싱된 busyHours:', parsedTimeWindows);
       setBusyHours(parsedTimeWindows);
     } else {
       // 기존 데이터가 없으면 기본 행 추가
@@ -164,12 +232,7 @@ const AIProposalDetail = () => {
     if (contactInfo) setContact(contactInfo);
   }, [proposalData, isAI]);
 
-  // 기본 시간대 행 추가 (컴포넌트 마운트 시 한 번만 실행)
-  useEffect(() => {
-    if (busyHours.length === 0) {
-      setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
-    }
-  }, []);
+
 
   // 수정모드 On/ off 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -244,61 +307,6 @@ const AIProposalDetail = () => {
     }
     
     return `${endYear}-${endMonth}-${endDay}`;
-  };
-
-  // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
-  const parseTimeWindowsToDatePicker = (timeWindows) => {
-    if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
-      return [];
-    }
-
-    // 요일 매핑 함수
-    const mapDayToShort = (day) => {
-      const dayMap = {
-        '월요일': '월',
-        '화요일': '화',
-        '수요일': '수',
-        '목요일': '목',
-        '금요일': '금',
-        '토요일': '토',
-        '일요일': '일',
-        '월': '월',
-        '화': '화',
-        '수': '수',
-        '목': '목',
-        '금': '금',
-        '토': '토',
-        '일': '일'
-      };
-      return dayMap[day] || day;
-    };
-
-    let result = [];
-    let idCounter = 0;
-
-    timeWindows.forEach((window) => {
-      if (window.days && Array.isArray(window.days)) {
-        // 각 요일을 별도의 행으로 생성
-        window.days.forEach((day) => {
-          result.push({
-            id: idCounter++,
-            day: mapDayToShort(day),
-            start: window.start || '',
-            end: window.end || ''
-          });
-        });
-      } else if (window.days && window.days.length > 0) {
-        // 단일 요일인 경우
-        result.push({
-          id: idCounter++,
-          day: mapDayToShort(window.days[0]),
-          start: window.start || '',
-          end: window.end || ''
-        });
-      }
-    });
-
-    return result;
   };
 
   // DatePicker 형식을 시간대 데이터로 파싱하는 함수
@@ -613,20 +621,23 @@ const AIProposalDetail = () => {
                   </ConditionItem>
                   <ConditionItem>
                     <ConditionLabel>적용 시간대</ConditionLabel>
-                    {busyHours.map((schedule, idx) => (
-                      <DatePicker
-                        key={schedule.id || idx}
-                        idx={idx}
-                        schedule={schedule}
-                        total={busyHours.length}
-                        onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
-                        onAdd={() => handleAddRow(setBusyHours)}
-                        onRemove={(i) => handleRemoveRow(i, setBusyHours)}
-                        dateData={Week}
-                        timeData={Time}
-                        disabled={!isEditMode}
-                      />
-                    ))}
+                                         {busyHours.map((schedule, idx) => {
+                       console.log(`DatePicker ${idx} schedule:`, schedule);
+                       return (
+                         <DatePicker
+                           key={schedule.id || idx}
+                           idx={idx}
+                           schedule={schedule}
+                           total={busyHours.length}
+                           onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                           onAdd={() => handleAddRow(setBusyHours)}
+                           onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                           dateData={Week}
+                           timeData={Time}
+                           disabled={!isEditMode}
+                         />
+                       );
+                     })}
                   </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
