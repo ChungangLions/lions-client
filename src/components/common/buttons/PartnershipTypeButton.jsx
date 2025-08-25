@@ -19,7 +19,7 @@ export default PartnershipTypeBox
 const IconBox = styled.button`
 width: 122px;
 border-radius: 4.55px;
-border: 0.5px solid ${props => props.customColor ? props.customColor : (props.isSelected ? '#64a10f' : '#898989')};
+border: 0.5px solid ${props => props.isSelected ? '#64a10f' : '#898989'};
 box-sizing: border-box;
 height: 122px;
 display: flex;
