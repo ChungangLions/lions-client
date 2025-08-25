@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components'
 
 const Loading = ({ situation = 'ai', message, fullscreen = true }) => {
   const messages = {
-    ai: 'AI가 프로필 정보를 바탕으로 최적 제휴 조건을 설계 중이에요. 조금만 기다려주세요.',
+    ai: 'AI가 프로필 정보를 바탕으로 최적 제휴 조건을 설계 중이에요. \n조금만 기다려주세요.',
     form: '제안서 양식을 가져오는 중이에요.',
   }
 
