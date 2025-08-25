@@ -22,7 +22,9 @@ const STATUS_MAP = {
     UNREAD: "미열람",
     READ: "열람",
     PARTNERSHIP: "제휴체결",
-    REJECTED: "거절"
+    REJECTED: "거절",
+    DRAFT: "작성중",
+
   };
 
 function ProposalCard({ proposalGroup, onClick, cardType}) {

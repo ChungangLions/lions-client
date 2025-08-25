@@ -333,6 +333,6 @@ font-weight: 600;
 font-size: 16px;
 justify-content: center;
 align-content: center;
-padding : 100px;
+padding : 200px;
  
 `;
