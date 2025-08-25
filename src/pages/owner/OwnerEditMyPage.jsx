@@ -267,9 +267,9 @@ const OwnerEditMyPage = () => {
 
   const convertToApiBusiness = (data) => {
     const toBusinessType = {
-      카페: "CAFE",
+      '카페 및 디저트': "CAFE",
       '일반 음식점': "RESTAURANT",
-      술집: "BAR",
+      '주점': "BAR",
     };
 
     return toBusinessType[data] || data;

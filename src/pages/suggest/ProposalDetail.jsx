@@ -96,6 +96,7 @@ const ProposalDetail = () => {
       if (proposal.partnership_period) {
         setPartnershipConditions(prev => ({ ...prev, partnershipPeriod: proposal.partnership_period }));
       }
+    
       if (proposal.contact_info) {
         setContact(proposal.contact_info);
       }
@@ -195,6 +196,7 @@ const ProposalDetail = () => {
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+    
         contact_info: contact || contactInfo, // 연락처
       };
 
@@ -244,6 +246,7 @@ const ProposalDetail = () => {
         time_windows: partnershipConditions.timeWindows, // 적용 시간대
         benefit_description: partnershipConditions.benefitDescription, // 혜택 내용
         partnership_period: partnershipConditions.partnershipPeriod, // 제휴 기간
+  
         contact_info: contact || contactInfo, // 연락처
         title: "제안서",
         contents: "제휴 내용",
@@ -255,7 +258,7 @@ const ProposalDetail = () => {
     try {
       const response = await createProposal(createData); // "DRAFT"인 상태로 생성됨
       setProposalId(response.id);
-      openModal('제안서가 저장되었어요. <br /> MY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
+      openModal('제안서가 저장되었어요.\nMY > 보낸 제안에서 저장된 제안서를 확인할 수 있어요');
     } catch (error) {
       console.error('제안서 전송 오류:', error);
     }
@@ -382,60 +385,57 @@ const ProposalDetail = () => {
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 대상</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.applyTarget}
-                        onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>혜택 내용</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 아메리카노 10% 할인" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.benefitDescription}
-                        onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 평일 13:00 - 15:00" 
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.timeWindows}
-                        onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
-                      />
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>제휴 기간</ConditionLabel>
-                      <InputBox 
-                        defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
-                        width="100%"
-                        border="1px solid #E9E9E9"
-                        value={partnershipConditions.partnershipPeriod}
-                        onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
-                        readOnly={proposal && proposal.status !== 'DRAFT'}
-                      />
-                    </ConditionItem>
-                  </ConditionGroup>
+                  <ConditionItem>
+                    <ConditionLabel>적용 대상</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.applyTarget}
+                      onChange={(e) => handleConditionChange('applyTarget', e.target.value)}
+                      readOnly={proposal && proposal.status !== 'DRAFT'}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>혜택 내용</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 아메리카노 10% 할인" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.benefitDescription}
+                      onChange={(e) => handleConditionChange('benefitDescription', e.target.value)}
+                      readOnly={proposal && proposal.status !== 'DRAFT'}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>제휴 기간</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 2025년 9월 1일 ~ 2025년 11월 30일"
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.partnershipPeriod}
+                      onChange={(e) => handleConditionChange('partnershipPeriod', e.target.value)}
+                      readOnly={proposal && proposal.status !== 'DRAFT'}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>적용 시간대</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 평일 13:00 - 15:00" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={partnershipConditions.timeWindows}
+                      onChange={(e) => handleConditionChange('timeWindows', e.target.value)}
+                      readOnly={proposal && proposal.status !== 'DRAFT'}
+                    />
+                  </ConditionItem>
+   
                 </ConditionsBox>
               </DetailBox>
 
       
 
-              <DetailBox>
+              <DetailBox style={{ marginTop: '10px' }}>
                 <Title> <div>연락처</div> </Title>
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
@@ -736,21 +736,12 @@ align-self: stretch;
 border-radius: 5px;
 background-color: #fff;
 display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: space-between;
-padding: 15px 20px;
-gap: 40px;
-font-size: 16px;
-`;
-
-const ConditionGroup = styled.div`
-width: 50%;
-display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-gap: 39px;
+padding: 20px;
+gap: 25px;
+font-size: 16px;
 `;
 
 const ConditionItem = styled.div`
@@ -758,7 +749,7 @@ const ConditionItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 `;
 
@@ -773,6 +764,7 @@ color: #1a2d06;
 font-family: Pretendard;
 font-weight: 600;
 white-space: nowrap;
+margin-bottom: 4px;
 `;
 
  const StyledEditBtn = styled(EditBtn)`
