@@ -27,6 +27,8 @@ const Menu = () => {
         $active={
           item.to === '/owner/mypage'
             ? pathname === '/owner/mypage' || pathname === '/owner/mypage/edit'
+            : item.to === '/owner/mypage/wishlist'
+            ? pathname.startsWith('/owner/mypage/wishlist')
             : pathname === item.to
         }
       >
