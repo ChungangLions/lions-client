@@ -270,6 +270,7 @@ const OwnerMyPage = () => {
       <ProfileContainer>
         <OwnerInfo>
           <InfoTitle>가게 정보</InfoTitle>
+          <InfoContainer>
           <SumContainer>
             <SumBox>
               <div>제휴 이력</div>
@@ -284,10 +285,12 @@ const OwnerMyPage = () => {
               <div style={{fontWeight: '600', color: '#70AF19'}}> {infos.userRecommends} 개</div>
             </SumBox>
           </SumContainer>
+          
           <FurtherSum>
             <BusinessDay business_day={profileData?.business_day} />
             <EtcSection> <Phone /> {infos.etc[1]} </EtcSection>
           </FurtherSum>
+          </InfoContainer>
 
           <InfoTitle> 제휴 유형 </InfoTitle>
           <ContentBox>  
@@ -333,6 +336,12 @@ const OwnerMyPage = () => {
 }
 
 export default OwnerMyPage;
+
+const InfoContainer = styled.div`
+display:flex;
+gap: -10px;
+flex-direction: column;
+`;
 
 const PageContainer = styled.div`
   width: 100%;
@@ -516,7 +525,7 @@ const StyledBtn = styled.button`
 
 const ButtonGroup = styled.div`
   position: absolute;
-  right: 40px;
+  right: -5px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;

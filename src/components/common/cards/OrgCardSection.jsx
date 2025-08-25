@@ -68,7 +68,7 @@ const CardGroup = styled.div`
 flex-direction: row;
 align-items: flex-start;
 justify-content: center;
-  padding: 20px 40px;
+  padding: 0px 0px;
 box-sizing: border-box;
 gap: 24px;
 text-align: left;
@@ -87,6 +87,8 @@ display: flex;
 flex-direction: column;
 gap: ${({ $isHome }) => ($isHome ? '24px' : '30px')};
 white-space: nowrap;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ButtonWrapper = styled.div`

@@ -205,12 +205,24 @@ const GroupSendSuggestDetail = () => {
     }
   }, [userId]);
 
+
+  // 그룹 프로필이 로드되면 연락처 정보 업데이트
+  useEffect(() => {
+    if (profile?.contact && editableForm.contact_info !== profile.contact) {
+      setEditableForm(prev => ({
+        ...prev,
+        contact_info: profile.contact
+      }));
+    }
+  }, [profile?.contact]);
+
   // 기본 시간대 행 추가 (컴포넌트 마운트 시 한 번만 실행)
   useEffect(() => {
     if (busyHours.length === 0) {
       setBusyHours([{ id: Date.now(), day: '', start: '', end: '' }]);
     }
   }, []);
+
 
   useEffect(() => {
     if (ownerId) {
@@ -420,7 +432,7 @@ const GroupSendSuggestDetail = () => {
     setEditableForm({
       apply_target: newGroupProposal?.apply_target || '',
       benefit_description: newGroupProposal?.benefit_description || '',
-      contact_info: newGroupProposal?.contact_info || '',
+      contact_info: profile?.contact || newGroupProposal?.contact_info || '',
       period_start: newGroupProposal?.period_start || '',
       period_end: newGroupProposal?.period_end || '',
       time_windows: newGroupProposal?.time_windows || [],
@@ -730,14 +742,14 @@ const GroupSendSuggestDetail = () => {
                 <InputBox 
                   defaultText="텍스트를 입력해주세요."
                   width="100%"
-                  value={editableForm.contact_info}
+                  value={profile?.contact || editableForm.contact_info}
                   onChange={(e) => handleInputChange('contact_info', e.target.value)}
                   disabled={!isEditMode}
                 />
               </DetailBox>
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{senderInfo.council_name}' 드림</Signature>
+          <Signature>{senderInfo.university} {senderInfo.department} '{senderInfo.council_name}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
@@ -767,6 +779,7 @@ const GroupSendSuggestDetail = () => {
             organization={ownerProfile} 
             // ButtonComponent={() => <FavoriteBtn organization={profile} />} 
           /> */}
+          </ReceiverWrapper>
           <ButtonWrapper>
             {newGroupProposal?.current_status === 'DRAFT' || newGroupProposal?.current_status === 'READ' ? (
               <>
@@ -783,7 +796,7 @@ const GroupSendSuggestDetail = () => {
               </StatusBtn>
             )}
           </ButtonWrapper>
-        </ReceiverWrapper>
+        
       </ReceiverSection>
       <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
@@ -893,13 +906,14 @@ color: #1a2d06;
 font-family: Pretendard;
 height: fit-content;
 transition: top 0.3s ease-out;
+border:none;
 `;
 
 const ReceiverWrapper = styled.div`
 width: 100%;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
 border-radius: 5px;
-border: 1px solid #e7e7e7;
+border: 1px solid none;
 box-sizing: border-box;
 height: auto;
 display: flex;
