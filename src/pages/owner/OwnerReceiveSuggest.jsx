@@ -100,6 +100,8 @@ const OwnerReceiveSuggest = () => {
           console.log('학생 단체 정보', groupProfile);
           
           return {
+
+
             proposalId: proposal.id,
             status: proposal.current_status,
             created_at: proposal.created_at,
@@ -110,6 +112,7 @@ const OwnerReceiveSuggest = () => {
       );
 
       setProposalGroups(groupsWithProfiles);
+      console.log("데이터 확인", groupsWithProfiles);
     };
 
     fetchProposalGroups();

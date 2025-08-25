@@ -1,33 +1,76 @@
-import React from 'react'
+import React from 'react';
 import styled from 'styled-components';
 
-const StatusBtn = ({onClick, children}) => {
+const StatusBtn = ({ status, children, onClick, disabled = false }) => {
   return (
-    <Statusbutton onClick={onClick}>
+    <StyledStatusBtn 
+      status= {status}
+      disabled={disabled}
+    >
       {children}
-    </Statusbutton>
-  )
-}
+    </StyledStatusBtn>
+  );
+};
 
-export default StatusBtn
+const StyledStatusBtn = styled.button`
+  width: 100%;
+  position: relative;
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: 45px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 81px;
+  text-align: left;
+  font-size: 16px;
+  font-family: Pretendard;
+  transition: all 0.2s ease;
 
-const Statusbutton = styled.button`
-position: relative;
-border-radius: 20px;
-border: 1px solid #70af19;
-box-sizing: border-box;
-width: 100%;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: flex-end;
-padding: 10px;
-text-align: left;
-font-size: 16px;
-color: #70af19;
-font-family: Pretendard;
-background-color: white;
+  ${props => {
+    switch (props.status) {
+      case 'DRAFT':
+        return `
+          border: 1px solid #bcbcbc;
+          background-color: transparent;
+          color: #bcbcbc;
+    
+        `;
+      case 'PARTNERSHIP':
+        return `
+          border: 1px solid #70af19;
+          background-color: transparent;
+          color: #70af19;
+        `;
+      case 'READ':
+        return `
+          border: 1px solid #70af19;
+          background-color: transparent;
+          color: #70af19;
 
-/* 카드 내 위치 조정 */
-margin-top: 10px;
+        `;
+      case 'REJECTED':
+        return `
+          background-color: #bcbcbc;
+          border: 1px solid #898989;
+          color: #898989;
+
+        `;
+      default:
+        return `
+          border: 1px solid #bcbcbc;
+          background-color: transparent;
+          color: #bcbcbc;
+          
+        `;
+    }
+  }}
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
 `;
+
+export default StatusBtn;

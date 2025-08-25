@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import OwnerInfo from '../../components/common/cards/OwnerInfo';
 import CardSection from '../../components/common/cards/OrgCardSection';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import StatusBtn from '../../components/common/buttons/StatusBtn';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -27,15 +28,37 @@ const OwnerSentProposalDetail = () => {
 
   console.log("넘어온데이터", proposalOrganizations);
 
-  
-  const formattedTimeWindows = Array.isArray(proposalOrganizations.time_windows)
-  ? proposalOrganizations.time_windows
-      .map(
-        (time) =>
-          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-      )
-      .join(" / ")
-  : '';
+  // time_windows 객체를 문자열로 변환하는 함수
+  const formatTimeWindows = (timeWindows) => {
+    if (!timeWindows) return '(입력되지 않음)';
+    
+    if (typeof timeWindows === 'string') {
+      return timeWindows;
+    }
+    
+    if (Array.isArray(timeWindows)) {
+      return timeWindows.map(time => {
+        if (typeof time === 'string') return time;
+        if (typeof time === 'object') {
+          const days = Array.isArray(time.days) 
+            ? time.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+            : typeof time.days === 'string' ? time.days : '';
+          return `${days} ${time.start || ''} ~ ${time.end || ''}`;
+        }
+        return '';
+      }).join(" / ");
+    }
+    
+    if (typeof timeWindows === 'object') {
+      const days = Array.isArray(timeWindows.days) 
+        ? timeWindows.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+        : typeof timeWindows.days === 'string' ? timeWindows.days : '';
+      return `${days} ${timeWindows.start || ''} ~ ${timeWindows.end || ''}`;
+    }
+    
+    return '(입력되지 않음)';
+  };
+
 
 
 
@@ -101,7 +124,7 @@ const OwnerSentProposalDetail = () => {
             partnership_type: proposalOrganizations.partnership_type,
             apply_target: proposalOrganizations.apply_target,
             benefit_description: proposalOrganizations.benefit_description,
-            time_windows: formattedTimeWindows,
+            time_windows: proposalOrganizations?.time_windows,
             partnership_start: proposalOrganizations.partnership_start,
             partnership_end: proposalOrganizations.partnership_end,
             contact_info: proposalOrganizations.contact_info,
@@ -259,6 +282,36 @@ const OwnerSentProposalDetail = () => {
       </Container>
     );
   }
+  // 한글로 상태 변경
+  const STATUS_MAP = {
+    UNREAD: "미열람",
+    READ: "열람",
+    PARTNERSHIP: "제휴체결",
+    REJECTED: "거절",
+    DRAFT: "작성중"
+  };
+
+  // 상태에 따른 StatusBtn variant 선택
+  const BTN_STATUS_MAP = (status) => {
+    switch (status) {
+      case 'UNREAD':
+        return '미열람';
+      case 'READ':
+        return '열람된';
+      case 'PARTNERSHIP':
+        return '제휴가 체결된';
+      case 'REJECTED':
+        return '거절된';
+      case 'DRAFT':
+        return '현재 미열람';
+      default:
+        return '알 수 없는 상태';
+    }
+  };
+
+  console.log("제안서상태",selectedProposal?.status);
+
+  
 
   return (
     <ProposalContainer>
@@ -324,7 +377,7 @@ const OwnerSentProposalDetail = () => {
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-
+                      <ConditionGroup>
                     <ConditionItem>
                       <ConditionLabel>적용 대상</ConditionLabel>
                       <ConditionContent>
@@ -348,9 +401,10 @@ const OwnerSentProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
+                        <p>{formatTimeWindows(proposalOrganizations.time_windows)}</p>
                       </ConditionContent>
                     </ConditionItem>
+                    </ConditionGroup>
                   
 
                 </ConditionsBox>
@@ -385,12 +439,18 @@ const OwnerSentProposalDetail = () => {
                   {selectedProposal?.status === 'REJECTED' && '거절'}
                   {selectedProposal?.status === 'DRAFT' && '작성중'}
                 </ProposalStatus> */}
-              </SelectedCardWrapper>        
+              </SelectedCardWrapper> 
+               </ReceiverWrapper>       
           <ButtonWrapper>
-            <StatusBtn>현재 {selectedProposal?.status}된 제안서입니다.</StatusBtn>
+            <StatusBtn 
+              status={selectedProposal?.status}
+              disabled={true}
+            >
+              {BTN_STATUS_MAP(selectedProposal?.status)}된 제안서입니다.
+            </StatusBtn>
             <CloseBtn onClick={handleBack}>닫기</CloseBtn>
           </ButtonWrapper>
-        </ReceiverWrapper>
+       
       </ReceiverSection>
     </ProposalContainer>
   )
@@ -398,41 +458,26 @@ const OwnerSentProposalDetail = () => {
 
 export default OwnerSentProposalDetail
 
-const StatusBtn = styled.button`
-width: 100%;
-position: relative;
-border-radius: 5px;
-border: 1px solid #bcbcbc;
-box-sizing: border-box;
-height: 45px;
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center;
-padding: 13px 81px;
-text-align: left;
-font-size: 16px;
-color: #bcbcbc;
-font-family: Pretendard;
-`;
+
 
 const CloseBtn = styled.button`
 width: 100%;
 position: relative;
 border-radius: 5px;
-background-color: #70af19;
+border: 1px solid #70AF19;
+box-sizing: border-box;
 height: 45px;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 13px 81px;
-box-sizing: border-box;
 text-align: left;
 font-size: 16px;
 color: #e9f4d0;
 font-family: Pretendard;
-border-none;
+cursor: pointer;
+background-color: #70AF19;
 `;
 
 const Container = styled.div`
@@ -739,15 +784,6 @@ gap: 40px;
 font-size: 16px;
 `;
 
-const ConditionGroup = styled.div`
-width: 50%;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-justify-content: flex-start;
-gap: 39px;
-`;
-
 const ConditionItem = styled.div`
   display: flex;
   flex-direction: column;
@@ -781,4 +817,13 @@ const ConditionContent = styled.div`
   p {
     margin: 0;
   }
+`;
+
+const ConditionGroup = styled.div`
+width: 50%;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: flex-start;
+gap: 39px;
 `;

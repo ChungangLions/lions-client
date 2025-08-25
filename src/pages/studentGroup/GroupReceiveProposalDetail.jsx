@@ -341,12 +341,6 @@ const GroupReceiveProposalDetail = () => {
                         store={mappedOwnerProfile} />
           </SelectedCardWrapper>        
           <ButtonWrapper>
-              <AcceptBtn 
-              proposalId={id} 
-              onAccept={() => {
-                alert('제휴가 체결되었습니다.');
-              }} 
-            />
             <RejectBtn 
               proposalId={id} 
               onReject={() => {
@@ -354,8 +348,15 @@ const GroupReceiveProposalDetail = () => {
                 alert('제안서가 거절되었습니다.');
               }} 
             />
+              <AcceptBtn 
+              proposalId={id} 
+              onAccept={() => {
+                alert('제휴가 체결되었습니다.');
+              }} 
+            />
+            </ButtonWrapper>
             <CloseBtn onClick={handleBack}>닫기</CloseBtn>
-          </ButtonWrapper>
+          
         </ReceiverWrapper>
       </ReceiverSection>
     </ProposalContainer>
@@ -386,7 +387,8 @@ const CloseBtn = styled.button`
 width: 100%;
 position: relative;
 border-radius: 5px;
-background-color: #70af19;
+border: 1px solid #898989;
+background-color: white;
 height: 45px;
 display: flex;
 flex-direction: row;
@@ -569,10 +571,9 @@ p {
 const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
-  margin-top: 4px;
-  flex-direction: column;
+  flex-direction: row;
   border: none;
-  gap: 10px;
+  gap: 8px;
 `;
 
 const LineDiv = styled.div`

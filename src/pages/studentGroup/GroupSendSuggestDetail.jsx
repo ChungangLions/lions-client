@@ -3,6 +3,13 @@ import styled from 'styled-components';
 import OwnerInfo from '../../components/common/cards/OwnerInfo';
 import CardSection from '../../components/common/cards/OrgCardSection';
 import FavoriteBtn from '../../components/common/buttons/FavoriteBtn';
+import StatusBtn from '../../components/common/buttons/StatusBtn';
+import SendProposalBtn from '../../components/common/buttons/SendProposalBtn';
+import EditBtn from '../../components/common/buttons/EditBtn';
+import SaveBtn from '../../components/common/buttons/SaveBtn';
+import Modal from '../../components/common/buttons/Modal';
+import InputBox from '../../components/common/inputs/InputBox';
+import PeriodPicker from '../../components/common/inputs/PeriodPicker';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 // import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
@@ -10,7 +17,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import { getProposal } from '../../services/apis/proposalAPI';
+import { getProposal, editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import useUserStore from '../../stores/userStore';
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
@@ -21,6 +28,7 @@ const GroupSendSuggestDetail = () => {
   const navigate = useNavigate();
   const [newGroupProposal, setNewGroupProposal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isEditMode, setIsEditMode] = useState(false);
   const { proposal } = location.state || {};
   const ownerId = proposal.recipient.id;
   console.log("받아온 proposal 데이터: ", proposal);
@@ -31,6 +39,31 @@ const GroupSendSuggestDetail = () => {
   const [profile, setProfile] = useState();
   const [ownerProfile, setOwnerProfile] = useState();
   const [profileLoading, setProfileLoading] = useState(true);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+  // Editable form state
+  const [editableForm, setEditableForm] = useState({
+    apply_target: '',
+    benefit_description: '',
+    contact_info: '',
+    period_start: '',
+    period_end: '',
+    time_windows: [],
+    partnership_type: []
+  });
+
+  // Period picker state
+  const [partnershipPeriod, setPartnershipPeriod] = useState({
+    startYear: '',
+    startMonth: '',
+    startDay: '',
+    endYear: '',
+    endMonth: '',
+    endDay: ''
+  });
 
   const getGroupProfile = async (userId) => {
     try {
@@ -45,6 +78,29 @@ const GroupSendSuggestDetail = () => {
     }
   };
 
+
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
+
+//     const getOwnerProfile = async (proposal.name.id) => {
+//     try {
+//       const ownerProfile = await fetchOwnerProfiles(userId);
+//       console.log("사장님 프로필:", ownerProfile);
+//       setOwnerProfile(ownerProfile);
+//     } catch (error) {
+//       console.error("프로필 가져오기 실패:", error);
+//       setProfile(null);
+//     }
+//   };
+
+
   const fetchOwnerProfile = async (ownerId) => {
     try {
       const ownerProfileData = await getOwnerProfile(ownerId);
@@ -57,6 +113,7 @@ const GroupSendSuggestDetail = () => {
       setProfileLoading(false);
     }
   };
+
 
   const handleCardClick = (id) => {
     navigate(`/student-group/store-profile/${id}`, {
@@ -79,6 +136,32 @@ const GroupSendSuggestDetail = () => {
         const response = await getProposal(proposal.id);
         console.log("새로운 proposal 데이터: ", response);
         setNewGroupProposal(response);
+        
+        // Initialize editable form with current data
+        setEditableForm({
+          apply_target: response.apply_target || '',
+          benefit_description: response.benefit_description || '',
+          contact_info: response.contact_info || '',
+          period_start: response.period_start || '',
+          period_end: response.period_end || '',
+          time_windows: response.time_windows || [],
+          partnership_type: response.partnership_type || []
+        });
+
+        // Initialize period picker with current data
+        if (response.partnership_period) {
+          const periodMatch = response.partnership_period.match(/(\d+)년\s*(\d+)월\s*(\d+)일\s*~\s*(\d+)년\s*(\d+)월\s*(\d+)일/);
+          if (periodMatch) {
+            setPartnershipPeriod({
+              startYear: periodMatch[1],
+              startMonth: periodMatch[2],
+              startDay: periodMatch[3],
+              endYear: periodMatch[4],
+              endMonth: periodMatch[5],
+              endDay: periodMatch[6]
+            });
+          }
+        }
       } catch (error) {
         console.error("제안서 데이터 가져오기 실패:", error);
       } finally {
@@ -174,6 +257,176 @@ const GroupSendSuggestDetail = () => {
     navigate('/student-group/mypage/sent-suggest');
   };
 
+  // 상태에 따른 StatusBtn variant 선택
+  const BTN_STATUS_MAP = (status) => {
+    if (!status) return '알 수 없음';
+    
+    switch (status) {
+      case 'UNREAD':
+        return '미열람';
+      case 'READ':
+        return '열람';
+      case 'PARTNERSHIP':
+        return '제휴체결';
+      case 'REJECTED':
+        return '거절';
+      case 'DRAFT':
+        return '작성중';
+      default:
+        return status;
+    }
+  };
+
+  // 수정/전송 버튼 핸들러
+  const handleEdit = () => {
+    setIsEditMode(!isEditMode);
+  };
+
+  const mapPartnership = (selected) => {
+    const typeMap = {
+      '할인형': 'DISCOUNT',
+      '타임형': 'TIME',
+      '리뷰형': 'REVIEW',
+      '서비스제공형': 'SERVICE',
+    };
+
+    if (Array.isArray(selected)) {
+      return selected.map((label) => typeMap[label]).filter(Boolean);
+    }
+    return typeMap[selected] || null;
+  };
+
+  const handleSend = async () => {
+    try {
+      // Validation
+      if (editableForm.partnership_type.length === 0) {
+        openModal('제휴 유형을 선택해주세요.');
+        return;
+      }
+
+      if (!editableForm.apply_target || 
+          !editableForm.benefit_description || 
+          !editableForm.time_windows_text || 
+          !formatPartnershipPeriod()) {
+        openModal('제휴 조건을 모두 입력해주세요.');
+        return;
+      }
+
+      if (!editableForm.contact_info?.trim()) {
+        openModal('연락처를 입력해주세요.');
+        return;
+      }
+
+      const statusData = {
+        status: "UNREAD",
+        comment: ""
+      };
+
+      const response = await editProposalStatus(newGroupProposal.id, statusData);
+      openModal('제안서가 전송되었습니다.');
+      console.log("제안서 상태 변경 완료", response);
+      
+      // Update local status
+      setNewGroupProposal(prev => ({
+        ...prev,
+        current_status: 'UNREAD'
+      }));
+    } catch (error) {
+      console.error('제안서 전송 오류:', error);
+      openModal('제안서 전송에 실패했습니다.');
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const updateData = {
+        partnership_type: mapPartnership(editableForm.partnership_type),
+        apply_target: editableForm.apply_target,
+        time_windows: editableForm.time_windows_text || '',
+        benefit_description: editableForm.benefit_description,
+        partnership_period: formatPartnershipPeriod(),
+        contact_info: editableForm.contact_info,
+        title: '제안서',
+        contents: '제휴 내용',
+      };
+
+      const response = await editProposal(newGroupProposal.id, updateData);
+      console.log('제안서 수정 완료:', response);
+      
+      // Update local state
+      setNewGroupProposal(prev => ({
+        ...prev,
+        ...editableForm
+      }));
+      
+      setIsEditMode(false);
+      openModal('제안서가 저장되었습니다.');
+    } catch (error) {
+      console.error('제안서 수정 실패:', error);
+      openModal('제안서 저장에 실패했습니다.');
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditMode(false);
+    // Reset form to original values
+    setEditableForm({
+      apply_target: newGroupProposal?.apply_target || '',
+      benefit_description: newGroupProposal?.benefit_description || '',
+      contact_info: newGroupProposal?.contact_info || '',
+      period_start: newGroupProposal?.period_start || '',
+      period_end: newGroupProposal?.period_end || '',
+      time_windows: newGroupProposal?.time_windows || [],
+      partnership_type: newGroupProposal?.partnership_type || []
+    });
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditableForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handlePeriodChange = (field, value) => {
+    setPartnershipPeriod(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const formatPartnershipPeriod = () => {
+    const { startYear, startMonth, startDay, endYear, endMonth, endDay } = partnershipPeriod;
+    
+    if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) {
+      return '';
+    }
+    
+    return `${startYear}년 ${startMonth}월 ${startDay}일 ~ ${endYear}년 ${endMonth}월 ${endDay}일`;
+  };
+
+  const handlePartnershipTypeToggle = (type) => {
+    setEditableForm(prev => {
+      const currentTypes = prev.partnership_type || [];
+      const typeKey = type === '할인형' ? 'DISCOUNT' : 
+                     type === '타임형' ? 'TIME' : 
+                     type === '리뷰형' ? 'REVIEW' : 
+                     type === '서비스제공형' ? 'SERVICE' : type;
+      
+      if (currentTypes.includes(typeKey)) {
+        return {
+          ...prev,
+          partnership_type: currentTypes.filter(t => t !== typeKey)
+        };
+      } else {
+        return {
+          ...prev,
+          partnership_type: [...currentTypes, typeKey]
+        };
+      }
+    });
+  };
+
 //   if (loading) {
 //     return (
 //       <Container>
@@ -235,7 +488,7 @@ const GroupSendSuggestDetail = () => {
           <ProposalHeader>
             <HeaderTitle>
               <p>{senderInfo.university} {senderInfo.department} {senderInfo.council_name}</p>
-              <p>제휴 요청 제안서</p>
+              <p>제휴 요청 제안서 </p>
             </HeaderTitle>
                          <HeaderContent>
                <p>안녕하세요.</p>
@@ -254,18 +507,30 @@ const GroupSendSuggestDetail = () => {
               <DetailBox> 
                 <Title> 
                   <div>제휴 유형</div>
+                 
                 </Title> 
                 <ContentBox>  
-                  {partnershipTypes.map(({ type, icon: IconComponent }) => (
-                    <PartnershipTypeBox 
-                      key={type}
-                      children={type} 
-                      IconComponent={IconComponent}
-                      isSelected={getPartnershipTypes().includes(type)}
-                      onClick={() => {}} // 읽기 전용이므로 클릭 불가
-                      disabled={true}
-                    />
-                  ))}
+                  {partnershipTypes.map(({ type, icon: IconComponent }) => {
+                    const typeKey = type === '할인형' ? 'DISCOUNT' : 
+                                   type === '타임형' ? 'TIME' : 
+                                   type === '리뷰형' ? 'REVIEW' : 
+                                   type === '서비스제공형' ? 'SERVICE' : type;
+                    
+                    const isSelected = isEditMode 
+                      ? (editableForm.partnership_type || []).includes(typeKey)
+                      : getPartnershipTypes().includes(type);
+                    
+                    return (
+                      <PartnershipTypeBox 
+                        key={type}
+                        children={type} 
+                        IconComponent={IconComponent}
+                        isSelected={isSelected}
+                        onClick={isEditMode ? () => handlePartnershipTypeToggle(type) : () => {}}
+                        disabled={!isEditMode}
+                      />
+                    );
+                  })}
                 </ContentBox>
                 <TextBox>
                   <TypeList>
@@ -293,43 +558,61 @@ const GroupSendSuggestDetail = () => {
               <DetailBox>
                 <Title> <div>제휴 조건</div> </Title>
                 <ConditionsBox>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 대상</ConditionLabel>
-                      <ConditionContent>
-                        <p>{newGroupProposal.apply_target || '(입력되지 않음)'}</p>
-                      </ConditionContent>
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>혜택 내용</ConditionLabel>
-                      <ConditionContent>
-                        <p>{newGroupProposal.benefit_description || '(입력되지 않음)'}</p>
-                      </ConditionContent>
-                    </ConditionItem>
-                  </ConditionGroup>
-                  <ConditionGroup>
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <ConditionContent>
-                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
-                      </ConditionContent>
-                    </ConditionItem>
-                    <ConditionItem>
-                      <ConditionLabel>제휴 기간</ConditionLabel>
-                      <ConditionContent>
-                        <p>{newGroupProposal.period_start || '(입력되지 않음)'} ~ {newGroupProposal.period_end || '(입력되지 않음)'}</p> 
-                      </ConditionContent>
-                    </ConditionItem>
-                  </ConditionGroup>
+                  <ConditionItem>
+                    <ConditionLabel>적용 대상</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 중앙대학교 경영학부 소속 학생" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={editableForm.apply_target}
+                      onChange={(e) => handleInputChange('apply_target', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>혜택 내용</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 아메리카노 10% 할인" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={editableForm.benefit_description}
+                      onChange={(e) => handleInputChange('benefit_description', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>제휴 기간</ConditionLabel>
+                    <PeriodPicker 
+                      value={partnershipPeriod}
+                      onChange={handlePeriodChange}
+                      withDay={true}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
+                  <ConditionItem>
+                    <ConditionLabel>적용 시간대</ConditionLabel>
+                    <InputBox 
+                      defaultText="(예시) 평일 13:00 - 15:00" 
+                      width="100%"
+                      border="1px solid #E9E9E9"
+                      value={editableForm.time_windows_text || ''}
+                      onChange={(e) => handleInputChange('time_windows_text', e.target.value)}
+                      disabled={!isEditMode}
+                    />
+                  </ConditionItem>
                 </ConditionsBox>
               </DetailBox>
 
               {/* 연락처 */}
-              <DetailBox>
+              <DetailBox style={{ marginTop: '10px' }}>
                 <Title> <div>연락처</div> </Title>
-                <ConditionContent>
-                  <p>{newGroupProposal.contact_info || '(입력되지 않음)'}</p>
-                </ConditionContent>
+                <InputBox 
+                  defaultText="텍스트를 입력해주세요."
+                  width="100%"
+                  value={editableForm.contact_info}
+                  onChange={(e) => handleInputChange('contact_info', e.target.value)}
+                  disabled={!isEditMode}
+                />
               </DetailBox>
             </DetailSection>
           </SectionWrapper>
@@ -364,10 +647,21 @@ const GroupSendSuggestDetail = () => {
             // ButtonComponent={() => <FavoriteBtn organization={profile} />} 
           /> */}
           <ButtonWrapper>
-         
+            {newGroupProposal?.current_status === 'DRAFT' || newGroupProposal?.current_status === 'READ' ? (
+              <>
+                <EditBtn onClick={handleEdit} isEditMode={isEditMode} />
+                <SaveBtn onClick={handleSave} />
+                <SendProposalBtn onClick={handleSend}/>
+              </>
+            ) : (
+              <StatusBtn status={newGroupProposal?.current_status}>
+                {BTN_STATUS_MAP(newGroupProposal?.current_status)}된 제안서입니다.
+              </StatusBtn>
+            )}
           </ButtonWrapper>
         </ReceiverWrapper>
       </ReceiverSection>
+      <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
     </ProposalContainer>
   )
 }
@@ -534,6 +828,8 @@ const ButtonWrapper = styled.div`
   margin-top: 4px;
 `;
 
+
+
 const LineDiv = styled.div`
 width: 100%;
 position: relative;
@@ -635,21 +931,12 @@ align-self: stretch;
 border-radius: 5px;
 background-color: #fff;
 display: flex;
-flex-direction: row;
-align-items: flex-start;
-justify-content: space-between;
-padding: 15px 20px;
-gap: 40px;
-font-size: 16px;
-`;
-
-const ConditionGroup = styled.div`
-width: 50%;
-display: flex;
 flex-direction: column;
 align-items: flex-start;
 justify-content: flex-start;
-gap: 39px;
+padding: 15px 20px;
+gap: 20px;
+font-size: 16px;
 `;
 
 const ConditionItem = styled.div`

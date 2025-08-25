@@ -32,6 +32,8 @@ const OwnerReceivedProposalDetail = () => {
     fetchProposal();
   }, [proposalId]);
 
+  console.log("new", newGroupProposal);
+
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
     const typeMap = {
@@ -109,14 +111,6 @@ const OwnerReceivedProposalDetail = () => {
     );
   }
 
-  const formattedTimeWindows = Array.isArray(newGroupProposal.time_windows)
-  ? newGroupProposal.time_windows
-      .map(
-        (time) =>
-          `${(time.days || []).map((day) => day[0]).join(", ")} ${time.start} ~ ${time.end}`
-      )
-      .join(" / ")
-  : '';
 
 
   // 발신자 정보: 학생 단체
@@ -129,7 +123,7 @@ const OwnerReceivedProposalDetail = () => {
     student_size: proposalGroups.student_size || 0,
     partnership_start: proposalGroups.partnership_start || '',
     partnership_end: proposalGroups.partnership_end || '',
-    period: newGroupProposal.sender?.period || 0,     // 고쳐야할 부분!
+    
     record: proposalGroups.partnership_count || 0,
     is_liked: newGroupProposal.sender?.is_liked || false,     // 고쳐야할 부분!
     user: proposalGroups.id || null,
@@ -218,13 +212,13 @@ const OwnerReceivedProposalDetail = () => {
                     <ConditionItem>
                       <ConditionLabel>적용 시간대</ConditionLabel>
                       <ConditionContent>
-                        <p>{formattedTimeWindows || '(입력되지 않음)'}</p>
+                        <p>{newGroupProposal.time_windows|| '(입력되지 않음)'}</p>
                       </ConditionContent>
                     </ConditionItem>
                     <ConditionItem>
                       <ConditionLabel>제휴 기간</ConditionLabel>
                       <ConditionContent>
-                        <p>{newGroupProposal.period_start || '(입력되지 않음)'} ~ {newGroupProposal.period_end || '(입력되지 않음)'}</p> 
+                        <p>{proposalGroups.partnership_start || '(입력되지 않음)'} ~ {proposalGroups.partnership_end || '(입력되지 않음)'}</p> 
                       </ConditionContent>
                     </ConditionItem>
                   </ConditionGroup>
@@ -240,7 +234,7 @@ const OwnerReceivedProposalDetail = () => {
               </DetailBox>
             </DetailSection>
           </SectionWrapper>
-          <Signature>'{senderInfo.university_name} {senderInfo.department}{senderInfo.council_name}' 드림</Signature>
+          <Signature>{senderInfo.university_name} {senderInfo.department} '{senderInfo.council_name}' 드림</Signature>
         </ProposalWrapper>
       </ProposalSection>
 
@@ -252,6 +246,7 @@ const OwnerReceivedProposalDetail = () => {
             organization={senderInfo} 
             ButtonComponent={() => <FavoriteBtn organization={senderInfo} />} 
           />
+          </ReceiverWrapper>
           <ButtonWrapper>
                         <AcceptBtn
                         proposalId={proposalId} 
@@ -266,9 +261,9 @@ const OwnerReceivedProposalDetail = () => {
                           alert('제안서가 거절되었습니다.');
                         }} 
                       />
-                      <CloseBtn onClick={handleBack}>닫기</CloseBtn>
-                    </ButtonWrapper>
-        </ReceiverWrapper>
+          </ButtonWrapper>
+          <CloseBtn onClick={handleBack}>닫기</CloseBtn>      
+    
       </ReceiverSection>
     </ProposalContainer>
   )
@@ -427,7 +422,8 @@ p {
 const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
-  margin-top: 4px;
+  flex-direction: row;
+  gap: 8px;
 `;
 
 const LineDiv = styled.div`
@@ -587,18 +583,18 @@ const CloseBtn = styled.button`
 width: 100%;
 position: relative;
 border-radius: 5px;
-background-color: #70af19;
+border: 1px solid #898989;
+box-sizing: border-box;
 height: 45px;
 display: flex;
 flex-direction: row;
 align-items: center;
 justify-content: center;
 padding: 13px 81px;
-box-sizing: border-box;
 text-align: left;
 font-size: 16px;
-color: #e9f4d0;
+color: #898989;
 font-family: Pretendard;
-border: none;
 cursor: pointer;
+background-color: transparent;
 `;

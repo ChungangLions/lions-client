@@ -103,4 +103,5 @@ const Message = styled.div`
   font-size: 20px;
   line-height: 1.5;
   color: #3a4b24;
+  white-space: pre-line;
 `
