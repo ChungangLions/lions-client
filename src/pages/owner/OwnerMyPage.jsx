@@ -637,6 +637,7 @@ text-align: left;
 font-size: 16px;
 color: #70AF19;
 font-family: Pretendard;
+cursor: pointer;
 `;
 
 const LoadingContainer = styled.div`

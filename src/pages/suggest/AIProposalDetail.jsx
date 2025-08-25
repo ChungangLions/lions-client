@@ -814,16 +814,23 @@ p {
 `;
 
 const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  display: flex;
   width: 100%;
-  margin-top: 4px;
-
-  & > *:nth-child(3) {
-    grid-column: 1 / -1;
-  }
+  flex-direction: row;
+  gap: 8px;
 `;
+
+// const ButtonWrapper = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 8px;
+//   width: 100%;
+//   margin-top: 4px;
+
+//   & > *:nth-child(3) {
+//     grid-column: 1 / -1;
+//   }
+// `;
 
 const LineDiv = styled.div`
 width: 100%;

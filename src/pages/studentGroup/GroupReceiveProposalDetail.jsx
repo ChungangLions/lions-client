@@ -329,6 +329,8 @@ const GroupReceiveProposalDetail = () => {
                         key={ownerProfile?.id}
                         imageUrl={ownerProfile?.photos?.[0]?.image}
                         onClick={() => ownerProfile?.user && handleCardClick(ownerProfile.user)} // userId
+                        likes={false}
+                        recommends={false}
                         // isBest={ownerProfile.isBest}
                         // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
                         // ButtonComponent={() => (
@@ -355,7 +357,7 @@ const GroupReceiveProposalDetail = () => {
               }} 
             />
             </ButtonWrapper>
-            <CloseBtn onClick={handleBack}>닫기</CloseBtn>
+            {/* <CloseBtn onClick={handleBack}>닫기</CloseBtn> */}
           
         </ReceiverWrapper>
       </ReceiverSection>

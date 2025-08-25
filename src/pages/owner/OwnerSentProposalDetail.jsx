@@ -170,8 +170,6 @@ const OwnerSentProposalDetail = () => {
 
 
 
-
-
   // 제휴 유형 매핑
   const mapPartnershipType = (type) => {
     const typeMap = {
@@ -684,16 +682,14 @@ const OwnerSentProposalDetail = () => {
                 <Title> 
                   <div>제휴 유형</div>
                 </Title> 
-                                 <ContentBox>  
+                  <ContentBox>  
                    {partnershipTypes.map(({ type, icon: IconComponent }) => {
                      const typeKey = type === '할인형' ? 'DISCOUNT' : 
                                     type === '타임형' ? 'TIME' : 
                                     type === '리뷰형' ? 'REVIEW' : 
                                     type === '서비스제공형' ? 'SERVICE' : type;
                      
-                     const isSelected = isEditMode 
-                       ? (editableForm.partnership_type || []).includes(typeKey)
-                       : getPartnershipTypes(selectedProposal).includes(type);
+                     const isSelected = getPartnershipTypes(selectedProposal).includes(type);
                      
                      return (
                        <PartnershipTypeBox 
@@ -785,39 +781,66 @@ const OwnerSentProposalDetail = () => {
                      </ConditionItem>
 
 
-                    <ConditionItem>
-                      <ConditionLabel>적용 시간대</ConditionLabel>
-                      <ConditionContent>
-                        {busyHours.length > 0 ? (
-                          busyHours.map((schedule, idx) => (
-                            <DatePicker
-                              key={schedule.id || idx}
-                              idx={idx}
-                              schedule={schedule}
-                              total={busyHours.length}
-                              dateData={Week}
-                              timeData={Time}
-                              disabled={true}
-                            />
-                          ))
-                        ) : (
-                          <p>{formatTimeWindows(selectedProposal?.time_windows)}</p>
-                        )}
-                      </ConditionContent>
-                    </ConditionItem>
+                                         <ConditionItem>
+                       <ConditionLabel>적용 시간대</ConditionLabel>
+                       {isEditMode ? (
+                         busyHours.map((schedule, idx) => (
+                           <DatePicker
+                             key={schedule.id || idx}
+                             idx={idx}
+                             schedule={schedule}
+                             total={busyHours.length}
+                             onChange={(i, f, v) => handleDropdownChange(i, f, v, setBusyHours)}
+                             onAdd={() => handleAddRow(setBusyHours)}
+                             onRemove={(i) => handleRemoveRow(i, setBusyHours)}
+                             dateData={Week}
+                             timeData={Time}
+                             disabled={!isEditMode}
+                           />
+                         ))
+                       ) : (
+                         <ConditionContent>
+                           {busyHours.length > 0 ? (
+                             busyHours.map((schedule, idx) => (
+                               <DatePicker
+                                 key={schedule.id || idx}
+                                 idx={idx}
+                                 schedule={schedule}
+                                 total={busyHours.length}
+                                 dateData={Week}
+                                 timeData={Time}
+                                 disabled={true}
+                               />
+                               ))
+                             ) : (
+                               <p>{formatTimeWindows(selectedProposal?.time_windows)}</p>
+                             )}
+                         </ConditionContent>
+                       )}
+                     </ConditionItem>
                     </ConditionGroup>
                   
 
                 </ConditionsBox>
               </DetailBox>
 
-              {/* 연락처 */}
-              <DetailBox>
-                <Title> <div>연락처</div> </Title>
-                <ConditionContent>
-                  <p>{selectedProposal.contact_info || '(입력되지 않음)'}</p>
-                </ConditionContent>
-              </DetailBox>
+                             {/* 연락처 */}
+               <DetailBox style={{ marginTop: '10px' }}>
+                 <Title> <div>연락처</div> </Title>
+                 {isEditMode ? (
+                   <InputBox 
+                     defaultText="텍스트를 입력해주세요."
+                     width="100%"
+                     value={editableForm.contact_info}
+                     onChange={(e) => handleInputChange('contact_info', e.target.value)}
+                     disabled={!isEditMode}
+                   />
+                 ) : (
+                   <ConditionContent>
+                     <p>{selectedProposal.contact_info || '(입력되지 않음)'}</p>
+                   </ConditionContent>
+                 )}
+               </DetailBox>
             </DetailSection>
           </SectionWrapper>
           <Signature>'{storeName}' 드림</Signature>
@@ -858,13 +881,14 @@ const OwnerSentProposalDetail = () => {
                 {BTN_STATUS_MAP(selectedProposal?.status)}된 제안서입니다.
               </StatusBtn>
             )}
-            <CloseBtn onClick={handleBack}>닫기</CloseBtn>
-          </ButtonWrapper>
-       
-      </ReceiverSection>
-    </ProposalContainer>
-  )
-}
+                         {/* <CloseBtn onClick={handleBack}>닫기</CloseBtn> */}
+           </ButtonWrapper>
+        
+       </ReceiverSection>
+       <Modal isOpen={isModalOpen} onClose={closeModal} message={modalMessage} />
+     </ProposalContainer>
+   )
+ }
 
 export default OwnerSentProposalDetail
 
@@ -1077,16 +1101,23 @@ p {
 `;
 
 const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  display: flex;
   width: 100%;
-  margin-top: 4px;
-
-  & > *:nth-child(3) {
-    grid-column: 1 / -1;
-  }
+  flex-direction: row;
+  gap: 8px;
 `;
+
+// const ButtonWrapper = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 8px;
+//   width: 100%;
+//   margin-top: 4px;
+
+//   & > *:nth-child(3) {
+//     grid-column: 1 / -1;
+//   }
+// `;
 
 const LineDiv = styled.div`
 width: 100%;

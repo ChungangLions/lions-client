@@ -631,9 +631,10 @@ const GroupSendSuggestDetail = () => {
                                    type === '리뷰형' ? 'REVIEW' : 
                                    type === '서비스제공형' ? 'SERVICE' : type;
                     
+                    // 편집 모드에서는 editableForm의 데이터를 사용하고, 읽기 모드에서는 newGroupProposal의 데이터를 사용
                     const isSelected = isEditMode 
                       ? (editableForm.partnership_type || []).includes(typeKey)
-                      : getPartnershipTypes().includes(type);
+                      : (newGroupProposal?.partnership_type || []).includes(typeKey);
                     
                     return (
                       <PartnershipTypeBox 
@@ -750,6 +751,8 @@ const GroupSendSuggestDetail = () => {
                  key={ownerProfile.id}
                  imageUrl={ownerProfile?.photos?.[0]?.image}
                  onClick={() => ownerProfile?.user && handleCardClick(ownerProfile.user)} // userId
+                 likes={false}
+                 recommends={false}
                  // isBest={ownerProfile.isBest}
                  // likeCount={ownerProfileLikeCounts[ownerProfile.id] || ownerProfile.likes || 0}
                  // ButtonComponent={() => (
@@ -948,16 +951,24 @@ p {
 
 
 const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 8px;
+  display: flex;
   width: 100%;
-  margin-top: 4px;
-
-  & > *:nth-child(3) {
-    grid-column: 1 / -1;
-  }
+  flex-direction: row;
+  gap: 8px;
 `;
+
+
+// const ButtonWrapper = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 2fr;
+//   gap: 8px;
+//   width: 100%;
+//   margin-top: 4px;
+
+//   & > *:nth-child(3) {
+//     grid-column: 1 / -1;
+//   }
+// `;
 
 
 
