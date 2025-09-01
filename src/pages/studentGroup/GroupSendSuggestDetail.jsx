@@ -18,7 +18,7 @@ import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeB
 // 제휴 유형 아이콘
 import { AiOutlineDollar } from "react-icons/ai"; // 할인형
 import { MdOutlineAlarm, MdOutlineArticle, MdOutlineRoomService  } from "react-icons/md"; // 타임형, 리뷰형, 서비스제공형
-import { getProposal, editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
+import { getProposal, editProposal, editProposalStatus, getAIDraftProposal } from '../../services/apis/proposalAPI';
 import { fetchGroupProfile } from '../../services/apis/groupProfileAPI';
 import useUserStore from '../../stores/userStore';
 import { getOwnerProfile } from '../../services/apis/ownerAPI';
@@ -53,6 +53,10 @@ const GroupSendSuggestDetail = () => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+
+  // AI Proposal state
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [aiProposalData, setAiProposalData] = useState(null);
 
   // Editable form state
   const [editableForm, setEditableForm] = useState({
@@ -554,6 +558,36 @@ const GroupSendSuggestDetail = () => {
     setter(prev => prev.filter((_, i) => i !== index));
   };
 
+  // AI 제안서 생성 함수
+  const handleAIGenerate = async () => {
+    try {
+      setIsAILoading(true);
+      
+      // AI 제안서 생성 API 호출
+      const aiProposal = await getAIDraftProposal(
+        ownerId, // recipient (사장님 ID)
+        profile?.contact || editableForm.contact_info || '' // 연락처 정보
+      );
+      
+      setAiProposalData(aiProposal);
+      
+      // AI 제안서 페이지로 이동 (기존 AIProposalDetail 페이지 형식에 맞춤)
+      navigate('/student-group/ai-proposal', { 
+        state: { 
+          organization: ownerProfile, // 사장님 정보
+          proposalData: aiProposal, // AI가 생성한 제안서 데이터
+          isAI: true // AI 제안서임을 표시
+        } 
+      });
+      
+    } catch (error) {
+      console.error('AI 제안서 생성 실패:', error);
+      openModal('AI 제안서 생성에 실패했습니다.');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
 //   if (loading) {
 //     return (
 //       <Container>
@@ -799,6 +833,9 @@ const GroupSendSuggestDetail = () => {
                 {BTN_STATUS_MAP(newGroupProposal?.current_status)}된 제안서입니다.
               </StatusBtn>
             )}
+            <AIProposalBtn onClick={handleAIGenerate} disabled={isAILoading}>
+              {isAILoading ? 'AI 제안서 생성 중...' : 'AI가 만든 제안서 보러가기'}
+            </AIProposalBtn>
           </ButtonWrapper>
         
       </ReceiverSection>
@@ -967,9 +1004,10 @@ p {
 
 const ButtonWrapper = styled.div`
   display: flex;
-  width: 100%;
-  flex-direction: row;
+  flex-direction: column;
   gap: 8px;
+  width: 100%;
+  margin-top: 4px;
 `;
 
 
@@ -1145,5 +1183,39 @@ const LoadingText = styled.div`
   color: #70AF19;
   text-align: center;
   font-weight: 600;
+`;
+
+const AIProposalBtn = styled.button`
+  width: 100%;
+  position: relative;
+  border-radius: 5px;
+  border: 1px solid #70AF19;
+  box-sizing: border-box;
+  height: 45px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  text-align: center;
+  font-size: 16px;
+  color: #70AF19;
+  font-family: Pretendard;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: #70AF19;
+    color: #e9f4d0;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+    color: #999;
+    border-color: #ddd;
+  }
 `;
 

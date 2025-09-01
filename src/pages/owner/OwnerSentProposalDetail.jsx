@@ -15,7 +15,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useOwnerProfile from '../../hooks/useOwnerProfile';
 import PartnershipTypeBox from '../../components/common/buttons/PartnershipTypeButton';
 import { fetchStudentProfile } from '../../services/apis/studentProfileApi';
-import { fetchProposal } from '../../services/apis/proposalAPI';
+import { fetchProposal, getAIDraftProposal } from '../../services/apis/proposalAPI';
 import { editProposal, editProposalStatus } from '../../services/apis/proposalAPI';
 
 // 제휴 유형 아이콘
@@ -48,6 +48,10 @@ const OwnerSentProposalDetail = () => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+
+  // AI Proposal state
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [aiProposalData, setAiProposalData] = useState(null);
 
   // Editable form state
   const [editableForm, setEditableForm] = useState({
@@ -84,33 +88,40 @@ const OwnerSentProposalDetail = () => {
 
   // time_windows 객체를 문자열로 변환하는 함수
   const formatTimeWindows = (timeWindows) => {
-    if (!timeWindows) return '(입력되지 않음)';
-    
-    if (typeof timeWindows === 'string') {
-      return timeWindows;
+    try {
+      if (!timeWindows) return '(입력되지 않음)';
+      
+      if (typeof timeWindows === 'string') {
+        return timeWindows;
+      }
+      
+      if (Array.isArray(timeWindows)) {
+        const formattedTimes = timeWindows.map(time => {
+          if (typeof time === 'string') return time;
+          if (typeof time === 'object' && time !== null) {
+            const days = Array.isArray(time.days) 
+              ? time.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+              : typeof time.days === 'string' ? time.days : '';
+            return `${days} ${time.start || ''} ~ ${time.end || ''}`;
+          }
+          return '';
+        }).filter(time => time !== '');
+        return formattedTimes.length > 0 ? formattedTimes.join(" / ") : '(입력되지 않음)';
+      }
+      
+      if (typeof timeWindows === 'object' && timeWindows !== null) {
+        const days = Array.isArray(timeWindows.days) 
+          ? timeWindows.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
+          : typeof timeWindows.days === 'string' ? timeWindows.days : '';
+        const result = `${days} ${timeWindows.start || ''} ~ ${timeWindows.end || ''}`;
+        return result.trim() ? result : '(입력되지 않음)';
+      }
+      
+      return '(입력되지 않음)';
+    } catch (error) {
+      console.error('Error formatting time windows:', error);
+      return '(입력되지 않음)';
     }
-    
-    if (Array.isArray(timeWindows)) {
-      return timeWindows.map(time => {
-        if (typeof time === 'string') return time;
-        if (typeof time === 'object') {
-          const days = Array.isArray(time.days) 
-            ? time.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
-            : typeof time.days === 'string' ? time.days : '';
-          return `${days} ${time.start || ''} ~ ${time.end || ''}`;
-        }
-        return '';
-      }).join(" / ");
-    }
-    
-    if (typeof timeWindows === 'object') {
-      const days = Array.isArray(timeWindows.days) 
-        ? timeWindows.days.map(day => Array.isArray(day) ? day[0] : day).join(", ")
-        : typeof timeWindows.days === 'string' ? timeWindows.days : '';
-      return `${days} ${timeWindows.start || ''} ~ ${timeWindows.end || ''}`;
-    }
-    
-    return '(입력되지 않음)';
   };
 
   // 시간대 데이터를 DatePicker 형식으로 파싱하는 함수
@@ -558,16 +569,57 @@ const OwnerSentProposalDetail = () => {
   // 전송하기 함수
   const handleSend = async () => {
     try {
-      const statusData = {
-        status: "UNREAD",
-        comment: ""
+      // 제휴 조건 데이터 포함하여 전송
+      const updateData = {
+        partnership_type: editableForm.partnership_type && editableForm.partnership_type.length > 0 
+          ? mapPartnership(editableForm.partnership_type) 
+          : [],
+        apply_target: editableForm.apply_target,
+        time_windows: parseDatePickerToTimeWindows(busyHours),
+        benefit_description: editableForm.benefit_description,
+        period_start: formatPeriodStart() || null,
+        period_end: formatPeriodEnd() || null,
+        contact_info: editableForm.contact_info,
+        status: "UNREAD"
       };
       
-      await editProposalStatus(selectedProposal.proposal_id, statusData);
+      await editProposal(selectedProposal.proposal_id, updateData);
+      setIsEditMode(false);
       openModal('제안서가 전송되었습니다.');
     } catch (error) {
       console.error('제안서 전송 실패:', error);
       openModal('제안서 전송에 실패했습니다.');
+    }
+  };
+
+  // AI 제안서 생성 함수
+  const handleAIGenerate = async () => {
+    try {
+      setIsAILoading(true);
+      
+      // AI 제안서 생성 API 호출
+      const aiProposal = await getAIDraftProposal(
+        selectedProposal.user, // recipient (학생회 ID)
+        selectedProposal.contact_info || '' // 연락처 정보
+      );
+      
+      setAiProposalData(aiProposal);
+      
+      // AI 제안서 페이지로 이동 (기존 AIProposalDetail 페이지 형식에 맞춤)
+      navigate('/owner/ai-proposal', { 
+        state: { 
+          organization: selectedProposal, // 학생회 정보
+          proposalData: aiProposal, // AI가 생성한 제안서 데이터
+          isAI: true // AI 제안서임을 표시
+        } 
+      });
+      
+    } catch (error) {
+      console.error('AI 제안서 생성 실패:', error);
+      openModal('AI 제안서 생성에 실패했습니다.');
+    } finally {
+      setIsAILoading(false);
+
     }
   };
 
@@ -868,19 +920,22 @@ const OwnerSentProposalDetail = () => {
                </ReceiverWrapper>       
           <ButtonWrapper>
             {selectedProposal?.status === 'DRAFT' || selectedProposal?.status === 'READ' ? (
-              <>
+              <ActionButtonRow>
                 {!isEditMode ? (
                   <EditBtn onClick={toggleEditMode} />
                 ) : (
                   <SaveBtn onClick={handleSave} />
                 )}
                 <SendProposalBtn onClick={handleSend}/>
-              </>
+              </ActionButtonRow>
             ) : (
               <StatusBtn status={selectedProposal?.status}>
                 {BTN_STATUS_MAP(selectedProposal?.status)}된 제안서입니다.
               </StatusBtn>
             )}
+            <AIProposalBtn onClick={handleAIGenerate} disabled={isAILoading}>
+              {isAILoading ? 'AI 제안서 생성 중...' : 'AI가 만든 제안서 보러가기'}
+            </AIProposalBtn>
                          {/* <CloseBtn onClick={handleBack}>닫기</CloseBtn> */}
            </ButtonWrapper>
         
@@ -1103,9 +1158,50 @@ p {
 const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const ActionButtonRow = styled.div`
+  display: flex;
+  width: 100%;
   flex-direction: row;
   gap: 8px;
 `;
+const AIProposalBtn = styled.button`
+  width: 100%;
+  position: relative;
+  border-radius: 5px;
+  border: 1px solid #70AF19;
+  box-sizing: border-box;
+  height: 45px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  text-align: center;
+  font-size: 16px;
+  color: #70AF19;
+  font-family: Pretendard;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: #70AF19;
+    color: #e9f4d0;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+    color: #999;
+    border-color: #ddd;
+  }
+`;
+
 
 // const ButtonWrapper = styled.div`
 //   display: grid;

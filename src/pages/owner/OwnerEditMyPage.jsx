@@ -695,9 +695,8 @@ const OwnerEditMyPage = () => {
           <TitleContainer ref={sectionRefs.goal}>
             <Title> 제휴 목표 </Title>
             <SubTitle> 
-              <p>가게가 제휴를 통해 얻고자 하는 목표를 선택해주세요.</p>
-              <p>※ 프로필 수정 시 제휴 목표를 수정하면 제휴 유형이 달라질 수 있습니다. </p>
-              <p>학생단체가 이전 제휴 유형을 기반으로 제안을 검토할 수 있으므로, 변경 시 신중히 판단해 주세요.</p>
+              <p className="main">가게가 제휴를 통해 얻고자 하는 목표를 선택해주세요.</p>
+              <p className="sub">※ 프로필 수정 시 제휴 목표를 수정하면 제휴 유형이 달라질 수 있습니다. <br /> 학생단체가 이전 제휴 유형을 기반으로 제안을 검토할 수 있으므로, 변경 시 신중히 판단해 주세요.</p>
               </SubTitle>
           </TitleContainer>
                      <ButtonGroup>
@@ -735,8 +734,8 @@ const OwnerEditMyPage = () => {
               <TitleContainer ref={sectionRefs.margin}>
                 <Title> 마진율 </Title>
                 <SubTitle>
-                  <p>우리 가게 평균 마진율을 입력해 주세요.</p>
-                  <p>※ 마진율 (%) = (총매출 - 총원가) ÷ 총매출 × 100</p>
+                  <p className="main">우리 가게 평균 마진율을 입력해 주세요.</p>
+                  <p className="sub">※ 마진율 (%) = (총매출 - 총원가) ÷ 총매출 × 100</p>
                 </SubTitle>
               </TitleContainer>
               <InputBox
@@ -824,8 +823,11 @@ const OwnerEditMyPage = () => {
           <TitleContainer ref={sectionRefs.extra}>
             <Title> 추가 제공 가능 서비스 </Title>
             <SubTitle>
-              <p>제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요. </p>
-              <p>※ 작성하신 메뉴가 반드시 제휴에서 제공되는 것은 아니며, 제휴 유형이 ‘서비스 제공형’으로 결정될 경우에만 해당 메뉴가 서비스로 제공됩니다.</p>
+              <SubTitle>
+  <p className="main">제휴 시 서비스로 제공 가능한 메뉴를 입력해 주세요.</p>
+  <p className="sub">※ 작성하신 메뉴가 반드시 제휴에서 제공되는 것은 아니며, 제휴 유형이 ‘서비스 제공형’으로 결정될 경우에만 해당 메뉴가 <br />서비스로 제공됩니다.</p>
+</SubTitle>
+
             </SubTitle>
           </TitleContainer>
                      <ButtonGroup>
@@ -912,8 +914,11 @@ const Title = styled.div`
 const SubTitle = styled.div`
   font-weight: 400;
   font-size: 16px;
-  p {
+  .main {
+  margin: 0;}
+  .sub {
   margin: 0;
+  color: #898989
   }
 `;
 
