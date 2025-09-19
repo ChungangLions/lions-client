@@ -47,7 +47,7 @@ const ImageSlider = ({photos}) => {
         }}
       >
         {photos.map((photo) => (
-          <ImageBox key={photo.id} src={photo.image || ''}/>
+          <ImageBox key={photo.id} src={photo.image || ''} alt='관련 이미지'/>
         ))}
       </ImageList>
       <ArrowBtn

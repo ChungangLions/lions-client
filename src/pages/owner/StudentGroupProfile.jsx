@@ -231,7 +231,7 @@ const StudentGroupProfile = () => {
         <PageWrapper>
       <ProfileSection>
         <ProfileGroup>
-            <ImageContainer src={groupImage} />
+            <ImageContainer src={groupImage} alt='학생 단체 사진'/>
             <ContentWrapper>
               <OrganizationWrapper>
                 {/*<NoWrapItem>{organization?.university}</NoWrapItem>*/}
