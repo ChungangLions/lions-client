@@ -2,10 +2,19 @@ import React from 'react'
 import styled from 'styled-components'
 import LoginBtn from '../../components/common/buttons/LoginBtn'
 import Logo from '../../assets/images/Logo.png'
+import { Helmet } from 'react-helmet'
 
 const LandingPage = () => {
   return (
   <PageContainer>
+    {/* 메타 태그 추가 */}
+    <Helmet>
+        <title>휴ː니버스 - 대학 제휴 플랫폼</title>
+        <meta
+          name="description"
+          content="휴ː니버스와 함께 대학과 상권이 연결된 캠퍼스를 만들어봐요!"
+        />
+      </Helmet>
     <LandingContainer>
       <LogoContainer>
         <ImageContainer src={Logo} alt="휴니버스 로고" />

@@ -257,7 +257,6 @@ export default GroupSendSuggest
 // 그리드 가로 3, 세로 자동
 const CardListGrid = styled.div`
 
-  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   justify-content: center;

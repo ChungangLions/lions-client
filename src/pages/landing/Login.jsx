@@ -49,6 +49,14 @@ const Login = () => {
 
   return (
     <PageContainer>
+      {/* 메타 태그 추가 */}
+      <Helmet>
+        <title>휴ː니버스 - 로그인</title>
+        <meta
+          name="description"
+          content="휴ː니버스 로그인 페이지입니다. 사장님, 학생단체, 학생 계정으로 로그인하여 제휴 정보를 확인하세요."
+        />
+      </Helmet>
       <LogoContainer>
         <img src={Logo} alt="로고" />
       </LogoContainer>
