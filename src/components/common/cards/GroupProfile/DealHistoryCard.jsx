@@ -21,7 +21,7 @@ const DealHistoryCard = ({ storeName, period, storeImage }) => {
     return (
         //<HistoryWrapper key={store.id} onClick={() => handleCardClick(store.id)} >
         <HistoryWrapper >
-            <StoreImage src={storeImage} />
+            <StoreImage src={storeImage} alt='상권 대표 사진' />
             <TextContainer>
                 <NameWrapper>
                  {storeName}
